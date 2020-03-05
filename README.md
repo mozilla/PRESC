@@ -151,13 +151,15 @@ Contributions can be made by submitting a [pull request](https://help.github.com
  $ conda activate presc
 ```
 
-3. Run Jupyter
+3. Run Jupyter. The notebook will open in your browser at `localhost:8888` by default.
 
 ```
  $ jupyter notebook
 ```
 
-The notebook will open in your browser at `localhost:8888` by default.
+We recommend everyone start by working on
+[#2](https://github.com/mozilla/PRESC/issues/2).
+
 
 ## Resources
 
