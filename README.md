@@ -189,6 +189,9 @@ unfamiliar with:
   Outreachy contributor lists many other resources and tutorials.
 - This [video tutorial series](https://www.youtube.com/playlist?list=PL6gx4Cwl9DGAKWClAD_iKpNC0bGHxGhcx) on Youtube may also be helpful
 
+Feel free to reach out to the mentors by email or on Gitter if you have further
+questions or are having trouble getting set up!
+
 
 ## Resources
 
