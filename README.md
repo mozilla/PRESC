@@ -173,8 +173,7 @@ We recommend everyone start by working on
   learning methodology and comes with lots of examples.
 - [This](https://builtin.com/data-science/supervised-machine-learning-classification) page has a nice overview of classification models.
 
-## Other packages
-
+## Others
 
 - changed the environment file name in `conda env create -f environment.yaml` to `environment.yaml`.
 - seaborn with `conda install -c anaconda seaborn` for data visualization.
