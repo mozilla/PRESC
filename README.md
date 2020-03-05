@@ -147,7 +147,7 @@ Contributions can be made by submitting a [pull request](https://help.github.com
 2. Setup and activate environment:
 
 ```
- $ conda env create -f environment.yaml
+ $ conda env create -f environment.yml
  $ conda activate presc
 ```
 
