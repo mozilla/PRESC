@@ -96,17 +96,36 @@ other contributions at this point, unless to resolve errors or typos.
 
 ## Information for Outreachy participants
 
-- This project is intentionally broadly scoped, and the initial phase will be
+This project is intentionally broadly scoped, and the initial phase will be
   exploratory.
-    * The goal is to propose and test out ideas related to the evaluation of
-      classifiers, rather than jumping straight into building features.
-    * Many of the tasks are open-ended and can be worked on by multiple
-      contributors at the same time. This will be made clear in the issue
-      description.
-- Tasks are managed using the [GitHub issue tracker](https://github.com/mozilla/PRESC/issues).
-- Contributions can be made by submitting a [pull
-  request](https://help.github.com/articles/using-pull-requests) against this
-  repository.
+
+- The goal is to propose and test out ideas related to the evaluation of
+  classifiers, rather than jumping straight into building features.
+- Tasks are open-ended and can be worked on by multiple
+  contributors at the same time, as different people may propose
+  complimentary ideas or approaches.
+
+You can ask for help and discuss your ideas on [gitter](https://gitter.im/PRESC-outreachy/community).
+
+### Issues
+
+Tasks are managed using the [GitHub issue tracker](https://github.com/mozilla/PRESC/issues).
+
+- As issues represent general exploratory tasks at this point, they will
+  generally not be assigned to a single person.
+- If you want to work on a task, drop a comment in the issue.
+- You are welcome to make a contribution to an issue even if others are
+  already working on it. You may also expand on someone else's work, eg.
+  testing out the methodology with different datasets or models.
+- As the project matures, we may start filing targeted issues, eg. to fix
+  specific bugs, which will get assigned to specific person
+- You are also welcome to contribute your own issues if there is a direction you
+  would like to explore relating to the project focus.
+
+### Contributions
+
+Contributions can be made by submitting a [pull request](https://help.github.com/articles/using-pull-requests) against this repository.
+
 - We ask each Outreachy participant to make a contribution completing
   [#2](https://github.com/mozilla/PRESC/issues/2) (train and test a
   classification model). This will help you to become familiar with machine
@@ -114,8 +133,6 @@ other contributions at this point, unless to resolve errors or typos.
   the [guidelines](#contribution-guidelines) above.
     * This task __must__ be completed in order to be considered as an intern on
       this project
-- You can ask for help and discuss your ideas on
-  [gitter](https://gitter.im/PRESC-outreachy/community).
 - If you would like initial feedback on your contribution before it is ready for
   submission, you may open a PR with "WIP:" at the start of the title and
   request review. This tag ('work in progress') indicates that the PR is not
@@ -125,10 +142,31 @@ other contributions at this point, unless to resolve errors or typos.
 
 ## Getting started
 
-__TODO__
+1. Install [Anaconda](https://www.anaconda.com/download) or [Miniconda](https://conda.io/miniconda.html).
 
+2. Setup and activate environment:
+
+```
+ $ conda env create -f environment.yaml
+ $ conda activate presc
+```
+
+3. Run Jupyter
+
+```
+ $ jupyter notebook
+```
+
+The notebook will open in your browser at `localhost:8888` by default.
 
 ## Resources
 
 
-__TODO__
+- [This](https://github.com/brandon-rhodes/pycon-pandas-tutorial) is a great tutorial to learn Pandas.
+- [Tutorial](https://www.youtube.com/watch?v=HW29067qVWk) on Jupyter Notebook.
+- [This](https://github.com/aSquare14/Git-Cheat-Sheet) will help you get started
+  with git. For visual thinkers this [tutorial](https://www.youtube.com/playlist?list=PL6gx4Cwl9DGAKWClAD_iKpNC0bGHxGhcx) can be a good start.
+- The [scikit-learn user guide](https://scikit-learn.org/stable/user_guide.html)
+  is a good place to start learning the scikit-learn library as well as machine
+  learning methodology and comes with lots of examples.
+- [This](https://builtin.com/data-science/supervised-machine-learning-classification) page has a nice overview of classification models.
