@@ -57,7 +57,7 @@ datasets.
   Please do not include external datasets in your contributions at this point.
 - We are working in Python using the standard data science stack
   (Numpy/Pandas/Scikit-learn/Jupyter).
-- Your code should run in the provided [Conda environment](TODO). If you feel
+- Your code should run in the provided [Conda environment](environment.yml). If you feel
   you need an external dependency, you may include an update to the environment
   file in your PR.
 
@@ -67,7 +67,7 @@ datasets.
 To keep the project structure and review process manageable at this initial
 stage, please structure your contributions using the following steps:
 
-- Create a directory with your username in the `dev` dir
+- Create a directory with your username in the [`dev`](./dev) dir
 - Structure your code into one or more Python modules in that directory
     * Code should be well-documented. Each function should include a docstring.
 - Include a [Jupyter
@@ -108,9 +108,10 @@ other contributions at this point, unless to resolve errors or typos.
   request](https://help.github.com/articles/using-pull-requests) against this
   repository.
 - We ask each Outreachy participant to make a contribution completing
-  (TODO: issue number) (train and test a classification model). This will help
-  you to become familiar with machine learning and the tools if you are not
-  already. Please submit as a PR following the [guidelines](#contribution-guidelines) above.
+  [#2](https://github.com/mozilla/PRESC/issues/2) (train and test a
+  classification model). This will help you to become familiar with machine
+  learning and the tools if you are not already. Please submit as a PR following
+  the [guidelines](#contribution-guidelines) above.
     * This task __must__ be completed in order to be considered as an intern on
       this project
 - You can ask for help and discuss your ideas on
