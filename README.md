@@ -161,13 +161,40 @@ We recommend everyone start by working on
 [#2](https://github.com/mozilla/PRESC/issues/2).
 
 
+### Getting started with GitHub
+
+The git/GitHub open-source workflow can be rather confusing if you haven't used
+it before. To make a contribution to the project, the general steps you need to
+take are:
+
+- Install [git](https://git-scm.com/downloads) on your computer
+- Fork the repo on Github (ie. make your own personal copy)
+- Clone your fork to your local computer
+- Commit changes locally on your computer
+- Push your changes to your fork on Github
+- Submit a pull request (PR) against the main repo from your fork.
+
+Here are some resources to learn more about parts of this workflow you are
+unfamiliar with:
+
+- [GitHub Guides](https://guides.github.com/)
+    * In particular, the [git handbook](https://guides.github.com/introduction/git-handbook/) explains some of the basics of the version control system
+    * There is a [page](https://guides.github.com/activities/forking/)
+      explaining the forking/pull request workflow you will be using to
+      contribute.
+- The [Git Book](https://git-scm.com/book/en/v2) is much more detailed but a good reference
+    * The [Getting Started](https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control) section is worth reading
+    * There are also some [videos](https://git-scm.com/videos) on getting set up
+- This [repo](https://github.com/aSquare14/Git-Cheat-Sheet) by a previous
+  Outreachy contributor lists many other resources and tutorials.
+- This [video tutorial series](https://www.youtube.com/playlist?list=PL6gx4Cwl9DGAKWClAD_iKpNC0bGHxGhcx) on Youtube may also be helpful
+
+
 ## Resources
 
 
 - [This](https://github.com/brandon-rhodes/pycon-pandas-tutorial) is a great tutorial to learn Pandas.
 - [Tutorial](https://www.youtube.com/watch?v=HW29067qVWk) on Jupyter Notebook.
-- [This](https://github.com/aSquare14/Git-Cheat-Sheet) will help you get started
-  with git. For visual thinkers this [tutorial](https://www.youtube.com/playlist?list=PL6gx4Cwl9DGAKWClAD_iKpNC0bGHxGhcx) can be a good start.
 - The [scikit-learn user guide](https://scikit-learn.org/stable/user_guide.html)
   is a good place to start learning the scikit-learn library as well as machine
   learning methodology and comes with lots of examples.
