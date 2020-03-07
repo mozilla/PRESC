@@ -9,7 +9,7 @@ from sklearn.model_selection import KFold # For cross vbalidation
 from sklearn.model_selection import GridSearchCV # for tunnig hyper parameter it will use all combination of given parameters
 from sklearn.model_selection import RandomizedSearchCV # same for tunning hyper parameter but will use random combinations of parameters
 
-#take normal trasaction in  0..5 %, 0.66% and 0.75 % proportion of total data
+#take normal transaction in  0.5 , 0.66 and 0.75  proportion of total data
 
 
 #LogisticRegression

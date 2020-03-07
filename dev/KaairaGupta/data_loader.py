@@ -23,7 +23,6 @@ def load_split_preprocessed_data(i):
     x_labels=undersample_data["recommend"]
 
     x_features_train,x_features_test,x_labels_train,x_labels_test = train_test_split(x_features,x_labels,test_size=0.3)
-    print("hi")
 
     return(x_features_train,x_features_test,x_labels_train,x_labels_test)
 
