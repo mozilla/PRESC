@@ -1,55 +1,28 @@
 
 from data_loader import load_split_preprocessed_data
-from sklearn import svm
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn import metrics
+from sklearn.metrics import confusion_matrix,recall_score,precision_recall_curve,auc,roc_curve,roc_auc_score,classification_report
+import warnings
+import matplotlib.pyplot as plt # to plot graph
+import seaborn as sns
+warnings.filterwarnings('ignore')
 
-
-
-def KNeighbors():
-    X_train, X_test, y_train, y_test = load_split_preprocessed_data()
-    clf = KNeighborsClassifier()
-    clf.fit(X_train, y_train)
-    y_pred_knn = clf.predict(X_test)
-    accuracy=metrics.accuracy_score(y_test, y_pred_knn)
-    precision=metrics.precision_score(y_test, y_pred_knn)
-    recall=metrics.recall_score(y_test, y_pred_knn)
-
-    return accuracy, precision, recall
-
-def LogisticR():
-    X_train, X_test, y_train, y_test = load_split_preprocessed_data()
-    clf = LogisticRegression()
-    clf.fit(X_train,y_train)
-    y_pred_lr = clf.predict(X_test)
-    accuracy=metrics.accuracy_score(y_test, y_pred_lr)
-    precision=metrics.precision_score(y_test, y_pred_lr)
-    recall=metrics.recall_score(y_test, y_pred_lr)
-
-    return accuracy, precision, recall
-
-def DecisionT():
-    X_train, X_test, y_train, y_test = load_split_preprocessed_data()
-    clf = DecisionTreeClassifier()
-    clf.fit(X_train,y_train)
-    y_pred_dt = clf.predict(X_test)
-    accuracy = metrics.accuracy_score(y_test, y_pred_dt)
-    precision = metrics.precision_score(y_test, y_pred_dt)
-    recall = metrics.recall_score(y_test, y_pred_dt)
-
-    return accuracy, precision, recall
-
-def RandomF():
-    X_train, X_test, y_train, y_test = load_split_preprocessed_data()
-    clf = RandomForestClassifier(n_estimators=1000)
-    clf.fit(X_train, y_train)
-    y_pred_rfc = clf.predict(X_test)
-    accuracy = metrics.accuracy_score(y_test, y_pred_rfc)
-    precision = metrics.precision_score(y_test, y_pred_rfc)
-    recall = metrics.recall_score(y_test, y_pred_rfc)
-
-    return accuracy, precision, recall
+#model function
+def model(model,features_train,features_test,labels_train,labels_test):
+    clf= model
+    clf.fit(features_train,labels_train.values.ravel())
+    pred=clf.predict(features_test)
+    cnf_matrix=confusion_matrix(labels_test,pred)
+    print("the recall for this model is :",cnf_matrix[1,1]/(cnf_matrix[1,1]+cnf_matrix[1,0]))
+    fig= plt.figure(figsize=(6,3))# to plot the graph
+    print("TP",cnf_matrix[1,1,]) # no of fraud transaction which are predicted fraud
+    print("TN",cnf_matrix[0,0]) # no. of normal transaction which are predited normal
+    print("FP",cnf_matrix[0,1]) # no of normal transaction which are predicted fraud
+    print("FN",cnf_matrix[1,0]) # no of fraud Transaction which are predicted normal
+    sns.heatmap(cnf_matrix,cmap="coolwarm_r",annot=True,linewidths=0.5)
+    plt.title("Confusion_matrix")
+    plt.xlabel("Predicted_class")
+    plt.ylabel("Real class")
+    plt.show()
+    print("\n----------Classification Report------------------------------------")
+    print(classification_report(labels_test,pred))
 

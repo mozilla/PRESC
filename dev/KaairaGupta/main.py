@@ -1,15 +1,38 @@
-from Ml_functions import svm
-from Ml_functions import KNeighbors
-from Ml_functions import LogisticR
-from Ml_functions import DecisionT
-from Ml_functions import RandomF
+from data_loader import load_split_preprocessed_data
+from Ml_functions import model
+from sklearn.ensemble import RandomForestClassifier # Random forest classifier
+from sklearn.tree import DecisionTreeClassifier # for Decision Tree classifier
+from sklearn.svm import SVC # for SVM classification
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split # to split the data
+from sklearn.model_selection import KFold # For cross vbalidation
+from sklearn.model_selection import GridSearchCV # for tunnig hyper parameter it will use all combination of given parameters
+from sklearn.model_selection import RandomizedSearchCV # same for tunning hyper parameter but will use random combinations of parameters
 
-k_accuracy, k_precision, k_recall = KNeighbors()
-lr_accuracy, lr_precision, lr_recall = LogisticR()
-dt_accuracy, dt_precision, dt_recall = DecisionT()
-rf_accuracy, rf_precision, rf_recall = RandomF()
+#take normal trasaction in  0..5 %, 0.66% and 0.75 % proportion of total data
 
-print("Kneighbors Accuracy = " , k_accuracy , " Kneighbors Precision = " , k_precision , " Kneighbors Recall = " ,k_recall)
-print("LogisticRegression Accuracy = " , lr_accuracy , " LogisticRegression Precision = " , lr_precision , " LogisticRegression Recall = " , lr_recall)
-print("DecisionTreeClassifier Accuracy = " , dt_accuracy , " DecisionTreeClassifier Precision = " , dt_precision , ", DecisionTreeClassifier Recall = " , dt_recall)
-print("RandomForestClassifier Accuracy = " , rf_accuracy , " RandomForestClassifier Precision = " , rf_precision , ", RandomForestClassifier Recall = " , rf_recall)
+
+#LogisticRegression
+for i in range(1,4):
+    print("the model classification for {} proportion".format(i))
+    undersample_features_train,undersample_features_test,undersample_labels_train,undersample_labels_test=load_split_preprocessed_data(i)
+    clf=LogisticRegression()
+    model(clf,undersample_features_train,undersample_features_test,undersample_labels_train,undersample_labels_test)
+    print("________________________________________________________________________________________________________")
+
+
+#SVC
+for i in range(1,4):
+    print("the model classification for {} proportion".format(i))
+    undersample_features_train,undersample_features_test,undersample_labels_train,undersample_labels_test=load_split_preprocessed_data(i)
+    clf= SVC()# here we are just changing classifier
+    model(clf,undersample_features_train,undersample_features_test,undersample_labels_train,undersample_labels_test)
+    print("________________________________________________________________________________________________________")
+
+#Random Forest Classifier
+for i in range(1,4):
+    print("the model classification for {} proportion".format(i))
+    undersample_features_train,undersample_features_test,undersample_labels_train,undersample_labels_test=load_split_preprocessed_data(i)
+    clf= RandomForestClassifier(n_estimators=100)# here we are just changing classifier
+    model(clf,undersample_features_train,undersample_features_test,undersample_labels_train,undersample_labels_test)
+    print("________________________________________________________________________________________________________")
