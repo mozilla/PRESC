@@ -17,7 +17,6 @@ def KNeighbors():
     accuracy=metrics.accuracy_score(y_test, y_pred_knn)
     precision=metrics.precision_score(y_test, y_pred_knn)
     recall=metrics.recall_score(y_test, y_pred_knn)
-#print("SVM Accuracy = " , svm_accuracy , " SVM Precision = " , svm_precision , " SVM Recall = " , svm_recall)
 
     return accuracy, precision, recall
 

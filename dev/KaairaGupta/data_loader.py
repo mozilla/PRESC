@@ -13,6 +13,7 @@ def load_split_preprocessed_data():
 
     sc = StandardScaler()
     train = data.drop('recommend',axis = 1)
+    train = train.drop('quality', axis =1)
     X_train, X_test, y_train, y_test = train_test_split(train, data.recommend, test_size=0.3,random_state=109)
     X_train = sc.fit_transform(X_train)
     X_test = sc.transform(X_test)
