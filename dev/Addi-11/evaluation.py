@@ -19,5 +19,5 @@ def evaluate(classifier, X_test, y_test):
     # print("Recall: ", recall)
     # print("F1 score : ",f_score)
 
-    return accuracy, precision, recall, f_score
+    return accuracy, precision, recall, f_score, y_score
 

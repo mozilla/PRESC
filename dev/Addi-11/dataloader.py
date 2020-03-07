@@ -5,6 +5,7 @@ from tabulate import tabulate
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+import seaborn as sns
 
 """ read data file """
 address = "../../datasets/eeg.csv"
@@ -21,6 +22,10 @@ def data_info():
     display(df.info()) # info of each column of dataset
     print("\nChecking for null values: \n")
     print(df.isnull().sum()) # sum of all null values in a dataset for preprocessing    
+""" Function specific to given dataset"""
+def data_visuals():
+    df.Class.unique()
+    sns.countplot(df.Class)
 
 """ splitting the data """
 def train_test_split_data(test_size):
