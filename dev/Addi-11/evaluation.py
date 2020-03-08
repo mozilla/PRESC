@@ -12,7 +12,7 @@ def evaluate(classifier, X_test, y_test):
     accuracy = accuracy_score(y_test, y_score)
     f_score = f1_score(y_test, y_score)
     precision = precision_score(y_test, y_score)
-    recall = recall_score(y_test, y_score)
+    recall = recall_score(y_test, y_score, zero_division=1)
 
     # print("Accuracy : ",accuracy)
     # print("Precision: ", precision)
