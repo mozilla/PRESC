@@ -64,7 +64,7 @@ def violinAndBoxPlots(data):
     for ax in axs:
         ax.yaxis.grid(True)
         ax.set_xticks(xax)
-        ax.set_xlabel('Four separate samples')
+        ax.set_xlabel('3 separate samples')
         ax.set_ylabel('Observed values')
 
     # add x-tick labels
