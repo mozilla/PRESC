@@ -3,25 +3,23 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
 from math import sqrt
-from sklearn.model_selection import cross_val_score
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sn
 from sklearn.metrics import confusion_matrix, classification_report
 
-# def load_data(filename):
-#     ''' Loading dataset in pandas dataframe and printing first five data point'''
-#     dataset = pd.read_csv(filename)
-#     print(dataset.head())
+
     
 def data_stats(dataset):
     ''' Shows some basic stats of the dataset'''
     print("=========== SOME STATS of Dataset ===========")
-    print('Shape of the dataset: ' + str(dataset.shape))
+    print('Shape of the dataset: ' + str(dataset.shape) + "\n")
     print('List of attribute columns' , list(dataset.columns))
+    print("\n")
     list_cat = dataset.Class.unique()
-    print('List of Categories ' , list_cat )
+    print('List of Categories ' , list_cat , "\n" )
     
+            
 def tokenize_target_column(dataset):
     ''' tokenize the Class column values to numeric data'''
     factor = pd.factorize(dataset['Class'])
@@ -44,12 +42,12 @@ def train_data_test_data_split(dataset):
 #     print('The target variable: ')
 #     print(y[:5])
 #     Split dataset into training set and test set
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3,random_state = 21)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2 ,random_state = 21)
     return X_train, X_test, y_train, y_test
 
 def train(X_train, y_train):
     ''' training model on train data'''
-    classifier = RandomForestClassifier(n_estimators = 1000, criterion = 'entropy', random_state = 42)
+    classifier = RandomForestClassifier(n_estimators = 10, criterion = 'entropy', random_state = 42)
     classifier.fit(X_train, y_train)
     return classifier
     
