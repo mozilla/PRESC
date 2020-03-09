@@ -64,12 +64,14 @@ def SVM_test(classifier , X_test):
     
 def model_confusion_matrix(y_test , y_predict , label):
     
-    print("Confusion Matrix")
-    cmatrix = confusion_matrix(y_test , y_predict , labels = label)       
+    """ Confusion Matrix """
+           
     plt.figure(figsize = (15,5))
     plt.xlabel('Actual Vehicle Labels')
     plt.ylabel('Predicted Vehicle Labels')
-    sns.heatmap(cmatrix, index = label , columns = label , annot=True, linewidths=.5)
+    cmatrix = confusion_matrix(y_test , y_predict , labels = label)
+    matrix = pd.DataFrame(cmatrix, index=label, columns=label)
+    sns.heatmap(matrix, annot=True, linewidths=.5)
     plt.show()
 
 def model_classification_report(y_test, y_predict):
