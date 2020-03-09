@@ -20,14 +20,14 @@ def dataset_statistics(data):
     
     
 
-def data_visualization(dataa , label):
+def data_visualization(dataa):
     
     """ For Visulaization of DataSet"""
-    label = list(label)
+    
     print("\nHistogram for analyzing the frequency of labled class.\n")
-    basecolor = sns.color_palette()[2]
-    sorted_order = dataa['Class'].value_counts().sort_index()
-    sns.countplot(data = dataa , x = 'Class' , color = basecolor , order = sorted_order )
+    base_color = sns.color_palette()[9]
+    Vorder = dataa['Class'].value_counts().index
+    sns.countplot(data = dataa, x = 'Class', color = base_color , order = Vorder)
 
     print("Correlation Analysis.")
     plt.figure(figsize = (25,15))
@@ -75,4 +75,5 @@ def model_classification_report(y_test, y_predict):
     """  Model Classification report for Precision , Recall and F1-Score """
     print("\n DataSet Report: ")
     print(classification_report(y_test, y_predict))
+    
     
