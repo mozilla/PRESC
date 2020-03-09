@@ -45,15 +45,16 @@ def splitting_train_test_data(data):
 
 
 
-def SVM_train_data(X,y):
+def SVM_train(X,y):
     
     """ SVM Classifier"""
     
     classifier = SVC(gamma = 1 , kernel = 'poly', degree = 2)
-    classifier.fit(X,y)
+    return classifier.fit(X,y)
     
     
-def evaluating_model(classifier , X_test):
+    
+def SVM_test(classifier , X_test):
     
     """ Evaluating model by predicting on testing data """
     
