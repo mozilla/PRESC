@@ -7,10 +7,10 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report , confusion_matrix
     
 
-
-vehicle = pd.read_csv('C:/Users/pcs/Documents/GitHub/PRESC/datasets/vehicles.csv')
-
 def dataset_statistics(data):
+    
+    """ Data Features and Labels"""
+    
     print("DATASET STATISTICS: \n")
     print("Shape of the dataset: ",data.shape)
 
@@ -22,41 +22,58 @@ def dataset_statistics(data):
 
 def data_visualization(data):
     
+    """ For Visulaization of DataSet"""
+
     print(data.head(5))
     print("\nHistogram for analyzing the frequency of labled class\n")
-    sns.countplot(vehicle['Class'])
+    sns.countplot(data['Class'])
 
     print("Correlation Analysis.")
     figure = plt.gcf()
     figure.set_size_inches(18, 10)
-    sns.heatmap(vehicle.corr(), annot = True , linewidths=.5)
+    sns.heatmap(data.corr(), annot = True , linewidths=.5)
     plt.show()
 
     
 def splitting_train_test_data(data):
+    
+    """ Data is splitted into 30:70 for training and testing"""
     X = data.drop(['Class'] , axis = 1)
-    y  = vehicle['Class']
+    y  = data['Class']
     return train_test_split( X, y, test_size=0.3 , random_state=45)
 
 
+
+
 def SVM_train_data(X,y):
+    
+    """ SVM Classifier"""
+    
     classifier = SVC(gamma = 1 , kernel = 'poly', degree = 2)
     classifier.fit(X,y)
     
     
 def evaluating_model(classifier , X_test):
+    
+    """ Evaluating model by predicting on testing data """
+    
     y_predict = classifier.predict(X_test)  
     return y_predict
  
+    
 def model_confusion_matrix(y_test , y_predict , label):
+    
+    print("Confusion Matrix")
     cmatrix = confusion_matrix(y_test , y_predict , labels = label)       
     figure = plt.gcf()
     figure.set_size_inches(10, 5)
+    plt.xlabel('Actual Vehicle Labels')
+    plt.ylabel('Predicted Vehicle Labels')
     sns.heatmap(cmatrix, annot=True, linewidths=.5)
     plt.show()
 
 def model_classification_report(y_test, y_predict):
+    """  Model Classification report for Precision , Recall and F1-Score """
+    print("\n DataSet Report: ")
     print(classification_report(y_test, y_predict))
     
-dataset_statistics(vehicle)    
-data_visualization(vehicle)
