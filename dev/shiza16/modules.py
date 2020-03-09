@@ -16,7 +16,7 @@ def dataset_statistics(data):
 
     print("\nFeatures of the dataset are: ",list(data.keys()))
     
-    print("\nTarget Features of dataset are: ", data['Class'].unique())
+    print("\nTarget Labels of dataset are: ", data['Class'].unique())
     
     
 
@@ -24,9 +24,9 @@ def data_visualization(data , label):
     
     """ For Visulaization of DataSet"""
 
-    print(data.head(5))
-    print("\nHistogram for analyzing the frequency of labled class\n")
-    sns.countplot(data['Class'])
+    print("\nHistogram for analyzing the frequency of labled class.\n")
+    basecolor = sns.color_palette()[2]
+    sns.countplot(data['Class'] , x = label , color = basecolor)
 
     print("Correlation Analysis.")
     plt.figure(figsize = (25,15))
