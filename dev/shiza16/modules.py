@@ -26,7 +26,7 @@ def data_visualization(data , label):
 
     print("\nHistogram for analyzing the frequency of labled class.\n")
     basecolor = sns.color_palette()[2]
-    sns.countplot(data['Class'] , x = label , color = basecolor)
+    sns.countplot(data['Class'] , x = "Labels" , color = basecolor)
 
     print("Correlation Analysis.")
     plt.figure(figsize = (25,15))
