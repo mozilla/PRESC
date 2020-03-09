@@ -20,17 +20,18 @@ def dataset_statistics(data):
     
     
 
-def data_visualization(data , label):
+def data_visualization(dataa , label):
     
     """ For Visulaization of DataSet"""
-
+    label = list(label)
     print("\nHistogram for analyzing the frequency of labled class.\n")
     basecolor = sns.color_palette()[2]
-    sns.countplot(data['Class'] , color = basecolor)
+    sorted_order = dataa['Class'].value_count().index
+    sns.countplot(data = dataa , x = 'Class' , color = basecolor , order = sorted_order )
 
     print("Correlation Analysis.")
     plt.figure(figsize = (25,15))
-    sns.heatmap(data.corr() , annot = True , linewidths=.5)
+    sns.heatmap(dataa.corr() , annot = True , linewidths=.5)
     plt.show()
 
     
