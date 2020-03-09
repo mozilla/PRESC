@@ -20,7 +20,7 @@ def dataset_statistics(data):
     
     
 
-def data_visualization(data):
+def data_visualization(data , label):
     
     """ For Visulaization of DataSet"""
 
@@ -29,9 +29,8 @@ def data_visualization(data):
     sns.countplot(data['Class'])
 
     print("Correlation Analysis.")
-    figure = plt.gcf()
-    figure.set_size_inches(18, 10)
-    sns.heatmap(data.corr(), annot = True , linewidths=.5)
+    plt.figure(figsize = (25,15))
+    sns.heatmap(data.corr() , annot = True , linewidths=.5)
     plt.show()
 
     
@@ -65,11 +64,10 @@ def model_confusion_matrix(y_test , y_predict , label):
     
     print("Confusion Matrix")
     cmatrix = confusion_matrix(y_test , y_predict , labels = label)       
-    figure = plt.gcf()
-    figure.set_size_inches(10, 5)
+    plt.figure(figsize = (15,5))
     plt.xlabel('Actual Vehicle Labels')
     plt.ylabel('Predicted Vehicle Labels')
-    sns.heatmap(cmatrix, annot=True, linewidths=.5)
+    sns.heatmap(cmatrix, index = label , columns = label , annot=True, linewidths=.5)
     plt.show()
 
 def model_classification_report(y_test, y_predict):
