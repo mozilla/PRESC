@@ -93,6 +93,10 @@ If you wish to build on someone else's contribution, you can import code from
 their modules into yours. Please do not submit PRs directly modifying code from
 other contributions at this point, unless to resolve errors or typos.
 
+Code formatting guidelines will be strinctly enforced via Github actions to adhere 
+to [Python Black](https://pypi.org/project/black/) formatting guidelines. Please 
+ensure that all PRs are passing the formatting check.
+
 
 ## Information for Outreachy participants
 
