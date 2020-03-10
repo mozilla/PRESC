@@ -91,13 +91,20 @@ def create_confusion_matrix_class_report(y_test, y_pred):
     labels = ["van" , "saab" ,"bus" , "opel"]
     cm = confusion_matrix(y_test, y_pred, labels=labels)
     df_cm = pd.DataFrame(cm, index=labels, columns=labels)
+    return df_cm
 
+def create_confusion_matrix_map(df_cm):
     sn.heatmap(df_cm, annot=True, fmt='d')
+    
     plt.xlabel('Real Vehicle Category')
     plt.ylabel('Predicted Vehicle Category')
-    print("============== Summary of all evaluation metics ===============")
+    
+    
+def create_class_report(y_test, y_pred):
+    print("============== Summary of evaluation metics ===============")
     print(classification_report(y_test,y_pred))
     print ("====================== Confusion Matrix=====================")
+    
     
 
 def model_evaluation(X_train, y_train):
