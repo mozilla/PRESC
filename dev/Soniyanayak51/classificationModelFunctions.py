@@ -17,11 +17,12 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.datasets import load_iris
 
 
-def loadDataAndPrintHead():
+def loadDataAndPrintHead(file_path):
     '''
     Loads data using pandas read_csv.
+    Args: Local path to the dataset file as a string
     '''
-    df = pd.read_csv("/home/soniya51/Downloads/default of credit card clients.csv")
+    df = pd.read_csv(file_path)
     print(df.head())
     return df
 
