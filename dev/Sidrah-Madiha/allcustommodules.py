@@ -80,19 +80,25 @@ def untokenizing_testdata_prediction(y_test, y_pred, definitions):
     return y_test, y_pred
 
 
-def create_confusion_matrix_class_report(y_test, y_pred):
+def create_confusion_matrix(y_test, y_pred):
     ''' Creates Cinfusion Matrix and summary of evaluation metric '''
     
     labels = ["van" , "saab" ,"bus" , "opel"]
     cm = confusion_matrix(y_test, y_pred, labels=labels)
     df_cm = pd.DataFrame(cm, index=labels, columns=labels)
+    return df_cm
+
+def display_confusion_matrix(df_cm):
+    ''' displays confusion matrix of dataframe provided)'''
 
     sn.heatmap(df_cm, annot=True, fmt='d')
     plt.xlabel('Real Vehicle Category')
     plt.ylabel('Predicted Vehicle Category')
+    print ("====================== Confusion Matrix=====================")
+    
+def display_classification_report(y_test,y_pred):
     print("============== Summary of all evaluation metics ===============")
     print(classification_report(y_test,y_pred))
-    print ("====================== Confusion Matrix=====================")
     
 
 def model_evaluation(X_train, y_train):
