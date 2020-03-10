@@ -7,17 +7,20 @@ def k_nearest(data_train, target_train, data_test, target_test):
     #note that 'neighbor' must be spelt without including a 'u' in order for it to work
     '''This function trains the model then uses it to predict target values of the test data. In it, the accuracy
     of the K-nearest neighbor algorithm on this data set is computed and returned '''
+    
+    # Instantiate a k-NN classifier: knn
     knn = KNeighborsClassifier(n_neighbors = 5)
     y = target_train 
     X = data_train
 
-    #Use data to train the model
+    # Fit the classifier to the training data
     knn.fit(X,y)
 
-    #predict for the test set
+    #predict labels of the test data
     target_pred = knn.predict(data_test.values)
     #compute accuracy and return it
-    return knn.score(data_test, target_test)
+    acc = knn.score(data_test, target_test)
+    return (acc, target_pred)
 
 def visual_compare(data_train, target_train, data_test, target_test):
     '''This function outputs a graph of the predictions gotten from the K-nn algorithm. In that same graph, the 
