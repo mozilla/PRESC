@@ -40,7 +40,16 @@ def imp_score_singular_datapoints(model, train_features, train_labels, test_feat
         
         fs_list.append(fs)
         acc_list.append(acc)
-        
+
+    fig, ax = plt.subplots()
+    # line = mlines.Line2D([0, 1], [0, 1], color='black')
+    # transform = ax.transAxes
+    # line.set_transform(transform)
+    # ax.add_line(line)
+    fig.suptitle('Importance Score Graph')
+    ax.set_xlabel('Removing i\'th data-point')
+    ax.set_ylabel('Scores')
+    
     plt.plot(-1,fs_full_data,'ro',label="F-Score Full Data") 
     plt.plot(-1,acc_full_data,'ro',label="Accuracy Full Data")
     plt.plot(np.arange(i_end-i_start),fs_list, marker='o', linewidth=1, label='F-Score Values')
