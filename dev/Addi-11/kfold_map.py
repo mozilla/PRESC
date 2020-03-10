@@ -1,6 +1,7 @@
 """ This file maps the evaluation metrics for various splits in the K-fold space"""
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.model_selection import KFold
 from classifiers import Classifier
 from evaluation import evaluate

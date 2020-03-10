@@ -8,6 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import plot_precision_recall_curve, confusion_matrix, plot_confusion_matrix
 import matplotlib.pyplot as plt
+from gain_lift import gain_lift_chart
 
 class Classifier:
 
@@ -52,6 +53,8 @@ class Classifier:
         disp = plot_precision_recall_curve(classifier,X_test, y_test)
         print("Confusion Matrix")
         disp = plot_confusion_matrix(classifier,X_test, y_test)
+        print("Gain an Lift Chart")
+        gain_lift_chart(classifier, X_test, y_test)
 
     
         
