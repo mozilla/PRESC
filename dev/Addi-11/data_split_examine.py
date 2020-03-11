@@ -24,10 +24,10 @@ def data_split_examine(clf):
 
     display(df)
         
-def visualise_split():
+def visualise_split(clf):
     fig,axes = plt.subplots()
     axes.set_xlabel("Test Data Size")
     axes.set_ylabel("Accuracy %")
     axes.set_ylim([50,100])
-    axes.set_title("Relation btw accuracy and test data size")
+    axes.set_title("Relation btw accuracy and test data size for {} classifier".format(clf))
     disp = axes.plot(df['Testing Data'], df['Accuracy %'])
