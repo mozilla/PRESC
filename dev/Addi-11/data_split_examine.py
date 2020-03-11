@@ -12,11 +12,11 @@ test_sizes = np.arange(0.005,1,0.05)
 columns = ['Training data','Testing Data','Accuracy %', 'Precision', 'Recall', 'F1_score']
 df = pd.DataFrame(columns = columns)
 
-def data_split_examine():
+def data_split_examine(clf):
     model = Classifier()
     for index in range(len(test_sizes)):
         X_train, X_test, y_train, y_test = train_test_split_data(test_sizes[index])
-        classifier = model.KNeighbors(X_train, y_train)
+        classifier = getattr(model, clf)(X_train, y_train) 
         accuracy, precision, recall, f_score, _ = evaluate(classifier, X_test, y_test)
         train = round((1-test_sizes[index])*100)
         test = round(test_sizes[index]*100)
