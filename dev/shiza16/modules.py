@@ -58,7 +58,7 @@ def SVM_train(X,y):
 def LogisticRegression_train(X,y):
     
     """ SVM Classifier"""
-    classifier = LogisticRegression(solver = 'lbfgs',multi_class='auto')
+    classifier = LogisticRegression()
     return classifier.fit(X,y)
     
     
