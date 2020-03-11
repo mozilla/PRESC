@@ -62,17 +62,20 @@ def SVM_test(classifier , X_test):
     return y_predict
  
     
-def model_confusion_matrix(y_test , y_predict , dataa):
+def model_confusion_matrix(y_test , y_predict , dataa):    
     
     """ Confusion Matrix """
-           
-    plt.figure(figsize = (15,5))
-    plt.xlabel('Actual Vehicle Labels')
-    plt.ylabel('Predicted Vehicle Labels')
-    plt.xticks= list(dataa.keys())
-    plt.yticks= list(dataa.keys())
-    cmatrix = confusion_matrix(y_test , y_predict , )
-    sns.heatmap(cmatrix, annot=True)
+    
+    plt.figure(figsize = (8,8))
+    target_label = dataa['Class'].unique()
+    plt.xlabel('Real Vehicle Category')
+    plt.ylabel('Predicted Vehicle Category')
+
+    matrix = confusion_matrix(y_test, y_predict, labels = target_label)
+    cmatrix = pd.DataFrame(matrix, index=target_label, columns=target_label)
+    sns.heatmap(cmatrix, annot=True, fmt='d')
+    
+    
     plt.show()
 
 def model_classification_report(y_test, y_predict):
