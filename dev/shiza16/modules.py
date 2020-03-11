@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report , confusion_matrix
     
 
@@ -49,12 +50,21 @@ def splitting_train_test_data(data):
 def SVM_train(X,y):
     
     """ SVM Classifier"""
+    
     classifier = SVC(gamma = 1 , kernel = 'poly', degree = 2)
+    return classifier.fit(X,y)
+
+
+def LogisticRegression_train(X,y):
+    
+    """ SVM Classifier"""
+    classifier = LogisticRegression(solver = 'lbfgs',multi_class='auto')
     return classifier.fit(X,y)
     
     
     
-def SVM_test(classifier , X_test):
+    
+def test_classifier(classifier , X_test):
     
     """ Evaluating model by predicting on testing data """
     
