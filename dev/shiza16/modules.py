@@ -1,3 +1,4 @@
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,6 +19,7 @@ def dataset_statistics(data):
     
     print("\nTarget Labels of dataset are: ", data['Class'].unique())
     
+    
 
 def data_visualization(dataa):
     
@@ -27,10 +29,10 @@ def data_visualization(dataa):
     base_color = sns.color_palette()[9]
     Vorder = dataa['Class'].value_counts().index
     sns.countplot(data = dataa, x = 'Class', color = base_color , order = Vorder)
-
-    print("Correlation Analysis.")
+    
     plt.figure(figsize = (25,15))
-    sns.heatmap(dataa.corr() , annot = True , linewidths=.5)
+    print("Correlation Analysis.")
+    sns.heatmap(dataa.corr() ,annot = True , linewidths=.5)
     plt.show()
 
     
@@ -46,8 +48,7 @@ def splitting_train_test_data(data):
 
 def SVM_train(X,y):
     
-    """ SVM Classifier """    
-    
+    """ SVM Classifier"""
     classifier = SVC(gamma = 1 , kernel = 'poly', degree = 2)
     return classifier.fit(X,y)
     
@@ -61,16 +62,17 @@ def SVM_test(classifier , X_test):
     return y_predict
  
     
-def model_confusion_matrix(y_test , y_predict , label):
+def model_confusion_matrix(y_test , y_predict , dataa):
     
     """ Confusion Matrix """
            
     plt.figure(figsize = (15,5))
     plt.xlabel('Actual Vehicle Labels')
     plt.ylabel('Predicted Vehicle Labels')
-    cmatrix = confusion_matrix(y_test , y_predict , labels = label)
-    matrix = pd.DataFrame(cmatrix, index=label, columns=label)
-    sns.heatmap(matrix, annot=True, linewidths=.5)
+    plt.xticks= list(dataa.keys())
+    plt.yticks= list(dataa.keys())
+    cmatrix = confusion_matrix(y_test , y_predict)
+    sns.heatmap(cmatrix, annot=True, linewidths=.5)
     plt.show()
 
 def model_classification_report(y_test, y_predict):
