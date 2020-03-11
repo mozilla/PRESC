@@ -71,12 +71,13 @@ def model_confusion_matrix(y_test , y_predict , dataa):
     plt.ylabel('Predicted Vehicle Labels')
     plt.xticks= list(dataa.keys())
     plt.yticks= list(dataa.keys())
-    cmatrix = confusion_matrix(y_test , y_predict)
-    sns.heatmap(cmatrix, annot=True, linewidths=.5)
+    cmatrix = confusion_matrix(y_test , y_predict , )
+    sns.heatmap(cmatrix, annot=True)
     plt.show()
 
 def model_classification_report(y_test, y_predict):
     """  Model Classification report for Precision , Recall and F1-Score """
+    
     print("\n DataSet Report: ")
     print(classification_report(y_test, y_predict))
     
