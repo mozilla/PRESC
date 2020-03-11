@@ -121,10 +121,9 @@ def standardize(x, x_train):
     '''
     x = x.astype(float)
     x_train = x_train.astype(float)
-    for column in x.columns:
-        mean = np.mean(x_train[column])
-        std = np.std(x_train[column])
-        x[column] = (x[column] - mean) / std
+    scaler = StandardScaler()
+    scaler.fit(x_train)
+    x = scaler.transform(x)
     return x
 
 
@@ -135,6 +134,7 @@ def standardizeData(X_test, X_train):
     '''
     col_to_norm = ['LIMIT_BAL', 'AGE', 'BILL_AMT1', 'BILL_AMT2', 'BILL_AMT3', 'BILL_AMT4', 'BILL_AMT5', 'BILL_AMT6',
                    'PAY_AMT1', 'PAY_AMT2', 'PAY_AMT3', 'PAY_AMT4', 'PAY_AMT5', 'PAY_AMT6']
+    
     X_test[col_to_norm] = standardize(X_test[col_to_norm], X_train[col_to_norm])
     # X_cv[col_to_norm] = standardize(X_cv[col_to_norm], X_train[col_to_norm])
     X_train[col_to_norm] = standardize(X_train[col_to_norm], X_train[col_to_norm])
