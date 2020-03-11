@@ -1,21 +1,14 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import tensorflow as tf
-import sklearn as skl
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-from sklearn.utils import shuffle
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
-import matplotlib.gridspec as gridspec
 from sklearn.preprocessing import StandardScaler
-from sklearn.manifold import TSNE
 from pandas import set_option
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
-from sklearn.datasets import load_iris
-
 
 def loadDataAndPrintHead(file_path):
     '''
@@ -84,19 +77,6 @@ def plotGrapthForDefaults(y):
     ax.bar(index, counts)
     plt.show()
     
-def scatterplotForClasses(df):
-    '''
-    Plots a scatterplot to show 0's and 1's as a variation of BILL_AMT$ and LIMIT_AMT
-    Args: the dataframe
-    '''
-    df['BILL_AMT4'] = df['BILL_AMT4'].astype(float)
-    df['LIMIT_BAL'] = df['LIMIT_BAL'].astype(float)
-    sns.lmplot('LIMIT_BAL', 'BILL_AMT4', df, hue='default payment next month', fit_reg=False)
-    fig = plt.gcf()
-    fig.set_size_inches(15, 10)
-    plt.show()
-
-
 def plotGrapthForAttributes(df):
     '''
     Plots Graphs for each attibute for EDA
