@@ -18,7 +18,6 @@ def dataset_statistics(data):
     
     print("\nTarget Labels of dataset are: ", data['Class'].unique())
     
-    
 
 def data_visualization(dataa):
     
