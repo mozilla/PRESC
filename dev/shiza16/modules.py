@@ -46,7 +46,7 @@ def splitting_train_test_data(data):
 
 def SVM_train(X,y):
     
-    """ SVM Classifier"""
+    """ SVM Classifier"""    
     
     classifier = SVC(gamma = 1 , kernel = 'poly', degree = 2)
     return classifier.fit(X,y)
