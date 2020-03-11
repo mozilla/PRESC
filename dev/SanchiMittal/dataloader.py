@@ -11,8 +11,7 @@ import seaborn as sns
 #loading the data
 def load_dataset():
     '''
-    Take the path of the dataset to be loaded as a string input.
-    Returns dataframe.
+    Return dataframe using pandas.
     '''
     d = pd.read_csv('../../datasets/winequality.csv')
     return d
@@ -20,10 +19,13 @@ def load_dataset():
 def visualize_data(d):
     '''
     Visualize the dataset in terms of:
-        -distribution of target labels (recommended: True/ False).
-        -observing available features in the dataset.
-        -pairplotss of all the features with one-another.
-        -correlational matrix.
+        -distribution of target labels (recommend: True/ False).\n
+        -observing available features in the dataset.\n
+        -pairplotss of all the features with one-another.\n
+        -correlational matrix.\n
+
+    Observe patterns in the data with correlation matrix.
+
     '''
     d['recommend'].value_counts().plot(kind = 'bar')
  
@@ -36,9 +38,7 @@ def visualize_data(d):
     sns.set(style="ticks", color_codes=True)
     sns.pairplot(d, vars = features ,hue='recommend', )
     
-    '''
-    Observe patterns in the data with correlation matrix.
-    '''
+    #Correelation Matrix
     corr = d.corr()
     print('Correlation Matrix:')
     print(corr)
@@ -73,19 +73,24 @@ def PreProcess_and_Split(d):
     '''
     This function pre-processes the data and splits into 
     training and test sets.
+    
+    Split the data using stratified splitting to maintain similar 
+    proportion of target labels in both training and testing sets.
+    
+    Split Ratio : Test size of 0.2 has been used maintaining a 
+    reasonable 80-20 ratio for training and test data. 
+    
+    Changing these parameters may lead to underfitting or overfitting of model.
+    
+    Using StandardScalar, all the data has been brought to the same scale to 
+    reduce complexity in calculation.
+    It transforms the data in such a manner that it has mean as 0 and standard
+    deviation as 1.
     '''
     x, y = FeaturesLabels(d)
     
     # Splitting the dataset
-    '''
-    Split the data using stratified splitting to maintain similar 
-    proportion of target labels in both training and testing sets.
-    
-    Split Ratio : I have used the test size as 0.2 maintaining a 
-    reasonable 80-20 ratio for training and test data. 
-    
-    Changing these parameters may lead to underfitting or overfitting of model.
-    '''
+
     sss = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=0)
     sss.get_n_splits(x, y)
     print(sss)
@@ -94,12 +99,7 @@ def PreProcess_and_Split(d):
         y_train, y_test = y[train_index], y[test_index]
         
     #Feature scaling
-    '''
-    Using StandardScalar, all the data has been brought to the same scale to 
-    reduce complexity in calculation.
-    It transforms the data in such a manner that it has mean as 0 and standard
-    deviation as 1.
-    '''
+
     sc = StandardScaler()
     x_train = sc.fit_transform(x_train)
     x_test = sc.transform(x_test)
