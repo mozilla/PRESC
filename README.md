@@ -146,7 +146,7 @@ Contributions can be made by submitting a [pull request](https://help.github.com
 
 1. Install [Anaconda](https://www.anaconda.com/download) or [Miniconda](https://conda.io/miniconda.html).
 
-2.Fork this repository and clone it into your machine.(using git CLI)
+2. Fork this repository and clone it into your machine.(using git CLI)
 
 3. Setup and activate environment:
    for windows:
