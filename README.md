@@ -146,18 +146,24 @@ Contributions can be made by submitting a [pull request](https://help.github.com
 
 1. Install [Anaconda](https://www.anaconda.com/download) or [Miniconda](https://conda.io/miniconda.html).
 
-2. Setup and activate environment:
+2.Fork this repository and clone it into your machine.(using git CLI)
 
+3. Setup and activate environment:
+   for windows:
+   Open anaconda prompt and cd into the repo folder where you cloned it.
+   ex: cd PRESC
+   Then type the following commands to active presc environment.
 ```
  $ conda env create -f environment.yml
  $ conda activate presc
 ```
 
-3. Run Jupyter. The notebook will open in your browser at `localhost:8888` by default.
+4. Run Jupyter. The notebook will open in your browser at `localhost:8888` by default.
 
 ```
  $ jupyter notebook
 ```
+After running this command you will see the same directory in the notebook as you cloned. You will be able to see the datasets folder and now you can start working on it.
 
 We recommend everyone start by working on
 [#2](https://github.com/mozilla/PRESC/issues/2).
