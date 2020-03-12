@@ -121,35 +121,34 @@ def model_classification_report(y_test, y_predict):
     print(classification_report(y_test, y_predict))
     
     
-from sklearn.model_selection import learning_curve
 
-def randomize(X, Y):
+
+def randomize_data(X, Y):
+    """ Randomize the labels and features data for learning curve"""
+    
     permutation = np.random.permutation(Y.shape[0])
     X2 = X[permutation,:]
     Y2 = Y[permutation]
     return X2, Y2
 
 def draw_learning_curves(X, y, estimator, num_trainings):
+    
     """ Method to draw learning curves of different models """
     
     train_sizes, train_scores, test_scores = learning_curve(
         estimator, X, y, cv=None, n_jobs=1, train_sizes=np.linspace(.1, 1.0, num_trainings))
 
     train_scores_mean = np.mean(train_scores, axis=1)
-    train_scores_std = np.std(train_scores, axis=1)
     test_scores_mean = np.mean(test_scores, axis=1)
-    test_scores_std = np.std(test_scores, axis=1)
-
+    
     plt.grid()
 
-    plt.title("Learning Curves")
-    plt.xlabel("Training examples")
-    plt.ylabel("Score")
+    plt.title(" Learning Curves ")
+    plt.xlabel(" Training Score ")
+    plt.ylabel(" Score ")
 
-    plt.plot(train_scores_mean, 'o-', color="g",
-             label="Training score")
-    plt.plot(test_scores_mean, 'o-', color="y",
-             label="Cross-validation score")
+    plt.plot(train_scores_mean, 'o-', color="r", label="Training score")
+    plt.plot(test_scores_mean, 'o-', color="b", label="Cross-validation score")
 
 
     plt.legend(loc="best")
