@@ -7,11 +7,12 @@ def calibration_plot_for_single_classifier(clfModel, clfName, y_test, X_test):
     Plots a calibration curve for a single classifier
     Args: clfModel-Classification model, clfName-The classifier's name, y_test-Test labels, X_test-Test data
     '''
-    y_test_predict_proba = clfModel.predict_proba(X_test)[:, 1]
+    y_test_predict_proba = clfModel.predict_proba(X_test)[:, 1] # The calibration_curve implementation expects just one of the classes in an array.
+    
     fraction_of_positives, mean_predicted_value = calibration_curve(y_test, y_test_predict_proba, n_bins=10)
     fig, ax = plt.subplots(1, figsize=(12, 6))
     plt.plot(mean_predicted_value, fraction_of_positives, 's-')
-    plt.plot([0, 1], [0, 1], '--', color='red')
+    plt.plot([0, 1], [0, 1], '--', color='red') # Perfectly calibrated
 
     # sns.despine(left=True, bottom=True)
     plt.gca().xaxis.set_ticks_position('none')
@@ -30,13 +31,13 @@ def calibration_plot_for_multiple_classifier(classifierList, classifierNameList,
     for clfModel in classifierList:
         y_test_predict_proba = clfModel.predict_proba(X_test)[:, 1]
         fraction_of_positive, mean_predicted_value = calibration_curve(y_test, y_test_predict_proba, n_bins=10)
-        plt.plot(fraction_of_positive,mean_predicted_value, marker='o', linewidth=1, label=classifierNameList[i])
+        plt.plot(mean_predicted_value, fraction_of_positive, marker='o', label=classifierNameList[i])
         i = i+1
-    plt.plot([0, 1], [0, 1], '--', color='red')
+    plt.plot([0, 1], [0, 1], '--', color='red') # Perfectly calibrated
     plt.gca().xaxis.set_ticks_position('none')
     plt.gca().yaxis.set_ticks_position('none')
     ax.set_xlabel('Predicted prob')
-    ax.set_ylabel('Actual prob')
+    ax.set_ylabel('True probability in each bin')
     plt.legend()
     plt.show()
         
