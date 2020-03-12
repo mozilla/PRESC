@@ -1,12 +1,14 @@
 # This file compares various evaluation metrics for different data splits 
 
 import numpy as np
-from dataloader import train_test_split_data
-from evaluation import evaluate
-from classifiers import Classifier
+from sklearn.model_selection import train_test_split
 import pandas as pd
 from IPython.display import HTML
 from pylab import *
+from evaluation import evaluate
+from classifiers import Classifier
+from dataloader import get_X_y
+
 
 test_sizes = np.arange(0.005,1,0.05)
 columns = ['Training data','Testing Data','Accuracy %', 'Precision', 'Recall', 'F1_score']
@@ -24,7 +26,8 @@ def data_split_examine(clf):
     '''
     model = Classifier()
     for index in range(len(test_sizes)):
-        X_train, X_test, y_train, y_test = train_test_split_data(test_sizes[index])
+        X, y = get_X_y() 
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_sizes[index])
         classifier = getattr(model, clf)(X_train, y_train) 
         accuracy, precision, recall, f_score, _ = evaluate(classifier, X_test, y_test)
         train = round((1-test_sizes[index])*100)

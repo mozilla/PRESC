@@ -102,7 +102,7 @@ class Classifier:
         classifier.fit(X_train, y_train)
         return classifier
 
-    def evaluation(self, classifier, X_test, y_test):
+    def evaluation(self, classifier, X_val, y_val):
         '''
         This function is used to evaluate the performance of the trained model, using evaluation metrics like :
             Accuracy
@@ -111,25 +111,25 @@ class Classifier:
             Precision Recall Curve
             F1_score
             Confusion Matrix
-            AUC-ROC Curve
+            AUC-ROC Curve, on the validation set.
             
         Parameters :
             classifier : trained classification model
-            X_test : array-like, shape(n_samples, n_features)
-            y_test : of length n_samples
+            X_val : array-like, shape(n_samples, n_features)
+            y_val : of length n_samples
 
         Returns :
             void
         '''
-        accuracy, precision, recall, f_score , _ = evaluate(classifier, X_test, y_test)
+        accuracy, precision, recall, f_score , _ = evaluate(classifier, X_val, y_val)
         print("Accuracy : ",accuracy)
         print("Precision: ", precision)
         print("Recall: ", recall)
         print("F1 score : ",f_score)
         print("Precision vs Recall Curve")
-        disp = plot_precision_recall_curve(classifier,X_test, y_test)
+        disp = plot_precision_recall_curve(classifier,X_val, y_val)
         print("Confusion Matrix")
-        disp = plot_confusion_matrix(classifier,X_test, y_test)
+        disp = plot_confusion_matrix(classifier,X_val, y_val)
 
     
         

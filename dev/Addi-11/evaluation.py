@@ -7,13 +7,13 @@ import pandas as pd
 from sklearn.utils import class_weight
 
 
-def evaluate(classifier, X_test, y_test):
+def evaluate(classifier, X_val, y_val):
     '''
-    This function predicts the y_values for a trained model and calculates the evaluation metrics accuracy, precision, recall, f_score. 
+    This function predicts the values for a trained model and calculates the evaluation metrics accuracy, precision, recall, f_score on the validation set. 
     Parameters :
         classifier : trained classification model
-        X_test : array-like, shape( n_samples, n_features)
-        y_test : array-like, of length n_samples
+        X_val : array-like, shape( n_samples, n_features)
+        y_val : array-like, of length n_samples
 
     Returns :
         accuracy : float
@@ -22,11 +22,11 @@ def evaluate(classifier, X_test, y_test):
         f_score : float
         y_score : array-like of length n_features, 
     '''
-    y_score = classifier.predict(X_test)
-    accuracy = accuracy_score(y_test, y_score)
-    f_score = f1_score(y_test, y_score)
-    precision = precision_score(y_test, y_score)
-    recall = recall_score(y_test, y_score)
+    y_score = classifier.predict(X_val)
+    accuracy = accuracy_score(y_val, y_score)
+    f_score = f1_score(y_val, y_score)
+    precision = precision_score(y_val, y_score)
+    recall = recall_score(y_val, y_score)
 
     return accuracy, precision, recall, f_score, y_score
 
