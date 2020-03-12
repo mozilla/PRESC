@@ -60,7 +60,7 @@ def SVM_train(X,y):
 def LogisticRegression_train(X,y):
     
     """ SVM Classifier"""
-    classifier = LogisticRegression(multi_class='multinomial', solver='lbfgs')
+    classifier = LogisticRegression()
     return classifier.fit(X,y)
     
     
@@ -78,14 +78,14 @@ def model_confusion_matrix(y_test , y_predict , dataa):
     
     """ Drawing Confusion Matrix """
     
-    print("\n")
     plt.figure(figsize = (8,8))
-    target_label = dataa['Class'].unique()
+    target_label = dataa['Class_code'].unique()
+    target = dataa['Class'].unique()
     plt.xlabel('Actual Vehicle Labels Categoy')
     plt.ylabel('Predicted Vehicle Labels Category')
 
     matrix = confusion_matrix(y_test, y_predict, labels = target_label)
-    cmatrix = pd.DataFrame(matrix, index=target_label, columns=target_label)
+    cmatrix = pd.DataFrame(matrix, index=target, columns=target)
     sns.heatmap(cmatrix, annot=True , linewidths=.5)
     plt.show()
 
