@@ -1,4 +1,4 @@
-""" This file compares various evaluation metrics for different data splits """
+# This file compares various evaluation metrics for different data splits 
 
 import numpy as np
 from dataloader import train_test_split_data
@@ -13,6 +13,15 @@ columns = ['Training data','Testing Data','Accuracy %', 'Precision', 'Recall', '
 df = pd.DataFrame(columns = columns)
 
 def data_split_examine(clf):
+    '''
+    The fuction calculates evaluation metrics like f1_score, accuracy, precision, recall for various test data sizes
+
+    Parameters:
+        clf : a trained classification model
+
+    Return:
+        void
+    '''
     model = Classifier()
     for index in range(len(test_sizes)):
         X_train, X_test, y_train, y_test = train_test_split_data(test_sizes[index])
@@ -25,6 +34,9 @@ def data_split_examine(clf):
     display(df)
         
 def visualise_split(clf):
+    '''
+    The function visualises the corelation between data splits and evaluation metrics by plotting graph between testing data sizes and accuracy.
+    '''
     fig,axes = plt.subplots()
     axes.set_xlabel("Test Data Size")
     axes.set_ylabel("Accuracy %")
