@@ -60,7 +60,7 @@ def SVM_train(X,y):
 def LogisticRegression_train(X,y):
     
     """ SVM Classifier"""
-    classifier = LogisticRegression()
+    classifier = LogisticRegression(multi_class='multinomial', solver='lbfgs')
     return classifier.fit(X,y)
     
     
