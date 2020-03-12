@@ -130,3 +130,7 @@ dmypy.json
 
 # Phpstorm
 .idea
+
+# Mac crap
+.DS_Store
+
