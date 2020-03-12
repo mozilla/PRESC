@@ -10,7 +10,7 @@ from sklearn.metrics import plot_precision_recall_curve, confusion_matrix, plot_
 import matplotlib.pyplot as plt
 
 class Classifier:
-
+    
     def svm_classifier(self,X_train,y_train):
         classifier = SVC(gamma='auto')
         classifier.fit(X_train, y_train)
@@ -41,9 +41,9 @@ class Classifier:
         classifier.fit(X_train, y_train)
         return classifier
 
-    """ This function is to evaluate classifier's performancen"""
+    # This function is to evaluate classifier's performance
     def evaluation(self, classifier, X_test, y_test):
-        accuracy, precision, recall, f_score , y_score = evaluate(classifier, X_test, y_test)
+        accuracy, precision, recall, f_score , _ = evaluate(classifier, X_test, y_test)
         print("Accuracy : ",accuracy)
         print("Precision: ", precision)
         print("Recall: ", recall)
