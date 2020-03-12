@@ -8,6 +8,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report , confusion_matrix
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer
+from sklearn.model_selection import learning_curve
 from sklearn.metrics import f1_score
     
 
@@ -54,7 +55,7 @@ def splitting_train_test_data(data):
 def SVM_train(X,y):
     
     """ SVM Classifier"""
-    
+    # kernel =' poly ' is taking infinte time that's why it is not added.
     parameters = [{'kernel': ['rbf'],
                     'gamma': [1e-3, 1e-4],
                     'C': [1, 10, 100, 1000]
@@ -75,13 +76,16 @@ def LogisticRegression_train(X,y):
     """ SVM Classifier"""
     classifier = LogisticRegression()
     return classifier.fit(X,y)
+
     
 def Tuning_LogiticRegression(X,y):
     """ Tuning Logistic Regression to increase the accuracy of model """    
     clf = LogisticRegression()
-    parameters = {'penalty': ['l1', 'l2'],'C':[0.001,.009,0.01,.09,1,5,10,25]}
-    grid_clf_acc = GridSearchCV(clf, param_grid = parameters , scoring = 'recall')
-    return grid_clf_acc.fit(X, y)
+    parameters = {'penalty': ['l1', 'l2'],
+                  'C':[0.001,.009,0.01,.09,1,5,10,25]
+                  }
+    grid_classifier = GridSearchCV(clf, param_grid = parameters , scoring = 'recall')
+    return grid_classifier.fit(X, y)
     
     
     
@@ -108,7 +112,9 @@ def model_confusion_matrix(y_test , y_predict , dataa):
     sns.heatmap(cmatrix, annot=True , linewidths=.5)
     plt.show()
 
+
 def model_classification_report(y_test, y_predict):
+
     """  Model Classification report for Precision , Recall and F1-Score """
     
     print("\nDataSet Report: ")
@@ -124,6 +130,8 @@ def randomize(X, Y):
     return X2, Y2
 
 def draw_learning_curves(X, y, estimator, num_trainings):
+    """ Method to draw learning curves of different models """
+    
     train_sizes, train_scores, test_scores = learning_curve(
         estimator, X2, y2, cv=None, n_jobs=1, train_sizes=np.linspace(.1, 1.0, num_trainings))
 
