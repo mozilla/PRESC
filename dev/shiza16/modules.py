@@ -1,4 +1,3 @@
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,6 +6,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report , confusion_matrix
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import make_scorer
+from sklearn.metrics import f1_score
     
 
 def dataset_statistics(data):
@@ -53,8 +55,19 @@ def SVM_train(X,y):
     
     """ SVM Classifier"""
     
-    classifier = SVC(gamma = 1 , kernel = 'poly', degree = 2)
+    parameters = [{'kernel': ['rbf'],
+                    'gamma': [1e-3, 1e-4],
+                    'C': [1, 10, 100, 1000]
+                    }]
+    
+    svm_grid = GridSearchCV(SVC(), parameters, cv=5)
+    svm_grid.fit(X,y)
+    classifier = SVC(kernel = svm_grid.best_estimator_.kernel ,
+                     gamma = svm_grid.best_estimator_.gamma ,
+                     C = svm_grid.best_estimator_.C )   
+    
     return classifier.fit(X,y)
+
 
 
 def LogisticRegression_train(X,y):
@@ -63,6 +76,12 @@ def LogisticRegression_train(X,y):
     classifier = LogisticRegression()
     return classifier.fit(X,y)
     
+def Tuning_LogiticRegression(X,y):
+    """ Tuning Logistic Regression to increase the accuracy of model """    
+    clf = LogisticRegression()
+    parameters = {'penalty': ['l1', 'l2'],'C':[0.001,.009,0.01,.09,1,5,10,25]}
+    grid_clf_acc = GridSearchCV(clf, param_grid = parameters , scoring = 'recall')
+    return grid_clf_acc.fit(X, y)
     
     
     
@@ -78,7 +97,7 @@ def model_confusion_matrix(y_test , y_predict , dataa):
     
     """ Drawing Confusion Matrix """
     
-    plt.figure(figsize = (8,8))
+    plt.figure(figsize = (5,5))
     target_label = dataa['Class_code'].unique()
     target = dataa['Class'].unique()
     plt.xlabel('Actual Vehicle Labels Categoy')
@@ -94,5 +113,39 @@ def model_classification_report(y_test, y_predict):
     
     print("\nDataSet Report: ")
     print(classification_report(y_test, y_predict))
+    
+    
+from sklearn.model_selection import learning_curve
+
+def randomize(X, Y):
+    permutation = np.random.permutation(Y.shape[0])
+    X2 = X[permutation,:]
+    Y2 = Y[permutation]
+    return X2, Y2
+
+def draw_learning_curves(X, y, estimator, num_trainings):
+    train_sizes, train_scores, test_scores = learning_curve(
+        estimator, X2, y2, cv=None, n_jobs=1, train_sizes=np.linspace(.1, 1.0, num_trainings))
+
+    train_scores_mean = np.mean(train_scores, axis=1)
+    train_scores_std = np.std(train_scores, axis=1)
+    test_scores_mean = np.mean(test_scores, axis=1)
+    test_scores_std = np.std(test_scores, axis=1)
+
+    plt.grid()
+
+    plt.title("Learning Curves")
+    plt.xlabel("Training examples")
+    plt.ylabel("Score")
+
+    plt.plot(train_scores_mean, 'o-', color="g",
+             label="Training score")
+    plt.plot(test_scores_mean, 'o-', color="y",
+             label="Cross-validation score")
+
+
+    plt.legend(loc="best")
+
+    plt.show()
     
     
