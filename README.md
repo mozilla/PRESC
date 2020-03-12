@@ -149,10 +149,14 @@ Contributions can be made by submitting a [pull request](https://help.github.com
 2. Fork this repository and clone it into your machine.(using git CLI)
 
 3. Setup and activate environment:
+
    for windows:
-   Open anaconda prompt and cd into the repo folder where you cloned it.
+   
+   Open anaconda prompt and cd into the folder where you cloned the repository.
+   
    ex: cd PRESC
-   Then type the following commands to active presc environment.
+   
+   Then type the following commands to activate presc environment.
 ```
  $ conda env create -f environment.yml
  $ conda activate presc
