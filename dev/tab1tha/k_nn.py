@@ -65,14 +65,21 @@ def with_without(df, df_without, targetname):
 
 
 def visual_compare(data_train, target_train, data_test, target_test):
-    '''This function outputs a graph of the predictions gotten from the K-nn algorithm. In that same graph, the 
-    actual values are plotted. The variation between the predicted values and actual values is clearly visualised such
-    that the user can choose the optimal value of the n_neighbors parameter of KNeighborsClassifier that will yied maximum
-    prediction accuracy'''
-    # Setup arrays to store train and test accuracies
+    """This function outputs a graph of the accuracy of the test set 
+    compared to that of the train set as gotten from the K-NN algorithm. 
+    The variation between the train accuracy (reference) and test accuracy 
+    is clearly visualised such that the user can choose the optimal value of 
+    the n_neighbors parameter of KNeighborsClassifier that will yield maximum
+    prediction accuracy."""
+
     neighbors = np.arange(1, 9)
+    """The values chosen here are arbitrary. Increasing the range only increased the
+    run time of the function and no visible changes were seen in the pattern of the graph.
+    In the case of a less ideal dataset, there is a possibility that increasing the values in
+    np.arange() will give the user a larger scope to observe if there are other values of n_neighbors
+    that will yield a better prediction accuracy. Arrays are setup to store train and test accuracies
+    as shown below; """
     train_accuracy = np.empty(len(neighbors))
-    test_accuracy = np.empty(len(neighbors))
 
     # Loop over different values of k
     for i, k in enumerate(neighbors):
