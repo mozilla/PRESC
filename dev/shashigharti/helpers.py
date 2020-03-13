@@ -4,7 +4,7 @@ from sklearn import metrics #Import scikit-learn metrics module for accuracy cal
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import GridSearchCV 
     
-def train_svm(X, y, scaler = None, ratio = 0.3):
+def train_svm(X, y, scaler = None, ratio = 0.2):
     """ This function takes train data, labels as input and trains the SVM model.
     
     Args:
@@ -21,10 +21,9 @@ def train_svm(X, y, scaler = None, ratio = 0.3):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = ratio, random_state = 1)
     
     if scaler is not None:
-        scaler.fit(X_train)
-        X_train = scaler.transform(X_train)
-        X_test = scaler.transform(X_test)
-        #print('using scaler')
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.fit_transform(X_test)
+        print(type(scaler))
     
     ## Build the SVM model on training data
     model_svc = SVC(gamma='auto')
@@ -55,10 +54,9 @@ def train_svm_with_hyperparameter_tuning(X, y, param_grid, scaler = None, ratio 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = ratio, random_state = 1)
     
     if scaler is not None:
-        scaler.fit(X_train)
-        X_train = scaler.transform(X_train)
-        X_test = scaler.transform(X_test)
-        #print('using scaler')
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.fit_transform(X_test)
+        print(type(scaler))
 
     svm_grid = GridSearchCV(SVC(), param_grid, refit = True, verbose = 3) 
     svm_grid.fit(X_train, y_train) 
