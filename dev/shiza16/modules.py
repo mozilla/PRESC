@@ -59,16 +59,12 @@ def SVM_train(X,y):
     
     """ SVM Classifier"""
     # kernel =' poly ' is taking infinte time that's why it is not added.
-    parameters = [{'kernel': ['rbf'],
-                    'gamma': [1e-3, 1e-4],
-                    'C': [1, 10, 100, 1000]
-                    }]
-    
-    svm_grid = GridSearchCV(SVC(), parameters, cv=5)
-    svm_grid.fit(X,y)
-    classifier = SVC(kernel = svm_grid.best_estimator_.kernel ,
-                     gamma = svm_grid.best_estimator_.gamma ,
-                     C = svm_grid.best_estimator_.C )   
+  params_grid = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],
+                     'C': [1, 10, 100, 1000]},
+                    {'kernel': ['linear'], 'C': [1, 10, 100, 1000]}]
+
+    classifier = GridSearchCV(SVC(), params_grid, cv=5)
+    classifier.fit(X_train, y_train)  
     
     return classifier.fit(X,y)
 
