@@ -126,11 +126,14 @@ class Classifier:
         print("Precision: ", precision)
         print("Recall: ", recall)
         print("F1 score : ",f_score)
+
+        # Plotting Precision Recall Curve
         print("Precision vs Recall Curve")
         disp = plot_precision_recall_curve(classifier,x_val, y_val)
-        print("Confusion Matrix")
+
         # Plotting Confusion Matrix
-        labels = ['business', 'health']
+        print("Confusion Matrix")
+        labels = ['Class 1', 'Class 2']
         cm = confusion_matrix(y_val, y_score)
         fig = plt.figure()
         ax = fig.add_subplot(111)
