@@ -3,10 +3,10 @@ from sklearn.model_selection import train_test_split
 from sklearn import metrics #Import scikit-learn metrics module for accuracy calculation
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import GridSearchCV 
-
-def train_svm(X, y, ratio = 0.3):
+    
+def train_svm(X, y, scaler=None, ratio = 0.3):
     """ This function takes train data, labels as input and trains the SVM model.
-
+    
     Args:
         X: Training Data(features columns).
         y: Labels for each row
@@ -19,15 +19,21 @@ def train_svm(X, y, ratio = 0.3):
     ## Split the train and test data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = ratio, random_state = 1)
     
+    if scaler is not None:
+        scaler.fit(X_train)
+        X_train = scaler.transform(X_train)
+        X_test = scaler.transform(X_test)
+        print('using scaler')
+    
     ## Build the SVM model on training data
     model_svc = SVC(gamma='auto')
-    model_svc.fit(X_train,y_train)
+    model_svc.fit(X_train, y_train)
     y_pred= model_svc.predict(X_test)
     
     
     return y_test, y_pred
     
-def train_svm_with_hyperparameter_tuning(X, y, param_grid, ratio = 0.3):
+def train_svm_with_hyperparameter_tuning(X, y, param_grid, scaler=None, ratio = 0.3):
     """ This function takes train data, labels as input and trains the SVM model.
 
     The function uses GridSearchCV for hyperparameter tuning for SVM
@@ -45,6 +51,12 @@ def train_svm_with_hyperparameter_tuning(X, y, param_grid, ratio = 0.3):
     
     ## Split the train and test data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = ratio, random_state = 1)
+    
+    if scaler is not None:
+        scaler.fit(X_train)
+        X_train = scaler.transform(X_train)
+        X_test = scaler.transform(X_test)
+        print('using scaler')
 
     svm_grid = GridSearchCV(SVC(), param_grid, refit = True, verbose = 3) 
     svm_grid.fit(X_train, y_train) 
