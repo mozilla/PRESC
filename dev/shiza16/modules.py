@@ -10,6 +10,9 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import learning_curve
 from sklearn.metrics import f1_score
+from sklearn import metrics
+from sklearn.model_selection import cross_val_score
+
     
 
 def dataset_statistics(data):
@@ -96,21 +99,29 @@ def test_classifier(classifier , X_test):
     y_predict = classifier.predict(X_test)  
     return y_predict
  
+def cross_validation(X,y,classifier):
+    scores = cross_val_score( classifier, X, y, cv=5, scoring='f1_macro')
+    scores.mean()
     
+
 def model_confusion_matrix(y_test , y_predict , dataa):    
     
     """ Drawing Confusion Matrix """
     
-    plt.figure(figsize = (5,5))
+    fig = plt.gcf()
+    fig.set_size_inches(8, 5)
+    
     target_label = dataa['Class_code'].unique()
     target = dataa['Class'].unique()
-    plt.xlabel('Actual Vehicle Labels Categoy')
-    plt.ylabel('Predicted Vehicle Labels Category')
 
     matrix = confusion_matrix(y_test, y_predict, labels = target_label)
     cmatrix = pd.DataFrame(matrix, index=target, columns=target)
     sns.heatmap(cmatrix, annot=True , linewidths=.5)
-    plt.show()
+    
+    plt.title("Confusion Matrix for Logistic Regression \n")
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.tight_layout()
 
 
 def model_classification_report(y_test, y_predict):
