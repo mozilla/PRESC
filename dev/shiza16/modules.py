@@ -47,7 +47,7 @@ def splitting_train_test_data(data):
     """ Data is splitted into 30:70 for training and testing"""
     #X = data.drop(['Class'] , axis = 1)
     #y  = data['Class']
-    X = data.drop(['Class','Class_code'], axis = 1)
+    X = data.drop(['Class_code'], axis = 1)
     y = data[['Class_code']]
     
     return train_test_split( X, y, test_size=0.3 , random_state=45)
