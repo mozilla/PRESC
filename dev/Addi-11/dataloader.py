@@ -44,7 +44,7 @@ def get_x_y():
 	x = df.drop('Class',axis = 1)
 	return x,y
 
-def train_test_split_data(test_size):
+def train_val_test_split_data(test_size):
 	'''
 	Splits the data into 3 portions, training, validation and testing.
 	
@@ -65,10 +65,9 @@ def train_test_split_data(test_size):
 	
 	# dividing training set into training and testing segments
 	x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = test_size, random_state = random_state)
+	
 	# further dividing training set into training and validation segments
 	val_size = 0.2 # set the validation size 0.2 of the training set
 	x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size= val_size, random_state = random_state)
-
-	x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = test_size, random_state = random_state)
 
 	return x_train, x_val, x_test,y_train, y_val, y_test

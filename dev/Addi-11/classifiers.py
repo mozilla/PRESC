@@ -121,15 +121,31 @@ class Classifier:
         Returns :
             void
         '''
-        accuracy, precision, recall, f_score , _ = evaluate(classifier, x_val, y_val)
+        accuracy, precision, recall, f_score , y_score = evaluate(classifier, x_val, y_val)
         print("Accuracy : ",accuracy)
         print("Precision: ", precision)
         print("Recall: ", recall)
         print("F1 score : ",f_score)
+
+        # Plotting Precision Recall Curve
         print("Precision vs Recall Curve")
         disp = plot_precision_recall_curve(classifier,x_val, y_val)
+
+        # Plotting Confusion Matrix
         print("Confusion Matrix")
-        disp = plot_confusion_matrix(classifier,x_val, y_val)
+        labels = ['Class 1', 'Class 2']
+        cm = confusion_matrix(y_val, y_score)
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        cax = ax.matshow(cm)
+        plt.title('Confusion matrix of the classifier')
+        fig.colorbar(cax)
+        ax.set_xticklabels([''] + labels)
+        ax.set_yticklabels([''] + labels)
+        plt.xlabel('Predicted')
+        plt.ylabel('True')
+        plt.show()
+
 
     
         
