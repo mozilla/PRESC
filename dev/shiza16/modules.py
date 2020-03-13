@@ -87,7 +87,7 @@ def Tuning_LogiticRegression(X,y):
     parameters = {'penalty': ['l1', 'l2'],
                   'C':[0.001,.009,0.01,.09,1,5,10,25]
                   }
-    grid_classifier = GridSearchCV(clf, param_grid = parameters , scoring = 'recall')
+    grid_classifier = GridSearchCV(clf, param_grid = parameters )
     return grid_classifier.fit(X, y)
     
     
