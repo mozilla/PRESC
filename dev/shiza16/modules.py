@@ -83,12 +83,15 @@ def LogisticRegression_train(X,y):
     
 def Tuning_LogiticRegression(X,y):
     """ Tuning Logistic Regression to increase the accuracy of model """    
-    clf = LogisticRegression()
+    
     parameters = {'penalty': ['l1', 'l2'],
                   'C':[0.001,.009,0.01,.09,1,5,10,25]
                   }
-    grid_classifier = GridSearchCV(clf, param_grid = parameters )
-    return grid_classifier.fit(X, y)
+    LR_grid = GridSearchCV(LogisticRegression(), param_grid = parameters )
+    classifier = LogisticRegression(penalty = LR_grid.best_estimator_.penalty,
+                                    C = LR_grid.best_estimator_.C
+                                    )
+    return classifier.fit(X, y)
     
     
     
