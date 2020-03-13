@@ -61,9 +61,6 @@ def SVM_train(X,y):
     # kernel =' poly ' is taking infinte time that's why it is not added.
     params_grid = [{ 'kernel': ['rbf'],
                     'gamma': [1e-3, 1e-4],
-                     'C': [1, 10, 100, 1000]},
-                    { 'kernel': ['linear'] ,
-                       'gamma': [1e-3, 1e-4],
                      'C': [1, 10, 100, 1000]}]
 
     svm_grid = GridSearchCV(SVC(), params_grid, cv=5)
