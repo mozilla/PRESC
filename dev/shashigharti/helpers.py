@@ -4,12 +4,13 @@ from sklearn import metrics #Import scikit-learn metrics module for accuracy cal
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import GridSearchCV 
     
-def train_svm(X, y, scaler=None, ratio = 0.3):
+def train_svm(X, y, scaler = None, ratio = 0.3):
     """ This function takes train data, labels as input and trains the SVM model.
     
     Args:
         X: Training Data(features columns).
         y: Labels for each row
+        scaler: Transformation class object
         ratio: (optional) Split ratio for train and test data
 
     Returns:
@@ -23,7 +24,7 @@ def train_svm(X, y, scaler=None, ratio = 0.3):
         scaler.fit(X_train)
         X_train = scaler.transform(X_train)
         X_test = scaler.transform(X_test)
-        print('using scaler')
+        #print('using scaler')
     
     ## Build the SVM model on training data
     model_svc = SVC(gamma='auto')
@@ -33,7 +34,7 @@ def train_svm(X, y, scaler=None, ratio = 0.3):
     
     return y_test, y_pred
     
-def train_svm_with_hyperparameter_tuning(X, y, param_grid, scaler=None, ratio = 0.3):
+def train_svm_with_hyperparameter_tuning(X, y, param_grid, scaler = None, ratio = 0.3):
     """ This function takes train data, labels as input and trains the SVM model.
 
     The function uses GridSearchCV for hyperparameter tuning for SVM
@@ -42,6 +43,7 @@ def train_svm_with_hyperparameter_tuning(X, y, param_grid, scaler=None, ratio = 
         X: Training Data(features columns).
         y: Labels for each row
         param_grid (json): params for GridSearchCV (c, gamma, kernel)
+        scaler: Transformation class object
         ratio: (optional) Split ratio for train and test data
 
     Returns:
@@ -56,7 +58,7 @@ def train_svm_with_hyperparameter_tuning(X, y, param_grid, scaler=None, ratio = 
         scaler.fit(X_train)
         X_train = scaler.transform(X_train)
         X_test = scaler.transform(X_test)
-        print('using scaler')
+        #print('using scaler')
 
     svm_grid = GridSearchCV(SVC(), param_grid, refit = True, verbose = 3) 
     svm_grid.fit(X_train, y_train) 
