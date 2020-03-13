@@ -8,16 +8,15 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 def test_train_split(estimator, X, y):
-    """ This function takes train data, labels as input and trains the SVM model.
-    The function uses GridSearchCV for hyperparameter tuning for SVM
+    """ This function takes estimator and data as input and does test-train split test in multiple passes.
 
     Args:
-        X: Training Data(features columns).
+        estimator: Model to be trained
+        X: Training Data(features columns)
         y: Labels for each row
-        param_grid (json): params for GridSearchCV (c, gamma, kernel)
-        ratio: (optional) Split ratio for train and test data
+
     Returns:
-        tuple: y_test, y_pred values
+        dataframe: list of test-train split results
     """  
     result_lst = list()       
     
