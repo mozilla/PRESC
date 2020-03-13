@@ -101,7 +101,7 @@ def test_classifier(classifier , X_test):
  
 def cross_validation(X,y,classifier):
     scores = cross_val_score( classifier, X, y, cv=5, scoring='f1_macro')
-    scores.mean()
+    return scores.mean()
     
 
 def model_confusion_matrix(y_test , y_predict , dataa):    
