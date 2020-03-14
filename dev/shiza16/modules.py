@@ -14,9 +14,7 @@ def dataset_statistics(data):
     """ Data Features and Labels"""
 
     print("Shape of the dataset: ", data.shape)
-
     print("\nFeatures of the dataset are: \n", list(data.keys()))
-
     print("\nTarget Labels of dataset are: \n", data["Class"].unique())
 
 
@@ -37,7 +35,8 @@ def Correlation_matrix(dataa):
     plt.show()
     
 def label_encoding(vehicle):
-    #converting categorical labels into numeric values
+    """ Converting categorical labels into numeric values """
+    
     vdataset = vehicle.copy()
     from sklearn.preprocessing import LabelEncoder
 
@@ -50,7 +49,7 @@ def splitting_train_test_data(data):
     """ Data is splitted into 30:70 for training and testing"""
     
     X = data.drop(["Class" , "Class_code"], axis=1)
-    y = data["Class"]
+    y = data["Class_code"]
 
     return train_test_split(X, y, test_size=0.3, random_state=45)
 
@@ -75,7 +74,7 @@ def test_classifier(classifier, X_test):
 
 
 def cross_validation(dataa , classifier):
-    """ Cross Validation   """
+    """ Cross Validation for performance evaluation  """
     
     X = dataa.drop(['Class' , 'Class_code'], axis = 1)
     y = dataa[['Class_code']]
