@@ -2,13 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_misclassified_probablities(model_res, class_labels, correct_y_labels):
+def plot_misclassified_probablities(
+    model_res, class_labels, correct_y_labels, n_datapoints
+):
     """
         Input:
             model_res: Model result (n X k) matrix where n = number of test_examples, k = number of classes.
                 Each row has probablity values predicted by the model for each of k classes.
             class_lables: Labels for classes (1,2,3,...k) in order according to model_res.
             correct_y: Array of n values with each value as label for classes.
+            n_datapoints: Number of datapoints you wan't to plot.
         Output:
             Plot showing classification probablities for misclassified data points.
     """
@@ -45,16 +48,29 @@ def plot_misclassified_probablities(model_res, class_labels, correct_y_labels):
         return
 
     # misclassification indices
-    print("Number of misclassified datapoints: {}".format(len(index_misclassification)))
+    print(
+        "Total number of misclassified datapoints: {}".format(
+            len(index_misclassification)
+        )
+    )
+
+    # changing index_misclassification to contain first min(n_datapoints, len(index_misclassification)) points
+    index_misclassification = index_misclassification[
+        : min(n_datapoints, len(index_misclassification))
+    ]
 
     # plotting data
     fig, ax = plt.subplots()
 
+    # width of histogram bars
+    width = 0.25
+    step = (k + 2) * width
+
     # x used as index to show misclassifications
-    x = np.arange(len(index_misclassification))
+    x = np.arange(start=0, stop=(len(index_misclassification)) * step, step=step)
     plt.xticks(x, index_misclassification)
 
-    x_shift = x - ((k - 1) * 0.25) - 0.125
+    x_shift = x - (((k / 2) - 1) * width) - (width / 2)
 
     for i in range(k):
         label = "Class {}".format(class_labels[i])
@@ -64,7 +80,7 @@ def plot_misclassified_probablities(model_res, class_labels, correct_y_labels):
             misc_probabs.append(model_res[index_misclassification[j]][i])
 
         plt.bar(
-            x_shift + (0.25 * i), misc_probabs, width=0.25, label=label,
+            x_shift + (width * i), misc_probabs, width=width, label=label,
         )
 
     ax.set_xlabel("Indices of misclassifications in Model Result.")
