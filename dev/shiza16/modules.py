@@ -121,32 +121,3 @@ def randomize_data(X, Y):
     Y2 = Y[permutation]
     return X2, Y2
 
-
-def draw_learning_curves(X, y, estimator, num_trainings):
-
-    """ Method to draw learning curves of different models """
-
-    train_sizes, train_scores, test_scores = learning_curve(
-        estimator,
-        X,
-        y,
-        cv=None,
-        n_jobs=1,
-        train_sizes=np.linspace(0.1, 1.0, num_trainings),
-    )
-
-    train_scores_mean = np.mean(train_scores, axis=1)
-    test_scores_mean = np.mean(test_scores, axis=1)
-
-    plt.grid()
-
-    plt.title(" Learning Curves ")
-    plt.xlabel(" Training Score ")
-    plt.ylabel(" Score ")
-
-    plt.plot(train_scores_mean, "o-", color="r", label="Training score")
-    plt.plot(test_scores_mean, "o-", color="b", label="Cross-validation score")
-
-    plt.legend(loc="best")
-
-    plt.show()
