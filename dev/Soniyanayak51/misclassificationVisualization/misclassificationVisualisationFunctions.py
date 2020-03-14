@@ -1,21 +1,6 @@
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-import tensorflow as tf
-import sklearn as skl
-from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
-from sklearn.utils import shuffle
-from sklearn.metrics import confusion_matrix
 import seaborn as sns
-import matplotlib.gridspec as gridspec
-from sklearn.preprocessing import StandardScaler
-from sklearn.manifold import TSNE
-from pandas import set_option
-from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression
-from sklearn.datasets import load_iris
-
     
 def misclassificationGraphs(y_test, preds):
     '''
