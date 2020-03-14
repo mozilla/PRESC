@@ -20,35 +20,44 @@ def dataset_statistics(data):
 
     print("Shape of the dataset: ", data.shape)
 
-    print("\nFeatures of the dataset are: ", list(data.keys()))
+    print("\nFeatures of the dataset are: \n", list(data.keys()))
 
-    print("\nTarget Labels of dataset are: ", data["Class"].unique())
+    print("\nTarget Labels of dataset are: \n", data["Class"].unique())
 
 
-def data_visualization(dataa):
-
-    """ For Visulaization of DataSet"""
+def histogram(dataa):
+    """ Histogram for analyzing the frequency of labled class """
 
     print("\nHistogram for analyzing the frequency of labled class.\n")
     base_color = sns.color_palette()[9]
     Vorder = dataa["Class"].value_counts().index
     sns.countplot(data=dataa, x="Class", color=base_color, order=Vorder)
 
-    print("\n")
+def Correlation_matrix(dataa):
+    """ Correlation matrix to find the relationship between variables """
+    
+    print("Correlation Analysis\n")
     plt.figure(figsize=(25, 15))
     sns.heatmap(dataa.corr(), annot=True, linewidths=0.5)
     plt.show()
-    print("Correlation Analysis.")
+    
+def label_encoding(vehicle):
+    #converting categorical labels into numeric values
+    vdataset = vehicle.copy()
+    from sklearn.preprocessing import LabelEncoder
 
+    lb_make = LabelEncoder()
+    vdataset['Class_code'] = lb_make.fit_transform(vehicle['Class'])
+    return vdataset
 
+    
 def splitting_train_test_data(data):
-
     """ Data is splitted into 30:70 for training and testing"""
+    
     X = data.drop(["Class"], axis=1)
     y = data["Class"]
 
     return train_test_split(X, y, test_size=0.3, random_state=45)
-
 
 def SVM_train(X, y):
 
@@ -68,32 +77,25 @@ def SVM_train(X, y):
 
 
 def LogisticRegression_train(X, y):
-
-    """ SVM Classifier"""
+    """ Logistic Regression Classifier"""
+ 
     classifier = LogisticRegression(solver="lbfgs", multi_class="auto", max_iter=7600)
     return classifier.fit(X, y)
 
 
-def Tuning_LogiticRegression(X, y, x):
+def Tuning_LogiticRegression(X, y):
     """ Tuning Logistic Regression to increase the accuracy of model """
 
     parameters = {
         "penalty": ["l1", "l2"],
-        "C": [0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000],
-        "solver": ["liblinear", "saga"],
-        "class_weight": [
-            {1: 0.5, 0: 0.5},
-            {1: 0.4, 0: 0.6},
-            {1: 0.6, 0: 0.4},
-            {1: 0.7, 0: 0.3},
-        ],
-    }
-    LR_grid = GridSearchCV(LogisticRegression(), param_grid=parameters, cv=x)
+        "C": [0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
+        }
+    LR_grid = GridSearchCV(LogisticRegression(), param_grid=parameters, cv=5)
     LR_grid = LR_grid.fit(X, y)
     classifier = LogisticRegression(
-        penalty=LR_grid.best_estimator_.get_params()["penalty"],
-        C=LR_grid.best_estimator_.get_params()["C"],
-    )
+              penalty=LR_grid.best_estimator_.get_params()["penalty"],
+              C=LR_grid.best_estimator_.get_params()["C"],
+              )
     return classifier.fit(X, y)
 
 
@@ -105,33 +107,37 @@ def test_classifier(classifier, X_test):
     return y_predict
 
 
-def cross_validation(X, y, classifier):
+def cross_validation(dataa , classifier):
+    """ Cross Validation   """
+    
+    X = dataa.drop(['Class' , 'Class_code'], axis = 1)
+    y = dataa[['Class_code']]
     scores = cross_val_score(classifier, X, y, cv=5, scoring="f1_macro")
     return scores.mean()
 
 
 def model_confusion_matrix(y_test, y_predict, dataa):
-
     """ Drawing Confusion Matrix """
 
     fig = plt.gcf()
     fig.set_size_inches(8, 5)
 
-    target_label = dataa["Class_code"].unique()
+    #target_label = dataa["Class_code"].unique()
     target = dataa["Class"].unique()
-
-    matrix = confusion_matrix(y_test, y_predict, labels=target_label)
+    
+    matrix = confusion_matrix(y_test, y_predict , labels = target)
     cmatrix = pd.DataFrame(matrix, index=target, columns=target)
-    sns.heatmap(cmatrix, annot=True, linewidths=0.5)
+    sns.heatmap(cmatrix, annot=True , linewidths=.5)
 
     plt.title("Confusion Matrix for Logistic Regression \n")
-    plt.ylabel("True label")
-    plt.xlabel("Predicted label")
+    plt.ylabel("Actual Labels\n")
+    plt.xlabel("\nPredicted Labels")
+    plt.tight_layout()
+    
     plt.tight_layout()
 
 
 def model_classification_report(y_test, y_predict):
-
     """  Model Classification report for Precision , Recall and F1-Score """
 
     print("\nDataSet Report: ")
