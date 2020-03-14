@@ -5,7 +5,6 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import cross_val_score
 
 
@@ -26,43 +25,41 @@ def histogram(dataa):
     Vorder = dataa["Class"].value_counts().index
     sns.countplot(data=dataa, x="Class", color=base_color, order=Vorder)
 
+
 def Correlation_matrix(dataa):
     """ Correlation matrix to find the relationship between variables """
-    
+
     print("Correlation Analysis\n")
     plt.figure(figsize=(25, 15))
     sns.heatmap(dataa.corr(), annot=True, linewidths=0.5)
     plt.show()
-    
+
+
 def label_encoding(vehicle):
     """ Converting categorical labels into numeric values """
-    
+
     vdataset = vehicle.copy()
     from sklearn.preprocessing import LabelEncoder
 
     lb_make = LabelEncoder()
-    vdataset['Class_code'] = lb_make.fit_transform(vehicle['Class'])
+    vdataset["Class_code"] = lb_make.fit_transform(vehicle["Class"])
     return vdataset
 
-    
+
 def splitting_train_test_data(data):
     """ Data is splitted into 30:70 for training and testing"""
-    
-    X = data.drop(["Class" , "Class_code"], axis=1)
+
+    X = data.drop(["Class", "Class_code"], axis=1)
     y = data["Class_code"]
 
     return train_test_split(X, y, test_size=0.3, random_state=45)
 
 
-
 def LogisticRegression_train(X, y):
     """ Logistic Regression Classifier"""
- 
+
     classifier = LogisticRegression(solver="lbfgs", multi_class="auto", max_iter=7600)
     return classifier.fit(X, y)
-
-
-
 
 
 def test_classifier(classifier, X_test):
@@ -73,11 +70,11 @@ def test_classifier(classifier, X_test):
     return y_predict
 
 
-def cross_validation(dataa , classifier):
+def cross_validation(dataa, classifier):
     """ Cross Validation for performance evaluation  """
-    
-    X = dataa.drop(['Class' , 'Class_code'], axis = 1)
-    y = dataa[['Class_code']]
+
+    X = dataa.drop(["Class", "Class_code"], axis=1)
+    y = dataa[["Class_code"]]
     scores = cross_val_score(classifier, X, y, cv=5, scoring="accuracy")
     return scores.mean()
 
@@ -88,18 +85,18 @@ def model_confusion_matrix(y_test, y_predict, dataa):
     fig = plt.gcf()
     fig.set_size_inches(8, 5)
 
-    #target_label = dataa["Class_code"].unique()
-    target = dataa["Class"].unique()
-    
-    matrix = confusion_matrix(y_test, y_predict , labels = target)
+    target_label = dataa["Class_code"].unique()
+    target = dataa["Class"].unique()  ##for index labels
+
+    matrix = confusion_matrix(y_test, y_predict, labels=target_label)
     cmatrix = pd.DataFrame(matrix, index=target, columns=target)
-    sns.heatmap(cmatrix, annot=True , linewidths=.5)
+    sns.heatmap(cmatrix, annot=True, linewidths=0.5)
 
     plt.title("Confusion Matrix for Logistic Regression \n")
     plt.ylabel("Actual Labels\n")
     plt.xlabel("\nPredicted Labels")
     plt.tight_layout()
-    
+
     plt.tight_layout()
 
 
@@ -117,4 +114,3 @@ def randomize_data(X, Y):
     X2 = X[permutation, :]
     Y2 = Y[permutation]
     return X2, Y2
-
