@@ -74,7 +74,8 @@ def Logistic_Regression(X, y):
         "penalty": ["l1", "l2"],
         "C": [0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
         }
-    LR_grid = GridSearchCV(LogisticRegression(), param_grid=parameters, cv=5)
+    cv = model_selection.KFold(n_splits=10, random_state=10)
+    LR_grid = GridSearchCV(LogisticRegression(), param_grid=parameters, cv=cv)
     LR_grid = LR_grid.fit(X, y)
     classifier = LogisticRegression(
               penalty=LR_grid.best_estimator_.get_params()["penalty"],
@@ -86,15 +87,14 @@ def SVM_train(X, y):
 
     """ SVM Classifier"""
     # kernel =' poly ' is taking infinte time that's why it is not added.
-    params_grid = [{"kernel": ["rbf"], "gamma": [1e-3, 1e-4], "C": [1, 10, 100, 1000]}]
-
-    svm_grid = GridSearchCV(SVC(), params_grid, cv=5)
-    svm_grid = svm_grid.fit(X, y)
-    classifier = SVC(
-        kernel=svm_grid.best_estimator_.kernel,
-        C=svm_grid.best_estimator_.C,
-        gamma=svm_grid.best_estimator_.gamma,
-    )
-
+    parameters = [{"kernel": ["rbf"], "gamma": [1e-3, 1e-4], "C": [1, 10, 100, 1000]}]
+    model = SVC()
+    cv = model_selection.KFold(n_splits=10, random_state=10)
+    grid_search = GridSearchCV(estimator=model, param_grid=parameters, cv=cv, scoring='accuracy')
+    grid_result = grid_search.fit(X, y)
+    classifier = SVC(kernel=grid_result.best_estimator_.kernel,
+                    C=grid_result.best_estimator_.C,
+                    gamma=grid_result.best_estimator_.gamma)
+              
     return classifier.fit(X, y)
 
