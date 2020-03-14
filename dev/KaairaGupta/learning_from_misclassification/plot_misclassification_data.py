@@ -65,6 +65,7 @@ def plot_misclassified_probablities(
     # width of histogram bars
     width = 0.25
     step = (k + 2) * width
+    colors = np.transpose(np.random.rand(3, k))
 
     # x used as index to show misclassifications
     x = np.arange(start=0, stop=(len(index_misclassification)) * step, step=step)
@@ -80,8 +81,16 @@ def plot_misclassified_probablities(
             misc_probabs.append(model_res[index_misclassification[j]][i])
 
         plt.bar(
-            x_shift + (width * i), misc_probabs, width=width, label=label,
+            x_shift + (width * i),
+            misc_probabs,
+            color=colors[i],
+            width=width,
+            label=label,
         )
+
+    for i in range(len(index_misclassification)):
+        correct_class = correct_y[index_misclassification[i]]
+        plt.plot(x[i], 1, color=colors[correct_class], marker="o",)
 
     ax.set_xlabel("Indices of misclassifications in Model Result.")
     ax.set_ylabel("Classification probablities.")
