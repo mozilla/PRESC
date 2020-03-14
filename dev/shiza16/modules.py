@@ -3,11 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import learning_curve
 from sklearn.model_selection import cross_val_score
 
 
@@ -81,7 +79,7 @@ def cross_validation(dataa , classifier):
     
     X = dataa.drop(['Class' , 'Class_code'], axis = 1)
     y = dataa[['Class_code']]
-    scores = cross_val_score(classifier, X, y, cv=5, scoring="f1_macro")
+    scores = cross_val_score(classifier, X, y, cv=5, scoring="accuracy")
     return scores.mean()
 
 
