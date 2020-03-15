@@ -4,7 +4,7 @@ import matplotlib.lines as mlines
 import matplotlib.transforms as mtransforms
 
 
-def calibration_plot(
+def plot_calibration_curves(
     classifier_model_list, classifier_model_names, features_test, labels_test, n_bins
 ):
     """
