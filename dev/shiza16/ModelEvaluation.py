@@ -16,7 +16,6 @@ def define_models():
     compare their accuracy.
     
     """
-
     model = []
     model.append(
         (
@@ -50,14 +49,14 @@ def Evaluation_model(data):
     """
 
     X = data.drop(["Class", "Class_code"], axis=1)
-    y = data["Class_Code"]
+    y = data["Class_code"]
 
     models = define_models()
     accuracy_score = []
     models_name = []
 
     for m_name, model in models:
-        kfolds = model_selection.KFold(n_splits=10, random_state=10)
+        kfolds = model_selection.KFold(n_splits=5, random_state=45)
         cv_score = model_selection.cross_val_score(
             model, X, y, cv=kfolds, scoring="accuracy"
         )
@@ -109,9 +108,7 @@ def Tunning_Logistic_Regression(X, y):
         "penalty": ["l1", "l2"],
         "C": [0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000],
     }
-    LR_grid = GridSearchCV(
-        LogisticRegression(), param_grid=parameters, refit=True, verbose=4
-    )
+    LR_grid = GridSearchCV(LogisticRegression(), param_grid=parameters, cv=5)
     LR_grid = LR_grid.fit(X, y)
     classifier = LogisticRegression(
         penalty=LR_grid.best_estimator_.get_params()["penalty"],
@@ -132,9 +129,7 @@ def SVM_train(X, y):
         }
     ]
     model = SVC()
-    grid_search = GridSearchCV(
-        estimator=model, param_grid=parameters, refit=True, verbose=4
-    )
+    grid_search = GridSearchCV(estimator=model, param_grid=parameters, cv=5)
     grid_result = grid_search.fit(X, y)
     classifier = SVC(
         kernel=grid_result.best_estimator_.kernel,
