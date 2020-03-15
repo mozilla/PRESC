@@ -119,13 +119,15 @@ def Tunning_Logistic_Regression(X, y):
 
 def SVM_train(X, y):
 
-    """ Support Vector Machine Classifier for trainint and testing"""
-    # kernel =' poly ' is taking infinte time that's why it is not added.
+    """ Support Vector Machine Classifier for trainint and testing
+        
+    
+    """
     parameters = [
         {
             "kernel": ["rbf"],
-            "gamma": [1, 0.1, 0.01, 0.001],
-            "C": [0.1, 1, 10, 100, 1000],
+            "gamma": [0.1, 0.01, 0.001 , 0.0001],
+            "C": [0.1, 1, 10, 100,1000],
         }
     ]
     model = SVC()
