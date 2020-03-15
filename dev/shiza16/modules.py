@@ -52,7 +52,7 @@ def splitting_train_test_data(data):
     X = data.drop(["Class", "Class_code"], axis=1)
     y = data["Class_code"]
 
-    return classifier.fit(X, y)
+    return train_test_split(X, y, test_size=0.3, random_state=45)
 
 
 def LogisticRegression_train(X, y):
