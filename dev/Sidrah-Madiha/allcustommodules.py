@@ -38,9 +38,9 @@ def tokenize_target_column(dataset):
     print("Distinct Tokens used for converting Class column to integers")
     print(definitions)
     return definitions
-def train_data_test_data_split(dataset):
+def train_data_test_data_split(X,y, test_size):
     ''' splitting test and training data in 80/20 split'''
-    X, y = training_data_and_target_Label_split(dataset)
+    
 #     print(X[0])
 #     print(y[0])
 #     print(X.shape)
@@ -58,9 +58,8 @@ def training_data_and_target_Label_split(dataset):
     y = dataset.iloc[:,-1].values
     return X, y
 
-def train_randomforest(X_train, y_train):
+def train_randomforest(classifier,X_train, y_train):
     ''' training model on train data'''
-    classifier = RandomForestClassifier(n_estimators = 10, criterion = 'entropy', random_state = 42)
     classifier.fit(X_train, y_train)
     return classifier
 
@@ -77,27 +76,41 @@ def test(classifier, X_test):
     y_pred=classifier.predict(X_test)
     return y_pred
     
-def untokenizing_testdata_prediction(y_test, y_pred, definitions):
-    '''Converting numeric target and predict values back to original labels'''
-    reversefactor = dict(zip(range(4),definitions))
+def untokenizing_testdata(y_test, definitions):
+    """Converting numeric target values back to original labels"""
+    reversefactor = dict(zip(range(len(definitions) + 1), definitions))
     y_test = np.vectorize(reversefactor.get)(y_test)
+    return y_test
+
+
+def untokenizing_prediction(y_pred, definitions):
+    """Converting numeric predicted values back to original labels"""
+    reversefactor = dict(zip(range(len(definitions) + 1), definitions))
     y_pred = np.vectorize(reversefactor.get)(y_pred)
-    return y_test, y_pred
+    return y_pred
 
 
-def create_confusion_matrix_class_report(y_test, y_pred):
-    ''' Creates Cinfusion Matrix and summary of evaluation metric '''
-    
-    labels = ["van" , "saab" ,"bus" , "opel"]
+def create_confusion_matrix(y_test, y_pred):
+    """ Creates Cinfusion Matrix and summary of evaluation metric """
+
+    labels = ["van", "saab", "bus", "opel"]
     cm = confusion_matrix(y_test, y_pred, labels=labels)
     df_cm = pd.DataFrame(cm, index=labels, columns=labels)
+    return df_cm
 
-    sn.heatmap(df_cm, annot=True, fmt='d')
-    plt.xlabel('Real Vehicle Category')
-    plt.ylabel('Predicted Vehicle Category')
+
+def display_confusion_matrix(df_cm):
+    """ displays confusion matrix of dataframe provided)"""
+
+    sn.heatmap(df_cm, annot=True, fmt="d")
+    plt.xlabel("Real Vehicle Category")
+    plt.ylabel("Predicted Vehicle Category")
+    print("====================== Confusion Matrix=====================")
+
+
+def display_classification_report(y_test, y_pred):
     print("============== Summary of all evaluation metics ===============")
-    print(classification_report(y_test,y_pred))
-    print ("====================== Confusion Matrix=====================")
+    print(classification_report(y_test, y_pred))
     
 
 def model_evaluation(X_train, y_train):
