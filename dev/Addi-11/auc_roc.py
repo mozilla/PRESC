@@ -7,17 +7,28 @@ from itertools import cycle
 from sklearn.preprocessing import LabelBinarizer
 
 def plot_roc_curve(fper, tper, roc_auc, n_classes):  
+    '''
+    This funcion plots the ROC(Reciever Operating Characteristic) curve and calculates the area under the curve(AUC).
+    Parameters:
+        fper : array-like
+        tper : array-like
+        roc_auc : array-like
+        n_classes : int
+
+    Returns:
+        null
+    '''
     
     # Aggregating all false positive rates
     all_fper = np.unique(np.concatenate([fper[i] for i in range(n_classes)]))
     lw = 2
 
-    # Then interpolate all ROC curves at this points
+    # Then interpolate all ROC curves at these points
     mean_tper = np.zeros_like(all_fper)
     for i in range(n_classes):
         mean_tper += np.interp(all_fper, fper[i], tper[i])
 
-    # Finally average it and compute AUC
+    # Average it and compute AUC
     mean_tper /= n_classes
 
 
@@ -28,12 +39,14 @@ def plot_roc_curve(fper, tper, roc_auc, n_classes):
 
 
 
-    # Plot all ROC curves
+    # Plotting all ROC curves
     plt.figure()
+    # micro-avg
     plt.plot(fper["micro"], tper["micro"],
             label='micro-average ROC curve (area = {0:0.2f})'
                 ''.format(roc_auc["micro"]),
             color='deeppink', linestyle=':', linewidth=4)
+    # macro-avg
     plt.plot(fper["macro"], tper["macro"],
             label='macro-average ROC curve (area = {0:0.2f})'
                 ''.format(roc_auc["macro"]),
@@ -48,14 +61,20 @@ def plot_roc_curve(fper, tper, roc_auc, n_classes):
     plt.ylim([0.0, 1.05])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    plt.title('Some extension of Receiver operating characteristic to multi-class')
+    plt.title('Receiver operating characteristic')
     plt.legend(loc="lower right")
     plt.show()
 
 
 def auc_roc(y_test, y_score):
-    # y_test = np.array(y_test)
-    # y_score = np.array(y_score)
+    '''
+    Parameters :
+        y_test : of length n_samples
+        y_score : of length n_samples
+
+    Returns :
+        null
+    '''
     fper = dict()
     tper = dict()
     roc_auc = dict()
