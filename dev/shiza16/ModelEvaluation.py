@@ -56,7 +56,7 @@ def Evaluation_model(data):
     models_name = []
 
     for m_name, model in models:
-        kfolds = model_selection.KFold(n_splits=5, random_state=45)
+        kfolds = model_selection.KFold(n_splits=10, random_state=45)
         cv_score = model_selection.cross_val_score(
             model, X, y, cv=kfolds, scoring="accuracy"
         )
