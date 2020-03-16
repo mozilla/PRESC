@@ -3,6 +3,20 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import brier_score_loss
 
 def calibration(clf, x_train, y_train, x_val, y_val):
+    '''
+    The function plots the calibration curves for classifaction models.
+
+    Parameters:
+        clf : trained classification moodel
+        x_train : array-like, shape(n_train_samples, n_features)
+        y_train : of length n_train_samples
+        x_val : array-like, shape(n_val_samples, n_features)
+        y_val : of length of n_val_samples
+
+    Returns:
+        null
+
+    '''
 
     methods = ['sigmoid', 'isotonic']
     
