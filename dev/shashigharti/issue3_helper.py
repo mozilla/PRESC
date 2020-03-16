@@ -2,6 +2,27 @@ from sklearn.model_selection import train_test_split
 from sklearn import metrics
 import pandas as pd
 
+def fix_outlier_with_boundary_value(df, df_columns_with_outliers): 
+    """ This function takes data as input and replaces outliers > max value of each columns by max value
+    
+    Args:
+        df: dataframe of all data
+    Returns:
+        data_df: processed dataframe
+        
+    """
+    data_df = df.copy()
+
+    # Fill null
+    data_df.fillna(data_df.mean(), inplace=True)
+
+    # Replace outliers with max boundary value
+    for i, column in enumerate(df_columns_with_outliers.columns):
+        data_df.loc[data_df[column] > df_columns_with_outliers[column][0], column] = df_columns_with_outliers[column][0]
+        
+    data_df['Class'] = pd.Categorical(data_df['Class']).codes
+    
+    return data_df
 
 def test_train_split(estimator, X, y, scaler = None):
     """ This function takes estimator and data as input and does test-train split test in multiple passes.
