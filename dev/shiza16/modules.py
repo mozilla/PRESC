@@ -6,7 +6,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import LabelEncoder
 
+
+lencoder = LabelEncoder()
 
 def dataset_statistics(data):
 
@@ -39,10 +42,7 @@ def label_encoding(vehicle):
     """ Converting categorical labels into numeric values """
 
     vdataset = vehicle.copy()
-    from sklearn.preprocessing import LabelEncoder
-
-    lb_make = LabelEncoder()
-    vdataset["Class_code"] = lb_make.fit_transform(vehicle["Class"])
+    vdataset["Class_code"] = lencoder.fit_transform(vehicle["Class"])
     return vdataset
 
 
@@ -98,6 +98,8 @@ def model_confusion_matrix(y_test, y_predict, dataa):
     plt.tight_layout()
 
     plt.tight_layout()
+    
+    return matrix
 
 
 def model_classification_report(y_test, y_predict):
