@@ -92,8 +92,9 @@ def train_svm(X, y, scaler = None, ratio = 0.4):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = ratio, random_state = 1)
     
     if scaler is not None:
-        X_train = scaler.fit_transform(X_train)
-        X_test = scaler.fit_transform(X_test)
+        scaler.fit(X_train)
+        X_train = scaler.transform(X_train)
+        X_test = scaler.transform(X_test)
         print(type(scaler))
     
     ## Build the SVM model on training data
@@ -125,8 +126,9 @@ def train_svm_with_hyperparameter_tuning(X, y, param_grid, scaler = None, ratio 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = ratio, random_state = 1)
     
     if scaler is not None:
-        X_train = scaler.fit_transform(X_train)
-        X_test = scaler.fit_transform(X_test)
+        scaler.fit(X_train)
+        X_train = scaler.transform(X_train)
+        X_test = scaler.transform(X_test)
         print(type(scaler))
 
     svm_grid = GridSearchCV(SVC(), param_grid, refit = True, verbose = 3) 
