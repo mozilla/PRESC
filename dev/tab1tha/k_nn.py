@@ -20,6 +20,8 @@ def tune(data_train, target_train):
     However, this tends to be very computationally expensive in terms of runtime and memory usage.
     Five folds is just a compromise default value """
     kn_cv.fit(data_train, target_train)
+    """Get the value corresponding to the n_neighbors key in the dictionary returned by best_params_ . 
+    This value corresponds to the n_neighbor value that produced the best estimator performance. """
     param_val = kn_cv.best_params_["n_neighbors"]
     return param_val
 
