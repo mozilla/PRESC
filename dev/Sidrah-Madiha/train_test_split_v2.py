@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 
 # inputs:  estimator, X, y, cv, scoring
 def train_test_split_table_scores(estimator, X, y, cv):
+    """ returns table that shows train and test split percentages as well as per split metric with average over train and test scores """
     #     train_percent_float = np.array(list(range(1, 101))) / 100
 
     #     train_sizes = (train_percent_float*int(len(X) - len(X)*0.2)).astype(int)
@@ -41,6 +42,7 @@ def train_test_split_table_scores(estimator, X, y, cv):
 
 
 def visual_tain_test_split_score(table):
+    """ visualises table of train data percent Vs avg train scores and train data percent Vs avg test score. """
     plt.style.use("seaborn")
     plt.plot(
         table["Train Percent"], table["Training Scores Mean"], label="Training Score"

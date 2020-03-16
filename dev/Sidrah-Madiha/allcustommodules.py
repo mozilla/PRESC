@@ -40,7 +40,7 @@ def tokenize_target_column(dataset):
     return definitions
 
 
-def train_data_test_data_split(X, y, test_size):
+def train_data_test_data_split(X, y, test_size=0.2):
     """ splitting test and training data in 80/20 split"""
 
     #     print(X[0])
@@ -53,34 +53,22 @@ def train_data_test_data_split(X, y, test_size):
     #     print(y[:5])
     #     Split dataset into training set and test set
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=21
+        X, y, test_size=test_size, random_state=21
     )
     return X_train, X_test, y_train, y_test
 
 
 def training_data_and_target_Label_split(dataset):
+    """ return last column of dataset as target y with training dataset  as X. """
     X = dataset.iloc[:, 0:-1].values
     y = dataset.iloc[:, -1].values
     return X, y
 
 
-def train_randomforest(classifier, X_train, y_train):
-    """ training model on train data"""
-    classifier.fit(X_train, y_train)
-    return classifier
-
-
-def train_SVM(X_train, y_train):
-    params_grid = [{"kernel": ["rbf"], "gamma": [1e-3, 1e-4], "C": [1, 10, 100, 1000]}]
-    svm_model = GridSearchCV(SVC(), params_grid, cv=5)
-    svm_model.fit(X_train, y_train)
-    svclassifier = SVC(
-        kernel=svm_model.best_estimator_.kernel,
-        C=svm_model.best_estimator_.C,
-        gamma=svm_model.best_estimator_.gamma,
-    )
-    svclassifier.fit(X_train, y_train)
-    return svclassifier
+# def train_randomforest(classifier, X_train, y_train):
+#     """ training model on train data"""
+#     classifier.fit(X_train, y_train)
+#     return classifier
 
 
 def test(classifier, X_test):
