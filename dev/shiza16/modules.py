@@ -114,3 +114,5 @@ def randomize_data(X, Y):
     X2 = X[permutation, :]
     Y2 = Y[permutation]
     return X2, Y2
+
+
