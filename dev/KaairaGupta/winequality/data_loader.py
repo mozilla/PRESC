@@ -8,7 +8,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 
 def load_split_preprocessed_data(i):
 
-    data_path = "../../datasets/winequality.csv"
+    data_path = "../../../datasets/winequality.csv"
     data = pd.read_csv(data_path)
     count_false_recommendation = len(data["recommend"]==True) 
     false_indices= np.array((data.recommend==True).index)
