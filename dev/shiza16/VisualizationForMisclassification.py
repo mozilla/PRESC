@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 
 
-def Missclasssification_visualization(y_test, y_predict, data):
+def Misclasssification_visualization(y_test, y_predict, data):
     """  
     Visualizing Bar graph for Missclassification, values
     that are incorreclty predicted by a classifier.
@@ -18,14 +18,16 @@ def Missclasssification_visualization(y_test, y_predict, data):
         index=label,
     )
 
-    ##Because we only want to print missclassification,
+ #Because we only want to print missclassification and all the diagonal 
+ #values are true classified values
+   
     for label in cmatrix.columns:
         cmatrix.at[label, label] = 0
 
     graph = cmatrix.plot(
-        kind="bar", title="Visualization of Missclassification", stacked=True
+        kind="bar", title="Visualization of Misclassification", stacked=True
     )
     graph.set_xlabel("Class Labels")
-    graph.set_ylabel("Missclassified Classes")
+    graph.set_ylabel("No of Misclassified points")
     plt.show()
     plt.show()
