@@ -98,6 +98,8 @@ to [Python Black](https://pypi.org/project/black/) formatting guidelines. Please
 ensure that all PRs are passing the formatting check.
 
 
+
+
 ## Information for Outreachy participants
 
 This project is intentionally broadly scoped, and the initial phase will be
@@ -142,6 +144,10 @@ Contributions can be made by submitting a [pull request](https://help.github.com
   request review. This tag ('work in progress') indicates that the PR is not
   ready to be merged. When it is ready for final submission, you can modify the
   title to remove the "WIP:" tag.
+- Should you use a separate jupyter notebook for comparing different models? If you had a PR merged in to satisfy issue #2 already and are now comparing models for another issue, then a new notebook would be helpful. That being said, a notebook should satisfy the following criteria:
+a) it should run beginning to end without error
+b) it should be easy to follow and have a clear narrative presenting context, data, results, and interpretation.
+This may mean some redundancy in code, but will often mean that your notebook is much more helpful to other people looking at it in isolation (including reviewers).
 
 
 ## Getting started
