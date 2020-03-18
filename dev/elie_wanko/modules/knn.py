@@ -4,13 +4,14 @@ from math import floor
 
 from sklearn.neighbors import KNeighborsRegressor
 
-def classfier(data, cut_off = 10, n_nearest = 5):
+def classfier(cut_off = 10, n_nearest = 5, threshold=None, *, data):
     """ Returns the predicted valuescomputed from a simple majority vote of the nearest neighbors of each point.
     
     Keyword arguments:
     data(dataframe) -- data set 
     cutoff(int) -- slices the data set into training and testing subsets (default = 10% for testing subset)
     n_nearest(int) -- nearest neighbors searches (default = 5)
+    threshold(float, [0.0-1.0] -- at what probb will an observation default
     """
     
     # Split training and testing attributes
@@ -35,6 +36,15 @@ def classfier(data, cut_off = 10, n_nearest = 5):
     # Make point predictions and Get the actual values from the test set.
     pred = knn.predict(test_data[training_attributes])
     true = array(test_data[testing_attribute])
+    
+    # Converts
+    if threshold !=None:
+        for i in range(len(pred)):
+            if pred[i] >= threshold:
+                pred[i] = 1
+            else:
+                pred[i] = 0
+        pred = pred.astype(int)
     
     #Returns predicted(pred) and actual(true) values
     return pred, true
