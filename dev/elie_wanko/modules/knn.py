@@ -59,8 +59,8 @@ def classifier(
         pred = pred.astype(int)
     
     # Make point predictions and Get the actual values from the test set.
-    pred = knn.predict(test[training_attributes])
-    true = np.array(test[testing_attribute])
+    pred = knn.predict(test_data[training_attributes])
+    true = array(test_data[testing_attribute])
     
     #Returns predicted(pred) and actual(true) values
     return pred, true
