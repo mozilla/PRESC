@@ -1,13 +1,17 @@
 #Imports
 import numpy as np
-import pandas as pd
-import random
 import math
-import timeit
 
 from sklearn.neighbors import KNeighborsRegressor
 
 def classfier(data, cutoff = 10, n_nearest = 5):
+    """ Returns the predicted valuescomputed from a simple majority vote of the nearest neighbors of each point.
+    
+    Keyword arguments:
+    data(dataframe) -- data set 
+    cutoff(int) -- slices the data set into training and testing subsets (default = 10% for testing subset)
+    n_nearest(int) -- nearest neighbors searches (default = 5)
+    """
     training_attributes = data.columns[:-1]
     testing_attribute = data.columns[-1]
 
@@ -20,26 +24,16 @@ def classfier(data, cutoff = 10, n_nearest = 5):
     # Generate the test and train set.
     test = data.loc[random_indices[1:test_cutoff]]
     train = data.loc[random_indices[test_cutoff:]]
-    
-    # time on
-    start = timeit.default_timer()
+
     # Look at the n_nearest neighbors.
     knn = KNeighborsRegressor(n_neighbors=n_nearest)
     # Fit the model on the training data.
     knn.fit(train[training_attributes], train[testing_attribute])
-    # time off    
-    stop = timeit.default_timer()
-    time = stop - start
     
-    # Make point predictions on the test set using the fit model.
-    predictions = knn.predict(test[training_attributes])
-
-    # Get the actual values for the test set.
-    actual = test[testing_attribute]
-
-    # Compute the mean squared error of our predictions.
-    mse = (((predictions - actual) ** 2).sum()) / len(predictions)
+    # Make point predictions and Get the actual values from the test set.
+    pred = knn.predict(test[training_attributes])
+    true = np.array(test[testing_attribute])
     
-    
-    return predictions, actual, mse, time
+    #Returns predicted(pred) and actual(true) values
+    return pred, true
     
