@@ -76,6 +76,9 @@ def plotGrapthForDefaults(y):
     ax = fig.add_axes([0, 0, 1, 1])
     index, counts = np.unique(y, return_counts=True)
     ax.bar(index, counts)
+    ax.set_xlabel("default payment next month")
+    ax.set_ylabel("Number of data points")
+    plt.title("Number of default payments", fontsize=15)
     plt.show()
 
 

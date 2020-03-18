@@ -22,6 +22,8 @@ def calibration_plot_for_single_classifier(clfModel, clfName, y_test, X_test):
     # sns.despine(left=True, bottom=True)
     plt.gca().xaxis.set_ticks_position("none")
     plt.gca().yaxis.set_ticks_position("none")
+    ax.set_xlabel("Predicted prob")
+    ax.set_ylabel("True probability in each bin")
     plt.title(clfName + " Calibration Curve", fontsize=20)
 
 
@@ -53,5 +55,6 @@ def calibration_plot_for_multiple_classifier(
     plt.gca().yaxis.set_ticks_position("none")
     ax.set_xlabel("Predicted prob")
     ax.set_ylabel("True probability in each bin")
+    plt.title(" Calibration Curve for multiple classifers", fontsize=15)
     plt.legend()
     plt.show()
