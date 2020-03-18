@@ -59,13 +59,13 @@ def classifier(
         pred = pred.astype(int)
     
     # Converts
-    if threshold !=None:
+    if threshold != None:
         for i in range(len(pred)):
             if pred[i] >= threshold:
                 pred[i] = 1
             else:
                 pred[i] = 0
         pred = pred.astype(int)
-    
-    #Returns predicted(pred) and actual(true) values
+
+    # Returns predicted(pred) and actual(true) values
     return pred, true
