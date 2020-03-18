@@ -5,7 +5,7 @@ from math import floor
 from sklearn.neighbors import KNeighborsRegressor
 
 def classfier(cut_off = 10, n_nearest = 5, threshold=None, *, data):
-    """ Returns the predicted valuescomputed from a simple majority vote of the nearest neighbors of each point.
+    """ Returns the predicted values computed from a simple majority vote of the nearest neighbors of each point.
     
     Keyword arguments:
     data(dataframe) -- data set 
