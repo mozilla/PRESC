@@ -48,19 +48,6 @@ def classifier(
     # Make point predictions and Get the actual values from the test set.
     pred = knn.predict(subsets[1])
     true = array(subsets[3])
-
-    # Converts
-    if threshold != None:
-        for i in range(len(pred)):
-            if pred[i] >= threshold:
-                pred[i] = 1
-            else:
-                pred[i] = 0
-        pred = pred.astype(int)
-    
-    # Make point predictions and Get the actual values from the test set.
-    pred = knn.predict(test_data[training_attributes])
-    true = array(test_data[testing_attribute])
     
     # Converts
     if threshold !=None:
@@ -73,4 +60,3 @@ def classifier(
     
     #Returns predicted(pred) and actual(true) values
     return pred, true
-    
