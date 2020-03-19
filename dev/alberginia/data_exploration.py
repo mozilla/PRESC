@@ -77,7 +77,7 @@ def table_descriptors(dataset):
 
     labels = list(dataset.iloc[:, -1].unique())
     same_type = all(isinstance(x, type(labels[0])) for x in labels)
-    if same_type == True: 
+    if same_type == True:
         labels = sorted(labels)
 
     print("\nThis dataset has %s classes: " % len(labels))
@@ -123,9 +123,9 @@ def weight_advisor(dataset):
     """
     labels = list(dataset.iloc[:, -1].unique())
     same_type = all(isinstance(x, type(labels[0])) for x in labels)
-    if same_type == True: 
+    if same_type == True:
         labels = sorted(labels)
-        
+
     rows_with_label = []
     for label_name in labels:
         rows_with_label += [len(dataset.loc[dataset.iloc[:, -1] == label_name])]
@@ -169,9 +169,9 @@ def labels_to_colors(dataset):
     # Create an indexed dictionary for the list of labels
     labels = list(dataset.iloc[:, -1].unique())
     same_type = all(isinstance(x, type(labels[0])) for x in labels)
-    if same_type == True: 
+    if same_type == True:
         labels = sorted(labels)
-    
+
     labels_index = [x for x in range(0, len(labels))]
     labels_color_RGBA = [
         colormap((x + 0.5) / len(labels)) for x in range(0, len(labels))
@@ -232,7 +232,6 @@ def scaling_plot(dataset, dataset_name):
     create_folder(dataset_name)
     plt.savefig("%s/%s_scaling_plot.svg" % (dataset_name, dataset_name))
     plt.show()
-
 
 
 def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
@@ -330,11 +329,16 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
                     color=labels_color_RGBA,
                 )
 
-                if all(isinstance(x, (int, float)) 
-                       for x in dataset.iloc[:, subplot_index]) == True:
+                if (
+                    all(
+                        isinstance(x, (int, float))
+                        for x in dataset.iloc[:, subplot_index]
+                    )
+                    == True
+                ):
                     if dataset.iloc[:, subplot_index].max() > 100000:
                         axs[subplotY].ticklabel_format(
-                                axis="x", style="sci", scilimits=(-2, 2)
+                            axis="x", style="sci", scilimits=(-2, 2)
                         )
 
             # Plot stacked histograms multiple rows
@@ -347,11 +351,16 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
                     edgecolor="black",
                     color=labels_color_RGBA,
                 )
-                if all(isinstance(x, (int, float)) 
-                       for x in dataset.iloc[:, subplot_index]) == True:
+                if (
+                    all(
+                        isinstance(x, (int, float))
+                        for x in dataset.iloc[:, subplot_index]
+                    )
+                    == True
+                ):
                     if dataset.iloc[:, subplot_index].max() > 100000:
                         axs[subplotX, subplotY].ticklabel_format(
-                                axis="x", style="sci", scilimits=(-2, 2)
+                            axis="x", style="sci", scilimits=(-2, 2)
                         )
 
             # Plot overlapping histograms single row
@@ -363,13 +372,18 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
                     label=list(dataset)[subplot_index],
                     alpha=0.6,
                     edgecolor="black",
-                    color=labels_color_RGBA
+                    color=labels_color_RGBA,
                 )
-                if all(isinstance(x, (int, float)) 
-                       for x in dataset.iloc[:, subplot_index]) == True:
+                if (
+                    all(
+                        isinstance(x, (int, float))
+                        for x in dataset.iloc[:, subplot_index]
+                    )
+                    == True
+                ):
                     if dataset.iloc[:, subplot_index].max() > 100000:
                         axs[subplotY].ticklabel_format(
-                                axis="x", style="sci", scilimits=(-2, 2)
+                            axis="x", style="sci", scilimits=(-2, 2)
                         )
 
             # Plot overlapping histograms multiple rows
@@ -383,8 +397,13 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
                     edgecolor="black",
                     color=labels_color_RGBA,
                 )
-                if all(isinstance(x, (int, float)) 
-                       for x in dataset.iloc[:, subplot_index]) == True:
+                if (
+                    all(
+                        isinstance(x, (int, float))
+                        for x in dataset.iloc[:, subplot_index]
+                    )
+                    == True
+                ):
                     if dataset.iloc[:, subplot_index].max() > 100000:
                         axs[subplotX, subplotY].ticklabel_format(
                             axis="x", style="sci", scilimits=(-2, 2)
@@ -437,7 +456,7 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
         if rows_of_histograms == 1:
             axs[row_width - 1].legend(
                 label_markers, labels, bbox_to_anchor=(1.8, 0.8), title="Classes"
-                )
+            )
         else:
             axs[0, row_width - 1].legend(
                 label_markers, labels, bbox_to_anchor=(1.8, 0.8), title="Classes"
@@ -617,25 +636,26 @@ def projections(dataset, dataset_name, grid=3):
     # Iteration over parameter combinations
     for columnY in range(number_parameters):
         for columnX in range(number_parameters):
-            
+
             axs[columnY, columnX].scatter(
                 dataset.iloc[:, columnX],
                 dataset.iloc[:, columnY],
                 c=dataset[label_title].map(labels_color_dictionary),
             )
-            if all(isinstance(x, (int, float)) 
-                       for x in dataset.iloc[:, columnX]) == True:
+            if (
+                all(isinstance(x, (int, float)) for x in dataset.iloc[:, columnX])
+                == True
+            ):
                 if dataset.iloc[:, columnX].max() > 100000:
                     axs[columnY, columnX].ticklabel_format(
-                                axis="x", style="sci", scilimits=(-2, 2)
+                        axis="x", style="sci", scilimits=(-2, 2)
                     )
             plt.setp(axs[-1, columnX], xlabel=dataset.columns[columnX])
 
-        if all(isinstance(x, (int, float)) 
-               for x in dataset.iloc[:, columnY]) == True:
+        if all(isinstance(x, (int, float)) for x in dataset.iloc[:, columnY]) == True:
             if dataset.iloc[:, columnY].max() > 100000:
                 axs[columnY, columnX].ticklabel_format(
-                                axis="y", style="sci", scilimits=(-2, 2)
+                    axis="y", style="sci", scilimits=(-2, 2)
                 )
         plt.setp(axs[columnY, 0], ylabel=dataset.columns[columnY])
 
@@ -656,7 +676,7 @@ def projections(dataset, dataset_name, grid=3):
 
         # Display the legend of the top right subplot.
         axs[0, number_parameters - 1].legend(
-            label_markers, labels, title="Classes", bbox_to_anchor=(1., 0.8)
+            label_markers, labels, title="Classes", bbox_to_anchor=(1.0, 0.8)
         )
 
         axs[0, 1].set_title("Parameter space projections", pad=20, fontsize=11)
@@ -855,11 +875,14 @@ def explore_test_split_ratio(dataset, dataset_name, num_test_fractions, random_t
     plt.show()
 
     print(
-        f"\nIndex of point where score has the smallest standard deviation: {standard_deviations.argmin()}"
+        "\nIndex of point where score has the smallest standard "
+        f"deviation: {standard_deviations.argmin()}"
     )
     print(
-        f"\nTest fraction where score has smallest standard deviation: {test_sizes[standard_deviations.argmin()]:.4f}"
-        f"\nAverage score at test fraction with the smallest standard deviation: {averages[standard_deviations.argmin()]:.4f}"
+        "\nTest fraction where score has smallest standard "
+        f"deviation: {test_sizes[standard_deviations.argmin()]:.4f}"
+        "\nAverage score at test fraction with the smallest standard "
+        f"deviation: {averages[standard_deviations.argmin()]:.4f}"
     )
 
     return test_sizes, averages, standard_deviations
