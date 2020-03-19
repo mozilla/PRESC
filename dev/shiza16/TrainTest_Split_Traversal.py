@@ -32,19 +32,26 @@ def Calculate_accuracy(classifier, X_train, y_train, size):
     return split_matrix
 
 
-def visulaize_train_test_split_traversal(split_matrix):
+def visulaize_train_test_split_traversal(split_matrix, s):
     """
      Line Plot is drawn for each split proportion
      of traing and testing set with the performance score.
     
     """
     ax = plt.gca()
-
+    test_size = 100 * s
+    train_size = 100 - (test_size)
     print("------------------------------------------------------------------")
     split_matrix.plot(kind="line", x="KFold", y="Accuracy", color="red", ax=ax)
     split_matrix.plot(kind="line", x="KFold", y="Testing_Set", color="yellow", ax=ax)
     split_matrix.plot(kind="line", x="KFold", y="Training_Set", color="blue", ax=ax)
-    plt.title("Line plot with Accuracy , Training and Testing Set\n")
+    plt.title(
+        "Line plot with Training size = ",
+        train_size,
+        "% and Testing Size =",
+        test_size,
+        "%. \n",
+    )
     plt.ylabel("Accuracy\n")
     plt.xlabel("\nNo of KFolds")
     plt.show()
@@ -78,5 +85,5 @@ def train_test_split_traversal(classifier, vdataset):
         )
         matrix = Calculate_accuracy(classifier, X_train, y_train, s)
         split_matrix = pd.concat([split_matrix, matrix], ignore_index=True)
-        visulaize_train_test_split_traversal(matrix)
+        visulaize_train_test_split_traversal(matrix, s)
     return split_matrix
