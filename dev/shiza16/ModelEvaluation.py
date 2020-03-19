@@ -139,4 +139,4 @@ def SVM_train(X, y):
         gamma=grid_result.best_estimator_.gamma,
     )
 
-    return classifier.fit(X, y)
+    return classifier
