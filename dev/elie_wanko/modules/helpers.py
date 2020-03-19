@@ -96,7 +96,6 @@ def univ_hist(title=None, fig_w=18, fig_h=7, _hue=None, bins=10, *, data, column
     # Set title
     plt.title(title, fontsize=14)
 
-
 def independ_target_attr_split(data):
     """ Splits data into independent and dependent attributes for feautre selection, model training and testing.
     """
