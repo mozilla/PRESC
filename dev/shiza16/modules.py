@@ -11,19 +11,20 @@ from sklearn.preprocessing import LabelEncoder
 
 lencoder = LabelEncoder()
 
+
 def dataset_statistics(data):
 
-    """ Data Features and Labels"""
+    """ Data Features and Labels are extracted """
 
     print("Shape of the dataset: ", data.shape)
     print("\nFeatures of the dataset are: \n", list(data.keys()))
     print("\nTarget Labels of dataset are: \n", data["Class"].unique())
 
 
-def histogram(dataa):
-    """ Histogram for analyzing the frequency of labled class """
+def BarChart(dataa):
+    """ BarChart for analyzing the frequency of Categorical labled class """
 
-    print("\nHistogram for analyzing the frequency of labled class.\n")
+    print("\nBarChart for analyzing the frequency of Categorical labled class.\n")
     base_color = sns.color_palette()[9]
     Vorder = dataa["Class"].value_counts().index
     sns.countplot(data=dataa, x="Class", color=base_color, order=Vorder)
@@ -98,7 +99,7 @@ def model_confusion_matrix(y_test, y_predict, dataa):
     plt.tight_layout()
 
     plt.tight_layout()
-    
+
     return matrix
 
 
@@ -116,5 +117,3 @@ def randomize_data(X, Y):
     X2 = X[permutation, :]
     Y2 = Y[permutation]
     return X2, Y2
-
-

@@ -18,9 +18,9 @@ def Misclasssification_visualization(y_test, y_predict, data):
         index=label,
     )
 
- #Because we only want to print missclassification and all the diagonal 
- #values are true classified values
-   
+    # Because we only want to print missclassification and all the diagonal
+    # values are true classified values
+
     for label in cmatrix.columns:
         cmatrix.at[label, label] = 0
 
