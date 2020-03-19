@@ -50,7 +50,7 @@ def visulaize_train_test_split_traversal(split_matrix, s):
         train_size,
         "% and Testing Size =",
         test_size,
-        "%. \n",
+        "%. \n"
     )
     plt.ylabel("Accuracy\n")
     plt.xlabel("\nNo of KFolds")
