@@ -45,7 +45,7 @@ def visulaize_train_test_split_traversal(split_matrix, s):
     split_matrix.plot(kind="line", x="KFold", y="Accuracy", color="red", ax=ax)
     split_matrix.plot(kind="line", x="KFold", y="Testing_Set", color="yellow", ax=ax)
     split_matrix.plot(kind="line", x="KFold", y="Training_Set", color="blue", ax=ax)
-    plt.title(
+    print(
         "Line plot with Training size = ",
         train_size,
         "% and Testing Size =",
