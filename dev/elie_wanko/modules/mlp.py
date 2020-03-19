@@ -5,17 +5,11 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 
 
-def classifier(
-    alpha=1e-5,
-    cut_off=10,
-    scaler=False,
-    solver="adam",
-    activation="relu",
-    *,
-    data,
-    input_size,
-    output_size
-):
+def __init__():
+    pass
+    
+def classifier(alpha=1e-5, cut_off=10, scaler=False, solver="adam", activation="relu", *, 
+               subsets, input_size, output_size):
     """ Returns the predicted values computed from a multi-layer perceptron (MLP) algorithm that trains using Backpropagation.
     
     Keyword arguments:
@@ -26,21 +20,6 @@ def classifier(
     alpha(float) -- regularization (L2 regularization) term which helps in avoiding overfitting by penalizing weights with large magnitudes. (default = 1e-5) 
     scaler(boolean) -- feature scaling 
     """
-    # Split training and testing attributes
-    training_attributes = data.columns[:-1]
-    testing_attribute = data.columns[-1]
-
-    # Randomly shuffle the index of nba.
-    random_indices = random.permutation(data.index)
-
-    # Set a cutoff for how many items we want in the test set (in this case 1/10 of the items)
-    cut_off = floor(len(data) / cut_off)
-    input_size = floor(len(data) * 2 / 3)
-
-    # Generate the test and train set.
-    test_data = data.loc[random_indices[1:cut_off]]
-    train_data = data.loc[random_indices[cut_off:]]
-
     # Scale data
     if scaler == True:
         scaler = StandardScaler()
@@ -59,11 +38,11 @@ def classifier(
     )
 
     # Fit the model on the training data.
-    mlp_c.fit(train_data[training_attributes], train_data[testing_attribute])
+    mlp_c.fit(subsets[0], subsets[2])
 
     # Make point predictions and Get the actual values from the test set.
-    pred = mlp_c.predict(test_data[training_attributes])
-    true = array(test_data[testing_attribute])
+    pred = mlp_c.predict(subsets[1])
+    true = array(subsets[3])
 
     # Returns predicted(pred) and actual(true) values
     return pred, true
