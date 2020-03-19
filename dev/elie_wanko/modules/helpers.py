@@ -4,20 +4,15 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+from sklearn import metrics
 
-def univ_bar(
-    title=None,
-    fig_w=10,
-    fig_h=5,
-    var_names=None,
-    hue=None,
-    palette=None,
-    order=False,
-    x_title=None,
-    *,
-    data,
-    column
-):
+
+def __init__():
+    pass
+
+def univ_bar(title=None, fig_w=10, fig_h=5, var_names=None, hue=None, palette=None, order=False, x_title=None, *, data, column):
+    """Plots a Bar Graph of variable of interest 'column'.
+    """
     # Make a deep copy of dataframe
     df_clone = data.copy()
     # Exacts distinct entries of an attricbute(comumn) and Sorts it into a list
@@ -44,6 +39,8 @@ def univ_bar(
 
 
 def univ_hist(title=None, fig_w=18, fig_h=7, _hue=None, bins=10, *, data, column):
+    """Plots a Histogram of variable of interest 'column'.
+    """
     # Make a deep copy of dataframe
     df_clone = data.copy()
 
@@ -52,3 +49,25 @@ def univ_hist(title=None, fig_w=18, fig_h=7, _hue=None, bins=10, *, data, column
     sns.distplot(df_clone[column], bins=bins)
     # Set title
     plt.title(title, fontsize=14)
+
+    
+def independ_target_attr_split(data):
+    """ Splits data into independent and dependent attributes for feautre selection, model training and testing.
+    """
+    # Split training and testing attributes
+    independent_attributes = data.columns[:-1]
+    target_attribute = data.columns[-1]
+
+    # Get data indices.
+    indices = data.iloc[:]
+
+    return indices[independent_attributes], indices[target_attribute]
+
+   
+def confusion_matrix(cmap = 'Blues', *, true, pred):
+    plt.figure(figsize=(4,4))
+    sns.heatmap(metrics.confusion_matrix(true, pred), annot=True, fmt=".3f", linewidths=.5, square = True, cmap = cmap);
+    plt.ylabel('Actual label');
+    plt.xlabel('Predicted label');
+    a_score = 'Accuracy Score: {:.2f}'.format(metrics.accuracy_score(true, pred))
+    plt.title(a_score);
