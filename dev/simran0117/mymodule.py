@@ -40,7 +40,7 @@ def linear_classifier(data_X_train, data_X_test, data_y_train, data_y_test):
     data_y_pred = svclassifier.predict(data_X_test)
     print("SVM - linear:")
     print(accuracy_score(data_y_test,data_y_pred))
-    return 
+    return data_y_pred
 '''
 Creating the classifier, 
 the inputs are my training data and that is used for predicting y values for test data
@@ -53,7 +53,7 @@ def rbf_classifier(data_X_train, data_X_test, data_y_train, data_y_test):
     data_y_pred = svclassifier.predict(data_X_test)
     print("SVM - rbf:")
     print(accuracy_score(data_y_test,data_y_pred))
-    return
+    return data_y_pred
 '''
 Creating the classifier, 
 the inputs are my training data and that is used for predicting y values for test data
@@ -66,7 +66,7 @@ def sigmoid_classifier(data_X_train, data_X_test, data_y_train, data_y_test):
     data_y_pred = svclassifier.predict(data_X_test)
     print("SVM - sigmoid:")
     print(accuracy_score(data_y_test,data_y_pred))
-    return
+    return data_y_pred
 '''
 Creating a K nearest neighbours Classifier
 the inputs are my training data and that is used for predicting y values for test data
@@ -78,4 +78,4 @@ def knn_classifier(data_X_train, data_X_test, data_y_train, data_y_test):
     data_y_pred = classifier.predict(data_X_test)  
     print('Accuracy - KNN ')
     print(accuracy_score(data_y_test,data_y_pred))
-    return
+    return data_y_pred
