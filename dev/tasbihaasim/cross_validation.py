@@ -25,10 +25,10 @@ def cross_validation(X, Y):
         for train, test in kf.split(X):
 
             # make testing sets and training sets out of X and Y
-            train_X = X[train]
-            train_Y = Y[train]
-            test_X = X[test]        
-            test_Y = Y[test]
+            train_X = X.iloc[train]
+            train_Y = Y.iloc[train]
+            test_X = X.iloc[test]        
+            test_Y = Y.iloc[test]
 
             # training model using the data set
             clf = KNeighborsClassifier(n_neighbors=5)
