@@ -78,6 +78,7 @@ def table_descriptors(dataset):
     labels = list(dataset.iloc[:, -1].unique())
     same_type = all(isinstance(x, type(labels[0])) for x in labels)
     if same_type == True:
+
         labels = sorted(labels)
 
     print("\nThis dataset has %s classes: " % len(labels))
@@ -125,6 +126,7 @@ def weight_advisor(dataset):
     same_type = all(isinstance(x, type(labels[0])) for x in labels)
     if same_type == True:
         labels = sorted(labels)
+
 
     rows_with_label = []
     for label_name in labels:
@@ -233,7 +235,7 @@ def scaling_plot(dataset, dataset_name):
     plt.savefig("%s/%s_scaling_plot.svg" % (dataset_name, dataset_name))
     plt.show()
 
-
+   
 def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
     """Stacked or overlapping histograms of the dataset variables.
     
@@ -339,6 +341,7 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
                     if dataset.iloc[:, subplot_index].max() > 100000:
                         axs[subplotY].ticklabel_format(
                             axis="x", style="sci", scilimits=(-2, 2)
+
                         )
 
             # Plot stacked histograms multiple rows
@@ -361,6 +364,7 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
                     if dataset.iloc[:, subplot_index].max() > 100000:
                         axs[subplotX, subplotY].ticklabel_format(
                             axis="x", style="sci", scilimits=(-2, 2)
+
                         )
 
             # Plot overlapping histograms single row
@@ -384,6 +388,7 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
                     if dataset.iloc[:, subplot_index].max() > 100000:
                         axs[subplotY].ticklabel_format(
                             axis="x", style="sci", scilimits=(-2, 2)
+
                         )
 
             # Plot overlapping histograms multiple rows
@@ -404,6 +409,7 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
                     )
                     == True
                 ):
+
                     if dataset.iloc[:, subplot_index].max() > 100000:
                         axs[subplotX, subplotY].ticklabel_format(
                             axis="x", style="sci", scilimits=(-2, 2)
@@ -457,6 +463,7 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
             axs[row_width - 1].legend(
                 label_markers, labels, bbox_to_anchor=(1.8, 0.8), title="Classes"
             )
+
         else:
             axs[0, row_width - 1].legend(
                 label_markers, labels, bbox_to_anchor=(1.8, 0.8), title="Classes"
@@ -636,7 +643,6 @@ def projections(dataset, dataset_name, grid=3):
     # Iteration over parameter combinations
     for columnY in range(number_parameters):
         for columnX in range(number_parameters):
-
             axs[columnY, columnX].scatter(
                 dataset.iloc[:, columnX],
                 dataset.iloc[:, columnY],
@@ -656,6 +662,7 @@ def projections(dataset, dataset_name, grid=3):
             if dataset.iloc[:, columnY].max() > 100000:
                 axs[columnY, columnX].ticklabel_format(
                     axis="y", style="sci", scilimits=(-2, 2)
+
                 )
         plt.setp(axs[columnY, 0], ylabel=dataset.columns[columnY])
 
@@ -677,6 +684,7 @@ def projections(dataset, dataset_name, grid=3):
         # Display the legend of the top right subplot.
         axs[0, number_parameters - 1].legend(
             label_markers, labels, title="Classes", bbox_to_anchor=(1.0, 0.8)
+
         )
 
         axs[0, 1].set_title("Parameter space projections", pad=20, fontsize=11)
@@ -883,6 +891,7 @@ def explore_test_split_ratio(dataset, dataset_name, num_test_fractions, random_t
         f"deviation: {test_sizes[standard_deviations.argmin()]:.4f}"
         "\nAverage score at test fraction with the smallest standard "
         f"deviation: {averages[standard_deviations.argmin()]:.4f}"
+
     )
 
     return test_sizes, averages, standard_deviations
