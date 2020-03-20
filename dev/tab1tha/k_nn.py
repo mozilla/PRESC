@@ -37,9 +37,12 @@ def k_nearest(data_train, target_train, data_test, target_test):
     for use as a parameter of the classifier."""
     knn = KNeighborsClassifier(n_neighbors=n)
     knn.fit(data_train, target_train)
+
+    # predict labels of the test data
+    target_pred = knn.predict(data_test.values)
     # The held out test set is used to evaluate the accuracy of the model
     acc = knn.score(data_test, target_test)
-    return acc
+    return (acc, target_pred)
 
 
 def visual_compare(data_train, target_train, data_test, target_test):
