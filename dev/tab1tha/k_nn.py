@@ -23,6 +23,8 @@ def tune(data_train, target_train):
     However, this tends to be very computationally expensive in terms of runtime and memory usage.
     Five folds is just a compromise default value """
     kn_cv.fit(data_train, target_train)
+    """Get the value corresponding to the n_neighbors key in the dictionary returned by best_params_ . 
+    This value corresponds to the n_neighbor value that produced the best estimator performance. """
     param_val = kn_cv.best_params_["n_neighbors"]
     return param_val
 
@@ -39,9 +41,12 @@ def k_nearest(data_train, target_train, data_test, target_test):
     knn = KNeighborsClassifier(n_neighbors=n)
     knn.fit(data_train, target_train)
 
+    # predict labels of the test data
+    target_pred = knn.predict(data_test.values)
+
     # The held out test set is used to evaluate the accuracy of the model
     acc = knn.score(data_test, target_test)
-    return acc
+    return (acc, target_pred)
 
 
 def with_without(df, df_without, targetname):
