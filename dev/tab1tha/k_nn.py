@@ -3,6 +3,8 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.model_selection import train_test_split
+
 
 
 def tune(data_train, target_train):
@@ -15,7 +17,8 @@ def tune(data_train, target_train):
     # instantiate the classifier
     kn = KNeighborsClassifier()
     # Instantiate GridSearchCV object
-    kn_cv = GridSearchCV(kn, params_grid, cv=5)
+    kn_cv = GridSearchCV(kn, params_grid, cv=5, iid=True)
+
     """Increasing the number of folds increases the accuracy of the model performance evaluation index.
     However, this tends to be very computationally expensive in terms of runtime and memory usage.
     Five folds is just a compromise default value """
@@ -36,11 +39,25 @@ def k_nearest(data_train, target_train, data_test, target_test):
     knn = KNeighborsClassifier(n_neighbors=n)
     knn.fit(data_train, target_train)
 
-    # predict labels of the test data
-    target_pred = knn.predict(data_test.values)
     # The held out test set is used to evaluate the accuracy of the model
     acc = knn.score(data_test, target_test)
-    return (acc, target_pred)
+    return acc
+
+
+def with_without(df, df_without, targetname):
+    """This function computes the accuracy of a KNN model over different configurations of its
+    training dataset. It returns a list containing the accuracy values per dataset configuration. """
+    lst = []
+    for df in [df, df_without]:
+        data = df.drop(targetname, axis=1)
+        target = df[targetname]
+        # axis=1 indicates that the string is a column not a row
+        data_train, data_test, target_train, target_test = train_test_split(
+            data, target, test_size=0.30, random_state=10, stratify=target
+        )
+        kn_accuracy = k_nearest(data_train, target_train, data_test, target_test)
+        lst.append(kn_accuracy)
+    return lst
 
 
 def visual_compare(data_train, target_train, data_test, target_test):
