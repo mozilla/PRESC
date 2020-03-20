@@ -1,3 +1,4 @@
+
 # This file contains various classifiers to be used on the dataset
 from evaluation import evaluate
 from sklearn.svm import SVC
@@ -6,7 +7,6 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
-
 # from sklearn.metrics import (
 # 	plot_precision_recall_curve,
 # 	plot_confusion_matrix,
@@ -149,3 +149,4 @@ class Classifier:
         plt.xlabel("Predicted")
         plt.ylabel("True")
         plt.show()
+
