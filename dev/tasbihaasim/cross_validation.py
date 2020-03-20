@@ -36,7 +36,7 @@ def cross_validation(X, Y, y_t):
 
             # making predictions
             y_pred = clf.predict(test_X)
-        accuracy_score_x = accuracy_score(y_t, y_pred)
+        accuracy_score_x = metrics.accuracy_score(y_t, y_pred)
 
 
     return(accuracy_score_x) 
