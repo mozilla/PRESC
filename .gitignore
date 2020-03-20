@@ -130,5 +130,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Phpstorm
+.idea
+
 # Mac crap
 .DS_Store
+
