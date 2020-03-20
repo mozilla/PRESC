@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 
+
 def tune(data_train, target_train):
     """This function is for hyperparameter tuning in order to know the most appropriate value of 
     n_neighbors to use in the k_nearest() function. """
@@ -17,6 +18,7 @@ def tune(data_train, target_train):
     kn = KNeighborsClassifier()
     # Instantiate GridSearchCV object
     kn_cv = GridSearchCV(kn, params_grid, cv=5, iid=True)
+
     """Increasing the number of folds increases the accuracy of the model performance evaluation index.
     However, this tends to be very computationally expensive in terms of runtime and memory usage.
     Five folds is just a compromise default value """
@@ -36,6 +38,7 @@ def k_nearest(data_train, target_train, data_test, target_test):
     for use as a parameter of the classifier."""
     knn = KNeighborsClassifier(n_neighbors=n)
     knn.fit(data_train, target_train)
+
     # The held out test set is used to evaluate the accuracy of the model
     acc = knn.score(data_test, target_test)
     return acc
