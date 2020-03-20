@@ -193,7 +193,7 @@ def logisticRegressionModel(X_train, y_train, X_test, y_test):
     )  # fitting the model on train data
     preds = clfModel.predict(X_test)  # predictions
     score = clfModel.score(X_test, y_test)  # accuracy
-    return preds, score
+    return preds, score, clfModel
 
 
 def svmModel(X_train, y_train, X_test, y_test):
@@ -203,8 +203,8 @@ def svmModel(X_train, y_train, X_test, y_test):
     Returns: preds - The predictions for the X_test
              score - Accuracy for the model on test data
     """
-    SVM_Model = SVC(gamma="auto", verbose=True)
+    SVM_Model = SVC(gamma="auto", verbose=True, probability=True)
     SVM_Model.fit(X_train, y_train)  # fitting on train data
     score = f"Accuracy - : {SVM_Model.score(X_test, y_test):.3f}"
     prediction_SVM = SVM_Model.predict(X_test)
-    return score, prediction_SVM
+    return score, prediction_SVM, SVM_Model
