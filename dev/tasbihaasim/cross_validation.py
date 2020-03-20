@@ -6,7 +6,7 @@ from sklearn.model_selection import KFold
 import random
 import numpy as np
 
-def cross_validation(X, Y):
+def cross_validation(X, Y, y_t):
     '''returns the accuracy score of the trained classification model
 
     args:
@@ -35,8 +35,8 @@ def cross_validation(X, Y):
             clf.fit(train_X, train_Y)
 
             # making predictions
-            y_pred[test] = clf.predict(test_X)
-        accuracy_score_x = accuracy_score(Y, y_pred)
+            y_pred = clf.predict(test_X)
+        accuracy_score_x = accuracy_score(y_t, y_pred)
 
 
     return(accuracy_score_x) 
