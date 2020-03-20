@@ -93,6 +93,8 @@ If you wish to build on someone else's contribution, you can import code from
 their modules into yours. Please do not submit PRs directly modifying code from
 other contributions at this point, unless to resolve errors or typos.
 
+Code formatting guidelines should strinctly adhere  to [Python Black](https://pypi.org/project/black/) formatting guidelines. Please ensure that all PRs pass a local black formatting check.
+
 
 ## Information for Outreachy participants
 
@@ -144,18 +146,29 @@ Contributions can be made by submitting a [pull request](https://help.github.com
 
 1. Install [Anaconda](https://www.anaconda.com/download) or [Miniconda](https://conda.io/miniconda.html).
 
-2. Setup and activate environment:
+2. Fork this repository and clone it into your local machine(using git CLI).
+
+3. Setup and activate environment:
+
+   for windows:
+  
+   Open anaconda prompt and cd into the folder where you cloned the repository.
+   
+   ex: cd PRESC
+   
+   then type the following commands to activate the presc environment
 
 ```
  $ conda env create -f environment.yml
  $ conda activate presc
 ```
 
-3. Run Jupyter. The notebook will open in your browser at `localhost:8888` by default.
+4. Run Jupyter. The notebook will open in your browser at `localhost:8888` by default.
 
 ```
  $ jupyter notebook
 ```
+After running this commands you will see the notebook containing the datasets and now you can start working with it.
 
 We recommend everyone start by working on
 [#2](https://github.com/mozilla/PRESC/issues/2).
