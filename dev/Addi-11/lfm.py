@@ -9,6 +9,23 @@ from sklearn.model_selection import validation_curve, learning_curve, ShuffleSpl
 
 
 def plot_learning_curve(estimator, title, x, y, axes=None, ylim=None, cv=None,n_jobs=None, train_sizes=np.linspace(.1, 1.0, 5)):
+    '''
+    Plotting Learning Curves
+
+    Parameters:
+        estimator : trained classification moel
+        title : str, title of the graph
+        x : array-like, shape(n_samples, n_features)
+        y : of length n_features
+        axes : axes
+        ylim : array-like
+        cv : int
+        n_jobs : int
+        train_sizes : array-like
+
+    Returns:
+        void
+    '''
 
     if axes is None:
         _, axes = plt.subplots()
@@ -65,6 +82,15 @@ def plot_learning_curve(estimator, title, x, y, axes=None, ylim=None, cv=None,n_
     return plt
 
 def plot_lc(clf):
+    '''
+    Plots Learning Curves for the giveen classification model.
+
+    Parameters:
+        clf : trained classification model
+
+    Returns:
+        void
+    '''
 
     x,y = get_x_y()
     fig, axes = plt.subplots(3, 1, figsize=(10, 15))
@@ -72,10 +98,26 @@ def plot_lc(clf):
     # Cross validation with 100 iterations to get smoother mean test and train
     # score curves, each time with 20% data randomly selected as a validation set.
     cv = ShuffleSplit(n_splits=100, test_size=0.2, random_state=0)
-    plot_learning_curve(clf, title, x, y, axes=axes, ylim=(0.7, 1.01),cv=cv, n_jobs=4)
+    plot_learning_curve(clf, title, x, y, axes=axes,cv=cv, n_jobs=4)
     plt.show()
 
+
 def mis_visual(clf,x_train, x_val, x_test,y_train, y_val, y_test):
+    '''
+    Plots Bar Graph for the counts of misclassified examples for train, test and validation samples.
+
+    Parameters:
+        clf : trained classification model
+        x_train : array-like , shape(n_train_samples, n_features)
+        x_val : array-like , shape(n_val_samples, n__features)
+        x_test : array-like , shape(n_test_samples, n_features)
+        y_train : of length n_train_samples
+        y_val : of length n_val_samples
+        y_test : of length n_test_samples
+
+    Returns:
+        void
+    '''
 
     y_val_score = clf.predict(x_val)
     y_test_score = clf.predict(x_test)
@@ -118,7 +160,25 @@ def mis_visual(clf,x_train, x_val, x_test,y_train, y_val, y_test):
     plt.tight_layout()
     plt.show()
 
+
 def err_score(clf, x_train, x_val, x_test, y_train, y_val, y_test):
+    '''
+    The function calculates error % for train, validation and test samples.
+
+    Parameters:
+        clf : trained classification model
+        x_train : array-like , shape(n_train_samples, n_features)
+        x_val : array-like , shape(n_val_samples, n__features)
+        x_test : array-like , shape(n_test_samples, n_features)
+        y_train : of length n_train_samples
+        y_val : of length n_val_samples
+        y_test : of length n_test_samples
+
+    Returns:
+        errors : dictionary
+        
+    '''
+
     # calculating errors
     train_err = (1-clf.score(x_train, y_train))*100
     val_err = (1-clf.score(x_val, y_val))*100
