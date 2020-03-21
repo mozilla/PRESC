@@ -15,7 +15,6 @@ from IPython.display import display
 class Classifier:
     def __init__(self, model='logistic', hidden_size=None, activation='relu', solver='lbfgs', max_iter=1000, multi_class='auto'):
         '''Constructor for initalization of model using provided parameters'''
-        super(Classifier, self).__init__()
         self.model = model
         if self.model == 'mlp':
             if hidden_size is None:
