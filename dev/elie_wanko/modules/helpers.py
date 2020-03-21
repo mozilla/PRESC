@@ -82,7 +82,7 @@ def univ_bar(
 
     # Set title
     plt.title(title, fontsize=14)
-
+    
 
 def univ_hist(title=None, fig_w=18, fig_h=7, _hue=None, bins=10, *, data, column):
     """Plots a Histogram of variable of interest 'column'.
