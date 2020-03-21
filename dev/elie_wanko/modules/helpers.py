@@ -10,7 +10,7 @@ from sklearn import metrics
 def __init__():
     pass
 
-def univ_bar(title=None, fig_w=10, fig_h=5, var_names=None, hue=None, palette=None, order=False, x_title=None, *, data, column):
+def univ_bar(title=None, fig_w=10, fig_h=5, var_names=None, hue=None, palette=None, order=True, x_title=None, *, data, column):
     """Plots a Bar Graph of variable of interest 'column'.
     """
     # Make a deep copy of dataframe
@@ -25,7 +25,7 @@ def univ_bar(title=None, fig_w=10, fig_h=5, var_names=None, hue=None, palette=No
     # Plot bar graph
     plt.figure(figsize=(fig_w, fig_h))
     if order == True:
-        sns.countplot(
+        ax = sns.countplot(
             data=df_clone,
             x=x_title,
             hue=hue,
@@ -33,10 +33,29 @@ def univ_bar(title=None, fig_w=10, fig_h=5, var_names=None, hue=None, palette=No
             order=df_clone[column].value_counts().index,
         )
     else:
-        sns.countplot(data=df_clone, x=x_title, hue=hue, palette=palette)
+        ax = sns.countplot(data=df_clone, x=x_title, hue=hue, palette=palette)
+    
+    # Adds count (defaulters : non-defaulters) on top of bars
+    for p in ax.patches:
+        ax.annotate('{:.0f}'.format(p.get_height()), (p.get_x()+p.get_width()/2., p.get_height()+50), ha="center")
+
+    # Adds relative percentages(defaulters : non-defaulters) per category on top of bars
+    bars = ax.patches
+    half = int(len(bars)/2)
+    left_bars = bars[:half]
+    right_bars = bars[half:]
+
+    for left, right in zip(left_bars, right_bars):
+        height_l = left.get_height()
+        height_r = right.get_height()
+        total = height_l + height_r
+
+        ax.text(left.get_x() + left.get_width()/2., height_l + 550, '{0:.2%}'.format(height_l/total), ha="center")
+        ax.text(right.get_x() + right.get_width()/2., height_r + 550, '{0:.2%}'.format(height_r/total), ha="center")
+            
     # Set title
     plt.title(title, fontsize=14)
-
+    
 
 def univ_hist(title=None, fig_w=18, fig_h=7, _hue=None, bins=10, *, data, column):
     """Plots a Histogram of variable of interest 'column'.
