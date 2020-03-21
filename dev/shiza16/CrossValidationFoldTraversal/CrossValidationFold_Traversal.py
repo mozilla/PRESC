@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 def CrossValidationFolds_Traversal(estimator, vdataset):
     """
     Arguments:
-    - estimator
-    - dataset
+    - estimator  = classifer of model
+    - vdataset =  vehicld dataset 
     This function computes acccuracy score with the
     Cross Validation Score for each KFold with K from 2 to 10 
     and returns the dataframe containg value of K with it's corresponding performance score
@@ -35,14 +35,15 @@ def CrossValidationFolds_Traversal(estimator, vdataset):
 def Visulaize_CrossValidationFolds_Traversal(matrix):
     """
     Argument:
-        - Dataframe named split_matrix
+    matrix: Dataframe named matrix
+    
     Line Plot is drawn for each KFold value with it's respective performance score.
     
     """
     ax = plt.gca()
     print("------------------------------------------------------------------")
     matrix.plot(kind="line", x="KFold", y="Accuracy", color="red", ax=ax)
-    plt.title("Line plot with  size = \n")
+    plt.title("Line plot of No of Kfold with it's corresponding performance score\n")
     plt.ylabel("Accuracy\n")
     plt.xlabel("\nNo of KFolds")
     plt.show()
