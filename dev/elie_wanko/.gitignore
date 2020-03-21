@@ -130,3 +130,7 @@ dmypy.json
 
 # Mac crap
 .DS_Store
+
+
+# resources
+/res
