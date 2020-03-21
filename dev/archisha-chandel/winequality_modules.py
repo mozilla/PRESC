@@ -40,7 +40,9 @@ def study_data(data):
 def preprocessing(data):
     '''
     This function drops duplicates present in the dataframe and
-    converts the target column from object --> int datatype.
+    converts the target column from object --> int datatype. It 
+    also drops column 'quality' which has high correlation with
+    target column.
 
     Parameters: dataframe
 
@@ -49,6 +51,7 @@ def preprocessing(data):
 
     # dropping duplicates
     data.drop_duplicates(inplace=True)
+    data.drop('quality', axis=1, inplace=True)
 
     # converting data['recommend'] to integer column
     data.recommend = data.recommend*1
