@@ -9,6 +9,8 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 
+from IPython.display import display
+
 def read_data(path=None):
     '''Function to read dataset from file'''
     if path is None:
@@ -30,9 +32,11 @@ def read_data(path=None):
     class_map = dict(list(zip(classes, indices)))
     y = np.array([class_map[y[i]] for i in range(len(y))])
 
+    display(pd.DataFrame(class_map.keys()))
+
     return X, y, class_map, data, df
 
-def lda(X=None, y=None, k=3):
+def lda(X=None, y=None, k=2):
     '''Function to compute LDA of data points to k dimensions'''
     if X is None or y is None:
         return None
@@ -40,7 +44,7 @@ def lda(X=None, y=None, k=3):
     projection = model.fit_transform(X, y)
     return projection
 
-def pca(X=None, k=3):
+def pca(X=None, k=2):
     '''Function to compute PCA of data points to k dimensions'''
     if X is None:
         return None
@@ -65,13 +69,12 @@ def visualize_data(method='LDA', X=None, y=None):
         return False
     else: 
         if method == 'LDA': 
-            projection = lda(X, y, 3)
+            projection = lda(X, y, 2)
         elif method=='PCA':
-            projection = pca(X, 3)
+            projection = pca(X, 2)
 
     fig = plt.figure(figsize=(8, 8))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(projection[:,0], projection[:,1], projection[:, 2], c=y)
+    plt.scatter(projection[:,0], projection[:,1], c=y)
     plt.title(method)
     plt.show()
 
