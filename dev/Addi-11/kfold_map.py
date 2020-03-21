@@ -1,39 +1,127 @@
-""" This file maps the evaluation metrics for various splits in the K-fold space"""
+# This file maps the evaluation metrics for various splits in the K-fold space
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, RepeatedKFold
+from sklearn import preprocessing
 from classifiers import Classifier
 from evaluation import evaluate
-from dataloader import get_X_y
+from dataloader import get_x_y
+import random
+import matplotlib.pyplot as plt
 from IPython.display import HTML
+from sklearn.ensemble import RandomForestClassifier
 
-""" for now KNeighbors will be used as it gave the highest accuracy """
-model = Classifier()
 
-columns = ['Accuracy %','Precision %','Recall','F1_Score']
-df = pd.DataFrame(columns = ['K_Fold']+columns)
+columns = ["Accuracy %", "Precision %", "Recall", "F1_Score"]
+df = pd.DataFrame(columns=["K_Fold"] + columns)
 
-""" Cross Validation using K-Fold """
-def KFold_validation(kf, split_no):
-    X, y = get_X_y()
-    # kf.get_n_splits(X)
-    for train, test in kf.split(X,y):
-        X_train, X_test = X.iloc[train], X.iloc[test]
-        y_train, y_test = y[train], y[test]
 
-        classifier = model.KNeighbors(X_train, y_train)
-        accuracy, precision, recall,f_score, y_score = evaluate(classifier, X_test, y_test)
-    
-    return  accuracy*100, precision*100, recall,f_score
+def perform_repeated_cv(model):
 
-""" Evaluation metric for different K-folds are shown in tabular format """
-def tabulate_kfold():
-    index = 1
-    for split_no in range(2,80):
-        kf = KFold(n_splits=split_no)
-        df.loc[index,'K_Fold'] = split_no
-        df.loc[index,columns] = KFold_validation(kf, split_no)
-        
-        index += 1
+	#set random seed for repeartability
+	random.seed(1)
 
-    display(df)
+	# obtaining x and y
+	x, y = get_x_y()
+	x=np.array(x)
+	y=np.array(y)
+	#set the number of repetitions
+	n_reps = 50
+
+	# perform repeated cross validation
+	accuracy_scores = np.zeros(n_reps)
+	precision_scores=  np.zeros(n_reps)
+	recall_scores =  np.zeros(n_reps)
+
+	for u in range(n_reps):
+
+		#randomly shuffle the dataset
+		indices = np.arange(x.shape[0])
+		# print(indices.shape)
+		np.random.shuffle(indices)
+		x = x[indices]
+		y = y[indices] # dataset has been randomly shuffled
+
+		#initialize vector to keep predictions from all folds of the cross-validation
+		y_predicted = np.zeros(y.shape)
+
+		#perform 10-fold cross validation
+		kf = KFold(n_splits=5 , random_state=142)
+		for train, test in kf.split(x):
+
+			#split the dataset into training and testing
+			x_train = x[train]
+			x_test = x[test]
+			y_train = y[train]
+			y_test = y[test]
+
+			#standardization
+			scaler = preprocessing.StandardScaler().fit(x_train)
+			x_train = scaler.transform(x_train)
+			x_test = scaler.transform(x_test)
+
+			#train model
+			clf = model
+			clf.fit(x_train, y_train)
+
+			#make predictions on the testing set
+			y_predicted[test] = clf.predict(x_test)
+
+		#record scores
+		accuracy_scores[u], precision_scores[u], recall_scores[u], _, _  = evaluate(clf, x_test, y_test)
+
+	#return all scores
+	return accuracy_scores, precision_scores, recall_scores
+
+
+def plot_kfold_graph():
+	
+	accuracy_scores, precision_scores, recall_scores = perform_repeated_cv(RandomForestClassifier(n_estimators=100) )
+
+	#plot results from the 50 repetitions
+	fig, axes = plt.subplots(3, 1)
+
+	axes[0].plot(100*accuracy_scores , color = 'xkcd:cherry' , marker = 'o')
+	axes[0].set_xlabel('Repetition')
+	axes[0].set_ylabel('Accuracy (%)')
+	axes[0].set_facecolor((1,1,1))
+	axes[0].spines['left'].set_color('black')
+	axes[0].spines['right'].set_color('black')
+	axes[0].spines['top'].set_color('black')
+	axes[0].spines['bottom'].set_color('black')
+	axes[0].spines['left'].set_linewidth(0.5)
+	axes[0].spines['right'].set_linewidth(0.5)
+	axes[0].spines['top'].set_linewidth(0.5)
+	axes[0].spines['bottom'].set_linewidth(0.5)
+	axes[0].grid(linestyle='--', linewidth='0.5', color='grey', alpha=0.5)
+
+	axes[1].plot(100*precision_scores , color = 'xkcd:royal blue' , marker = 'o')
+	axes[1].set_xlabel('Repetition')
+	axes[1].set_ylabel('Precision(%)')
+	axes[1].set_facecolor((1,1,1))
+	axes[1].spines['left'].set_color('black')
+	axes[1].spines['right'].set_color('black')
+	axes[1].spines['top'].set_color('black')
+	axes[1].spines['bottom'].set_color('black')
+	axes[1].spines['left'].set_linewidth(0.5)
+	axes[1].spines['right'].set_linewidth(0.5)
+	axes[1].spines['top'].set_linewidth(0.5)
+	axes[1].spines['bottom'].set_linewidth(0.5)
+	axes[1].grid(linestyle='--', linewidth='0.5', color='grey', alpha=0.5)
+
+	axes[2].plot(100*precision_scores , color = 'xkcd:emerald' , marker = 'o')
+	axes[2].set_xlabel('Repetition')
+	axes[2].set_ylabel('Recall (%)')
+	axes[2].set_facecolor((1,1,1))
+	axes[2].spines['left'].set_color('black')
+	axes[2].spines['right'].set_color('black')
+	axes[2].spines['top'].set_color('black')
+	axes[2].spines['bottom'].set_color('black')
+	axes[2].spines['left'].set_linewidth(0.5)
+	axes[2].spines['right'].set_linewidth(0.5)
+	axes[2].spines['top'].set_linewidth(0.5)
+	axes[2].spines['bottom'].set_linewidth(0.5)
+	axes[2].grid(linestyle='--', linewidth='0.5', color='grey', alpha=0.5)
+
+	plt.grid(True)
+	plt.tight_layout()
