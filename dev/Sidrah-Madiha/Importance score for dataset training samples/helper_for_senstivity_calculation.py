@@ -112,7 +112,7 @@ def visualize_scores_of_parallel_dbs(my_data_senstivity):
         title="Parallel dataset(with ith data removed) VS Scores",
     )
     ax.legend()
-    ax.set_ylim(0, (my_data_senstivity["senstivity"] + 0.01))
+    ax.set_ylim(-0.05, (my_data_senstivity["senstivity"] + 0.01))
     ax.grid()
 
     plt.show()
