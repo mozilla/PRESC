@@ -4,7 +4,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
-def model_performance_evaluater_score(model_func, X_train, y_train, X_test, y_test):
+def model_performance_evaluater_score(
+    model_func, X_train, y_train, X_test, y_test, scoring="accuracy_score"
+):
     """returns accuracy of a model when training and testing data and target labels are provided
     inputs:
     model_func : model for fitting training data
@@ -13,10 +15,11 @@ def model_performance_evaluater_score(model_func, X_train, y_train, X_test, y_te
     X_test : testing data for model's accuracy calculation
     y_test: testing data's target labels for model's accuracy calculation"""
     model_func.fit(X_train, y_train)
-    # y_pred=model_func.predict(X_test)
-    # return metrics.accuracy_score(y_test, y_pred)
+    y_pred = model_func.predict(X_test)
+    return metrics.accuracy_score(y_test, y_pred)
 
-    return model_func.score(X_test, y_test)
+
+#     return model_func.score(X_test, y_test)
 
 
 def create_parallel_db(X_train, y_train, idx):
@@ -41,7 +44,12 @@ def create_all_parallel_dbs(X_train, y_train):
 
 
 def calculate_senstivity(model_func, X_train, y_train, X_test, y_test):
-    """ calculates L1 senstivity of dataset and returns maximum senstivity as well as list of all accuracies of parallel datasets"""
+    """ calculates senstivity of dataset and returns maximum senstivity as well as list of all accuracies of parallel datasets
+    returns a dictionary with following key-vlaue pairs
+    'senstivity': returns sensitivity score,
+    'scores of all parallel dataset' : score of all parallel dataset,
+    'score of original dataset': full dataset score,
+    'index of the most sensitive datapoint': index of the data point that returns the maximum senstivity"""
     full_dataset_score = model_performance_evaluater_score(
         model_func, X_train, y_train, X_test, y_test
     )
@@ -59,36 +67,52 @@ def calculate_senstivity(model_func, X_train, y_train, X_test, y_test):
         score_all_db.append(dataset_distance)
         if dataset_distance > sensitivity:
             sensitivity = dataset_distance
-    return sensitivity, score_all_db
+    senstivity_dict = {
+        "senstivity": sensitivity,
+        "scores of all parallel dataset": score_all_db,
+        "score of original dataset": full_dataset_score,
+        "index of the most sensitive datapoint": score_all_db.index(sensitivity),
+    }
+    return senstivity_dict
 
 
 def max_senstivity_leakage_datapoint(model_func, X_train, y_train, X_test, y_test):
     """ this function tells us which datapoint is the most sensitive, it prints its index as well as the datapoint itself"""
-    test_check, list_scores = calculate_senstivity(
-        model_func, X_train, y_train, X_test, y_test
-    )
-    idx_of_most_sensitive_data = list_scores.index(test_check)
+    senstivity_dict = calculate_senstivity(model_func, X_train, y_train, X_test, y_test)
+    idx_of_most_sensitive_data = senstivity_dict[
+        "index of the most sensitive datapoint"
+    ]
     print(
         "index of most senstive data point in training data", idx_of_most_sensitive_data
     )
     print("Most senstive data point", X_train[idx_of_most_sensitive_data])
 
 
-def visualize_scores_of_parallel_dbs(list_scores):
+def visualize_scores_of_parallel_dbs(my_data_senstivity):
     """ visualizing scores for each dataset"""
 
     # Data for plotting
-    t = np.arange(0.0, len(list_scores))
-    s = list_scores
+    t = np.arange(0.0, len(my_data_senstivity["scores of all parallel dataset"]))
+    s = my_data_senstivity["scores of all parallel dataset"]
 
     fig, ax = plt.subplots()
     ax.plot(t, s)
+    ax.scatter(
+        my_data_senstivity["index of the most sensitive datapoint"],
+        my_data_senstivity["senstivity"],
+        s=20,
+        c="red",
+        label="most sensitive datapoint = %.2f" % my_data_senstivity["senstivity"],
+    )
+    #     ax.scatter(-1, my_data_senstivity['score of original dataset'], s=20, c='green', label='score of whole dataset')
 
     ax.set(
-        xlabel="Parallel DBs",
-        ylabel="Scores of each parallel DB",
-        title="Parallel DBs VS Scores",
+        xlabel="Dataset after removing i'th datapoint",
+        ylabel="Scores of each parallel dataset",
+        title="Parallel dataset(with ith data removed) VS Scores",
     )
+    ax.legend()
+    ax.set_ylim(0, (my_data_senstivity["senstivity"] + 0.01))
     ax.grid()
 
     plt.show()
