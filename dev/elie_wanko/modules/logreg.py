@@ -9,7 +9,7 @@ def __init__():
     pass
 
 
-def classfier(
+def classifier(
     penalty="l2",
     dual=False,
     tol=0.0001,
@@ -65,14 +65,4 @@ def classfier(
     pred = lg.predict(subsets[1])
     true = array(subsets[3])
 
-    #     # Converts
-    #     if threshold != None:
-    #         for i in range(len(pred)):
-    #             if pred[i] >= threshold:
-    #                 pred[i] = 1
-    #             else:
-    #                 pred[i] = 0
-    #         pred = pred.astype(int)
-
-    # Returns predicted(pred) and actual(true) values
     return pred, true
