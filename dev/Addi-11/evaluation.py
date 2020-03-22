@@ -3,11 +3,7 @@
 import matplotlib.pyplot as plt
 from sklearn.metrics import (
     accuracy_score,
-    confusion_matrix,
-    plot_confusion_matrix,
     average_precision_score,
-    precision_recall_curve,
-    plot_precision_recall_curve,
     f1_score,
     precision_score,
     recall_score,
