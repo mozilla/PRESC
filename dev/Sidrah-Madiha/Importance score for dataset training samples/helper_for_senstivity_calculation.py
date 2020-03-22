@@ -65,7 +65,7 @@ def calculate_senstivity(model_func, X_train, y_train, X_test, y_test):
         dataset_distance = full_dataset_score - parallel_dataset_score  # L1 senstivity
         # removed  absolute from np.abs(full_dataset_score - parallel_dataset_score )
         score_all_db.append(dataset_distance)
-        if dataset_distance > sensitivity:
+        if np.abs(dataset_distance) > sensitivity:
             sensitivity = dataset_distance
     senstivity_dict = {
         "senstivity": sensitivity,
