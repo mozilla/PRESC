@@ -7,7 +7,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support, f1_score, roc_curve, auc
 from sklearn.linear_model import LogisticRegression
 
-from data_processing import lda
+from data_processing import dim_reduction
 
 from seaborn import heatmap
 from IPython.display import display
@@ -35,6 +35,8 @@ class Classifier:
         self.confusion = None
         self.roc = None
         self.auroc = None
+        self.accuracy = None
+        self.f_score = None
     
     def classify(self, X):
         '''Function that returns prediction based on trained model'''
@@ -89,7 +91,7 @@ class Classifier:
         predictions = self.classifier.predict(X)
         unique_classes = np.unique(y)
 
-        LDA = lda(X, y, 2)
+        LDA = dim_reduction('lda', X, y, 2)
 
         for unique_class in unique_classes:
             all_positives = predictions == unique_class
@@ -129,6 +131,26 @@ class Classifier:
 
         return self.auroc
 
+    def model_accuracy(self, X=None, y=None):
+        '''Function to return accuracy of the model'''
+        if self.accuracy is None and (X is None or y is None):
+            print('Data not provided.')
+            return None
+        elif self.accuracy is None and (X is not None and y is not None):
+            _, _ = self.validate(X, y)
+
+        return self.accuracy
+
+    def model_score(self, X=None, y=None):
+        '''Function to return F-score of the model'''
+        if self.f_score is None and (X is None or y is None):
+            print('Data not provided.')
+            return None
+        elif self.f_score is None and (X is not None and y is not None):
+            _, _ = self.validate(X, y)
+
+        return self.f_score
+
     def validate(self, X, y):
         '''Function to validate test/validation set and evaluate accuracy'''
         if X is None or y is None:
@@ -141,6 +163,8 @@ class Classifier:
 
         self.report = classification_report(y, self.predictions, output_dict=True)
         self.report = pd.DataFrame(self.report).transpose()
+        self.accuracy = accuracy_score(y, self.predictions)
+        self.f_score = f1_score(y, self.predictions, average='weighted')
         
         self.confusion = confusion_matrix(y, self.predictions)
 

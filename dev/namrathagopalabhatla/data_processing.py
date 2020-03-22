@@ -32,25 +32,41 @@ def read_data(path=None):
     class_map = dict(list(zip(classes, indices)))
     y = np.array([class_map[y[i]] for i in range(len(y))])
 
-    display(pd.DataFrame(class_map.keys()))
+    display(pd.DataFrame({'Mapping': list(class_map.keys())}))
 
     return X, y, class_map, data, df
 
-def lda(X=None, y=None, k=2):
-    '''Function to compute LDA of data points to k dimensions'''
-    if X is None or y is None:
-        return None
-    model = LDA(n_components=k)
+def dim_reduction(method='pca', X=None, y=None, k=2):
+    '''Function to compute PCA/LDA of data points to k dimensions'''
+    if method.lower() == 'pca':
+        if X is None:
+            return None
+        model = PCA(n_components=k)
+    elif method.lower() == 'lda':
+        if X is None or y is None:
+            return None
+        model = LDA(n_components=k)
     projection = model.fit_transform(X, y)
     return projection
 
-def pca(X=None, k=2):
-    '''Function to compute PCA of data points to k dimensions'''
+def show_scree(X=None, n=None):
+    '''Function to display Scree plot of data'''
     if X is None:
-        return None
-    model = PCA(n_components=k)
-    projection = model.fit_transform(X)
-    return projection
+        return
+
+    pca = PCA()
+    pca.fit(X)
+    eigenvalue_ratio = pca.explained_variance_ratio_
+
+    if n is None:
+        n = len(eigenvalue_ratio)
+
+    plt.figure(figsize=(8, 8))
+    plt.plot(np.arange(n) + 1, eigenvalue_ratio[:n], 'o-')
+    plt.xlabel('Principal Components')
+    plt.ylabel('Proportion of Variance explained')
+    plt.title('Scree Plot')
+    plt.show()
 
 def split_data(X=None, y=None, train_size=None):
     '''Function to get train-test split of the dataset'''
@@ -63,15 +79,14 @@ def split_data(X=None, y=None, train_size=None):
 
     return X_train, X_test, y_train, y_test
 
-def visualize_data(method='LDA', X=None, y=None):
+def visualize_data(method='LDA', X=None, y=None, n=None):
     '''Function to visualize data using LDA or PCA in 3-D'''
     if X is None or y is None:
         return False
     else: 
-        if method == 'LDA': 
-            projection = lda(X, y, 2)
-        elif method=='PCA':
-            projection = pca(X, 2)
+        projection = dim_reduction(method.lower(), X, y, 2)
+
+    show_scree(X, n)
 
     fig = plt.figure(figsize=(8, 8))
     plt.scatter(projection[:,0], projection[:,1], c=y)
