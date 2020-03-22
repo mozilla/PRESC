@@ -1,4 +1,4 @@
-# This file maps the evaluation metrics for various splits in the K-fold space
+# This file maps the evaluation metrics for Repition of CV Splits
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import KFold, RepeatedKFold
@@ -12,11 +12,20 @@ from IPython.display import HTML
 from sklearn.ensemble import RandomForestClassifier
 
 
-columns = ["Accuracy %", "Precision %", "Recall", "F1_Score"]
-df = pd.DataFrame(columns=["K_Fold"] + columns)
 
+def perform_repeated_cv(model, n_reps=50):
+	'''
+	Performs repeated cross validation on the dataset.
 
-def perform_repeated_cv(model):
+	Parameters:
+		model : trained classification model
+		n_reps : int, optional(default = 50)
+
+	Returns;
+		accuracy_scores : array-like
+		precision_scores : array-like
+		recall_scores : array-like
+	'''
 
 	#set random seed for repeartability
 	random.seed(1)
@@ -25,8 +34,6 @@ def perform_repeated_cv(model):
 	x, y = get_x_y()
 	x=np.array(x)
 	y=np.array(y)
-	#set the number of repetitions
-	n_reps = 50
 
 	# perform repeated cross validation
 	accuracy_scores = np.zeros(n_reps)
@@ -45,7 +52,7 @@ def perform_repeated_cv(model):
 		#initialize vector to keep predictions from all folds of the cross-validation
 		y_predicted = np.zeros(y.shape)
 
-		#perform 10-fold cross validation
+		#performing cross validation
 		kf = KFold(n_splits=5 , random_state=142)
 		for train, test in kf.split(x):
 
@@ -74,9 +81,18 @@ def perform_repeated_cv(model):
 	return accuracy_scores, precision_scores, recall_scores
 
 
-def plot_kfold_graph():
+def plot_cv_repeat(clf):
+	'''
+	The function plots number repeatations vs the evalution metrics - accuracy, precision, recall.
+
+	Pararmeters:
+		clf : trained classification model
+
+	Returns:
+		non 
+	'''
 	
-	accuracy_scores, precision_scores, recall_scores = perform_repeated_cv(RandomForestClassifier(n_estimators=100) )
+	accuracy_scores, precision_scores, recall_scores = perform_repeated_cv(clf)
 
 	#plot results from the 50 repetitions
 	fig, axes = plt.subplots(3, 1)
@@ -109,7 +125,7 @@ def plot_kfold_graph():
 	axes[1].spines['bottom'].set_linewidth(0.5)
 	axes[1].grid(linestyle='--', linewidth='0.5', color='grey', alpha=0.5)
 
-	axes[2].plot(100*precision_scores , color = 'xkcd:emerald' , marker = 'o')
+	axes[2].plot(100*recall_scores , color = 'xkcd:emerald' , marker = 'o')
 	axes[2].set_xlabel('Repetition')
 	axes[2].set_ylabel('Recall (%)')
 	axes[2].set_facecolor((1,1,1))
