@@ -1,3 +1,4 @@
+
 # importing required dependencies
 from IPython.display import HTML
 import pandas as pd
@@ -8,6 +9,7 @@ import seaborn as sns
 # read data file
 address = "../../datasets/eeg.csv"
 df = pd.DataFrame(pd.read_csv(address))
+
 
 def data_info():
     """
@@ -56,6 +58,7 @@ def train_val_test_split_data(test_size):
 		y_train : of length n_train_samples
 		y_val : of length n_validation_samples
 		y_test : of length n_test_samples
+    
 	"""
 
     x, y = get_x_y()
