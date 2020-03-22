@@ -349,4 +349,5 @@ def scoring(y_test, X_test, clf):
     y_pred = clf.predict(X_test)
 
     eval_report = (classification_report(y_test,y_pred))
+    
     return eval_report
