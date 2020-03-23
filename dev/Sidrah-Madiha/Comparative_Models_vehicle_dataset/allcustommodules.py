@@ -19,7 +19,7 @@ from sklearn.svm import SVC
 
 
 def data_stats(dataset):
-    """ Shows some basic stats of the dataset"""
+    """ Shows some basic stats of the dataset. """
     print("=========== SOME STATS of Dataset ===========")
     print("Shape of the dataset: " + str(dataset.shape) + "\n")
     print("List of attribute columns", list(dataset.columns))
@@ -29,7 +29,7 @@ def data_stats(dataset):
 
 
 def tokenize_target_column(dataset):
-    """ tokenize the Class column values to numeric data"""
+    """ tokenize the Class column values to numeric data. """
     factor = pd.factorize(dataset["Class"])
     dataset.Class = factor[0]
     definitions = factor[1]
@@ -41,7 +41,7 @@ def tokenize_target_column(dataset):
 
 
 def train_data_test_data_split(X, y, test_size=0.2):
-    """ splitting test and training data in 80/20 split"""
+    """ splitting test and training data in 80/20 (default) split"""
 
     #     print(X[0])
     #     print(y[0])
@@ -65,14 +65,8 @@ def training_data_and_target_Label_split(dataset):
     return X, y
 
 
-# def train_randomforest(classifier, X_train, y_train):
-#     """ training model on train data"""
-#     classifier.fit(X_train, y_train)
-#     return classifier
-
-
 def test(classifier, X_test):
-    """ testing model on test data"""
+    """ testing model on test data. """
     y_pred = classifier.predict(X_test)
     return y_pred
 
@@ -92,7 +86,7 @@ def untokenizing_prediction(y_pred, definitions):
 
 
 def create_confusion_matrix(y_test, y_pred):
-    """ Creates Cinfusion Matrix and summary of evaluation metric """
+    """ creates Confusion Matrix and summary of evaluation metric. """
 
     labels = ["van", "saab", "bus", "opel"]
     cm = confusion_matrix(y_test, y_pred, labels=labels)
@@ -101,7 +95,7 @@ def create_confusion_matrix(y_test, y_pred):
 
 
 def display_confusion_matrix(df_cm):
-    """ displays confusion matrix of dataframe provided)"""
+    """ displays confusion matrix of dataframe provided). """
 
     sn.heatmap(df_cm, annot=True, fmt="d")
     plt.xlabel("Real Vehicle Category")
@@ -110,22 +104,25 @@ def display_confusion_matrix(df_cm):
 
 
 def display_classification_report(y_test, y_pred):
+    """ displays classification report. """
     print("============== Summary of all evaluation metics ===============")
     print(classification_report(y_test, y_pred))
 
 
-def model_evaluation(X_train, y_train):
+def model_evaluation(X_train, y_train, scoring="accuracy"):
     """ Checking accuaracy of different models and plotting it for comparison"""
     print(
         "Evaluating performance of various classifier:\n ==================================== \n Random Forest Classifier, K Neighbor Classifier, RBF SVM, Naive Bayes, Logistic Regression, Decision Tree\n "
     )
     figure(num=None, figsize=(12, 12), dpi=80, facecolor="w", edgecolor="k")
     models = [
-        RandomForestClassifier(n_estimators=10, criterion="entropy", random_state=42),
-        KNeighborsClassifier(n_neighbors=7),
-        SVC(kernel="rbf", C=1000, gamma=0.0001),
+        RandomForestClassifier(),  # removed n_estimators = 10, criterion = 'entropy', random_state = 42, to keep all at default
+        KNeighborsClassifier(),  # removed n_neighbors=7, to keep defaults
+        SVC(
+            kernel="rbf"
+        ),  # removed  C=1000, gamma=0.0001, I have kept kernel RBF as I have researched that RBF are good for mulitclass classifers as oppose to others SVMs
         GaussianNB(),
-        LogisticRegression(solver="lbfgs", multi_class="auto"),
+        LogisticRegression(),  # removed solver = 'lbfgs',multi_class='auto'
         DecisionTreeClassifier(),
     ]
     CV = 5
@@ -133,20 +130,20 @@ def model_evaluation(X_train, y_train):
     entries = []
     for model in models:
         model_name = model.__class__.__name__
-        accuracies = cross_val_score(model, X_train, y_train, scoring="accuracy", cv=CV)
+        accuracies = cross_val_score(model, X_train, y_train, scoring=scoring, cv=CV)
         for fold_idx, accuracy in enumerate(accuracies):
             entries.append((model_name, fold_idx, accuracy))
-    cv_df = pd.DataFrame(entries, columns=["model_name", "fold_idx", "accuracy"])
+    cv_df = pd.DataFrame(entries, columns=["model_name", "fold_idx", "score"])
     model_evaluation_plot(cv_df)
-    cv_df.groupby("model_name").accuracy.mean()
+    cv_df.groupby("model_name").score.mean()
 
 
 def model_evaluation_plot(cv_df):
     """ Display dataframe containing model and their accuracy for comparison"""
-    sns.boxplot(x="model_name", y="accuracy", data=cv_df)
+    sns.boxplot(x="model_name", y="score", data=cv_df)
     sns.stripplot(
         x="model_name",
-        y="accuracy",
+        y="score",
         data=cv_df,
         size=8,
         jitter=True,
