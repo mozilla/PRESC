@@ -42,7 +42,9 @@ def visulaize_train_test_split_traversal(split_matrix, s):
     test_size = 100 * s
     train_size = 100 - (test_size)
     print("------------------------------------------------------------------")
-    split_matrix.plot(kind="line", x="KFold", y="Accuracy", color="red", ax=ax)
+    split_matrix.plot(kind="line", x="KFold", y="Accuracy",marker="o",
+        markerfacecolor="blue",
+        markersize=12, color="red", ax=ax)
     split_matrix.plot(kind="line", x="KFold", y="Testing_Set", color="yellow", ax=ax)
     split_matrix.plot(kind="line", x="KFold", y="Training_Set", color="blue", ax=ax)
     print(
@@ -73,8 +75,8 @@ def train_test_split_traversal(classifier, vdataset):
     
     """
 
-    X = vdataset.drop(["Class", "Class_code"], axis=1)
-    y = vdataset["Class_code"]
+    X = vdataset.drop(["recommend", "recommend_code"], axis=1)
+    y = vdataset["recommend_code"]
     split_matrix = pd.DataFrame(
         columns=["KFold", "Training_Set", "Testing_Set", "Accuracy"]
     )

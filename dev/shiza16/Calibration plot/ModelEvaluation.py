@@ -3,7 +3,6 @@ from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn import model_selection
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
@@ -17,16 +16,10 @@ def define_models():
     
     """
     model = []
-    model.append(
-        (
-            "LogisticRegression",
-            LogisticRegression(solver="lbfgs", multi_class="auto", max_iter=7600),
-        )
-    )
+    model.append(("LogisticRegression", LogisticRegression(),))
     model.append(("KNN", KNeighborsClassifier()))
-    model.append(("DecisionTree", DecisionTreeClassifier()))
     model.append(("GaussianNB", GaussianNB()))
-    model.append(("SupportVectorMachine", SVC(kernel="rbf", C=1000, gamma=0.0001)))
+    model.append(("SupportVectorMachine", SVC(probability=True)))
     model.append(
         (
             "RandomForest",
@@ -48,8 +41,8 @@ def Evaluation_model(data):
     
     """
 
-    X = data.drop(["Class", "Class_code"], axis=1)
-    y = data["Class_code"]
+    X = data.drop(["recommend", "recommend_code"], axis=1)
+    y = data["recommend"]
 
     models = define_models()
     accuracy_score = []
