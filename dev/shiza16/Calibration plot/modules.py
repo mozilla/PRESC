@@ -50,6 +50,11 @@ def label_encoding(vehicle):
 
 def Oversampling(X_train, y_train):
     
+    """
+    Resampling data by using oversamplint technique to handle the imbalance data
+    
+    """
+    
     data = pd.concat([X_train, y_train], axis=1)
     false = data[data.recommend_code==0]
     true = data[data.recommend_code==1]
