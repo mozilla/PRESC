@@ -139,7 +139,7 @@ Tasks are managed using the [GitHub issue tracker](https://github.com/mozilla/PR
 
 ### Contributions
 
-Contributions can be made by submitting a [pull request](https://help.github.com/articles/using-pull-requests) against this repository.
+Contributions can be made by submitting a [pull request](https://help.github.com/articles/using-pull-requests) against this repository. Check on [creating a pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request) to know more.
 
 - We ask each Outreachy participant to make a contribution completing
   [#2](https://github.com/mozilla/PRESC/issues/2) (train and test a
