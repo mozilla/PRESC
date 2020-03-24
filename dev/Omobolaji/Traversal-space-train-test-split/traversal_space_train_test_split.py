@@ -45,9 +45,17 @@ def traversal(estimator, data):
         #convert the score to a percentage and round to two decimal places
         accuracy = round(accuracy*100, 2) 
         
+        #Compute confusion matrix
+        cm = confusion_matrix(test_target, predict_target)
+    
+        # Calculate the classification report
+        cr = classification_report(test_target, predict_target)
+        
         #append to an empty list created
-        results.append([split, accuracy])
+        results.append([split, accuracy, cm, cr])
+        
     
     #convert the results to tabular form using Pandas Dataframe function
-    results = pd.DataFrame(results, columns = ['Test-Size', 'Accuracy Score(%)']) 
+    results = pd.DataFrame(results, columns = ['Test-Size', 'Accuracy Score(%)', 'Confusion Matrix', 'Classification Report']) 
+#     results.explode('Classification Report')   this function doesnt seem to work
     return results
