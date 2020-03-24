@@ -1,10 +1,14 @@
+__author__ = 'Archisha Chandel'
+__copyright__ = 'Copyright 2020, mozilla/PRESC'
+
 # importing necessary libraries
 import os
-import pandas as pd
-import numpy as np
 import itertools
 import pandas_profiling
+import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
+
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score,accuracy_score,\
