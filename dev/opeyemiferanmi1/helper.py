@@ -1,6 +1,6 @@
 # import libraries
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split, cross_val_score
 import matplotlib.pyplot as plt
 from sklearn.svm import SVC
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
@@ -13,7 +13,6 @@ import seaborn as sns
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 import pandas as pd
 from sklearn.metrics import roc_curve
-from sklearn.multiclass import OneVsRestClassifier
 
 
 def data_description(data):
@@ -82,27 +81,12 @@ def spot_check_algorithm(x_train, y_train, n_splits=10, random_state=42):
 
 def split(x, y):
     """Split the train and test data"""
-    """The splitting of this dataset into folds is governed by criteria(stratify) such that each fold has the same proportion/distribution of 
+    """The splitting of this dataset into folds is governed by criteria(stratify) 
+    such that each fold has the same proportion/distribution of 
     observations with the categorical value of the Class column."""
     x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=42,
                                                         stratify=y)
     return x_train, x_test, y_train, y_test
-
-
-def train_SVC(x_train, y_train, x_test, y_test):
-    """Train model with SVC"""
-    svc_model = SVC(gamma='auto')
-    svc_model.fit(x_train, y_train)
-    y_pred = pd.DataFrame(svc_model.predict(x_test))
-    return y_pred
-
-
-def train_LogisticRegression(x_train, y_train, x_test, y_test):
-    """Train model with SVC"""
-    lgr_model = LogisticRegression()
-    lgr_model.fit(x_train, y_train)
-    y_pred = pd.DataFrame(lgr_model.predict(x_test))
-    return y_pred
 
 
 def train_LDA(x_train, y_train, x_test, y_test):
