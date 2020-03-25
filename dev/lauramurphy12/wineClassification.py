@@ -26,20 +26,10 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 from scipy.stats import gmean
 
-
-DIR_lauramurphy12 = os.path.abspath(os.path.dirname(os.getcwd()))
-DIR_pythonScripts = os.path.join(DIR_lauramurphy12, "python")
-DIR_jup = os.path.join(DIR_lauramurphy12, "jupyter")
-DIR_dev = os.path.dirname(DIR_lauramurphy12)
-DIR_Presc = os.path.dirname(DIR_dev)
-DIR_datasets = os.path.join(DIR_Presc, "datasets")
-DIR_datasets
-
-
 def read_csv():
-    wineQuality = pd.read_csv(os.path.join(DIR_datasets, "winequality.csv"))
-    return wineQuality
-
+	filePath = os.path.join(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "datasets"), "winequality.csv")
+	wineQuality = pd.read_csv(filePath)
+	return wineQuality
 
 def is_null_values(myTest):
     return myTest.isnull().sum()
