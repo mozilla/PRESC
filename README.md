@@ -208,9 +208,24 @@ take are:
 - Install [git](https://git-scm.com/downloads) on your computer
 - Fork the repo on Github (ie. make your own personal copy)
 - Clone your fork to your local computer
+- Set remote origin (https://github.com/<_user_>/PRESC.git) and upstream (https://github.com/mozilla/PRESC.git)
+- Create a new branch for every issue or new work that you do.
+(To avoid merge conflicts keep your work in a separate folder in the same branch if it contains more than a few files.)
 - Commit changes locally on your computer
 - Push your changes to your fork on Github
 - Submit a pull request (PR) against the main repo from your fork.
+
+A few commands to start with everytime you work with a GIT repository:
+- `git fetch upstream master`
+- `git checkout FETCH_HEAD -b <new_branch_name>`
+- Make changes
+- `git status`
+This will show the files that have been modified, deleted or created
+- `git add .` (To add all the modified files)
+	OR
+  `git add <file_name>` (To add a specific file)
+- `git commit -m '<commit_message>'`
+- `git push origin master`
 
 Here are some resources to learn more about parts of this workflow you are
 unfamiliar with:
