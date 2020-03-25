@@ -226,6 +226,7 @@ unfamiliar with:
 - This [repo](https://github.com/aSquare14/Git-Cheat-Sheet) by a previous
   Outreachy contributor lists many other resources and tutorials.
 - This [video tutorial series](https://www.youtube.com/playlist?list=PL6gx4Cwl9DGAKWClAD_iKpNC0bGHxGhcx) on Youtube may also be helpful
+- [First Contributions](https://github.com/firstcontributions/first-contributions#first-contributions) is a good place to actually practise and put your understanding to test. Feel free to make mistakes as you go along learning to make your first contribution. 
 
 Feel free to reach out to the mentors by email or on Gitter if you have further
 questions or are having trouble getting set up!
