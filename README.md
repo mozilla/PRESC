@@ -225,7 +225,10 @@ This will show the files that have been modified, deleted or created
 	OR
   `git add <file_name>` (To add a specific file)
 - `git commit -m '<commit_message>'`
-- `git push origin master`
+- `git push`
+If you get an error message on executing the above command, enter the suggested `git push` command.
+
+Now, click on the link that you see once the `push` command is executed to create a Pull Request. While creating a Pull Request do mention `[ Fixes: #<issue_number> ]` in the description. This will link the issue to the Pull Request for which the latter is created.
 
 Here are some resources to learn more about parts of this workflow you are
 unfamiliar with:
