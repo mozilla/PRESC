@@ -8,7 +8,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
 )
-from sklearn.utils import class_weight
+import pandas as pd
 
 def evaluate(classifier, x_val, y_val):
     """
@@ -32,4 +32,3 @@ def evaluate(classifier, x_val, y_val):
     recall = recall_score(y_val, y_score)
 
     return accuracy, precision, recall, f_score, y_score
-
