@@ -40,9 +40,10 @@ def tokenize_target_column(dataset):
     return definitions
 
 
-def train_data_test_data_split(X, y, test_size=0.2):
-    """ splitting test and training data in 80/20 split"""
-
+def train_data_test_data_split(dataset):
+    """ sepaarating datapoints from label"""
+    X = dataset.iloc[:, 0:-1].values
+    y = dataset.iloc[:, -1].values
     #     print(X[0])
     #     print(y[0])
     #     print(X.shape)
@@ -53,22 +54,27 @@ def train_data_test_data_split(X, y, test_size=0.2):
     #     print(y[:5])
     #     Split dataset into training set and test set
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=21
+        X, y, test_size=0.2, random_state=21
     )
     return X_train, X_test, y_train, y_test
 
 
-def training_data_and_target_Label_split(dataset):
-    """ return last column of dataset as target y with training dataset  as X. """
-    X = dataset.iloc[:, 0:-1].values
-    y = dataset.iloc[:, -1].values
-    return X, y
+def train_randomforest(X_train, y_train):
+    """ training model on train data"""
+    classifier = RandomForestClassifier(
+        n_estimators=10, criterion="entropy", random_state=42
+    )
+    classifier.fit(X_train, y_train)
+    return classifier
 
 
-# def train_randomforest(classifier, X_train, y_train):
-#     """ training model on train data"""
-#     classifier.fit(X_train, y_train)
-#     return classifier
+# def train_SVM(X_train, y_train):
+#     params_grid = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],'C': [1, 10, 100, 1000]}]
+#     svm_model = GridSearchCV(SVC(), params_grid, cv=5)
+#     svm_model.fit(X_train, y_train)
+#     svclassifier = SVC(kernel=svm_model.best_estimator_.kernel, C=svm_model.best_estimator_.C, gamma=svm_model.best_estimator_.gamma)
+#     svclassifier.fit(X_train, y_train)
+#     return svclassifier
 
 
 def test(classifier, X_test):
@@ -77,41 +83,27 @@ def test(classifier, X_test):
     return y_pred
 
 
-def untokenizing_testdata(y_test, definitions):
-    """Converting numeric target values back to original labels"""
-    reversefactor = dict(zip(range(len(definitions) + 1), definitions))
+def untokenizing_testdata_prediction(y_test, y_pred, definitions):
+    """Converting numeric target and predict values back to original labels"""
+    reversefactor = dict(zip(range(4), definitions))
     y_test = np.vectorize(reversefactor.get)(y_test)
-    return y_test
-
-
-def untokenizing_prediction(y_pred, definitions):
-    """Converting numeric predicted values back to original labels"""
-    reversefactor = dict(zip(range(len(definitions) + 1), definitions))
     y_pred = np.vectorize(reversefactor.get)(y_pred)
-    return y_pred
+    return y_test, y_pred
 
 
-def create_confusion_matrix(y_test, y_pred):
+def create_confusion_matrix_class_report(y_test, y_pred):
     """ Creates Cinfusion Matrix and summary of evaluation metric """
 
     labels = ["van", "saab", "bus", "opel"]
     cm = confusion_matrix(y_test, y_pred, labels=labels)
     df_cm = pd.DataFrame(cm, index=labels, columns=labels)
-    return df_cm
-
-
-def display_confusion_matrix(df_cm):
-    """ displays confusion matrix of dataframe provided)"""
 
     sn.heatmap(df_cm, annot=True, fmt="d")
     plt.xlabel("Real Vehicle Category")
     plt.ylabel("Predicted Vehicle Category")
-    print("====================== Confusion Matrix=====================")
-
-
-def display_classification_report(y_test, y_pred):
     print("============== Summary of all evaluation metics ===============")
     print(classification_report(y_test, y_pred))
+    print("====================== Confusion Matrix=====================")
 
 
 def model_evaluation(X_train, y_train):
