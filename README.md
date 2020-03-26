@@ -230,6 +230,8 @@ If you get an error message on executing the above command, enter the suggested 
 
 Now, click on the link that you see once the `push` command is executed to create a Pull Request. While creating a Pull Request do mention `[ Fixes: #<issue_number> ]` in the description. This will link the issue to the Pull Request for which the latter is created.
 
+Once your Pull Request is merged do `git pull --rebase upstream master`. This will update your fork with local changes and the ones made from upstream. This is to ensure there are no file conflicts.
+
 Here are some resources to learn more about parts of this workflow you are
 unfamiliar with:
 
