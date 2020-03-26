@@ -12,9 +12,9 @@ def visualize_spread_of_metric(df):
     t2 = df["y_min"]
     s = df.iloc[:, 0]
 
-    ax.plot(s, t, "-", label="y_mean")
-    ax.plot(s, t1, color="red", label="y_max")
-    ax.plot(s, t2, color="green", label="y_min")
+    ax.plot(s, t, "-", label="mean")
+    ax.plot(s, t1, color="red", label="max")
+    ax.plot(s, t2, color="green", label="min")
     ax.legend()
     ax.set_ylabel("values of y")
     ax.set_xlabel("values of X")
