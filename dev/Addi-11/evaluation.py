@@ -12,7 +12,6 @@ import pandas as pd
 
 from sklearn.utils import class_weight
 
-
 def evaluate(classifier, x_val, y_val):
     """
     This function predicts the values for a trained model and calculates the evaluation metrics accuracy, precision, recall, f_score on the validation set. 

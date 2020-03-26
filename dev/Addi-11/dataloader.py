@@ -10,7 +10,6 @@ import seaborn as sns
 address = "../../datasets/eeg.csv"
 df = pd.DataFrame(pd.read_csv(address))
 
-
 def data_info():
     """
 	Displays basic information about a dataset :
@@ -58,7 +57,6 @@ def train_val_test_split_data(test_size):
 		y_train : of length n_train_samples
 		y_val : of length n_validation_samples
 		y_test : of length n_test_samples
-    
 	"""
 
     x, y = get_x_y()
