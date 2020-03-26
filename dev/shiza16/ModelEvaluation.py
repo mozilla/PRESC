@@ -7,6 +7,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import LeaveOneOut
+
 
 
 def define_models():
@@ -127,11 +129,12 @@ def SVM_train(X, y):
         {
             "kernel": ["rbf"],
             "gamma": [0.1, 0.01, 0.001, 0.0001],
-            "C": [0.1, 1, 10, 100, 1000],
+            "C": [0.1, 1, 10, 100],
         }
     ]
+    loocv = LeaveOneOut()
     model = SVC()
-    grid_search = GridSearchCV(estimator=model, param_grid=parameters, cv=5)
+    grid_search = GridSearchCV(estimator=model, param_grid=parameters, cv= loocv)
     grid_result = grid_search.fit(X, y)
     classifier = SVC(
         kernel=grid_result.best_estimator_.kernel,

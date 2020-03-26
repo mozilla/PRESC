@@ -10,10 +10,9 @@ def Misclasssification_visualization(y_test, y_predict, data):
 
     """
 
-    target_label = data["Class_code"].unique()
     label = data["Class"].unique()
     cmatrix = pd.DataFrame(
-        data=confusion_matrix(y_test, y_predict, labels=target_label),
+        data=confusion_matrix(y_test, y_predict, labels=label),
         columns=label,
         index=label,
     )
