@@ -8,7 +8,6 @@ from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import cross_val_score
 
 
-
 def dataset_statistics(data):
 
     """ Data Features and Labels are extracted """
@@ -36,7 +35,7 @@ def Correlation_matrix(dataa):
     plt.show()
 
 
-def label_encoding(lencoder,vehicle):
+def label_encoding(lencoder, vehicle):
     """ Converting categorical labels into numeric values """
 
     vdataset = vehicle.copy()
@@ -44,7 +43,7 @@ def label_encoding(lencoder,vehicle):
     return vdataset
 
 
-def splitting_train_test_data(data , size):
+def splitting_train_test_data(data, size):
     """ 
     Data is splitted into ratio of size for training and testing
     
@@ -53,7 +52,7 @@ def splitting_train_test_data(data , size):
     X = data.drop(["Class", "Class_code"], axis=1)
     y = data["Class_code"]
 
-    return train_test_split(X, y, test_size = size, random_state=45)
+    return train_test_split(X, y, test_size=size, random_state=45)
 
 
 def LogisticRegression_train(X, y):
@@ -86,7 +85,6 @@ def model_confusion_matrix(y_test, y_predict, dataa):
     fig = plt.gcf()
     fig.set_size_inches(8, 5)
 
-    
     target = dataa["Class"].unique()  ##for index labels
 
     matrix = confusion_matrix(y_test, y_predict, labels=target)

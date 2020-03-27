@@ -7,8 +7,6 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import LeaveOneOut
-
 
 
 def define_models():
@@ -119,7 +117,7 @@ def Tunning_Logistic_Regression(X, y):
     return classifier.fit(X, y)
 
 
-def SVM_train(X, y):
+def SVM_train(X, y, cv):
 
     """ Support Vector Machine Classifier for trainint and testing
         
@@ -132,9 +130,8 @@ def SVM_train(X, y):
             "C": [0.1, 1, 10, 100],
         }
     ]
-    loocv = LeaveOneOut()
     model = SVC()
-    grid_search = GridSearchCV(estimator=model, param_grid=parameters, cv= loocv)
+    grid_search = GridSearchCV(estimator=model, param_grid=parameters, cv=cv)
     grid_result = grid_search.fit(X, y)
     classifier = SVC(
         kernel=grid_result.best_estimator_.kernel,
