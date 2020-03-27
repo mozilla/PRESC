@@ -137,4 +137,4 @@ dmypy.json
 .DS_Store
 
 # zip files
-dev/archisha-chandel/porto-seguro-safe-driver-prediction.zip
+*.zip
