@@ -93,8 +93,23 @@ If you wish to build on someone else's contribution, you can import code from
 their modules into yours. Please do not submit PRs directly modifying code from
 other contributions at this point, unless to resolve errors or typos.
 
+Code formatting guidelines should strinctly adhere  to [Python Black](https://pypi.org/project/black/) formatting guidelines. Please ensure that all PRs pass a local black formatting check.
+
+
+
 
 ## Information for Outreachy participants
+
+__Please note that this project is currently closed to new Outreachy
+contributions.__
+
+- At this time, we are only considering Outreachy candidates who have submitted
+  a PR on or before _Friday March 20_.
+- If you have submitted a PR by this date, you may continue working on existing
+  PRs or create new ones as usual. All your contributions will be considered.
+- If you have not yet submitted a PR by this date, we will unfortunately not be
+  able to consider you as an Outreachy candidate for this round.
+
 
 This project is intentionally broadly scoped, and the initial phase will be
   exploratory.
@@ -138,27 +153,82 @@ Contributions can be made by submitting a [pull request](https://help.github.com
   request review. This tag ('work in progress') indicates that the PR is not
   ready to be merged. When it is ready for final submission, you can modify the
   title to remove the "WIP:" tag.
+- Should you use a separate jupyter notebook for comparing different models? If
+  you had a PR merged in to satisfy issue #2 already and are now comparing
+  models for another issue, then a new notebook would be helpful. That being
+  said, a notebook should satisfy the following criteria:
+
+    a) it should run beginning to end without error
+
+    b) it should be easy to follow and have a clear narrative presenting context,
+   data, results, and interpretation. This may mean some redundancy in code, but
+   will often mean that your notebook is much more helpful to other people
+   looking at it in isolation (including reviewers).
 
 
 ## Getting started
 
 1. Install [Anaconda](https://www.anaconda.com/download) or [Miniconda](https://conda.io/miniconda.html).
 
-2. Setup and activate environment:
+2. Fork this repository and clone it into your local machine(using git CLI).
+
+3. Setup and activate environment:
 
 ```
  $ conda env create -f environment.yml
  $ conda activate presc
 ```
 
-3. Run Jupyter. The notebook will open in your browser at `localhost:8888` by default.
+
+__For Windows:__ Open anaconda prompt and `cd` into the folder where you cloned the repository
+
+```
+cd PRESC
+```
+then type the above commands to activate the environment.
+
+
+4. Run Jupyter. The notebook will open in your browser at `localhost:8888` by default.
 
 ```
  $ jupyter notebook
 ```
+After running this commands you will see the notebook containing the datasets and now you can start working with it.
 
 We recommend everyone start by working on
 [#2](https://github.com/mozilla/PRESC/issues/2).
+
+
+### Getting started with GitHub
+
+The git/GitHub open-source workflow can be rather confusing if you haven't used
+it before. To make a contribution to the project, the general steps you need to
+take are:
+
+- Install [git](https://git-scm.com/downloads) on your computer
+- Fork the repo on Github (ie. make your own personal copy)
+- Clone your fork to your local computer
+- Commit changes locally on your computer
+- Push your changes to your fork on Github
+- Submit a pull request (PR) against the main repo from your fork.
+
+Here are some resources to learn more about parts of this workflow you are
+unfamiliar with:
+
+- [GitHub Guides](https://guides.github.com/)
+    * In particular, the [git handbook](https://guides.github.com/introduction/git-handbook/) explains some of the basics of the version control system
+    * There is a [page](https://guides.github.com/activities/forking/)
+      explaining the forking/pull request workflow you will be using to
+      contribute.
+- The [Git Book](https://git-scm.com/book/en/v2) is much more detailed but a good reference
+    * The [Getting Started](https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control) section is worth reading
+    * There are also some [videos](https://git-scm.com/videos) on getting set up
+- This [repo](https://github.com/aSquare14/Git-Cheat-Sheet) by a previous
+  Outreachy contributor lists many other resources and tutorials.
+- This [video tutorial series](https://www.youtube.com/playlist?list=PL6gx4Cwl9DGAKWClAD_iKpNC0bGHxGhcx) on Youtube may also be helpful
+
+Feel free to reach out to the mentors by email or on Gitter if you have further
+questions or are having trouble getting set up!
 
 
 ## Resources
@@ -166,8 +236,6 @@ We recommend everyone start by working on
 
 - [This](https://github.com/brandon-rhodes/pycon-pandas-tutorial) is a great tutorial to learn Pandas.
 - [Tutorial](https://www.youtube.com/watch?v=HW29067qVWk) on Jupyter Notebook.
-- [This](https://github.com/aSquare14/Git-Cheat-Sheet) will help you get started
-  with git. For visual thinkers this [tutorial](https://www.youtube.com/playlist?list=PL6gx4Cwl9DGAKWClAD_iKpNC0bGHxGhcx) can be a good start.
 - The [scikit-learn user guide](https://scikit-learn.org/stable/user_guide.html)
   is a good place to start learning the scikit-learn library as well as machine
   learning methodology and comes with lots of examples.
