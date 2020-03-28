@@ -96,7 +96,20 @@ other contributions at this point, unless to resolve errors or typos.
 Code formatting guidelines should strinctly adhere  to [Python Black](https://pypi.org/project/black/) formatting guidelines. Please ensure that all PRs pass a local black formatting check.
 
 
+
+
 ## Information for Outreachy participants
+
+__Please note that this project is currently closed to new Outreachy
+contributions.__
+
+- At this time, we are only considering Outreachy candidates who have submitted
+  a PR on or before _Friday March 20_.
+- If you have submitted a PR by this date, you may continue working on existing
+  PRs or create new ones as usual. All your contributions will be considered.
+- If you have not yet submitted a PR by this date, we will unfortunately not be
+  able to consider you as an Outreachy candidate for this round.
+
 
 This project is intentionally broadly scoped, and the initial phase will be
   exploratory.
@@ -140,24 +153,47 @@ Contributions can be made by submitting a [pull request](https://help.github.com
   request review. This tag ('work in progress') indicates that the PR is not
   ready to be merged. When it is ready for final submission, you can modify the
   title to remove the "WIP:" tag.
+- Should you use a separate jupyter notebook for comparing different models? If
+  you had a PR merged in to satisfy issue #2 already and are now comparing
+  models for another issue, then a new notebook would be helpful. That being
+  said, a notebook should satisfy the following criteria:
+
+    a) it should run beginning to end without error
+
+    b) it should be easy to follow and have a clear narrative presenting context,
+   data, results, and interpretation. This may mean some redundancy in code, but
+   will often mean that your notebook is much more helpful to other people
+   looking at it in isolation (including reviewers).
 
 
 ## Getting started
 
 1. Install [Anaconda](https://www.anaconda.com/download) or [Miniconda](https://conda.io/miniconda.html).
 
-2. Setup and activate environment:
+2. Fork this repository and clone it into your local machine(using git CLI).
+
+3. Setup and activate environment:
 
 ```
  $ conda env create -f environment.yml
  $ conda activate presc
 ```
 
-3. Run Jupyter. The notebook will open in your browser at `localhost:8888` by default.
+
+__For Windows:__ Open anaconda prompt and `cd` into the folder where you cloned the repository
+
+```
+cd PRESC
+```
+then type the above commands to activate the environment.
+
+
+4. Run Jupyter. The notebook will open in your browser at `localhost:8888` by default.
 
 ```
  $ jupyter notebook
 ```
+After running this commands you will see the notebook containing the datasets and now you can start working with it.
 
 We recommend everyone start by working on
 [#2](https://github.com/mozilla/PRESC/issues/2).

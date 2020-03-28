@@ -1,5 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+.idea/
+
 *.py[cod]
 *$py.class
 
@@ -74,6 +76,9 @@ docs/_build/
 # PyBuilder
 target/
 
+#IDE 
+.vscode/
+
 # Jupyter Notebook
 .ipynb_checkpoints
 
@@ -109,6 +114,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.vs 
+.vscode 
 
 # Spyder project settings
 .spyderproject
@@ -128,5 +135,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Phpstorm
+.idea
+
 # Mac crap
 .DS_Store
+
