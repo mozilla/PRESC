@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
@@ -203,7 +202,7 @@ def svmModel(X_train, y_train, X_test, y_test):
     Returns: preds - The predictions for the X_test
              score - Accuracy for the model on test data
     """
-    SVM_Model = SVC(gamma="auto", verbose=True)
+    SVM_Model = SVC(gamma="auto", verbose=True, probability=True)
     SVM_Model.fit(X_train, y_train)  # fitting on train data
     score = f"Accuracy - : {SVM_Model.score(X_test, y_test):.3f}"
     prediction_SVM = SVM_Model.predict(X_test)
