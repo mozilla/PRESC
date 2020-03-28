@@ -141,3 +141,5 @@ dmypy.json
 # Mac crap
 .DS_Store
 
+# zip files
+*.zip
