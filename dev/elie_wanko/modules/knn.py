@@ -9,7 +9,7 @@ def __init__():
     pass
 
 
-def classfier(
+def classifier(
     n_neighbors=5,
     weights="uniform",
     algorithm="auto",
