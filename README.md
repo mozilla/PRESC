@@ -139,7 +139,7 @@ Tasks are managed using the [GitHub issue tracker](https://github.com/mozilla/PR
 
 ### Contributions
 
-Contributions can be made by submitting a [pull request](https://help.github.com/articles/using-pull-requests) against this repository.
+Contributions can be made by submitting a [pull request](https://help.github.com/articles/using-pull-requests) against this repository. Learn more about [creating a pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
 
 - We ask each Outreachy participant to make a contribution completing
   [#2](https://github.com/mozilla/PRESC/issues/2) (train and test a
@@ -208,9 +208,29 @@ take are:
 - Install [git](https://git-scm.com/downloads) on your computer
 - Fork the repo on Github (ie. make your own personal copy)
 - Clone your fork to your local computer
+- Set remote origin (https://github.com/<_user_>/PRESC.git) and upstream (https://github.com/mozilla/PRESC.git)
+- Create a new branch for every issue or new work that you do.
+(To avoid merge conflicts keep your work in a separate folder in the same branch if it contains more than a few files.)
 - Commit changes locally on your computer
 - Push your changes to your fork on Github
 - Submit a pull request (PR) against the main repo from your fork.
+
+A few commands to start with everytime you work with a GIT repository:
+- `git fetch upstream master`
+- `git checkout FETCH_HEAD -b <new_branch_name>`
+- Make changes
+- `git status`
+This will show the files that have been modified, deleted or created
+- `git add .` (To add all the modified files)
+	OR
+  `git add <file_name>` (To add a specific file)
+- `git commit -m '<commit_message>'`
+- `git push`
+If you get an error message on executing the above command, enter the suggested `git push` command.
+
+Now, click on the link that you see once the `push` command is executed to create a Pull Request. While creating a Pull Request do mention `[ Fixes: #<issue_number> ]` in the description. This will link the issue to the Pull Request for which the latter is created.
+
+Once your Pull Request is merged do `git pull --rebase upstream master`. This will update your fork with local changes and the ones made from upstream. This is to ensure there are no file conflicts.
 
 Here are some resources to learn more about parts of this workflow you are
 unfamiliar with:
@@ -226,6 +246,7 @@ unfamiliar with:
 - This [repo](https://github.com/aSquare14/Git-Cheat-Sheet) by a previous
   Outreachy contributor lists many other resources and tutorials.
 - This [video tutorial series](https://www.youtube.com/playlist?list=PL6gx4Cwl9DGAKWClAD_iKpNC0bGHxGhcx) on Youtube may also be helpful
+- [First Contributions](https://github.com/firstcontributions/first-contributions#first-contributions) is a good place to actually practise and put your understanding to test. Feel free to make mistakes as you go along learning to make your first contribution. 
 
 Feel free to reach out to the mentors by email or on Gitter if you have further
 questions or are having trouble getting set up!
