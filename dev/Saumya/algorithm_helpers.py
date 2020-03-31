@@ -15,6 +15,8 @@ from sklearn import (
 from sklearn import model_selection
 from sklearn import feature_selection
 from sklearn import metrics
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 import time
 
@@ -67,10 +69,11 @@ def run_models(MLA, X, y, train_X, train_y, test_X, cv_split):
         MLA_name = alg.__class__.__name__
         MLA_row["MLA Name"] = MLA_name
         MLA_row["MLA Parameters"] = str(alg.get_params())
-
+        # Pipeline for normalisation
+        pipe = Pipeline([("scale", StandardScaler()), ("clf", alg)])
         # Score model with cross validation
         cv_results = model_selection.cross_validate(
-            alg, X, y, cv=cv_split, return_train_score=True, n_jobs=-1
+            pipe, X, y, cv=cv_split, return_train_score=True, n_jobs=-1
         )
 
         MLA_row["MLA Train Accuracy Mean"] = cv_results["train_score"].mean()
@@ -206,6 +209,7 @@ def run_voting_model(X, y, cv_split):
     # and models with a 1.0 correlation to another model
     clf_keys = [
         "ada",
+        "bc",
         "etc",
         "gbc",
         "rfc",
@@ -224,10 +228,10 @@ def run_voting_model(X, y, cv_split):
 
     # Hard Vote or majority rules
     vote_hard = ensemble.VotingClassifier(estimators=vote_est, voting="hard")
+    pipe_hard = Pipeline([("scale", StandardScaler()), ("clf", vote_hard)])
     vote_hard_cv = model_selection.cross_validate(
-        vote_hard, X, y, cv=cv_split, return_train_score=True, n_jobs=-1
+        pipe_hard, X, y, cv=cv_split, return_train_score=True, n_jobs=-1
     )
-    vote_hard.fit(X, y)
 
     print(
         "Hard Voting Training accuracy: {:.2f}".format(
@@ -248,10 +252,10 @@ def run_voting_model(X, y, cv_split):
 
     # Soft Vote or weighted probabilities
     vote_soft = ensemble.VotingClassifier(estimators=vote_est, voting="soft")
+    pipe_soft = Pipeline([("scale", StandardScaler()), ("clf", vote_soft)])
     vote_soft_cv = model_selection.cross_validate(
-        vote_soft, X, y, cv=cv_split, return_train_score=True, n_jobs=-1
+        pipe_soft, X, y, cv=cv_split, return_train_score=True, n_jobs=-1
     )
-    vote_soft.fit(X, y)
 
     print(
         "Soft Voting Training accuracy: {:.2f}".format(
@@ -284,90 +288,96 @@ def tune_hparams(X, y, cv_split, vote_est):
     grid_bool = [True, False]
     grid_seed = [0]
 
-    # Trying with almost all suitable combinations
+    # Trying with almost all suitable combinations, but I have commented out
+    # some very time-consuming variations (and kept the best one from past runs).
     grid_param = {
         "ada": [
             {
                 # AdaBoostClassifier
-                "n_estimators": grid_n_estimator,  # default: 50
-                "learning_rate": grid_learn,  # default: 1
-                "algorithm": ["SAMME", "SAMME.R"],  # default: ’SAMME.R'
-                "random_state": grid_seed,
+                # Pipeline requires clf__ to be added before each key
+                "clf__n_estimators": grid_n_estimator,  # default: 50
+                "clf__learning_rate": grid_learn,  # default: 1
+                "clf__algorithm": ["SAMME", "SAMME.R"],  # default: ’SAMME.R'
+                "clf__random_state": grid_seed,
             }
         ],
-        "bg": [
+        "bc": [
             {
                 # BaggingClassifier
-                "n_estimators": grid_n_estimator,  # default: 10
-                "max_samples": grid_ratio,  # default: 1.0
-                "random_state": grid_seed,
+                "clf__n_estimators": grid_n_estimator,  # default: 10
+                "clf__max_samples": grid_ratio,  # default: 1.0
+                "clf__random_state": grid_seed,
             }
         ],
         "etc": [
             {
                 # ExtraTreesClassifier
-                "n_estimators": grid_n_estimator,  # default: 10
-                "criterion": grid_criterion,  # default: 'gini'
-                "max_depth": grid_max_depth,  # default: None
-                "random_state": grid_seed,
+                "clf__n_estimators": grid_n_estimator,  # default: 10
+                "clf__criterion": grid_criterion,  # default: 'gini'
+                "clf__max_depth": grid_max_depth,  # default: None
+                "clf__random_state": grid_seed,
             }
         ],
         "gbc": [
             {
                 # GradientBoostingClassifier
-                "loss": ["deviance", "exponential"],  # default: ’deviance’
-                "learning_rate": [
-                    0.05,
+                "clf__loss": ["deviance", "exponential"],  # default: ’deviance’
+                "clf__learning_rate": [
+                    #                     0.05,
                     0.1,
                 ],  # default: 0.1, best: 0.1 (This one takes time)
-                "n_estimators": [
-                    100,
+                "clf__n_estimators": [
+                    #                     100,
                     300,
                 ],  # default: 100, best: 300 (This one takes time)
-                "criterion": ["friedman_mse", "mse", "mae"],  # default: ”friedman_mse”
-                "max_depth": grid_max_depth,  # default: 3
-                "random_state": grid_seed,
+                "clf__criterion": [
+                    "friedman_mse",
+                    "mse",
+                    "mae",
+                ],  # default: ”friedman_mse”
+                "clf__max_depth": grid_max_depth,  # default: 3
+                "clf__random_state": grid_seed,
             }
         ],
         "rfc": [
             {
                 # RandomForestClassifier
-                "n_estimators": grid_n_estimator,  # default: 10
-                "criterion": grid_criterion,  # default: 'gini'
-                "max_depth": grid_max_depth,  # default: None
-                "oob_score": [
+                "clf__n_estimators": grid_n_estimator,  # default: 10
+                "clf__criterion": grid_criterion,  # default: 'gini'
+                "clf__max_depth": grid_max_depth,  # default: None
+                "clf__oob_score": [
                     True,
-                    False,
+                    #                     False,
                 ],  # default: False, best: True (This one takes time)
-                "random_state": grid_seed,
+                "clf__random_state": grid_seed,
             }
         ],
         "gpc": [
             {
                 # GaussianProcessClassifier
-                "max_iter_predict": grid_n_estimator,  # default: 100
-                "random_state": grid_seed,
+                "clf__max_iter_predict": grid_n_estimator,  # default: 100
+                "clf__random_state": grid_seed,
             }
         ],
         "lr": [
             {
                 # LogisticRegressionCV
-                "fit_intercept": grid_bool,  # default: True
-                "penalty": ["l1", "l2"],
-                "solver": [
+                "clf__fit_intercept": grid_bool,  # default: True
+                "clf__penalty": ["l1", "l2"],
+                "clf__solver": [
                     "newton-cg",
                     "lbfgs",
                     "liblinear",
                     "sag",
                     "saga",
                 ],  # default: 'lbfgs'
-                "random_state": grid_seed,
+                "clf__random_state": grid_seed,
             }
         ],
         "bnb": [
             {
                 # BernoulliNB
-                "alpha": grid_ratio,  # default: 1.0
+                "clf__alpha": grid_ratio,  # default: 1.0
             }
         ],
         # GaussianNB
@@ -375,20 +385,20 @@ def tune_hparams(X, y, cv_split, vote_est):
         "knn": [
             {
                 # KNeighborsClassifier
-                "n_neighbors": [1, 2, 3, 4, 5, 6, 7],  # default: 5
-                "weights": ["uniform", "distance"],  # default: ‘uniform’
-                "algorithm": ["auto", "ball_tree", "kd_tree", "brute"],
+                "clf__n_neighbors": [1, 2, 3, 4, 5, 6, 7],  # default: 5
+                "clf__weights": ["uniform", "distance"],  # default: ‘uniform’
+                "clf__algorithm": ["auto", "ball_tree", "kd_tree", "brute"],
             }
         ],
         "svc": [
             {
                 # SVC
-                "kernel": ["linear", "poly", "rbf", "sigmoid"],
-                "C": [1, 2, 3, 4, 5],  # default: 1.0
-                "gamma": grid_ratio,  # edfault: 'auto'
-                "decision_function_shape": ["ovo", "ovr"],  # default: ovr
-                "probability": grid_bool,
-                "random_state": grid_seed,
+                "clf__kernel": ["linear", "poly", "rbf", "sigmoid"],
+                "clf__C": [1, 2, 3, 4, 5],  # default: 1.0
+                "clf__gamma": grid_ratio,  # edfault: 'auto'
+                "clf__decision_function_shape": ["ovo", "ovr"],  # default: ovr
+                "clf__probability": grid_bool,
+                "clf__random_state": grid_seed,
             }
         ],
         # LDA
@@ -402,23 +412,32 @@ def tune_hparams(X, y, cv_split, vote_est):
 
         # vote_est is a list of tuples, index 0 is the name and index 1 is the algorithm
 
-        start = time.perf_counter()
+        pipe = Pipeline([("scale", StandardScaler()), ("clf", clf[1])])
+
         best_search = model_selection.GridSearchCV(
-            estimator=clf[1],
+            estimator=pipe,
             param_grid=grid_param[clf[0]],
             cv=cv_split,
             scoring="accuracy",
             n_jobs=-1,
         )
-        best_search.fit(X, y)
+
+        start = time.perf_counter()
+        best_search.fit(X, y)  # Actual computation happens in this step
         run = time.perf_counter() - start
 
         best_param = best_search.best_params_
+        # Remove 'clf__' from all keys to make it look more readable
+        best_param = {
+            param_name[5:]: param_val for param_name, param_val in best_param.items()
+        }
+
         print(
             "The best parameter for {} is {} with a runtime of {:.2f} seconds.\n".format(
                 clf[1].__class__.__name__, best_param, run
             )
         )
+
         # Set the best parameters obtained to each classifier
         clf[1].set_params(**best_param)
 
