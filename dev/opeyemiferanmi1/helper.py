@@ -90,7 +90,7 @@ def split(x, y):
 
 
 def train_LDA(x_train, y_train, x_test, y_test):
-    """Train model with SVC"""
+    """Train model with LDA"""
     lda_model = LDA()
     lda_model.fit(x_train, y_train)
     y_pred = pd.DataFrame(lda_model.predict(x_test))
