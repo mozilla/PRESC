@@ -71,6 +71,23 @@ def show_scree(X=None, n=None):
     plt.title("Scree Plot")
     plt.show()
 
+def convert_binary(y=None, group=None, labels=None):
+    """Function to convert the class labels to binary based on specified groupings"""
+    if y is None:
+        print('Data not provided.')
+        return None 
+    elif group is None:
+        print('Grouping not specified.')
+        return None
+
+    if labels is None:
+        labels = [-1, 1]
+
+    y[np.where(np.isin(y, group[0]))] = labels[0]
+    y[np.where(np.isin(y, group[1]))] = labels[1]
+
+    return y
+
 
 def split_data(X=None, y=None, train_size=None):
     """Function to get train-test split of the dataset"""
