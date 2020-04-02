@@ -138,4 +138,3 @@ def highlight_max(data, color='#9dd9a7', ):
         return pd.DataFrame(np.where(is_max, attr, ''),
                             index=data.index, columns=data.columns)
     
-    
