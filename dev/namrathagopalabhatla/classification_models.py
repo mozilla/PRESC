@@ -14,6 +14,8 @@ from sklearn.metrics import (
     auc,
 )
 from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
 
 from data_processing import dim_reduction
 
@@ -30,6 +32,10 @@ class Classifier:
         solver="lbfgs",
         max_iter=1000,
         multi_class="auto",
+        gamma='auto',
+        kernel='rbf',
+        degree=3,
+        k=5
     ):
         """Constructor for initalization of model using provided parameters"""
         self.model = model
@@ -44,12 +50,19 @@ class Classifier:
 
         elif self.model == "logistic":
             self.classifier = LogisticRegression(solver=solver, multi_class=multi_class)
+        
+        elif self.model == "svm":
+            self.classifier = SVC(kernel=kernel, degree=degree, gamma=gamma, probability=True)
+
+        elif self.model == "knn":
+            self.classifier = KNeighborsClassifier(n_neighbors=k)
 
         else:
             self.model = "logistic"
             self.classifier = LogisticRegression(solver=solver, multi_class=multi_class)
 
         self.predictions = None
+        self.probabilities = None
         self.report = None
         self.confusion = None
         self.roc = None
@@ -57,7 +70,7 @@ class Classifier:
         self.accuracy = None
         self.f_score = None
 
-    def classify(self, X):
+    def classify(self, X=None):
         """Function that returns prediction based on trained model"""
         if X is None:
             print("Data not provided.")
@@ -66,7 +79,7 @@ class Classifier:
         prediction = self.classifier.predict(X)
         return prediction
 
-    def train(self, X, y):
+    def train(self, X=None, y=None):
         """Function to train the classification model"""
         if X is None or y is None:
             print("Data not provided.")
@@ -189,6 +202,16 @@ class Classifier:
             _, _ = self.validate(X, y)
 
         return self.f_score
+    
+    def prediction_probabilities(self, X=None, y=None):
+        """Function to return F-score of the model"""
+        if self.probabilities is None and (X is None or y is None):
+            print("Data not provided.")
+            return None
+        elif self.f_score is None and (X is not None and y is not None):
+            _, _ = self.validate(X, y)
+
+        return self.probabilities
 
     def validate(self, X, y):
         """Function to validate test/validation set and evaluate accuracy"""
@@ -198,6 +221,7 @@ class Classifier:
 
         self.predictions = self.classify(X)
         probability = self.classifier.predict_proba(X)
+        self.probabilities = np.copy(probability)
 
         self.report = classification_report(y, self.predictions, output_dict=True)
         self.report = pd.DataFrame(self.report).transpose()
@@ -219,5 +243,6 @@ class Classifier:
             fpr, tpr, _ = roc_curve(y_true=labels, y_score=scores[:, i], pos_label=-1)
             self.roc.append((fpr, tpr, unique_classes[i]))
             self.auroc.append(auc(fpr, tpr))
+
 
         return self.report, self.confusion
