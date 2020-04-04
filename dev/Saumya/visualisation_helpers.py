@@ -9,6 +9,7 @@ from sklearn.metrics import (
     precision_recall_curve,
     average_precision_score,
 )
+from sklearn.calibration import CalibratedClassifierCV, calibration_curve
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
@@ -211,3 +212,48 @@ def plot_precision_recall(n_classes, precision, average_precision, recall):
     plt.legend(lines, labels, loc=(0, -0.38), prop=dict(size=14))
 
     plt.show()
+
+def calibration_plot(clf, train_X, train_y, test_X, test_y, n_bins=10):
+    fig, ax = plt.subplots(1, figsize=(12, 6))
+
+    
+    clf.fit(train_X, train_y)
+    # For binary classification tasks predict_proba() returns a matrix containing the first class probability as the
+    # first entry and the second class probability as the second entry. Since there are only two classes one is
+    # just 1 - n of the other. The calibration_curve implementation expects just one of these classes in an array,
+    # so we index that only.
+    y_test_predict_proba = clf.predict_proba(test_X)[:, 1]
+    fraction_of_positives, mean_predicted_value = calibration_curve(test_y, y_test_predict_proba, n_bins=n_bins)
+
+    plt.plot(mean_predicted_value, fraction_of_positives, 's-', color='blue', label='Uncalibrated')
+
+    # Calibrated
+    clf_isotonic = CalibratedClassifierCV(clf, cv=3, method='isotonic')
+    clf_isotonic.fit(train_X, train_y)
+    y_test_predict_proba = clf_isotonic.predict_proba(test_X)[:, 1]
+    fraction_of_positives, mean_predicted_value = calibration_curve(test_y, y_test_predict_proba, n_bins=n_bins)
+
+    plt.plot(mean_predicted_value, fraction_of_positives, 's-', color='red', label='Calibrated (Isotonic)')
+
+    # Calibrated, Platt
+    clf_sigmoid = CalibratedClassifierCV(clf, cv=3, method='sigmoid')
+    clf_sigmoid.fit(train_X, train_y)
+    y_test_predict_proba = clf_sigmoid.predict_proba(test_X)[:, 1]
+    fraction_of_positives, mean_predicted_value = calibration_curve(test_y, y_test_predict_proba, n_bins=n_bins)
+    plt.plot(mean_predicted_value, fraction_of_positives, 's-', color='orange', label='Calibrated (Platt)')
+
+
+    plt.plot([0, 1], [0, 1], '--', color='gray')
+
+    sns.despine(left=True, bottom=True)
+    plt.gca().xaxis.set_ticks_position('none')
+    plt.gca().yaxis.set_ticks_position('none')
+    plt.gca().legend()
+    plt.xlabel("Mean predicted probability")
+    plt.ylabel("Fraction of true positives")
+    plt.title(f'${clf.__class__.__name__}$ Calibration Curve', fontsize=20);
+    
+    print("Uncalibrated Test accuracy:", clf.score(test_X, test_y))
+    print("Calibrated (isotonic) Test accuracy:", clf_isotonic.score(test_X, test_y))
+    print("Calibrated (sigmoid) Test accuracy:", clf_sigmoid.score(test_X, test_y))
+    return clf_isotonic, clf_sigmoid
