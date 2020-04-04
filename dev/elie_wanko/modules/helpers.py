@@ -126,8 +126,8 @@ def confusion_matrix(cmap="Blues", *, true, pred):
     plt.title(a_score)
 
     
-def highlight_max(data, color='#9dd9a7', ):
-    """Highlights the maximum in a Series or DataFrame
+def highlight_max(data, color='#71bd7e'):
+    """Highlights the maximum values in a Series or DataFrame
     """
     attr = 'background-color: {}'.format(color)
     if data.ndim == 1:  # Series from .apply(axis=0) or axis=1
@@ -135,7 +135,29 @@ def highlight_max(data, color='#9dd9a7', ):
         return [attr if v else '' for v in is_max]
     else:  # from .apply(axis=None)
         is_max = data == data.max().max()
-        return pd.DataFrame(np.where(is_max, attr, ''),
+        return pd.DataFrame(np.where(is_max, attr, ''), index=data.index, columns=data.columns)
+    
+
+def highlight_min(data, color='#71bd7e'):
+    """ Highlights the minimum values in a Series or DataFrame
+    """
+    attr = 'background-color: {}'.format(color)
+    if data.ndim == 1:  # Series from .apply(axis=0) or axis=1
+        is_min = data == data.min()
+        return [attr if v else '' for v in is_min]
+    else:  # from .apply(axis=None)
+        is_min = data == data.max().min()
+        return pd.DataFrame(np.where(is_min, attr, ''),
                             index=data.index, columns=data.columns)
     
+
+def trend_plot(figsize=(18,5), *, data, title, xlabel, ylabel):
+    """ Plots the trend of features
+    """
+    plt.figure(figsize=figsize)
+    sns.lineplot(data=data)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.grid(axis='y')
     
