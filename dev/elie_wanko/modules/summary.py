@@ -137,7 +137,3 @@ def cv_folds(
         eval_metrics.append([s, ac, ps, rs, f1, -ll, (end-start)/5])
 
     return DataFrame(eval_metrics, range(len(sizes)), headers)
-
-
-
-    
