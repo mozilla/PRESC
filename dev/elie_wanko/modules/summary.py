@@ -47,14 +47,16 @@ def ttsplits(
         
         # Classifiers
         if model == "knn":
+            # Processing starts
+            start = timeit.default_timer()
             values_pred, values_true = knn.classifier(subsets=subsets, n_neighbors=7, threshold=0.35)
         elif model == "logreg":
-            values_pred, values_true = logreg.classifier(tol=0.000014, subsets=subsets, data=data, solver="liblinear")
+            # Processing starts
+            start = timeit.default_timer()
+            values_pred, values_true = logreg.classifier(tol=0.000014, subsets=subsets, data=data, solver="liblinear", random_state=1)
         else:
             return "**Incorrect model chosen.**\n\nEnter * 'knn' for  K Nearest Neighbors(KNN)\n* 'logreg' for Logistic Regression\n* Otherwise, chose one from sklearn and enter in the following format 'model = sklearn.[...]'"
-        
-        # Processing starts
-        start = timeit.default_timer()
+
         
         # "Accuracy Score"
         ac = float("{:.4f}".format(metrics.accuracy_score(values_true, values_pred)))

@@ -151,7 +151,7 @@ def highlight_min(data, color='#71bd7e'):
                             index=data.index, columns=data.columns)
     
 
-def trend_plot(figsize=(18,5), *, data, title, xlabel, ylabel):
+def trend_plot(figsize=(18,5), title="", xlabel="", ylabel="", *, data):
     """ Plots the trend of features
     """
     plt.figure(figsize=figsize)
