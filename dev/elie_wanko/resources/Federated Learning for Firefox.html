@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<!-- saved from url=(0053)https://florian.github.io/federated-learning-firefox/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>Federated Learning for Firefox</title>
+  <meta name="description" content="  ">
+
+  <link rel="stylesheet" href="./Federated Learning for Firefox_files/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+  <link rel="stylesheet" href="./Federated Learning for Firefox_files/main.css">
+  <link rel="canonical" href="https://florian.github.io//federated-learning-firefox/">
+  <link rel="alternate" type="application/atom+xml" title="Florian Hartmann" href="https://florian.github.io//feed.xml">
+<script type="text/javascript" async="" src="./Federated Learning for Firefox_files/analytics.js.download"></script><script src="chrome-extension://mooikfkahbdckldjjndioackbalphokd/assets/prompt.js"></script><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 2px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 2px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: 1em}
+.MathJax_MenuRadioCheck.RTL {right: 1em; left: auto}
+.MathJax_MenuLabel {padding: 2px 2em 4px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #CCCCCC; margin: 4px 1px 0px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: Highlight; color: HighlightText}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style><style type="text/css">.MathJax_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax .merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MathJax .MJX-monospace {font-family: monospace}
+.MathJax .MJX-sans-serif {font-family: sans-serif}
+#MathJax_Tooltip {background-color: InfoBackground; color: InfoText; border: 1px solid black; box-shadow: 2px 2px 5px #AAAAAA; -webkit-box-shadow: 2px 2px 5px #AAAAAA; -moz-box-shadow: 2px 2px 5px #AAAAAA; -khtml-box-shadow: 2px 2px 5px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true'); padding: 3px 4px; z-index: 401; position: absolute; left: 0; top: 0; width: auto; height: auto; display: none}
+.MathJax {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax:focus, body :focus .MathJax {display: inline-table}
+.MathJax.MathJax_FullWidth {text-align: center; display: table-cell!important; width: 10000em!important}
+.MathJax img, .MathJax nobr, .MathJax a {border: 0; padding: 0; margin: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; vertical-align: 0; line-height: normal; text-decoration: none}
+img.MathJax_strut {border: 0!important; padding: 0!important; margin: 0!important; vertical-align: 0!important}
+.MathJax span {display: inline; position: static; border: 0; padding: 0; margin: 0; vertical-align: 0; line-height: normal; text-decoration: none}
+.MathJax nobr {white-space: nowrap!important}
+.MathJax img {display: inline!important; float: none!important}
+.MathJax * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.MathJax_Processing {visibility: hidden; position: fixed; width: 0; height: 0; overflow: hidden}
+.MathJax_Processed {display: none!important}
+.MathJax_ExBox {display: block!important; overflow: hidden; width: 1px; height: 60ex; min-height: 0; max-height: none}
+.MathJax .MathJax_EmBox {display: block!important; overflow: hidden; width: 1px; height: 60em; min-height: 0; max-height: none}
+.MathJax_LineBox {display: table!important}
+.MathJax_LineBox span {display: table-cell!important; width: 10000em!important; min-width: 0; max-width: none; padding: 0; border: 0; margin: 0}
+.MathJax .MathJax_HitBox {cursor: text; background: white; opacity: 0; filter: alpha(opacity=0)}
+.MathJax .MathJax_HitBox * {filter: none; opacity: 1; background: transparent}
+#MathJax_Tooltip * {filter: none; opacity: 1; background: transparent}
+@font-face {font-family: MathJax_Main; src: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/woff/MathJax_Main-Regular.woff?V=2.7.0') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/otf/MathJax_Main-Regular.otf?V=2.7.0') format('opentype')}
+@font-face {font-family: MathJax_Main-bold; src: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/woff/MathJax_Main-Bold.woff?V=2.7.0') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/otf/MathJax_Main-Bold.otf?V=2.7.0') format('opentype')}
+@font-face {font-family: MathJax_Main-italic; src: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/woff/MathJax_Main-Italic.woff?V=2.7.0') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/otf/MathJax_Main-Italic.otf?V=2.7.0') format('opentype')}
+@font-face {font-family: MathJax_Math-italic; src: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/woff/MathJax_Math-Italic.woff?V=2.7.0') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/otf/MathJax_Math-Italic.otf?V=2.7.0') format('opentype')}
+@font-face {font-family: MathJax_Caligraphic; src: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/woff/MathJax_Caligraphic-Regular.woff?V=2.7.0') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/otf/MathJax_Caligraphic-Regular.otf?V=2.7.0') format('opentype')}
+@font-face {font-family: MathJax_Size1; src: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/woff/MathJax_Size1-Regular.woff?V=2.7.0') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/otf/MathJax_Size1-Regular.otf?V=2.7.0') format('opentype')}
+@font-face {font-family: MathJax_Size2; src: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/woff/MathJax_Size2-Regular.woff?V=2.7.0') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/otf/MathJax_Size2-Regular.otf?V=2.7.0') format('opentype')}
+@font-face {font-family: MathJax_Size3; src: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/woff/MathJax_Size3-Regular.woff?V=2.7.0') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/otf/MathJax_Size3-Regular.otf?V=2.7.0') format('opentype')}
+@font-face {font-family: MathJax_Size4; src: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/woff/MathJax_Size4-Regular.woff?V=2.7.0') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/otf/MathJax_Size4-Regular.otf?V=2.7.0') format('opentype')}
+.MathJax .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style><style type="text/css">@font-face {font-family: MathJax_AMS; src: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/woff/MathJax_AMS-Regular.woff?V=2.7.0') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/fonts/HTML-CSS/TeX/otf/MathJax_AMS-Regular.otf?V=2.7.0') format('opentype')}
+</style></head>
+
+  <body data-gr-c-s-loaded="true"><div style="visibility: hidden; overflow: hidden; position: absolute; top: 0px; height: 1px; width: auto; padding: 0px; border: 0px; margin: 0px; text-align: left; text-indent: 0px; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal;"><div id="MathJax_Hidden"></div></div><div id="MathJax_Message" style="display: none;"></div>
+    <div class="wrapper">
+      <div class="page-content">
+        <div class="post">
+  <header class="post-header">
+      <a href="https://florian.github.io/" class="home-link">← Home</a>
+    <h1 class="post-title">Federated Learning for Firefox</h1>
+    <p class="post-meta">August 27, 2018</p>
+  </header>
+
+  <article class="post-content">
+    <script src="./Federated Learning for Firefox_files/MathJax.js.download" type="text/javascript"></script>
+
+<p><em>To improve the Firefox URL bar, we used Federated Learning, a new privacy-preserving machine learning technique.
+Roughly 360,000 users helped to train and evaluate a model in a distributed way, and our results show that this optimization process worked well.
+This posts explains the decisions we made and shows the study results.
+Since Federated Learning is still a young technique, this is one of the very first implementations in a major software project.</em></p>
+
+<hr>
+
+<p>Most of machine learning nowadays is based on collecting a lot of data which is then put on a powerful server where the training is performed.
+If the data is considered private by people, using machine learning this way is not possible or a bad idea.
+The entirely opposite approach, a completely decentralized system where individual models are trained for each user locally, generally works badly.
+Individuals by themselves often do not have enough data to fit good models.</p>
+
+<p><em>Federated Learning</em> is a new subarea of machine learning where the training process is distributed.
+The parts of the algorithm that touch the users’ data are executed locally on their machines.
+Instead of sharing data, clients then only send back abstract model improvements, for example weight updates, to the server.
+This way, a high-quality model can be trained collaboratively without needing to collect data.
+The <a href="https://florian.github.io/federated-learning/">Federated Learning blog post</a> on this site provides a much broader overview of this area.</p>
+
+<p>Over the past three months, we implemented a Federated Learning system for Firefox.
+The aim of this project was to improve part of the suggestions displayed in the Firefox URL bar, though in theory the system is flexible enough to be used in many other situations.
+Collecting local search queries and browsing histories is extremely bad for privacy, so using Federated Learning to still train a model on this data makes a lot of sense.
+Initially, we experimented with <a href="https://en.wikipedia.org/wiki/Language_model">language models</a> but then reduced the scope of the project to make it possible to implement everything in three months.</p>
+
+<h3 id="search-in-the-firefox-url-bar">Search in the Firefox URL bar<a class="header-link" href="https://florian.github.io/federated-learning-firefox/#search-in-the-firefox-url-bar"><i class="fas fa-link"></i></a></h3>
+
+<p>The Firefox URL bar shows suggestions when users type a search query.
+A part of these suggestions is provided directly by a search engine.
+The others are generated by Firefox itself, for example based on the user’s history, bookmarks or open tabs.
+We tried to optimize the history and bookmark suggestions using our project.</p>
+
+<table class="image">
+	<caption align="bottom" style="margin-top:0">The Firefox URL bar with some suggestions based on the browsing history</caption>
+
+<tbody><tr><td><img src="./Federated Learning for Firefox_files/bar.png" alt="The Firefox URL bar with some suggestions based on the browsing history" width="" style="margin-top:0" class=""></td></tr>
+</tbody></table>
+
+<p>Searching for history and bookmark entries in the Firefox URL bar is a two-step process:</p>
+
+<ol>
+  <li>The search query is matched against the browser history and bookmarks. Matching is a binary decision. Pages either match the query or do not</li>
+  <li>The set of matched links is ranked based on the user’s history</li>
+</ol>
+
+<p>Our project purely tries to optimize the ranking part of this process.
+Future work could tackle the problem directly from the query matching.</p>
+
+<h3 id="learning-to-rank">Learning to Rank<a class="header-link" href="https://florian.github.io/federated-learning-firefox/#learning-to-rank"><i class="fas fa-link"></i></a></h3>
+
+<p>Before diving into the current implementation, it is worth taking a step back to understand how ranking in machine learning works.
+This makes it easier to see how the current algorithm fits into a machine learning system.
+Fundamentally, there are three different approaches to learning a ranking algorithm:</p>
+
+<ol>
+  <li><em>Pointwise ranking</em>: Each item is given separately to the model, which assigns a score to the item. The ranking is then determined by sorting all items using their respective scores. Essentially, this is a special type of a regression model since we are assigning a real number to every input</li>
+  <li><em>Pairwise ranking</em>: The model learns to compare pairs of items. Its task is to decide which of the two items should be ranked higher. Intuitively, this method can be motivated by the fact that the learned comparison function could then be used by various sorting algorithms. In this approach, we treat the problem as a classification task since the model can only have two possible outputs</li>
+  <li><em>Listwise ranking</em>: Instead of only working with individual items in each step, these methods try to operate on the entire list. The motivation behind this idea is that the evaluation metric can be optimized directly. In practice, this turns out to be fairly difficult because many evaluation metrics are not differentiable and the models need to work with many more inputs. Another difficulty is that the list could have an arbitrary length</li>
+</ol>
+
+<p>All these approaches have different advantages and disadvantages.
+The existing ranking algorithm in Firefox is very similar to a pointwise ranking approach.
+Since this algorithm should be optimized using machine learning techniques, this gives us a clear set of techniques that could be useful in this project.</p>
+
+<h3 id="frecency">Frecency<a class="header-link" href="https://florian.github.io/federated-learning-firefox/#frecency"><i class="fas fa-link"></i></a></h3>
+
+<p>The ranking of possible suggestions in the Firefox URL bar is determined using <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Places/Frecency_algorithm"><em>frecency</em></a>, an algorithm that weights how <em>frequently</em> and <em>recently</em> a site was visited.
+To do this, a frecency score is assigned to each history entry and bookmark entry.
+After computing the score, it is cached.
+When searching, the matched results are then sorted using this score.
+This section introduces the existing frecency algorithm, while the next one explains how we planned to improve it.</p>
+
+<p>Frecency does not only take frequency and recency into account but also other information, such as how the page was visited and whether it is bookmarked.
+It does this by looking at the latest visits to the respective site.
+The value <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-1-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi&gt;visit&lt;/mi&gt;&lt;mo&gt;&amp;#x2061;&lt;/mo&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mi&gt;v&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-1" style="width: 3.591em; display: inline-block;"><span style="display: inline-block; position: relative; width: 3.149em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.33em, 1003.05em, 2.608em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-2"><span class="mi" id="MathJax-Span-3" style="font-family: MathJax_Main;">visit</span><span class="mo" id="MathJax-Span-4"></span><span class="mo" id="MathJax-Span-5" style="font-family: MathJax_Main;">(</span><span class="mi" id="MathJax-Span-6" style="font-family: MathJax_Math-italic;">v</span><span class="mo" id="MathJax-Span-7" style="font-family: MathJax_Main;">)</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.331em; border-left: 0px solid; width: 0px; height: 1.225em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>visit</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo></math></span></span><script type="math/tex" id="MathJax-Element-1">\operatorname{visit}(v)</script> of one single visit <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-2-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi&gt;v&lt;/mi&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-8" style="width: 0.592em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.494em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.625em, 1000.49em, 2.362em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-9"><span class="mi" id="MathJax-Span-10" style="font-family: MathJax_Math-italic;">v</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.053em; border-left: 0px solid; width: 0px; height: 0.614em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>v</mi></math></span></span><script type="math/tex" id="MathJax-Element-2">v</script> is then defined by how recent that visit was, scaled by the type of visit:</p>
+
+<span class="MathJax_Preview" style="color: inherit; display: none;"></span><div class="MathJax_Display" style="text-align: center;"><span class="MathJax" id="MathJax-Element-3-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;mi&gt;visit&lt;/mi&gt;&lt;mo&gt;&amp;#x2061;&lt;/mo&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mi&gt;v&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mi&gt;recency&lt;/mi&gt;&lt;mo&gt;&amp;#x2061;&lt;/mo&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mi&gt;v&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;mo&gt;&amp;#x2217;&lt;/mo&gt;&lt;mi&gt;type&lt;/mi&gt;&lt;mo&gt;&amp;#x2061;&lt;/mo&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mi&gt;v&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;/math&gt;" role="presentation" style="text-align: center; position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-11" style="width: 14.948em; display: inline-block;"><span style="display: inline-block; position: relative; width: 13.228em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.33em, 1013.13em, 2.608em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-12"><span class="mi" id="MathJax-Span-13" style="font-family: MathJax_Main;">visit</span><span class="mo" id="MathJax-Span-14"></span><span class="mo" id="MathJax-Span-15" style="font-family: MathJax_Main;">(</span><span class="mi" id="MathJax-Span-16" style="font-family: MathJax_Math-italic;">v</span><span class="mo" id="MathJax-Span-17" style="font-family: MathJax_Main;">)</span><span class="mo" id="MathJax-Span-18" style="font-family: MathJax_Main; padding-left: 0.297em;">=</span><span class="mi" id="MathJax-Span-19" style="font-family: MathJax_Main; padding-left: 0.297em;">recency</span><span class="mo" id="MathJax-Span-20"></span><span class="mo" id="MathJax-Span-21" style="font-family: MathJax_Main;">(</span><span class="mi" id="MathJax-Span-22" style="font-family: MathJax_Math-italic;">v</span><span class="mo" id="MathJax-Span-23" style="font-family: MathJax_Main;">)</span><span class="mo" id="MathJax-Span-24" style="font-family: MathJax_Main; padding-left: 0.248em;">∗</span><span class="mi" id="MathJax-Span-25" style="font-family: MathJax_Main; padding-left: 0.248em;">type</span><span class="mo" id="MathJax-Span-26"></span><span class="mo" id="MathJax-Span-27" style="font-family: MathJax_Main;">(</span><span class="mi" id="MathJax-Span-28" style="font-family: MathJax_Math-italic;">v</span><span class="mo" id="MathJax-Span-29" style="font-family: MathJax_Main;">)</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.331em; border-left: 0px solid; width: 0px; height: 1.225em;"></span></span></nobr><span class="MJX_Assistive_MathML MJX_Assistive_MathML_Block" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>visit</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo><mo>=</mo><mi>recency</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo><mo>∗</mo><mi>type</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo></math></span></span></div><script type="math/tex; mode=display" id="MathJax-Element-3">\operatorname{visit}(v) = \operatorname{recency}(v) * \operatorname{type}(v)</script>
+
+<p>Frecency scores have to be cached in order to allow an efficient ranking while the user is typing.
+This means that the recency aspect has to be modeled using time buckets.
+Otherwise, the score would change all the time and caching would not work.
+In the current Firefox implementation, there are five time buckets.
+With this approach, the recency score only changes when a visit changes time buckets:</p>
+
+<span class="MathJax_Preview" style="color: inherit; display: none;"></span><div class="MathJax_Display" style="text-align: center;"><span class="MathJax" id="MathJax-Element-4-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;mi&gt;recency&lt;/mi&gt;&lt;mo&gt;&amp;#x2061;&lt;/mo&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mi&gt;v&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mrow&gt;&lt;mo&gt;{&lt;/mo&gt;&lt;mtable columnalign=&quot;left left&quot; rowspacing=&quot;.2em&quot; columnspacing=&quot;1em&quot; displaystyle=&quot;false&quot;&gt;&lt;mtr&gt;&lt;mtd&gt;&lt;mn&gt;100&lt;/mn&gt;&lt;/mtd&gt;&lt;mtd&gt;&lt;mtext&gt;if visited in the past 4 days&lt;/mtext&gt;&lt;/mtd&gt;&lt;/mtr&gt;&lt;mtr&gt;&lt;mtd&gt;&lt;mn&gt;70&lt;/mn&gt;&lt;/mtd&gt;&lt;mtd&gt;&lt;mtext&gt;if visited in the past 14 days&lt;/mtext&gt;&lt;/mtd&gt;&lt;/mtr&gt;&lt;mtr&gt;&lt;mtd&gt;&lt;mn&gt;50&lt;/mn&gt;&lt;/mtd&gt;&lt;mtd&gt;&lt;mtext&gt;if visited in the past 31 days&lt;/mtext&gt;&lt;/mtd&gt;&lt;/mtr&gt;&lt;mtr&gt;&lt;mtd&gt;&lt;mn&gt;30&lt;/mn&gt;&lt;/mtd&gt;&lt;mtd&gt;&lt;mtext&gt;if visited in the past 90 days&lt;/mtext&gt;&lt;/mtd&gt;&lt;/mtr&gt;&lt;mtr&gt;&lt;mtd&gt;&lt;mn&gt;10&lt;/mn&gt;&lt;/mtd&gt;&lt;mtd&gt;&lt;mtext&gt;otherwise&lt;/mtext&gt;&lt;/mtd&gt;&lt;/mtr&gt;&lt;/mtable&gt;&lt;mo fence=&quot;true&quot; stretchy=&quot;true&quot; symmetric=&quot;true&quot;&gt;&lt;/mo&gt;&lt;/mrow&gt;&lt;/math&gt;" role="presentation" style="text-align: center; position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-30" style="width: 24.388em; display: inline-block;"><span style="display: inline-block; position: relative; width: 21.586em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(2.067em, 1021.59em, 8.164em, -999.998em); top: -5.356em; left: 0em;"><span class="mrow" id="MathJax-Span-31"><span class="mi" id="MathJax-Span-32" style="font-family: MathJax_Main;">recency</span><span class="mo" id="MathJax-Span-33"></span><span class="mo" id="MathJax-Span-34" style="font-family: MathJax_Main;">(</span><span class="mi" id="MathJax-Span-35" style="font-family: MathJax_Math-italic;">v</span><span class="mo" id="MathJax-Span-36" style="font-family: MathJax_Main;">)</span><span class="mo" id="MathJax-Span-37" style="font-family: MathJax_Main; padding-left: 0.297em;">=</span><span class="mrow" id="MathJax-Span-38" style="padding-left: 0.297em;"><span class="mo" id="MathJax-Span-39" style="vertical-align: 3.149em;"><span style="display: inline-block; position: relative; width: 0.887em; height: 0px;"><span style="position: absolute; font-family: MathJax_Size4; top: -3.095em; left: 0em;">⎧<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; font-family: MathJax_Size4; top: 0.937em; left: 0em;">⎩<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; font-family: MathJax_Size4; top: -0.833em; left: 0em;">⎨<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="font-family: MathJax_Size4; position: absolute; top: -2.849em; left: 0em;">⎪<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="font-family: MathJax_Size4; position: absolute; top: -2.603em; left: 0em;">⎪<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="font-family: MathJax_Size4; position: absolute; top: -2.357em; left: 0em;">⎪<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="font-family: MathJax_Size4; position: absolute; top: -2.161em; left: 0em;">⎪<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="font-family: MathJax_Size4; position: absolute; top: -1.915em; left: 0em;">⎪<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="font-family: MathJax_Size4; position: absolute; top: 0.052em; left: 0em;">⎪<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="font-family: MathJax_Size4; position: absolute; top: 0.297em; left: 0em;">⎪<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="font-family: MathJax_Size4; position: absolute; top: 0.543em; left: 0em;">⎪<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="font-family: MathJax_Size4; position: absolute; top: 0.789em; left: 0em;">⎪<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="font-family: MathJax_Size4; position: absolute; top: 0.986em; left: 0em;">⎪<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span><span class="mtable" id="MathJax-Span-40" style="padding-right: 0.15em; padding-left: 0.15em;"><span style="display: inline-block; position: relative; width: 14.506em; height: 0px;"><span style="position: absolute; clip: rect(3.296em, 1001.48em, 9.098em, -999.998em); top: -6.487em; left: 0em;"><span style="display: inline-block; position: relative; width: 1.527em; height: 0px;"><span style="position: absolute; clip: rect(3.149em, 1001.48em, 4.132em, -999.998em); top: -6.34em; left: 0em;"><span class="mtd" id="MathJax-Span-41"><span class="mrow" id="MathJax-Span-42"><span class="mn" id="MathJax-Span-43" style="font-family: MathJax_Main;">100</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.149em, 1000.99em, 4.132em, -999.998em); top: -5.111em; left: 0em;"><span class="mtd" id="MathJax-Span-47"><span class="mrow" id="MathJax-Span-48"><span class="mn" id="MathJax-Span-49" style="font-family: MathJax_Main;">70</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.149em, 1000.99em, 4.132em, -999.998em); top: -3.931em; left: 0em;"><span class="mtd" id="MathJax-Span-53"><span class="mrow" id="MathJax-Span-54"><span class="mn" id="MathJax-Span-55" style="font-family: MathJax_Main;">50</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.149em, 1000.99em, 4.132em, -999.998em); top: -2.702em; left: 0em;"><span class="mtd" id="MathJax-Span-59"><span class="mrow" id="MathJax-Span-60"><span class="mn" id="MathJax-Span-61" style="font-family: MathJax_Main;">30</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.149em, 1000.99em, 4.132em, -999.998em); top: -1.522em; left: 0em;"><span class="mtd" id="MathJax-Span-65"><span class="mrow" id="MathJax-Span-66"><span class="mn" id="MathJax-Span-67" style="font-family: MathJax_Main;">10</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span><span style="display: inline-block; width: 0px; height: 6.492em;"></span></span><span style="position: absolute; clip: rect(3.346em, 1011.95em, 9.147em, -999.998em); top: -6.536em; left: 2.51em;"><span style="display: inline-block; position: relative; width: 11.999em; height: 0px;"><span style="position: absolute; clip: rect(3.149em, 1011.46em, 4.329em, -999.998em); top: -6.34em; left: 0em;"><span class="mtd" id="MathJax-Span-44"><span class="mrow" id="MathJax-Span-45"><span class="mtext" id="MathJax-Span-46" style="font-family: MathJax_Main;">if visited in the past 4 days</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.149em, 1011.95em, 4.329em, -999.998em); top: -5.111em; left: 0em;"><span class="mtd" id="MathJax-Span-50"><span class="mrow" id="MathJax-Span-51"><span class="mtext" id="MathJax-Span-52" style="font-family: MathJax_Main;">if visited in the past 14 days</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.149em, 1011.95em, 4.329em, -999.998em); top: -3.931em; left: 0em;"><span class="mtd" id="MathJax-Span-56"><span class="mrow" id="MathJax-Span-57"><span class="mtext" id="MathJax-Span-58" style="font-family: MathJax_Main;">if visited in the past 31 days</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.149em, 1011.95em, 4.329em, -999.998em); top: -2.702em; left: 0em;"><span class="mtd" id="MathJax-Span-62"><span class="mrow" id="MathJax-Span-63"><span class="mtext" id="MathJax-Span-64" style="font-family: MathJax_Main;">if visited in the past 90 days</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.149em, 1004.08em, 4.132em, -999.998em); top: -1.522em; left: 0em;"><span class="mtd" id="MathJax-Span-68"><span class="mrow" id="MathJax-Span-69"><span class="mtext" id="MathJax-Span-70" style="font-family: MathJax_Main;">otherwise</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span><span style="display: inline-block; width: 0px; height: 6.541em;"></span></span></span></span><span class="mo" id="MathJax-Span-71"></span></span></span><span style="display: inline-block; width: 0px; height: 5.361em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -3.053em; border-left: 0px solid; width: 0px; height: 6.669em;"></span></span></nobr><span class="MJX_Assistive_MathML MJX_Assistive_MathML_Block" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>recency</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo><mo>=</mo><mrow><mo>{</mo><mtable columnalign="left left" rowspacing=".2em" columnspacing="1em" displaystyle="false"><mtr><mtd><mn>100</mn></mtd><mtd><mtext>if visited in the past 4 days</mtext></mtd></mtr><mtr><mtd><mn>70</mn></mtd><mtd><mtext>if visited in the past 14 days</mtext></mtd></mtr><mtr><mtd><mn>50</mn></mtd><mtd><mtext>if visited in the past 31 days</mtext></mtd></mtr><mtr><mtd><mn>30</mn></mtd><mtd><mtext>if visited in the past 90 days</mtext></mtd></mtr><mtr><mtd><mn>10</mn></mtd><mtd><mtext>otherwise</mtext></mtd></mtr></mtable><mo fence="true" stretchy="true" symmetric="true"></mo></mrow></math></span></span></div><script type="math/tex; mode=display" id="MathJax-Element-4">% <![CDATA[
+\operatorname{recency}(v) = \begin{cases}
+	100 & \text{if visited in the past 4 days} \\
+	 70 & \text{if visited in the past 14 days} \\
+	 50 & \text{if visited in the past 31 days} \\
+	 30 & \text{if visited in the past 90 days} \\
+	 10 & \text{otherwise}
+\end{cases} %]]></script>
+
+<p>Sites can be visited in many different ways.
+If the user typed the entire link themselves or if it was a bookmarked link, we want to weight that differently to visiting a page by clicking a link.
+Other visit types, like some types of redirects, should not be worth any score at all.
+We implement this by scaling the recency score with a type weight:</p>
+
+<span class="MathJax_Preview" style="color: inherit; display: none;"></span><div class="MathJax_Display" style="text-align: center;"><span class="MathJax" id="MathJax-Element-5-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;mi&gt;type&lt;/mi&gt;&lt;mo&gt;&amp;#x2061;&lt;/mo&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mi&gt;v&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mrow&gt;&lt;mo&gt;{&lt;/mo&gt;&lt;mtable columnalign=&quot;left left&quot; rowspacing=&quot;.2em&quot; columnspacing=&quot;1em&quot; displaystyle=&quot;false&quot;&gt;&lt;mtr&gt;&lt;mtd&gt;&lt;mn&gt;1.2&lt;/mn&gt;&lt;/mtd&gt;&lt;mtd&gt;&lt;mtext&gt;if normal visit&lt;/mtext&gt;&lt;/mtd&gt;&lt;/mtr&gt;&lt;mtr&gt;&lt;mtd&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/mtd&gt;&lt;mtd&gt;&lt;mtext&gt;if link was typed out&lt;/mtext&gt;&lt;/mtd&gt;&lt;/mtr&gt;&lt;mtr&gt;&lt;mtd&gt;&lt;mn&gt;1.4&lt;/mn&gt;&lt;/mtd&gt;&lt;mtd&gt;&lt;mtext&gt;if link is bookmarked&lt;/mtext&gt;&lt;/mtd&gt;&lt;/mtr&gt;&lt;mtr&gt;&lt;mtd&gt;&lt;mn&gt;0&lt;/mn&gt;&lt;/mtd&gt;&lt;mtd&gt;&lt;mtext&gt;otherwise&lt;/mtext&gt;&lt;/mtd&gt;&lt;/mtr&gt;&lt;/mtable&gt;&lt;mo fence=&quot;true&quot; stretchy=&quot;true&quot; symmetric=&quot;true&quot;&gt;&lt;/mo&gt;&lt;/mrow&gt;&lt;/math&gt;" role="presentation" style="text-align: center; position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-72" style="width: 19.226em; display: inline-block;"><span style="display: inline-block; position: relative; width: 17.013em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(2.067em, 1017.01em, 6.984em, -999.998em); top: -4.766em; left: 0em;"><span class="mrow" id="MathJax-Span-73"><span class="mi" id="MathJax-Span-74" style="font-family: MathJax_Main;">type</span><span class="mo" id="MathJax-Span-75"></span><span class="mo" id="MathJax-Span-76" style="font-family: MathJax_Main;">(</span><span class="mi" id="MathJax-Span-77" style="font-family: MathJax_Math-italic;">v</span><span class="mo" id="MathJax-Span-78" style="font-family: MathJax_Main;">)</span><span class="mo" id="MathJax-Span-79" style="font-family: MathJax_Main; padding-left: 0.297em;">=</span><span class="mrow" id="MathJax-Span-80" style="padding-left: 0.297em;"><span class="mo" id="MathJax-Span-81" style="vertical-align: 2.559em;"><span style="display: inline-block; position: relative; width: 0.887em; height: 0px;"><span style="position: absolute; font-family: MathJax_Size4; top: -3.095em; left: 0em;">⎧<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; font-family: MathJax_Size4; top: -0.293em; left: 0em;">⎩<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; font-family: MathJax_Size4; top: -1.423em; left: 0em;">⎨<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="font-family: MathJax_Size4; position: absolute; top: -2.8em; left: 0em;">⎪<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="font-family: MathJax_Size4; position: absolute; top: -2.554em; left: 0em;">⎪<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="font-family: MathJax_Size4; position: absolute; top: -0.489em; left: 0em;">⎪<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="font-family: MathJax_Size4; position: absolute; top: -0.243em; left: 0em;">⎪<span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span><span class="mtable" id="MathJax-Span-82" style="padding-right: 0.15em; padding-left: 0.15em;"><span style="display: inline-block; position: relative; width: 11.261em; height: 0px;"><span style="position: absolute; clip: rect(2.756em, 1001.23em, 7.328em, -999.998em); top: -5.307em; left: 0em;"><span style="display: inline-block; position: relative; width: 1.281em; height: 0px;"><span style="position: absolute; clip: rect(3.149em, 1001.23em, 4.132em, -999.998em); top: -5.75em; left: 0em;"><span class="mtd" id="MathJax-Span-83"><span class="mrow" id="MathJax-Span-84"><span class="mn" id="MathJax-Span-85" style="font-family: MathJax_Main;">1.2</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.149em, 1000.45em, 4.132em, -999.998em); top: -4.521em; left: 0em;"><span class="mtd" id="MathJax-Span-89"><span class="mrow" id="MathJax-Span-90"><span class="mn" id="MathJax-Span-91" style="font-family: MathJax_Main;">2</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.149em, 1001.23em, 4.132em, -999.998em); top: -3.341em; left: 0em;"><span class="mtd" id="MathJax-Span-95"><span class="mrow" id="MathJax-Span-96"><span class="mn" id="MathJax-Span-97" style="font-family: MathJax_Main;">1.4</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.149em, 1000.45em, 4.132em, -999.998em); top: -2.112em; left: 0em;"><span class="mtd" id="MathJax-Span-101"><span class="mrow" id="MathJax-Span-102"><span class="mn" id="MathJax-Span-103" style="font-family: MathJax_Main;">0</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span><span style="display: inline-block; width: 0px; height: 5.312em;"></span></span><span style="position: absolute; clip: rect(2.706em, 1008.95em, 7.328em, -999.998em); top: -5.307em; left: 2.264em;"><span style="display: inline-block; position: relative; width: 9em; height: 0px;"><span style="position: absolute; clip: rect(3.149em, 1005.95em, 4.132em, -999.998em); top: -5.75em; left: 0em;"><span class="mtd" id="MathJax-Span-86"><span class="mrow" id="MathJax-Span-87"><span class="mtext" id="MathJax-Span-88" style="font-family: MathJax_Main;">if normal visit</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.149em, 1008.71em, 4.329em, -999.998em); top: -4.521em; left: 0em;"><span class="mtd" id="MathJax-Span-92"><span class="mrow" id="MathJax-Span-93"><span class="mtext" id="MathJax-Span-94" style="font-family: MathJax_Main;">if link was typed out</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.149em, 1008.95em, 4.132em, -999.998em); top: -3.341em; left: 0em;"><span class="mtd" id="MathJax-Span-98"><span class="mrow" id="MathJax-Span-99"><span class="mtext" id="MathJax-Span-100" style="font-family: MathJax_Main;">if link is bookmarked</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.149em, 1004.08em, 4.132em, -999.998em); top: -2.112em; left: 0em;"><span class="mtd" id="MathJax-Span-104"><span class="mrow" id="MathJax-Span-105"><span class="mtext" id="MathJax-Span-106" style="font-family: MathJax_Main;">otherwise</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span><span style="display: inline-block; width: 0px; height: 5.312em;"></span></span></span></span><span class="mo" id="MathJax-Span-107"></span></span></span><span style="display: inline-block; width: 0px; height: 4.771em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -2.386em; border-left: 0px solid; width: 0px; height: 5.336em;"></span></span></nobr><span class="MJX_Assistive_MathML MJX_Assistive_MathML_Block" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>type</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo><mo>=</mo><mrow><mo>{</mo><mtable columnalign="left left" rowspacing=".2em" columnspacing="1em" displaystyle="false"><mtr><mtd><mn>1.2</mn></mtd><mtd><mtext>if normal visit</mtext></mtd></mtr><mtr><mtd><mn>2</mn></mtd><mtd><mtext>if link was typed out</mtext></mtd></mtr><mtr><mtd><mn>1.4</mn></mtd><mtd><mtext>if link is bookmarked</mtext></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mtext>otherwise</mtext></mtd></mtr></mtable><mo fence="true" stretchy="true" symmetric="true"></mo></mrow></math></span></span></div><script type="math/tex; mode=display" id="MathJax-Element-5">% <![CDATA[
+\operatorname{type}(v) = \begin{cases}
+	1.2 & \text{if normal visit} \\
+	2   & \text{if link was typed out} \\
+	1.4 & \text{if link is bookmarked} \\
+	0   & \text{otherwise}
+\end{cases} %]]></script>
+
+<p>Now that we can assign a score to every visit, we could determine the full points of a page by summing up the scores of each visit to that page.
+This approach has several disadvantages.
+For one, it would scale badly because some pages are visited a lot.
+Additionally, user preferences change over time and we might want to decrease the points in some situations.</p>
+
+<p>Instead, we compute the average score of the last 10 visits.
+This score is then scaled by the total number of visits.
+The full frecency score can now be computed efficiently and changes in user behavior are reflected fairly quickly.
+Let <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-6-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;S&lt;/mi&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-108" style="width: 1.232em; display: inline-block;"><span style="display: inline-block; position: relative; width: 1.084em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.379em, 1001.08em, 2.51em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-109"><span class="msubsup" id="MathJax-Span-110"><span style="display: inline-block; position: relative; width: 1.084em; height: 0px;"><span style="position: absolute; clip: rect(3.149em, 1000.64em, 4.132em, -999.998em); top: -3.98em; left: 0em;"><span class="mi" id="MathJax-Span-111" style="font-family: MathJax_Math-italic;">S<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.052em;"></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; top: -3.832em; left: 0.592em;"><span class="mi" id="MathJax-Span-112" style="font-size: 70.7%; font-family: MathJax_Math-italic;">x</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.219em; border-left: 0px solid; width: 0px; height: 1.114em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>S</mi><mi>x</mi></msub></math></span></span><script type="math/tex" id="MathJax-Element-6">S_x</script> be the set of all visits to page <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-7-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-113" style="width: 0.642em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.543em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.625em, 1000.49em, 2.362em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-114"><span class="mi" id="MathJax-Span-115" style="font-family: MathJax_Math-italic;">x</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.053em; border-left: 0px solid; width: 0px; height: 0.614em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math></span></span><script type="math/tex" id="MathJax-Element-7">x</script>, and let <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-8-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;T&lt;/mi&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-116" style="width: 1.232em; display: inline-block;"><span style="display: inline-block; position: relative; width: 1.084em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.379em, 1001.08em, 2.51em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-117"><span class="msubsup" id="MathJax-Span-118"><span style="display: inline-block; position: relative; width: 1.084em; height: 0px;"><span style="position: absolute; clip: rect(3.149em, 1000.69em, 4.132em, -999.998em); top: -3.98em; left: 0em;"><span class="mi" id="MathJax-Span-119" style="font-family: MathJax_Math-italic;">T<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.101em;"></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; top: -3.832em; left: 0.592em;"><span class="mi" id="MathJax-Span-120" style="font-size: 70.7%; font-family: MathJax_Math-italic;">x</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.219em; border-left: 0px solid; width: 0px; height: 1.058em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>T</mi><mi>x</mi></msub></math></span></span><script type="math/tex" id="MathJax-Element-8">T_x</script> be the set of the last up to 10 of these.
+The full frecency score is then given by:</p>
+
+<span class="MathJax_Preview" style="color: inherit; display: none;"></span><div class="MathJax_Display" style="text-align: center;"><span class="MathJax" id="MathJax-Element-9-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;mi&gt;frecency&lt;/mi&gt;&lt;mo&gt;&amp;#x2061;&lt;/mo&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mfrac&gt;&lt;mrow&gt;&lt;mrow class=&quot;MJX-TeXAtom-ORD&quot;&gt;&lt;mo stretchy=&quot;false&quot;&gt;|&lt;/mo&gt;&lt;/mrow&gt;&lt;msub&gt;&lt;mi&gt;S&lt;/mi&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;/msub&gt;&lt;mrow class=&quot;MJX-TeXAtom-ORD&quot;&gt;&lt;mo stretchy=&quot;false&quot;&gt;|&lt;/mo&gt;&lt;/mrow&gt;&lt;/mrow&gt;&lt;mrow&gt;&lt;mrow class=&quot;MJX-TeXAtom-ORD&quot;&gt;&lt;mo stretchy=&quot;false&quot;&gt;|&lt;/mo&gt;&lt;/mrow&gt;&lt;msub&gt;&lt;mi&gt;T&lt;/mi&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;/msub&gt;&lt;mrow class=&quot;MJX-TeXAtom-ORD&quot;&gt;&lt;mo stretchy=&quot;false&quot;&gt;|&lt;/mo&gt;&lt;/mrow&gt;&lt;/mrow&gt;&lt;/mfrac&gt;&lt;mo&gt;&amp;#x2217;&lt;/mo&gt;&lt;munder&gt;&lt;mo movablelimits=&quot;false&quot;&gt;&amp;#x2211;&lt;/mo&gt;&lt;mrow class=&quot;MJX-TeXAtom-ORD&quot;&gt;&lt;mi&gt;v&lt;/mi&gt;&lt;mo&gt;&amp;#x2208;&lt;/mo&gt;&lt;msub&gt;&lt;mi&gt;T&lt;/mi&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;/msub&gt;&lt;/mrow&gt;&lt;/munder&gt;&lt;mi&gt;visit&lt;/mi&gt;&lt;mo&gt;&amp;#x2061;&lt;/mo&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mi&gt;v&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;/math&gt;" role="presentation" style="text-align: center; position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-121" style="width: 15.981em; display: inline-block;"><span style="display: inline-block; position: relative; width: 14.113em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(0.592em, 1014.01em, 3.69em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-122"><span class="mi" id="MathJax-Span-123" style="font-family: MathJax_Main;">frecency</span><span class="mo" id="MathJax-Span-124"></span><span class="mo" id="MathJax-Span-125" style="font-family: MathJax_Main;">(</span><span class="mi" id="MathJax-Span-126" style="font-family: MathJax_Math-italic;">x</span><span class="mo" id="MathJax-Span-127" style="font-family: MathJax_Main;">)</span><span class="mo" id="MathJax-Span-128" style="font-family: MathJax_Main; padding-left: 0.297em;">=</span><span class="mfrac" id="MathJax-Span-129" style="padding-left: 0.297em;"><span style="display: inline-block; position: relative; width: 1.772em; height: 0px; margin-right: 0.101em; margin-left: 0.101em;"><span style="position: absolute; clip: rect(3.1em, 1001.53em, 4.378em, -999.998em); top: -4.668em; left: 50%; margin-left: -0.833em;"><span class="mrow" id="MathJax-Span-130"><span class="texatom" id="MathJax-Span-131"><span class="mrow" id="MathJax-Span-132"><span class="mo" id="MathJax-Span-133" style="font-family: MathJax_Main;">|</span></span></span><span class="msubsup" id="MathJax-Span-134"><span style="display: inline-block; position: relative; width: 1.084em; height: 0px;"><span style="position: absolute; clip: rect(3.149em, 1000.64em, 4.132em, -999.998em); top: -3.98em; left: 0em;"><span class="mi" id="MathJax-Span-135" style="font-family: MathJax_Math-italic;">S<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.052em;"></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; top: -3.832em; left: 0.592em;"><span class="mi" id="MathJax-Span-136" style="font-size: 70.7%; font-family: MathJax_Math-italic;">x</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span><span class="texatom" id="MathJax-Span-137"><span class="mrow" id="MathJax-Span-138"><span class="mo" id="MathJax-Span-139" style="font-family: MathJax_Main;">|</span></span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.1em, 1001.53em, 4.378em, -999.998em); top: -3.242em; left: 50%; margin-left: -0.784em;"><span class="mrow" id="MathJax-Span-140"><span class="texatom" id="MathJax-Span-141"><span class="mrow" id="MathJax-Span-142"><span class="mo" id="MathJax-Span-143" style="font-family: MathJax_Main;">|</span></span></span><span class="msubsup" id="MathJax-Span-144"><span style="display: inline-block; position: relative; width: 1.084em; height: 0px;"><span style="position: absolute; clip: rect(3.149em, 1000.69em, 4.132em, -999.998em); top: -3.98em; left: 0em;"><span class="mi" id="MathJax-Span-145" style="font-family: MathJax_Math-italic;">T<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.101em;"></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; top: -3.832em; left: 0.592em;"><span class="mi" id="MathJax-Span-146" style="font-size: 70.7%; font-family: MathJax_Math-italic;">x</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span><span class="texatom" id="MathJax-Span-147"><span class="mrow" id="MathJax-Span-148"><span class="mo" id="MathJax-Span-149" style="font-family: MathJax_Main;">|</span></span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(0.887em, 1001.77em, 1.232em, -999.998em); top: -1.276em; left: 0em;"><span style="display: inline-block; overflow: hidden; vertical-align: 0em; border-top: 1.3px solid; width: 1.772em; height: 0px;"></span><span style="display: inline-block; width: 0px; height: 1.084em;"></span></span></span></span><span class="mo" id="MathJax-Span-150" style="font-family: MathJax_Main; padding-left: 0.248em;">∗</span><span class="munderover" id="MathJax-Span-151" style="padding-left: 0.248em;"><span style="display: inline-block; position: relative; width: 1.576em; height: 0px;"><span style="position: absolute; clip: rect(2.903em, 1001.38em, 4.575em, -999.998em); top: -3.98em; left: 0.052em;"><span class="mo" id="MathJax-Span-152" style="font-family: MathJax_Size2; vertical-align: 0em;">∑</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.346em, 1001.58em, 4.329em, -999.998em); top: -2.898em; left: 0em;"><span class="texatom" id="MathJax-Span-153"><span class="mrow" id="MathJax-Span-154"><span class="mi" id="MathJax-Span-155" style="font-size: 70.7%; font-family: MathJax_Math-italic;">v</span><span class="mo" id="MathJax-Span-156" style="font-size: 70.7%; font-family: MathJax_Main;">∈</span><span class="msubsup" id="MathJax-Span-157"><span style="display: inline-block; position: relative; width: 0.74em; height: 0px;"><span style="position: absolute; clip: rect(3.346em, 1000.49em, 4.132em, -999.998em); top: -3.98em; left: 0em;"><span class="mi" id="MathJax-Span-158" style="font-size: 70.7%; font-family: MathJax_Math-italic;">T<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.101em;"></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; top: -3.882em; left: 0.396em;"><span class="mi" id="MathJax-Span-159" style="font-size: 50%; font-family: MathJax_Math-italic;">x</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span><span class="mi" id="MathJax-Span-160" style="font-family: MathJax_Main; padding-left: 0.15em;">visit</span><span class="mo" id="MathJax-Span-161"></span><span class="mo" id="MathJax-Span-162" style="font-family: MathJax_Main;">(</span><span class="mi" id="MathJax-Span-163" style="font-family: MathJax_Math-italic;">v</span><span class="mo" id="MathJax-Span-164" style="font-family: MathJax_Main;">)</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -1.553em; border-left: 0px solid; width: 0px; height: 3.225em;"></span></span></nobr><span class="MJX_Assistive_MathML MJX_Assistive_MathML_Block" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>frecency</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mrow class="MJX-TeXAtom-ORD"><mo stretchy="false">|</mo></mrow><msub><mi>S</mi><mi>x</mi></msub><mrow class="MJX-TeXAtom-ORD"><mo stretchy="false">|</mo></mrow></mrow><mrow><mrow class="MJX-TeXAtom-ORD"><mo stretchy="false">|</mo></mrow><msub><mi>T</mi><mi>x</mi></msub><mrow class="MJX-TeXAtom-ORD"><mo stretchy="false">|</mo></mrow></mrow></mfrac><mo>∗</mo><munder><mo movablelimits="false">∑</mo><mrow class="MJX-TeXAtom-ORD"><mi>v</mi><mo>∈</mo><msub><mi>T</mi><mi>x</mi></msub></mrow></munder><mi>visit</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo></math></span></span></div><script type="math/tex; mode=display" id="MathJax-Element-9">\operatorname{frecency}(x) = \frac{|S_x|}{|T_x|} * \sum\limits_{v \in T_x} \operatorname{visit}(v)</script>
+
+<p>Note that this is a simplified version of the algorithm.
+There is some additional logic for special cases, like typing out bookmarks or different kinds of redirects.
+The description here only shows the essence of the algorithm in a mathematical form.</p>
+
+<h3 id="optimizing-frecency">Optimizing Frecency<a class="header-link" href="https://florian.github.io/federated-learning-firefox/#optimizing-frecency"><i class="fas fa-link"></i></a></h3>
+
+<p>While frecency has been working pretty well in Firefox, the weights in the algorithm were not decided on in a data-driven way.
+Essentially, they are similar to <a href="https://en.wikipedia.org/wiki/Magic_number_(programming)">magic numbers</a> in software engineering.
+It is hard to understand why these exact numbers should be used.
+Even worse, there is no evidence that they are optimal.
+Maybe different time buckets or different weights would lead to much better results.</p>
+
+<p>Our project replaces the constants by variables that we optimize for.
+This is done for all numbers in the previous section, except for two:</p>
+<ul>
+  <li>number of considered visits (10): If this number increases too much, it would hurt performance. The current value represents a good trade-off between performance and using a sufficient amount of information</li>
+  <li>number of time buckets (5): Optimizing this would be difficult with an approach based on gradient descent since this value affects how many variables there are. In the current implementation there was also no easy way of changing this</li>
+</ul>
+
+<p>There are 22 remaining weights in the full algorithm that are optimized using our project.
+By doing this, more optimal values can be found, or it can at least be confirmed that the current ones were already chosen very well.
+It is also a safe way of experimenting with the Firefox URL bar:
+We start our optimization process from the current set of values and then try to improve them from there.</p>
+
+<p>The optimization process is based on the users’ interactions with the URL bar.
+Each time they type into the URL bar, they are shown a set of suggestions that were ranked using our model.
+If they do not choose the top one, our model can use this feedback as a signal that it needs to change the weights to improve the rank of the selected item.
+Even if the top item was chosen, we can teach our model to be more confident in this decision.
+By using Federated Learning, we can make use of a lot such data, without sacrificing privacy.</p>
+
+<h3 id="svm-ranking">SVM Ranking<a class="header-link" href="https://florian.github.io/federated-learning-firefox/#svm-ranking"><i class="fas fa-link"></i></a></h3>
+
+<p>To describe this goal formally, we need to have a loss function that evaluates how well our model did.
+To this end, we make use of a variant of the <a href="https://en.wikipedia.org/wiki/Hinge_loss">SVM loss</a>, which we adapted for pointwise ranking.
+Essentially, the loss function takes a set of items with their assigned score and the index of the selected item.
+The optimization goal is that the selected item should have the highest score.</p>
+
+<p>But even if that was the case, our model might not have been too confident in that decision.
+One example of this is the selected item having a score of 100 and the second item having a score of 99.9.
+The model made the correct prediction, but only barely so.
+To make sure it does a good job in similar cases, we need to provide a signal to the model which shows that it can still improve.</p>
+
+<p>If the URL bar displayed the suggestions for pages <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-10-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;/msub&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mo&gt;&amp;#x2026;&lt;/mo&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;msub&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mi&gt;n&lt;/mi&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-165" style="width: 4.87em; display: inline-block;"><span style="display: inline-block; position: relative; width: 4.28em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.625em, 1004.28em, 2.559em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-166"><span class="msubsup" id="MathJax-Span-167"><span style="display: inline-block; position: relative; width: 0.986em; height: 0px;"><span style="position: absolute; clip: rect(3.395em, 1000.54em, 4.132em, -999.998em); top: -3.98em; left: 0em;"><span class="mi" id="MathJax-Span-168" style="font-family: MathJax_Math-italic;">x</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; top: -3.832em; left: 0.592em;"><span class="mn" id="MathJax-Span-169" style="font-size: 70.7%; font-family: MathJax_Main;">1</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span><span class="mo" id="MathJax-Span-170" style="font-family: MathJax_Main;">,</span><span class="mo" id="MathJax-Span-171" style="font-family: MathJax_Main; padding-left: 0.15em;">…</span><span class="mo" id="MathJax-Span-172" style="font-family: MathJax_Main; padding-left: 0.15em;">,</span><span class="msubsup" id="MathJax-Span-173" style="padding-left: 0.15em;"><span style="display: inline-block; position: relative; width: 1.084em; height: 0px;"><span style="position: absolute; clip: rect(3.395em, 1000.54em, 4.132em, -999.998em); top: -3.98em; left: 0em;"><span class="mi" id="MathJax-Span-174" style="font-family: MathJax_Math-italic;">x</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; top: -3.832em; left: 0.592em;"><span class="mi" id="MathJax-Span-175" style="font-size: 70.7%; font-family: MathJax_Math-italic;">n</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.275em; border-left: 0px solid; width: 0px; height: 0.836em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><mo>…</mo><mo>,</mo><msub><mi>x</mi><mi>n</mi></msub></math></span></span><script type="math/tex" id="MathJax-Element-10">x_1, \dots, x_n</script> in that order and suggestion <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-11-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mi&gt;i&lt;/mi&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-176" style="width: 1.035em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.887em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.625em, 1000.89em, 2.51em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-177"><span class="msubsup" id="MathJax-Span-178"><span style="display: inline-block; position: relative; width: 0.887em; height: 0px;"><span style="position: absolute; clip: rect(3.395em, 1000.54em, 4.132em, -999.998em); top: -3.98em; left: 0em;"><span class="mi" id="MathJax-Span-179" style="font-family: MathJax_Math-italic;">x</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; top: -3.832em; left: 0.592em;"><span class="mi" id="MathJax-Span-180" style="font-size: 70.7%; font-family: MathJax_Math-italic;">i</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.219em; border-left: 0px solid; width: 0px; height: 0.781em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>x</mi><mi>i</mi></msub></math></span></span><script type="math/tex" id="MathJax-Element-11">x_i</script> was chosen, then the SVM loss for pointwise ranking is given by:</p>
+
+<span class="MathJax_Preview" style="color: inherit; display: none;"></span><div class="MathJax_Display" style="text-align: center;"><span class="MathJax" id="MathJax-Element-12-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;mi&gt;loss&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;munder&gt;&lt;mo movablelimits=&quot;false&quot;&gt;&amp;#x2211;&lt;/mo&gt;&lt;mrow class=&quot;MJX-TeXAtom-ORD&quot;&gt;&lt;mi&gt;j&lt;/mi&gt;&lt;mo&gt;&amp;#x2260;&lt;/mo&gt;&lt;mi&gt;i&lt;/mi&gt;&lt;/mrow&gt;&lt;/munder&gt;&lt;mo movablelimits=&quot;true&quot; form=&quot;prefix&quot;&gt;max&lt;/mo&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mn&gt;0&lt;/mn&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;msub&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mi&gt;j&lt;/mi&gt;&lt;/msub&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;mi mathvariant=&quot;normal&quot;&gt;&amp;#x0394;&lt;/mi&gt;&lt;mo&gt;&amp;#x2212;&lt;/mo&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;msub&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mi&gt;i&lt;/mi&gt;&lt;/msub&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;/math&gt;" role="presentation" style="text-align: center; position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-181" style="width: 17.997em; display: inline-block;"><span style="display: inline-block; position: relative; width: 15.932em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.133em, 1015.83em, 3.739em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-182"><span class="mi" id="MathJax-Span-183" style="font-family: MathJax_Main;">loss</span><span class="mo" id="MathJax-Span-184" style="font-family: MathJax_Main; padding-left: 0.297em;">=</span><span class="munderover" id="MathJax-Span-185" style="padding-left: 0.297em;"><span style="display: inline-block; position: relative; width: 1.428em; height: 0px;"><span style="position: absolute; clip: rect(2.903em, 1001.38em, 4.575em, -999.998em); top: -3.98em; left: 0em;"><span class="mo" id="MathJax-Span-186" style="font-family: MathJax_Size2; vertical-align: 0em;">∑</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.346em, 1001.03em, 4.378em, -999.998em); top: -2.849em; left: 0.199em;"><span class="texatom" id="MathJax-Span-187"><span class="mrow" id="MathJax-Span-188"><span class="mi" id="MathJax-Span-189" style="font-size: 70.7%; font-family: MathJax_Math-italic;">j</span><span class="mo" id="MathJax-Span-190" style="font-size: 70.7%; font-family: MathJax_Main;">≠</span><span class="mi" id="MathJax-Span-191" style="font-size: 70.7%; font-family: MathJax_Math-italic;">i</span></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span><span class="mo" id="MathJax-Span-192" style="font-family: MathJax_Main; padding-left: 0.15em;">max</span><span class="mo" id="MathJax-Span-193" style="font-family: MathJax_Main;">(</span><span class="mn" id="MathJax-Span-194" style="font-family: MathJax_Main;">0</span><span class="mo" id="MathJax-Span-195" style="font-family: MathJax_Main;">,</span><span class="mi" id="MathJax-Span-196" style="font-family: MathJax_Math-italic; padding-left: 0.15em;">f<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.052em;"></span></span><span class="mo" id="MathJax-Span-197" style="font-family: MathJax_Main;">(</span><span class="msubsup" id="MathJax-Span-198"><span style="display: inline-block; position: relative; width: 0.937em; height: 0px;"><span style="position: absolute; clip: rect(3.395em, 1000.54em, 4.132em, -999.998em); top: -3.98em; left: 0em;"><span class="mi" id="MathJax-Span-199" style="font-family: MathJax_Math-italic;">x</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; top: -3.832em; left: 0.592em;"><span class="mi" id="MathJax-Span-200" style="font-size: 70.7%; font-family: MathJax_Math-italic;">j</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span><span class="mo" id="MathJax-Span-201" style="font-family: MathJax_Main;">)</span><span class="mo" id="MathJax-Span-202" style="font-family: MathJax_Main; padding-left: 0.248em;">+</span><span class="mi" id="MathJax-Span-203" style="font-family: MathJax_Main; padding-left: 0.248em;">Δ</span><span class="mo" id="MathJax-Span-204" style="font-family: MathJax_Main; padding-left: 0.248em;">−</span><span class="mi" id="MathJax-Span-205" style="font-family: MathJax_Math-italic; padding-left: 0.248em;">f<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.052em;"></span></span><span class="mo" id="MathJax-Span-206" style="font-family: MathJax_Main;">(</span><span class="msubsup" id="MathJax-Span-207"><span style="display: inline-block; position: relative; width: 0.887em; height: 0px;"><span style="position: absolute; clip: rect(3.395em, 1000.54em, 4.132em, -999.998em); top: -3.98em; left: 0em;"><span class="mi" id="MathJax-Span-208" style="font-family: MathJax_Math-italic;">x</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; top: -3.832em; left: 0.592em;"><span class="mi" id="MathJax-Span-209" style="font-size: 70.7%; font-family: MathJax_Math-italic;">i</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span><span class="mo" id="MathJax-Span-210" style="font-family: MathJax_Main;">)</span><span class="mo" id="MathJax-Span-211" style="font-family: MathJax_Main;">)</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -1.608em; border-left: 0px solid; width: 0px; height: 2.725em;"></span></span></nobr><span class="MJX_Assistive_MathML MJX_Assistive_MathML_Block" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>loss</mi><mo>=</mo><munder><mo movablelimits="false">∑</mo><mrow class="MJX-TeXAtom-ORD"><mi>j</mi><mo>≠</mo><mi>i</mi></mrow></munder><mo movablelimits="true" form="prefix">max</mo><mo stretchy="false">(</mo><mn>0</mn><mo>,</mo><mi>f</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>j</mi></msub><mo stretchy="false">)</mo><mo>+</mo><mi mathvariant="normal">Δ</mi><mo>−</mo><mi>f</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mo stretchy="false">)</mo></math></span></span></div><script type="math/tex; mode=display" id="MathJax-Element-12">\operatorname{loss} = \sum\limits_{j \neq i} \max(0, f(x_j) + \Delta - f(x_i))</script>
+
+<p>We iterate over all suggestions that were not chosen and check that their score was smaller than the one of the selected page by at least a margin of <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-13-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi mathvariant=&quot;normal&quot;&gt;&amp;#x0394;&lt;/mi&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-212" style="width: 0.937em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.838em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.33em, 1000.79em, 2.362em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-213"><span class="mi" id="MathJax-Span-214" style="font-family: MathJax_Main;">Δ</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.053em; border-left: 0px solid; width: 0px; height: 0.947em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi mathvariant="normal">Δ</mi></math></span></span><script type="math/tex" id="MathJax-Element-13">\Delta</script>.
+If not, an error is added.
+The full loss should be minimized.
+The margin <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-14-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi mathvariant=&quot;normal&quot;&gt;&amp;#x0394;&lt;/mi&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-215" style="width: 0.937em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.838em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.33em, 1000.79em, 2.362em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-216"><span class="mi" id="MathJax-Span-217" style="font-family: MathJax_Main;">Δ</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.053em; border-left: 0px solid; width: 0px; height: 0.947em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi mathvariant="normal">Δ</mi></math></span></span><script type="math/tex" id="MathJax-Element-14">\Delta</script> is a hyperparameter that needs to be decided on before the optimization process starts.</p>
+
+<table class="image">
+	<caption align="bottom" style="">A visualization of the SVM loss when adapted for ranking</caption>
+
+<tbody><tr><td><img src="./Federated Learning for Firefox_files/svm-loss.png" alt="A visualization of the SVM loss when adapted for ranking" width="500" style="" class=""></td></tr>
+</tbody></table>
+
+<p>The image above shows a visualization of this loss function.
+Each bar represents a possible suggestion, with the selected one being shown in black.
+The y-axis displays how many points the model assigned to the respective suggestion.
+The hatched areas show the SVM loss.
+Everything above the selected suggestion and below it by a margin of <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-15-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi mathvariant=&quot;normal&quot;&gt;&amp;#x0394;&lt;/mi&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-218" style="width: 0.937em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.838em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.33em, 1000.79em, 2.362em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-219"><span class="mi" id="MathJax-Span-220" style="font-family: MathJax_Main;">Δ</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.053em; border-left: 0px solid; width: 0px; height: 0.947em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi mathvariant="normal">Δ</mi></math></span></span><script type="math/tex" id="MathJax-Element-15">\Delta</script> adds to the full loss.
+Even though the selected suggestion had the second highest score, four suggestions contribute to the penalty.</p>
+
+<h3 id="computing-gradients">Computing Gradients<a class="header-link" href="https://florian.github.io/federated-learning-firefox/#computing-gradients"><i class="fas fa-link"></i></a></h3>
+
+<p>Every time a user performs a history or bookmark search in the URL bar, we compute the SVM loss on that search.
+To compute an update, we then try to move the weights a little bit into a direction where this loss is minimized.
+The update corresponds to the gradient of the SVM loss with respect to the weights in the frecency algorithm that we optimize for.</p>
+
+<p>Gradients can be computed elegantly using <a href="http://colah.github.io/posts/2015-08-Backprop/">computational graphs</a>.
+By using machine learning libraries, we first construct the function we want to compute.
+Afterwards, we can make use of <a href="https://en.wikipedia.org/wiki/Automatic_differentiation">automatic differentiation</a> techniques to obtain the gradient.
+Our initial prototyping was based on this idea.
+The major advantage is that it is very easy to change the model architecture.</p>
+
+<p>The current frecency implementation in Firefox, however, is written in C++, while the client-side part of this experiment works using JavaScript.
+To launch the experiment, the Firefox <a href="https://wiki.mozilla.org/Firefox/Shield/Shield_Studies">SHIELD</a> mechanism was used.
+SHIELD allows us to directly send new code to Firefox clients, without having to go through major version releases, which only happen every few weeks.
+To be able to do this, SHIELD experiments have to be written in JavaScript and can only make very limited use of C++ components.</p>
+
+<p>This made it hard to add a computational graph to the existing C++ frecency module.
+Reimplementing the full algorithm in JavaScript seemed like a bad idea.
+Performance-wise there would be a huge penalty and it is hard to reconstruct the way the current implementation handles all the edge cases.</p>
+
+<p>Instead, we decided to use a simple <a href="https://en.wikipedia.org/wiki/Finite_difference">finite-difference</a> technique.
+If we want to compute the gradient of a function <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-16-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi&gt;g&lt;/mi&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-221" style="width: 0.592em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.494em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.625em, 1000.49em, 2.559em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-222"><span class="mi" id="MathJax-Span-223" style="font-family: MathJax_Math-italic;">g<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.002em;"></span></span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.275em; border-left: 0px solid; width: 0px; height: 0.836em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>g</mi></math></span></span><script type="math/tex" id="MathJax-Element-16">g</script> at the point <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-17-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-224" style="width: 0.642em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.543em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.625em, 1000.49em, 2.362em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-225"><span class="mi" id="MathJax-Span-226" style="font-family: MathJax_Math-italic;">x</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.053em; border-left: 0px solid; width: 0px; height: 0.614em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math></span></span><script type="math/tex" id="MathJax-Element-17">x</script>, we check the difference of values close to that point:</p>
+
+<span class="MathJax_Preview" style="color: inherit; display: none;"></span><div class="MathJax_Display" style="text-align: center;"><span class="MathJax" id="MathJax-Element-18-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;msup&gt;&lt;mi&gt;g&lt;/mi&gt;&lt;mo&gt;&amp;#x2032;&lt;/mo&gt;&lt;/msup&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;mo&gt;&amp;#x2248;&lt;/mo&gt;&lt;mfrac&gt;&lt;mrow&gt;&lt;mi&gt;g&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;mi&gt;&amp;#x03F5;&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;mo&gt;&amp;#x2212;&lt;/mo&gt;&lt;mi&gt;g&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;&amp;#x2212;&lt;/mo&gt;&lt;mi&gt;&amp;#x03F5;&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;/mrow&gt;&lt;mrow&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;mo&gt;&amp;#x2217;&lt;/mo&gt;&lt;mi&gt;&amp;#x03F5;&lt;/mi&gt;&lt;/mrow&gt;&lt;/mfrac&gt;&lt;/math&gt;" role="presentation" style="text-align: center; position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-227" style="width: 13.719em; display: inline-block;"><span style="display: inline-block; position: relative; width: 12.146em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(0.592em, 1012.15em, 3.051em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-228"><span class="msup" id="MathJax-Span-229"><span style="display: inline-block; position: relative; width: 0.789em; height: 0px;"><span style="position: absolute; clip: rect(3.395em, 1000.49em, 4.329em, -999.998em); top: -3.98em; left: 0em;"><span class="mi" id="MathJax-Span-230" style="font-family: MathJax_Math-italic;">g<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.002em;"></span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; top: -4.373em; left: 0.543em;"><span class="mo" id="MathJax-Span-231" style="font-size: 70.7%; font-family: MathJax_Main;">′</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span><span class="mo" id="MathJax-Span-232" style="font-family: MathJax_Main;">(</span><span class="mi" id="MathJax-Span-233" style="font-family: MathJax_Math-italic;">x</span><span class="mo" id="MathJax-Span-234" style="font-family: MathJax_Main;">)</span><span class="mo" id="MathJax-Span-235" style="font-family: MathJax_Main; padding-left: 0.297em;">≈</span><span class="mfrac" id="MathJax-Span-236" style="padding-left: 0.297em;"><span style="display: inline-block; position: relative; width: 8.41em; height: 0px; margin-right: 0.101em; margin-left: 0.101em;"><span style="position: absolute; clip: rect(3.1em, 1008.21em, 4.378em, -999.998em); top: -4.717em; left: 50%; margin-left: -4.127em;"><span class="mrow" id="MathJax-Span-237"><span class="mi" id="MathJax-Span-238" style="font-family: MathJax_Math-italic;">g<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.002em;"></span></span><span class="mo" id="MathJax-Span-239" style="font-family: MathJax_Main;">(</span><span class="mi" id="MathJax-Span-240" style="font-family: MathJax_Math-italic;">x</span><span class="mo" id="MathJax-Span-241" style="font-family: MathJax_Main; padding-left: 0.248em;">+</span><span class="mi" id="MathJax-Span-242" style="font-family: MathJax_Math-italic; padding-left: 0.248em;">ϵ</span><span class="mo" id="MathJax-Span-243" style="font-family: MathJax_Main;">)</span><span class="mo" id="MathJax-Span-244" style="font-family: MathJax_Main; padding-left: 0.248em;">−</span><span class="mi" id="MathJax-Span-245" style="font-family: MathJax_Math-italic; padding-left: 0.248em;">g<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.002em;"></span></span><span class="mo" id="MathJax-Span-246" style="font-family: MathJax_Main;">(</span><span class="mi" id="MathJax-Span-247" style="font-family: MathJax_Math-italic;">x</span><span class="mo" id="MathJax-Span-248" style="font-family: MathJax_Main; padding-left: 0.248em;">−</span><span class="mi" id="MathJax-Span-249" style="font-family: MathJax_Math-italic; padding-left: 0.248em;">ϵ</span><span class="mo" id="MathJax-Span-250" style="font-family: MathJax_Main;">)</span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(3.149em, 1001.87em, 4.132em, -999.998em); top: -3.292em; left: 50%; margin-left: -0.932em;"><span class="mrow" id="MathJax-Span-251"><span class="mn" id="MathJax-Span-252" style="font-family: MathJax_Main;">2</span><span class="mo" id="MathJax-Span-253" style="font-family: MathJax_Main; padding-left: 0.248em;">∗</span><span class="mi" id="MathJax-Span-254" style="font-family: MathJax_Math-italic; padding-left: 0.248em;">ϵ</span></span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; clip: rect(0.887em, 1008.41em, 1.232em, -999.998em); top: -1.276em; left: 0em;"><span style="display: inline-block; overflow: hidden; vertical-align: 0em; border-top: 1.3px solid; width: 8.41em; height: 0px;"></span><span style="display: inline-block; width: 0px; height: 1.084em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.831em; border-left: 0px solid; width: 0px; height: 2.558em;"></span></span></nobr><span class="MJX_Assistive_MathML MJX_Assistive_MathML_Block" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><msup><mi>g</mi><mo>′</mo></msup><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>≈</mo><mfrac><mrow><mi>g</mi><mo stretchy="false">(</mo><mi>x</mi><mo>+</mo><mi>ϵ</mi><mo stretchy="false">)</mo><mo>−</mo><mi>g</mi><mo stretchy="false">(</mo><mi>x</mi><mo>−</mo><mi>ϵ</mi><mo stretchy="false">)</mo></mrow><mrow><mn>2</mn><mo>∗</mo><mi>ϵ</mi></mrow></mfrac></math></span></span></div><script type="math/tex; mode=display" id="MathJax-Element-18">g'(x) \approx \frac{g(x + \epsilon) - g(x - \epsilon)}{2 * \epsilon}</script>
+
+<p>This formula is very close to the definition of derivatives.
+To compute the gradient of a multivariate function, this process is then performed by iterating through all dimensions independently.
+In each dimension, the value is changed by <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-19-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi&gt;&amp;#x03F5;&lt;/mi&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-255" style="width: 0.445em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.396em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.625em, 1000.4em, 2.362em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-256"><span class="mi" id="MathJax-Span-257" style="font-family: MathJax_Math-italic;">ϵ</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.053em; border-left: 0px solid; width: 0px; height: 0.614em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>ϵ</mi></math></span></span><script type="math/tex" id="MathJax-Element-19">\epsilon</script> in the two directions, while all other values stay constant.
+The resulting vector is our gradient estimate.</p>
+
+<p>This method is both easy to understand and implement.
+It is simple to change the frecency weights in our experiment without changing the actual algorithm.
+For large models there is a performance penalty since we need to evaluate <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-20-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi&gt;g&lt;/mi&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-258" style="width: 0.592em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.494em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.625em, 1000.49em, 2.559em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-259"><span class="mi" id="MathJax-Span-260" style="font-family: MathJax_Math-italic;">g<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.002em;"></span></span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.275em; border-left: 0px solid; width: 0px; height: 0.836em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>g</mi></math></span></span><script type="math/tex" id="MathJax-Element-20">g</script> two times for every dimension.
+In <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-21-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi&gt;n&lt;/mi&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-261" style="width: 0.691em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.592em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.625em, 1000.59em, 2.362em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-262"><span class="mi" id="MathJax-Span-263" style="font-family: MathJax_Math-italic;">n</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.053em; border-left: 0px solid; width: 0px; height: 0.614em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>n</mi></math></span></span><script type="math/tex" id="MathJax-Element-21">n</script> dimensions, there are <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-22-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mrow class=&quot;MJX-TeXAtom-ORD&quot;&gt;&lt;mi class=&quot;MJX-tex-caligraphic&quot; mathvariant=&quot;script&quot;&gt;O&lt;/mi&gt;&lt;/mrow&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mi&gt;n&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-264" style="width: 2.461em; display: inline-block;"><span style="display: inline-block; position: relative; width: 2.166em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.33em, 1002.07em, 2.608em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-265"><span class="texatom" id="MathJax-Span-266"><span class="mrow" id="MathJax-Span-267"><span class="mi" id="MathJax-Span-268" style="font-family: MathJax_Caligraphic;">O</span></span></span><span class="mo" id="MathJax-Span-269" style="font-family: MathJax_Main;">(</span><span class="mi" id="MathJax-Span-270" style="font-family: MathJax_Math-italic;">n</span><span class="mo" id="MathJax-Span-271" style="font-family: MathJax_Main;">)</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.331em; border-left: 0px solid; width: 0px; height: 1.225em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow class="MJX-TeXAtom-ORD"><mi class="MJX-tex-caligraphic" mathvariant="script">O</mi></mrow><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></math></span></span><script type="math/tex" id="MathJax-Element-22">\mathcal{O}(n)</script> function evaluations as opposed to <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-23-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mrow class=&quot;MJX-TeXAtom-ORD&quot;&gt;&lt;mi class=&quot;MJX-tex-caligraphic&quot; mathvariant=&quot;script&quot;&gt;O&lt;/mi&gt;&lt;/mrow&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-272" style="width: 2.362em; display: inline-block;"><span style="display: inline-block; position: relative; width: 2.067em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.33em, 1001.97em, 2.608em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-273"><span class="texatom" id="MathJax-Span-274"><span class="mrow" id="MathJax-Span-275"><span class="mi" id="MathJax-Span-276" style="font-family: MathJax_Caligraphic;">O</span></span></span><span class="mo" id="MathJax-Span-277" style="font-family: MathJax_Main;">(</span><span class="mn" id="MathJax-Span-278" style="font-family: MathJax_Main;">1</span><span class="mo" id="MathJax-Span-279" style="font-family: MathJax_Main;">)</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.331em; border-left: 0px solid; width: 0px; height: 1.225em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow class="MJX-TeXAtom-ORD"><mi class="MJX-tex-caligraphic" mathvariant="script">O</mi></mrow><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></math></span></span><script type="math/tex" id="MathJax-Element-23">\mathcal{O}(1)</script> for computational graphs.
+But since we only work in 22 dimensions here, this is not a major problem.</p>
+
+<p>The finite-difference method also allows us to essentially treat frecency as a black box.
+Our model does not need to know about all edge cases.
+It is sufficient for the model to see how different decisions affect the output and the loss.</p>
+
+<h3 id="data-pipeline">Data Pipeline<a class="header-link" href="https://florian.github.io/federated-learning-firefox/#data-pipeline"><i class="fas fa-link"></i></a></h3>
+
+<p>The <a href="http://github.com/florian/federated-learning-addon">addon</a> we built observes how users are interacting with the URL bar and retrieves all necessary information to compute the gradient.
+That update and some statistics about how well the model is doing are then sent to a Mozilla server.
+This works by using the <a href="https://wiki.mozilla.org/Telemetry">Telemetry</a> system, which has several advantages.
+It is a well-designed system with clear rules about what can be collected.
+There is a lot of infrastructure around using it and dealing with the data on the server.</p>
+
+<p>All messages sent by clients are stored in a <a href="https://parquet.apache.org/">Parquet</a> data store.
+ A <a href="https://spark.apache.org/">Spark</a> MapReduce job reads the new updates and averages them in real-time.
+Every 30 minutes, the average update is then given to an optimizer and applied to the model.
+The resulting model is published to S3 and fetched by clients.</p>
+
+<h3 id="updating-the-model">Updating the Model<a class="header-link" href="https://florian.github.io/federated-learning-firefox/#updating-the-model"><i class="fas fa-link"></i></a></h3>
+
+<p>One central problem with applying the update to the model is choosing the hyperparameters of the optimizer.
+Since we did not collect any data, it is hard to tune the optimizer beforehand.
+Even values like the learning rate are hard to set since we have no information about the gradient magnitude.
+Trying out many different learning rates in production would take time and could lead to a bad user experience.
+Directly collecting some data conflicts with the goal of doing machine learning in a privacy-respecting way.</p>
+
+<p>We tackled this problem in two ways.
+First of all, we created <a href="https://github.com/florian/federated-learning">simulations</a> which use a made-up dataset that should be similar to the one we expect to see in production.
+This allowed experimenting with different optimizers and helped with making early design decisions.
+It also made it possible to quickly iterate on ideas to see if they could work.</p>
+
+<p>The second way of dealing with the fact that it is hard to set hyperparameters was using the <a href="https://florian.github.io/rprop/">RProp</a> optimizer.
+This optimizer has major advantages in our case:</p>
+<ul>
+  <li>It completely ignores the gradient magnitude and only takes into account the signs of the gradient. This means it will work with any sort of gradient we could see in production. We do not have to worry about properly scaling it</li>
+  <li>It automatically adapts internal learning rates based on how well they work. So even if the initial values are off, they will move to decent ones in a few iterations</li>
+  <li>The updates produced by RProp are very interpretable. In our case, we make sure they are 3 at most, so that frecency scores only change slowly</li>
+</ul>
+
+<p>After RProp produces an update, we still apply several constraints to it.</p>
+<ul>
+  <li>Weights have to be nonnegative. This means visiting a site cannot directly have a negative effect</li>
+  <li>The time buckets have to be sorted by the last day they take into account. In other words, the <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-24-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mi&gt;i&lt;/mi&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-280" style="width: 2.854em; display: inline-block;"><span style="display: inline-block; position: relative; width: 2.51em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.33em, 1002.46em, 2.608em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-281"><span class="mo" id="MathJax-Span-282" style="font-family: MathJax_Main;">(</span><span class="mi" id="MathJax-Span-283" style="font-family: MathJax_Math-italic;">i</span><span class="mo" id="MathJax-Span-284" style="font-family: MathJax_Main; padding-left: 0.248em;">+</span><span class="mn" id="MathJax-Span-285" style="font-family: MathJax_Main; padding-left: 0.248em;">1</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.331em; border-left: 0px solid; width: 0px; height: 1.225em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mo stretchy="false">(</mo><mi>i</mi><mo>+</mo><mn>1</mn></math></span></span><script type="math/tex" id="MathJax-Element-24">(i + 1</script>)-th time bucket needs to contain older visits than the <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-25-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi&gt;i&lt;/mi&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-286" style="width: 0.396em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.347em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.428em, 1000.3em, 2.362em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-287"><span class="mi" id="MathJax-Span-288" style="font-family: MathJax_Math-italic;">i</span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.053em; border-left: 0px solid; width: 0px; height: 0.892em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>i</mi></math></span></span><script type="math/tex" id="MathJax-Element-25">i</script>-th time bucket. This is to ensure that the client-side frecency implementation continues to work</li>
+</ul>
+
+<p>These essentially act as safeguards to make sure that user experience does not degrade too much if the optimization process fails.</p>
+
+<h3 id="study">Study<a class="header-link" href="https://florian.github.io/federated-learning-firefox/#study"><i class="fas fa-link"></i></a></h3>
+
+<p>Users in the experiment were split into three groups:</p>
+
+<ul>
+  <li><em>treatment</em>: The full study was shipped to these users. They compute updates, send them to the server, and start using a new model every 30 minutes</li>
+  <li><em>control</em>: This group is solely for observational purposes. No behavior in the URL bar actually changes. We are just collecting statistics for comparison to treatment</li>
+  <li><em>control-no-decay</em>: Firefox decays frecency scores over time. Our treatment group loses this effect because we are recomputing scores every 30 minutes. To check if the decay is actually useful, this group has no decay effect but uses the same original algorithm otherwise</li>
+</ul>
+
+<p>The study was shipped to 25% of Firefox Beta users who had Telemetry enabled.
+As with all other SHIELD studies, only users with Telemetry enabled were eligible for enrollment.
+60% of the users in our study were assigned to the treatment group, while the other 40% were split among the two control groups.</p>
+
+<h3 id="metrics">Metrics<a class="header-link" href="https://florian.github.io/federated-learning-firefox/#metrics"><i class="fas fa-link"></i></a></h3>
+
+<p>To evaluate how well our trained model works, we had three success criteria:</p>
+<ol>
+  <li>Do not significantly decrease the quality of the existing Firefox URL bar</li>
+  <li>Successfully train a model using Federated Learning</li>
+  <li>Stretch goal: Improve the Firefox URL bar</li>
+</ol>
+
+<p>Actually improving the quality of the ranking for users was only a stretch goal.
+The primary goal of the study was to see if it is possible to make the distributed optimization process work.
+Essentially this meant consistently decreasing the loss of the model.
+At the same time, the quality of the URL bar should not decrease.
+The reason for distinguishing between these is that our optimization goal could have been misaligned.
+It is possible to minimize some loss function without actually improving the experience for the user.</p>
+
+<p>To measure the quality of history and bookmark suggestions in the URL bar, we used two metrics:</p>
+<ul>
+  <li>Number of characters typed before selecting a result: Users should have to type few characters to find what they are looking for</li>
+  <li>The rank of the suggestion that was selected: The item that is selected should be as far on top as possible</li>
+</ul>
+
+<p>If the quality of any of these two metrics increases, we consider the stretch goal to be reached.
+We were not entirely sure if both metrics could be improved.
+One theory for this was that maybe users always type a similar number of characters before choosing one of the suggestions.
+The alternative could also be possible, users always type until the first suggestion displayed is the one they were looking for.
+For this reason, we decided that for the third goal only one of the metrics would need to be improved, while the other should not get much worse.
+The first goal meant that both metrics should not get significantly worse.</p>
+
+<h3 id="power-analysis">Power Analysis<a class="header-link" href="https://florian.github.io/federated-learning-firefox/#power-analysis"><i class="fas fa-link"></i></a></h3>
+
+<p><a href="https://en.wikipedia.org/wiki/Power_(statistics)">Power Analysis</a> is an important part of designing studies.
+It tries to answer the question of how many people are required to get statistically significant results in an experiment.
+If too few people are enrolled, the results will contain too much random noise to rely on them.
+If a lot of people are enrolled, we can be confident in the results but the cost of the study will be much higher.</p>
+
+<p>In the case of Firefox, this cost consists of two factors.
+For one, if our study enrolls most Firefox users, we would block other studies that want to experiment with changes in the URL bar.
+Another reason is that the experiment might break parts of Firefox.
+If this happens, it should not affect unnecessarily many people.</p>
+
+<p>For this reason, we performed a power analysis to decide on our sample sizes for treatment and control.
+Concretely, this analysis consisted of two parts:</p>
+<ol>
+  <li>How many users do we need to have enough data to train a model? <br> (relevant for treatment)</li>
+  <li>How many users do we need to show certain effects confidently? <br> (relevant for treatment and control)</li>
+</ol>
+
+<p>The first part was answered using simulations.
+By using an adapted form of the simulation we used to decide on optimization hyperparameters, we could get some idea on how many users we would need.
+Existing Telemetry data was helpful for this, as it allowed us to get some idea of how many history searches people perform every day.</p>
+
+<p>The second part of the power analysis was tackled using classical hypothesis testing.
+There was no prior data on the number of typed characters, so no power analysis was possible for this metric.
+To analyze the rank of the selected item, the <a href="https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test">Mann-Whitney-U test</a> was used since the data was not following a distribution that allows for parametric tests.
+The Mann-Whitney-U test is non-parametric, which means that it does not make any assumptions about the underlying distribution of the data.
+This analysis turned out to be pretty helpful since we realized that our control groups could be smaller than the treatment group.</p>
+
+<h3 id="analyzing-the-results">Analyzing the Results<a class="header-link" href="https://florian.github.io/federated-learning-firefox/#analyzing-the-results"><i class="fas fa-link"></i></a></h3>
+
+<p>Over the course of the experiment, 723,581 users were enrolled in the study.
+The model was fetched 58,399,063 times from the server.
+360,518 users participated in sending updates and evaluation data to the server, accounting for a total of 5,748,814 messages.
+The optimization phase of the experiment consisted of 137 iterations of 30 minutes each, or just under three days.
+In this phase, 186,315 users sent pings to help in the training process.</p>
+
+<p>A separate phase of purely evaluating the model was started afterwards and took a total of 10 days.
+In this phase, 306,200 users send 3,674,063 pings, which included statistics detailing how well the model worked for them.
+Since all these users were assigned to treatment or control groups, the new model can be compared well to the old one that was used by the control groups.
+Some users were enrolled but did not help with optimization or evaluation because they performed no history and bookmark searches.</p>
+
+<p>During the optimization process, the loss of the model was supervised to check how well the training was going.
+The plot below shows how the loss changed over time, across all three study variations.
+There is some noise in this plot, since each iteration only had a very limited number of users.
+However, it can still be seen that the loss of the treatment group goes down continuously.
+This shows that the optimization process generally worked.
+After 40 iterations, less than one day of optimization, the loss of the treatment group is significantly below the loss of the control groups.
+The second goal of the study was thus reached.</p>
+
+<table class="image">
+	<caption align="bottom" style="">Rolling average of reported loss over the last 5 iterations</caption>
+
+<tbody><tr><td><img src="./Federated Learning for Firefox_files/loss-smooth5.png" alt="Rolling average of reported loss over the last 5 iterations" width="" style="" class=""></td></tr>
+</tbody></table>
+
+<p>After the optimization process ended, an evaluation phase began to determine how well the new model works.
+This is equivalent to the testing phase in machine learning.
+The model is evaluated on new data that was not used for training or validation.
+The table below shows the results.
+On average, users in the treatment group type about half a character less to find what they are looking for.
+This is a strong improvement over both control groups.
+However, users in the treatment group also choose suggestions that were ranked slightly worse.
+Hypothesis testing determined that the changes in the treatment group were highly significant, with p-values being below 1e-75.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>study variation</th>
+      <th>mean characters typed</th>
+      <th>mean selected rank</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>treatment</td>
+      <td>3.6747</td>
+      <td>0.37435</td>
+    </tr>
+    <tr>
+      <td>control</td>
+      <td>4.26239</td>
+      <td>0.3535</td>
+    </tr>
+    <tr>
+      <td>control-no-decay</td>
+      <td>4.24125</td>
+      <td>0.35771</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>From a user perspective, it is not clear if these changes improve the user experience.
+While users now have to type a good amount less, they also selected suggestions that were not on top of the list more often.
+One potential explanation for this could be that the items they were looking for are displayed earlier in the suggestion list.
+Since they spent less time typing, they might be willing to take the time to select an item that is not the top ranked one.</p>
+
+<p>It is hard to determine purely based on these two metrics if this change is good, since it is not clear how their importance should be weighted.
+Instead, surveying users would be required to decide if goal 3 was met.
+But even if users are not satisfied with the new model, the Federated Learning system is still highly useful.
+Since the optimization process works well, one would only need to find a loss function that correlates more closely with what users want.
+We consider goal 1 to be reached since at least one of the metrics improved.</p>
+
+<p>To learn from this experiment for further Federated Learning studies, we additionally analyzed all the update data later on.
+In retrospect, the Federated Learning protocol we used was too simple.
+The plot below shows how Firefox beta activity in our study varies over time.
+The protocol could be improved by dynamically determining the iteration length depending on how many updates were sent to the server so far.
+This way, there would be no iterations with very few updates.
+Furthermore, there could be more iterations during periods with many active users, allowing for a faster optimization process.</p>
+
+<table class="image">
+	<caption align="bottom" style="">The number of pings sent by clients over time</caption>
+
+<tbody><tr><td><img src="./Federated Learning for Firefox_files/pings-over-time.png" alt="The number of pings sent by clients over time" width="" style="" class=""></td></tr>
+</tbody></table>
+
+<p>A more sophisticated protocol could adapt the iteration length depending on how stable the current update estimate is.
+We noticed that the later iterations of the optimization process require much fewer reports to compute a good estimate.
+The plot below compares the update we actually used to updates we would get by randomly sampling 2,000 of these update reports.
+The <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-26-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;L&lt;/mi&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-289" style="width: 1.281em; display: inline-block;"><span style="display: inline-block; position: relative; width: 1.133em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.379em, 1001.13em, 2.51em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-290"><span class="msubsup" id="MathJax-Span-291"><span style="display: inline-block; position: relative; width: 1.133em; height: 0px;"><span style="position: absolute; clip: rect(3.149em, 1000.64em, 4.132em, -999.998em); top: -3.98em; left: 0em;"><span class="mi" id="MathJax-Span-292" style="font-family: MathJax_Math-italic;">L</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; top: -3.832em; left: 0.691em;"><span class="mn" id="MathJax-Span-293" style="font-size: 70.7%; font-family: MathJax_Main;">1</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.219em; border-left: 0px solid; width: 0px; height: 1.058em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>L</mi><mn>1</mn></msub></math></span></span><script type="math/tex" id="MathJax-Element-26">L_1</script>-distance is used to perform this comparison.
+Because of the randomness, the mean and standard deviation after 50 such simulations per iteration are reported.</p>
+
+<table class="image">
+	<caption align="bottom" style="">Mean and std deviation of difference in update quality when using 2,000 updates</caption>
+
+<tbody><tr><td><img src="./Federated Learning for Firefox_files/update-quality.png" alt="Mean and std deviation of difference in update quality when using 2,000 updates" width="" style="" class=""></td></tr>
+</tbody></table>
+
+<p>It can be observed that the estimates become much more stable after iteration 100.
+While the <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-27-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;L&lt;/mi&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-294" style="width: 1.281em; display: inline-block;"><span style="display: inline-block; position: relative; width: 1.133em; height: 0px; font-size: 113%;"><span style="position: absolute; clip: rect(1.379em, 1001.13em, 2.51em, -999.998em); top: -2.21em; left: 0em;"><span class="mrow" id="MathJax-Span-295"><span class="msubsup" id="MathJax-Span-296"><span style="display: inline-block; position: relative; width: 1.133em; height: 0px;"><span style="position: absolute; clip: rect(3.149em, 1000.64em, 4.132em, -999.998em); top: -3.98em; left: 0em;"><span class="mi" id="MathJax-Span-297" style="font-family: MathJax_Math-italic;">L</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span><span style="position: absolute; top: -3.832em; left: 0.691em;"><span class="mn" id="MathJax-Span-298" style="font-size: 70.7%; font-family: MathJax_Main;">1</span><span style="display: inline-block; width: 0px; height: 3.985em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 2.215em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.219em; border-left: 0px solid; width: 0px; height: 1.058em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>L</mi><mn>1</mn></msub></math></span></span><script type="math/tex" id="MathJax-Element-27">L_1</script>-distance of two updates can be large without affecting the RProp optimizer much, this is still an interesting result.
+We observed similar results for the loss estimates.</p>
+
+<h3 id="future-work">Future Work<a class="header-link" href="https://florian.github.io/federated-learning-firefox/#future-work"><i class="fas fa-link"></i></a></h3>
+
+<p>There is still a lot of low-hanging fruit in this Federated Learning system.
+For one, the protocol could be made much more sophisticated, as explained above.
+Furthermore, when trying to interpret the new weights, it seems like it would be a good idea to introduce additional weight constraints to make better use of the time buckets.</p>
+
+<p>To be able to implement the entire system in three months, a lot of simplifications had to be done.
+This is why our resulting model has few weights and is easy to interpret.
+If more time could go into this project, a language model would be interesting because it would allow tackling the problem directly from a query matching angle.
+Instead of making suggestions based on the current query, we could base them on what the model thinks the user is going to type next.</p>
+
+<p>Finally, there are other applications for Federated Learning in Firefox.
+Based on user interactions with Firefox, our system could really optimize anything that currently relies on hardcoded constants.</p>
+
+<hr>
+
+<h3 id="open-source-code">Open Source Code<a class="header-link" href="https://florian.github.io/federated-learning-firefox/#open-source-code"><i class="fas fa-link"></i></a></h3>
+
+<p>Nearly the entire code of the Federated Learning system is open sourced:</p>
+<ul>
+  <li><a href="http://github.com/florian/federated-learning-addon">Firefox addon</a> that implements the client-side part of the system</li>
+  <li><a href="https://github.com/mozilla/telemetry-streaming/tree/master/src/main/scala/com/mozilla/telemetry/learning/federated">Server-side implementation</a> which computes the next model</li>
+  <li><a href="https://github.com/florian/federated-learning">Simulations</a> for experimenting with Federated Learning</li>
+</ul>
+
+<p>Only a few analyses based on Firefox interaction data are not publicly available.</p>
+
+<hr>
+
+<h3 id="thanks">Thanks!<a class="header-link" href="https://florian.github.io/federated-learning-firefox/#thanks"><i class="fas fa-link"></i></a></h3>
+
+<p>This project would not have been possible without the help of many people:</p>
+
+<ul>
+  <li><a href="http://sunahsuh.com/">Sunah Suh</a> planned out the project with me and helped to resolve many blockers along the way</li>
+  <li><a href="https://github.com/akkomar">Arkadiusz Komarzewski</a> ported the Python optimizer to Scala and implemented the remaining server-side logic</li>
+  <li><a href="https://github.com/0c0w3">Drew Willcoxon</a> and <a href="https://rhelmer.org/">Rob Helmer</a> helped a lot with Firefox specific parts of the project</li>
+  <li><a href="https://tds.xyz/">Tim Smith</a> provided most of the code for using the Mann-Whitney-U test and along with <a href="https://github.com/ilanasegall">Ilana Segall</a> answered many questions related to power analyses</li>
+  <li><a href="https://jeff.klukas.net/">Jeff Klukas</a> always had an open ear when I ran into problems and helped out when Sunah was on vacation</li>
+  <li><a href="https://github.com/kparlante">Katie Parlante</a> made it possible for me to return to Mozilla to work on this and was very open to my ideas for projects</li>
+</ul>
+
+<p>Thanks a lot for all your help and support!</p>
+
+  </article>
+
+  
+  <hr>
+
+  <div class="related">
+    <h2>Other Posts</h2>
+    
+      <li><a href="https://florian.github.io/xor-trick/" title="That XOR Trick">That XOR Trick
+       &nbsp; <span class="post-meta">March 15, 2020</span></a>
+    
+      </li><li><a href="https://florian.github.io/reading-2019/" title="What I read in 2019">What I read in 2019
+       &nbsp; <span class="post-meta">December 30, 2019</span></a>
+    
+      </li><li><a href="https://florian.github.io/reservoir-sampling/" title="Reservoir Sampling">Reservoir Sampling
+       &nbsp; <span class="post-meta">November 30, 2019</span></a>
+    
+  </li></div>
+  
+</div>
+
+<script>
+var anchorForId = function (id) {
+  var anchor = document.createElement("a");
+  anchor.className = "header-link";
+  anchor.href      = "#" + id;
+  anchor.innerHTML = "<i class=\"fas fa-link\"></i>";
+  return anchor;
+};
+
+var linkifyAnchors = function (level, containingElement) {
+  var headers = containingElement.getElementsByTagName("h" + level);
+  for (var h = 0; h < headers.length; h++) {
+    var header = headers[h];
+
+    if (typeof header.id !== "undefined" && header.id !== "") {
+      header.appendChild(anchorForId(header.id));
+    }
+  }
+};
+
+document.onreadystatechange = function () {
+  if (this.readyState === "complete") {
+    linkifyAnchors(3, document.body);
+    linkifyAnchors(4, document.body);
+    linkifyAnchors(5, document.body);
+    linkifyAnchors(6, document.body);
+  }
+};
+</script>
+
+      </div>
+    </div>
+    <script async="" src="./Federated Learning for Firefox_files/js"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'UA-124645768-1');
+</script>
+
+  
+
+<div style="position: absolute; width: 0px; height: 0px; overflow: hidden; padding: 0px; border: 0px; margin: 0px;"><div id="MathJax_Font_Test" style="position: absolute; visibility: hidden; top: 0px; left: 0px; width: auto; padding: 0px; border: 0px; margin: 0px; white-space: nowrap; text-align: left; text-indent: 0px; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; font-size: 40px; font-weight: normal; font-style: normal; font-family: MathJax_Caligraphic, sans-serif;"></div></div></body></html>
