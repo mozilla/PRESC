@@ -10,6 +10,8 @@ def raw(df):
     print(df.head())
     print("*" * 50 + "TAIL" + "*" * 50)
     print(df.tail())
+    print("*" * 50 + "DESCRIBE" + "*" * 50)
+    print(df.describe())
     print("*" * 50 + "INFO" + "*" * 50)
     print(df.info())
     print("*" * 100)
