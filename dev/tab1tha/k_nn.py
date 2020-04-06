@@ -6,7 +6,6 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 
-
 def tune(data_train, target_train):
     """This function is for hyperparameter tuning in order to know the most appropriate value of 
     n_neighbors to use in the k_nearest() function. """
