@@ -1,5 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+.idea/
+
 *.py[cod]
 *$py.class
 
@@ -74,6 +76,9 @@ docs/_build/
 # PyBuilder
 target/
 
+#IDE 
+.vscode/
+
 # Jupyter Notebook
 .ipynb_checkpoints
 
@@ -135,4 +140,3 @@ dmypy.json
 
 # Mac crap
 .DS_Store
-
