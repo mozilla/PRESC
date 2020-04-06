@@ -16,19 +16,20 @@ from sklearn.model_selection import train_test_split, cross_val_score
 
 from sklearn.linear_model import LogisticRegression
 
-def traversal(estimator, data):
-    """ This function takes estimator and a dataset as params and runs 
-    training on estimator with different test sizes. Returns result of
-    the test sizes and accuracy score in a tabular form.
+def traversal(estimator, data, seed):
+    """ This function takes estimator, a dataset and a random seed number
+    as params and runs training on estimator with different test sizes.
+    Returns result of the test sizes and accuracy score in a tabular form.
     
     Args:
         estimator: Model to train
         data: Dataset
+        seed: Random seed number
     Returns:
         results: A table of results with different test 
                 sizes and their accuracy score. 
     """
-    #     metrics = " \n "
+
     results = list()
 
     features = data.drop(["Class"], axis=1)
@@ -38,7 +39,7 @@ def traversal(estimator, data):
         split = split / 100  # convert to decimal format
         train_size = 1 - split
         train_features, test_features, train_target, test_target = train_test_split(
-            features, target, test_size=split, random_state=42
+            features, target, test_size=split, random_state=seed
         )
 
         # fit the training data into the model
