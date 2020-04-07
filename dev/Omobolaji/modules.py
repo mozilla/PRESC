@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import sklearn
 import seaborn as sns
 
-# Import preprocessing module & evaluation metrics
+#Import preprocessing module & evaluation metrics
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
@@ -40,6 +40,8 @@ def visualization(data):
     sns.heatmap(data.corr(), annot=True)
     plt.show()
 
+
+    
 def test_size_analysis(dataset, models):
     """ This function takes a dataset and a dictionary of different models
     as params and fits the data into each model with different test sizes. 
@@ -53,14 +55,14 @@ def test_size_analysis(dataset, models):
         results: A table of results with different test 
                 sizes and the accuracy score for different models. 
     """
-
-    # create an empty list
+    
+    #create an empty list
     results = list()
-
-    # Split the dataset into features and target variables
+    
+    #Split the dataset into features and target variables
     features = dataset.drop(["Class"], axis=1)
     target = dataset.Class
-
+   
     # loop through the ranges of different test sizes from 0.1 to 0.5
     for split in range(10, 55, 5):
         split = split / 100  # convert to decimal format
@@ -68,13 +70,13 @@ def test_size_analysis(dataset, models):
         train_features, test_features, train_target, test_target = train_test_split(
             features, target, test_size=split, random_state=42
         )
-
-        # create a list containing the test_sizes, that is, split
+        
+        #create a list containing the test_sizes, that is, split
         result = [split]
-
-        # loop through key and value, contained in models dictionary
+        
+        #loop through key and value, contained in models dictionary
         for key, model in models.items():
-
+        
             # fit the training data into the model
             model.fit(train_features, train_target)
 
@@ -86,9 +88,10 @@ def test_size_analysis(dataset, models):
 
             # convert the score to a percentage and round to one decimal places
             accuracy = round(accuracy * 100, 1)
-
+            
             result.append(accuracy)
-
+        
+        
         # append result to the empty list created
         results.append(result)
 
@@ -104,18 +107,21 @@ def test_size_analysis(dataset, models):
             "Accuracy_LDA",
             "Accuracy_NB"
             # Accuracy_model is the accuracy of each particular model
-        ],
+        ], 
     )
     return results
-
+ 
+    
 def preprocessing(data):
     """Convert categorical column to continuous"""
+    
     le = LabelEncoder()
     data["Class"] = le.fit_transform(data["Class"])
     """Split the columns into features and target"""
     features = data.drop(["Class"], axis=1)
     target = data.Class
     return train_test_split(features, target, test_size=0.3, random_state=42)
+
 
 def build_model(model, train_features, test_features, train_target, test_target):
     """ This function takes a model and the train & test features, 
