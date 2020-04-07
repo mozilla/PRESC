@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import sklearn
 import seaborn as sns
 
+# Import preprocessing module & evaluation metrics
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
@@ -39,6 +40,74 @@ def visualization(data):
     sns.heatmap(data.corr(), annot=True)
     plt.show()
 
+def test_size_analysis(dataset, models):
+    """ This function takes a dataset and a dictionary of different models
+    as params and fits the data into each model with different test sizes. 
+    Returns result of the test sizes and accuracy score of all the models 
+    in a tabular form.
+    
+    Args:
+        dataset: Dataset
+        models: Dictionary of different models
+    Returns:
+        results: A table of results with different test 
+                sizes and the accuracy score for different models. 
+    """
+
+    # create an empty list
+    results = list()
+
+    # Split the dataset into features and target variables
+    features = dataset.drop(["Class"], axis=1)
+    target = dataset.Class
+
+    # loop through the ranges of different test sizes from 0.1 to 0.5
+    for split in range(10, 55, 5):
+        split = split / 100  # convert to decimal format
+        train_size = 1 - split
+        train_features, test_features, train_target, test_target = train_test_split(
+            features, target, test_size=split, random_state=42
+        )
+
+        # create a list containing the test_sizes, that is, split
+        result = [split]
+
+        # loop through key and value, contained in models dictionary
+        for key, model in models.items():
+
+            # fit the training data into the model
+            model.fit(train_features, train_target)
+
+            # store the predicted values of test data
+            predict_target = model.predict(test_features)
+
+            # Evaluate accuracy score
+            accuracy = accuracy_score(test_target, predict_target)
+
+            # convert the score to a percentage and round to one decimal places
+            accuracy = round(accuracy * 100, 1)
+
+            result.append(accuracy)
+
+        # append result to the empty list created
+        results.append(result)
+
+    # convert the results to tabular form using Pandas Dataframe function
+    results = pd.DataFrame(
+        results,
+        columns=[
+            "Test Size",
+            "Accuracy_LR",
+            "Accuracy_KNN",
+            "Accuracy_RAND",
+            "Accuracy_DTREE",
+            "Accuracy_LDA",
+            "Accuracy_NB"
+            # Accuracy_model is the accuracy of each particular model
+        ],
+    )
+    return results
+
 def preprocessing(data):
     """Convert categorical column to continuous"""
     le = LabelEncoder()
@@ -48,201 +117,42 @@ def preprocessing(data):
     target = data.Class
     return train_test_split(features, target, test_size=0.3, random_state=42)
 
-<<<<<<< Updated upstream
-def model(model, train_features, test_features, train_target, test_target):
-    """Applying a model on the dataset"""
+def build_model(model, train_features, test_features, train_target, test_target):
+    """ This function takes a model and the train & test features, 
+    train & test targets as params and fits the train data into a model . 
+    Returns result of the evaluated metrics of the model
+    in a tabular form.
+    
+    Test_size used: 0.3
+    Args:
+        model: Dictionary of different models
+        train_features: 70% of the features in dataset
+        test_features: 30% of the features in dataset
+        train_target: 70% of the target column (Class)
+        test_target: 30% of the target column (Class)
+        
+    Prints:
+        Cross Validation score
+        Accuracy Score
+        Confusion Matrix
+        Classification Report
+    """
 
     # fit the training data into the model
     model.fit(train_features, train_target)
 
     # store the predicted values of test data
     predict_model = model.predict(test_features)
-=======
-def logistic_regression_model(train_features, test_features, train_target, test_target):
-    """Applying Logistic Regression model on the dataset"""
-
-    lr = LogisticRegression(solver="liblinear", multi_class="ovr")
-
-    # fit the training data into the model
-    lr.fit(train_features, train_target)
-
-    # store the predicted values of test data
-    predict_lr = lr.predict(test_features)
 
     # do a cross validation on the model
     CV = 5
     cv_results = cross_val_score(
-        lr, train_features, train_target, cv=CV, scoring="accuracy"
-    )
-    cv = (
-        round(cv_results.mean(), 4),
-        round(cv_results.std(), 4),
-    )  # round values to 4 decimal places
-    print("Cross Validation(mean, standard deviation): ", cv, " \n")
-
-    # Evaluate accuracy score
-    accuracy = accuracy_score(test_target, predict_lr)
-    print("Accuracy Score(%): ", accuracy * 100, " \n")
-
-    # Compute confusion matrix
-    print("Confusion Matrix \n", confusion_matrix(test_target, predict_lr), " \n")
-
-    # Calculate the classification report
-    print("Classification Report \n", classification_report(test_target, predict_lr))
-
-def k_neighbours_classifier_model(
-    train_features, test_features, train_target, test_target
-):
-    """Applying KNeigbours Classifier model on the dataset"""
-
-    knn = KNeighborsClassifier()
-
-    # fit the training data into the model
-    knn.fit(train_features, train_target)
-
-    # store the predicted values of test data
-    predict_knn = knn.predict(test_features)
-
-    # do a cross validation on the model
-    CV = 5
-    cv_results = cross_val_score(
-        knn, train_features, train_target, cv=CV, scoring="accuracy"
-    )
-    cv = round(cv_results.mean(), 4), round(cv_results.std(), 4)
-    print("Cross Validation(mean, standard deviation): ", cv, " \n")
-
-    # Evaluate accuracy score
-    accuracy = accuracy_score(test_target, predict_knn)
-    print("Accuracy Score(%): ", accuracy * 100, " \n")
-
-    # Compute confusion matrix
-    print("Confusion Matrix \n", confusion_matrix(test_target, predict_knn), " \n")
-
-    # Calculate the classification report
-    print("Classification Report \n", classification_report(test_target, predict_knn))
-
-def randomforest_classifier_model(
-    train_features, test_features, train_target, test_target
-):
-    """Applying Random Forest Classifier model on the dataset"""
-
-    rand = RandomForestClassifier(n_estimators=10, criterion="entropy")
-
-    # fit the training data into the model
-    rand.fit(train_features, train_target)
-
-    # store the predicted values of test data
-    predict_rand = rand.predict(test_features)
-
-    # do a cross validation on the model
-    CV = 5
-    cv_results = cross_val_score(
-        rand, train_features, train_target, cv=CV, scoring="accuracy"
-    )
-    cv = round(cv_results.mean(), 4), round(cv_results.std(), 4)
-    print("Cross Validation(mean, standard deviation): ", cv, " \n")
-
-    # Evaluate accuracy score
-    accuracy = accuracy_score(test_target, predict_rand)
-    print("Accuracy Score(%): ", accuracy * 100, " \n")
-
-    # Compute confusion matrix
-    print("Confusion Matrix \n", confusion_matrix(test_target, predict_rand), " \n")
-
-    # Calculate the classification report
-    print("Classification Report \n", classification_report(test_target, predict_rand))
-
-def decision_tree_classifier_model(
-    train_features, test_features, train_target, test_target
-):
-    """Applying Decision Tree Classifier model on the dataset"""
-
-    dtree = DecisionTreeClassifier()
-
-    # fit the training data into the model
-    dtree.fit(train_features, train_target)
-
-    # store the predicted values of test data
-    predict_dtree = dtree.predict(test_features)
-
-    # do a cross validation on the model
-    CV = 5
-    cv_results = cross_val_score(
-        dtree, train_features, train_target, cv=CV, scoring="accuracy"
-    )
-    cv = round(cv_results.mean(), 4), round(cv_results.std(), 4)
-    print("Cross Validation(mean, standard deviation): ", cv, " \n")
-
-    # Evaluate accuracy score
-    accuracy = accuracy_score(test_target, predict_dtree)
-    print("Accuracy Score(%): ", accuracy * 100, " \n")
-
-    # Compute confusion matrix
-    print("Confusion Matrix \n", confusion_matrix(test_target, predict_dtree), " \n")
-
-    # Calculate the classification report
-    print("Classification Report \n", classification_report(test_target, predict_dtree))
-
-def linear_discriminant_analysis_model(
-    train_features, test_features, train_target, test_target
-):
-    """Applying Linear Discriminant Analysis model on the dataset"""
-
-    lda = LinearDiscriminantAnalysis()
-
-    # fit the training data into the model
-    lda.fit(train_features, train_target)
-
-    # store the predicted values of test data
-    predict_lda = lda.predict(test_features)
-
-    # do a cross validation on the model
-    CV = 5
-    cv_results = cross_val_score(
-        lda, train_features, train_target, cv=CV, scoring="accuracy"
-    )
-    cv = (
-        round(cv_results.mean(), 4),
-        round(cv_results.std(), 4),
-    )  # calculate the mean and standard deviation, round to 4 decimal places
-    print("Cross Validation(mean, standard deviation): ", cv, " \n")
-
-    # Evaluate accuracy score
-    accuracy = accuracy_score(test_target, predict_lda)
-    print("Accuracy Score(%): ", accuracy * 100, " \n")
-
-    # Compute confusion matrix
-    print("Confusion Matrix \n", confusion_matrix(test_target, predict_lda), " \n")
-
-    # Calculate the classification report
-    print("Classification Report \n", classification_report(test_target, predict_lda))
-
-def gaussian_nb_model(train_features, test_features, train_target, test_target):
-    """Applying Gaussian NB model on the dataset"""
-
-    nb = GaussianNB()
-
-    # fit the training data into the model
-    nb.fit(train_features, train_target)
-
-    # store the predicted values of test data
-    predict_nb = nb.predict(test_features)
->>>>>>> Stashed changes
-
-    # do a cross validation on the model
-    CV = 5
-    cv_results = cross_val_score(
-<<<<<<< Updated upstream
         model, train_features, train_target, cv=CV, scoring="accuracy"
-=======
-        nb, train_features, train_target, cv=CV, scoring="accuracy"
->>>>>>> Stashed changes
     )
     cv = round(cv_results.mean(), 4), round(cv_results.std(), 4)
     print("Cross Validation(mean, standard deviation): ", cv, " \n")
 
     # Evaluate accuracy score
-<<<<<<< Updated upstream
     accuracy = accuracy_score(test_target, predict_model)
     print("Accuracy Score(%): ", accuracy * 100, " \n")
 
@@ -251,13 +161,3 @@ def gaussian_nb_model(train_features, test_features, train_target, test_target):
 
     # Calculate the classification report
     print("Classification Report \n", classification_report(test_target, predict_model))
-=======
-    accuracy = accuracy_score(test_target, predict_nb)
-    print("Accuracy Score(%): ", accuracy * 100, " \n")
-
-    # Compute confusion matrix
-    print("Confusion Matrix \n", confusion_matrix(test_target, predict_nb), " \n")
-
-    # Calculate the classification report
-    print("Classification Report \n", classification_report(test_target, predict_nb))
->>>>>>> Stashed changes
