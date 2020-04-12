@@ -28,26 +28,6 @@ def tune(data_train, target_train):
     return param_val
 
 
-
-def tune(data_train, target_train):
-    """This function is for hyperparameter tuning in order to know the most appropriate value of 
-    n_neighbors to use in the k_nearest() function. """
-    # create hyperparameter grid
-    c_space = np.arange(1, 9)
-    # the value of n_neighbors has to be an integer and greater than zero.
-    params_grid = {"n_neighbors": c_space}
-    # instantiate the classifier
-    kn = KNeighborsClassifier()
-    # Instantiate GridSearchCV object
-    kn_cv = GridSearchCV(kn, params_grid, cv=5)
-    """Increasing the number of folds increases the accuracy of the model performance evaluation index.
-    However, this tends to be very computationally expensive in terms of runtime and memory usage.
-    Five folds is just a compromise default value """
-    kn_cv.fit(data_train, target_train)
-    param_val = kn_cv.best_params_["n_neighbors"]
-    return param_val
-
-
 def k_nearest(data_train, target_train, data_test, target_test):
     """Training model using the k nearest neighbor algorithm. This function trains 
     the model using a tuned hyperparameter value. In it, the accuracy of 
