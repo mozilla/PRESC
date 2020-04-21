@@ -12,6 +12,7 @@ dependencies:
   - seaborn=0.10.0
   - pandas_profiling=2.5.0
   - pip=20.0.2
- 
+  - imbalanced-learn=0.6.2
+  
   - pip:
     - plotnine==0.6.0
