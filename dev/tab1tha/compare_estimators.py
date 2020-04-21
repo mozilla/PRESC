@@ -56,3 +56,28 @@ def class_probs(labels, estimators, data_test):
     fig.tight_layout()
 
     plt.show()
+
+
+def plot_pred_probabs(pred_prob, target_test, index_num):
+    """This function is used to plot the predicted class probabilities when the positive class is found 
+    on index the index index_num."""
+
+    plt.figure()
+
+    """When the prediction is false (true value is not positive i.e 0 in this case), the predicted probability of 
+    being positive(1) is observed. It is expected to be low(significantly less than 0.5)"""
+    plt.hist(pred_prob[target_test != index_num], bins=50, label="False")
+
+    """When the prediction is true (true value is positive), the predicted probability of being positive is observed.
+    it is expected to be high(significantly greater than 0.5)"""
+    plt.hist(
+        pred_prob[target_test == index_num], bins=50, label="True", alpha=0.7, color="r"
+    )
+    """Alpha is set to 0.7 so that the histogram will be translucent, such that any region of overlapping will be 
+    visible."""
+
+    plt.xlabel("Probability of being Positive Class")
+    plt.ylabel("Number of records in each bucket")
+    plt.legend()
+    plt.tick_params()
+    plt.show()
