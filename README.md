@@ -158,7 +158,7 @@ Contributions can be made by submitting a [pull request](https://help.github.com
   models for another issue, then a new notebook would be helpful. That being
   said, a notebook should satisfy the following criteria:
 
-    a) it should run beginning to end without error
+    a) it should run beginning to end without error.
 
     b) it should be easy to follow and have a clear narrative presenting context,
    data, results, and interpretation. This may mean some redundancy in code, but
