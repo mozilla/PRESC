@@ -56,3 +56,22 @@ def class_probs(labels, estimators, data_test):
     fig.tight_layout()
 
     plt.show()
+
+
+def compute_log_loss(predicted, actual, eps=1e-14):
+    """This function computes the loss function of an estimator. 
+    The goal of a good estimator is to make the loss function as small as possible.
+    The benchmark value of log loss is 2.0455. 
+    
+    It takes in three arguments; predicted represents the 
+    prediction probability of 1, actual represents the actual value(1 or 0), eps is an offset that
+    prevents the log(0) from happening. """
+
+    predicted = np.clip(predicted, eps, 1 - eps)
+    # np.clip() sets the min and max values for the elements in an array.
+
+    loss = -1 * np.mean(
+        actual * np.log(predicted) + (1 - actual) * np.log(1 - predicted)
+    )
+
+    return loss
