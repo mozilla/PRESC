@@ -127,7 +127,6 @@ def weight_advisor(dataset):
     if same_type == True:
         labels = sorted(labels)
 
-
     rows_with_label = []
     for label_name in labels:
         rows_with_label += [len(dataset.loc[dataset.iloc[:, -1] == label_name])]
@@ -199,7 +198,9 @@ def scaling_plot(dataset, dataset_name):
         None
     """
     parameters_min_max = pd.concat(
-        [dataset.describe().iloc[3], dataset.describe().iloc[7]], axis=1, sort=False
+        [dataset.describe().iloc[3], dataset.describe().iloc[7]],
+        axis=1,
+        sort=False,
     )
 
     # Invert the vertical ordering for the plot
@@ -222,7 +223,12 @@ def scaling_plot(dataset, dataset_name):
 
     ax.grid(b=True, which="major", axis="x", markevery=slice(0, -1, 1))
     plt.tick_params(
-        axis="y", bottom=True, left=False, direction="in", labelleft=True, pad=20
+        axis="y",
+        bottom=True,
+        left=False,
+        direction="in",
+        labelleft=True,
+        pad=20,
     )
     ax.set_title("Comparison of parameter scaling", pad=10, fontsize=11)
 
@@ -235,7 +241,7 @@ def scaling_plot(dataset, dataset_name):
     plt.savefig("%s/%s_scaling_plot.svg" % (dataset_name, dataset_name))
     plt.show()
 
-   
+
 def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
     """Stacked or overlapping histograms of the dataset variables.
     
@@ -271,7 +277,9 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
     )
 
     # Obtain label list and create a color mapping for the dataset labels
-    labels, labels_color_RGBA, labels_color_dictionary = labels_to_colors(dataset)
+    labels, labels_color_RGBA, labels_color_dictionary = labels_to_colors(
+        dataset
+    )
 
     # Determine name of column with the classes
     label_title = list(dataset)[-1]
@@ -292,7 +300,9 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
 
     # Generate a figure with each parameter histogram as a subplot
     figure, axs = plt.subplots(
-        rows_of_histograms, row_width, figsize=(12, 9 * (rows_of_histograms / grid))
+        rows_of_histograms,
+        row_width,
+        figsize=(12, 9 * (rows_of_histograms / grid)),
     )
 
     # Iteration over parameters
@@ -314,7 +324,9 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
             data_separated_labels = []
             for label_name in labels:
                 data_separated_labels += [
-                    dataset[(dataset[label_title] == label_name)].iloc[:, subplot_index]
+                    dataset[(dataset[label_title] == label_name)].iloc[
+                        :, subplot_index
+                    ]
                 ]
                 data_separated_labels[-1] = data_separated_labels[-1].replace(
                     {True: 1, False: 0}
@@ -341,7 +353,6 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
                     if dataset.iloc[:, subplot_index].max() > 100000:
                         axs[subplotY].ticklabel_format(
                             axis="x", style="sci", scilimits=(-2, 2)
-
                         )
 
             # Plot stacked histograms multiple rows
@@ -364,7 +375,6 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
                     if dataset.iloc[:, subplot_index].max() > 100000:
                         axs[subplotX, subplotY].ticklabel_format(
                             axis="x", style="sci", scilimits=(-2, 2)
-
                         )
 
             # Plot overlapping histograms single row
@@ -388,7 +398,6 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
                     if dataset.iloc[:, subplot_index].max() > 100000:
                         axs[subplotY].ticklabel_format(
                             axis="x", style="sci", scilimits=(-2, 2)
-
                         )
 
             # Plot overlapping histograms multiple rows
@@ -418,7 +427,9 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
             if rows_of_histograms == 1:
                 plt.setp(axs[subplotY], xlabel=list(dataset)[subplot_index])
             else:
-                plt.setp(axs[subplotX, subplotY], xlabel=list(dataset)[subplot_index])
+                plt.setp(
+                    axs[subplotX, subplotY], xlabel=list(dataset)[subplot_index]
+                )
 
         if rows_of_histograms == 1:
             plt.setp(axs[subplotY], ylabel="Frequency")
@@ -461,27 +472,43 @@ def histograms(dataset, dataset_name, stacked_classes, grid=3, bins=11):
         # Display the legend of the top right subplot.
         if rows_of_histograms == 1:
             axs[row_width - 1].legend(
-                label_markers, labels, bbox_to_anchor=(1.8, 0.8), title="Classes"
+                label_markers,
+                labels,
+                bbox_to_anchor=(1.8, 0.8),
+                title="Classes",
             )
 
         else:
             axs[0, row_width - 1].legend(
-                label_markers, labels, bbox_to_anchor=(1.8, 0.8), title="Classes"
+                label_markers,
+                labels,
+                bbox_to_anchor=(1.8, 0.8),
+                title="Classes",
             )
 
         create_folder(dataset_name)
 
         # Setting up a title and saving the figure
         if stacked_classes and rows_of_histograms == 1:
-            axs[1].set_title("Parameter histograms (stacked)", pad=20, fontsize=11)
+            axs[1].set_title(
+                "Parameter histograms (stacked)", pad=20, fontsize=11
+            )
             plt.tight_layout()
-            plt.savefig("%s/%s_histograms_stacked.svg" % (dataset_name, dataset_name))
+            plt.savefig(
+                "%s/%s_histograms_stacked.svg" % (dataset_name, dataset_name)
+            )
         elif stacked_classes and rows_of_histograms > 1:
-            axs[0, 1].set_title("Parameter histograms (stacked)", pad=20, fontsize=11)
+            axs[0, 1].set_title(
+                "Parameter histograms (stacked)", pad=20, fontsize=11
+            )
             plt.tight_layout()
-            plt.savefig("%s/%s_histograms_stacked.svg" % (dataset_name, dataset_name))
+            plt.savefig(
+                "%s/%s_histograms_stacked.svg" % (dataset_name, dataset_name)
+            )
         elif not stacked_classes and rows_of_histograms == 1:
-            axs[1].set_title("Parameter histograms (overlapped)", pad=20, fontsize=11)
+            axs[1].set_title(
+                "Parameter histograms (overlapped)", pad=20, fontsize=11
+            )
             plt.tight_layout()
             plt.savefig(
                 "%s/%s_histograms_overlapped.svg" % (dataset_name, dataset_name)
@@ -539,7 +566,9 @@ def histograms_specific(
     # Build a subset of the dataset with the selected variables
     dataset_temporal = dataset.loc[:, columns]
 
-    histograms(dataset_temporal, dataset_name, stacked_classes, grid=grid, bins=bins)
+    histograms(
+        dataset_temporal, dataset_name, stacked_classes, grid=grid, bins=bins
+    )
 
 
 def histograms_all(dataset, dataset_name, stacked_classes, grid=3, bins=11):
@@ -584,7 +613,12 @@ def histograms_all(dataset, dataset_name, stacked_classes, grid=3, bins=11):
             list_of_variables[(i + page_number * grid ** 2)] for i in initial
         ]
         histograms_specific(
-            dataset, dataset_name, stacked_classes, list_temporal, grid=grid, bins=bins
+            dataset,
+            dataset_name,
+            stacked_classes,
+            list_temporal,
+            grid=grid,
+            bins=bins,
         )
 
     # Prepares a list specific for the last page if it's not full
@@ -594,7 +628,12 @@ def histograms_all(dataset, dataset_name, stacked_classes, grid=3, bins=11):
         for n in range(modulus):
             list_temporal += [list_of_variables[full_pages * (grid ** 2) + n]]
         histograms_specific(
-            dataset, dataset_name, stacked_classes, list_temporal, grid=grid, bins=bins
+            dataset,
+            dataset_name,
+            stacked_classes,
+            list_temporal,
+            grid=grid,
+            bins=bins,
         )
 
 
@@ -618,7 +657,9 @@ def projections(dataset, dataset_name, grid=3):
         None
     """
     # Obtain label list and create a color mapping for the dataset labels
-    labels, labels_color_RGBA, labels_color_dictionary = labels_to_colors(dataset)
+    labels, labels_color_RGBA, labels_color_dictionary = labels_to_colors(
+        dataset
+    )
 
     # Determine name of column with the classes
     label_title = list(dataset)[-1]
@@ -637,7 +678,10 @@ def projections(dataset, dataset_name, grid=3):
 
     # Generate a figure with each parameter histogram as a subplot
     figure, axs = plt.subplots(
-        number_parameters, number_parameters, figsize=(12, 10), tight_layout=True
+        number_parameters,
+        number_parameters,
+        figsize=(12, 10),
+        tight_layout=True,
     )
 
     # Iteration over parameter combinations
@@ -649,7 +693,10 @@ def projections(dataset, dataset_name, grid=3):
                 c=dataset[label_title].map(labels_color_dictionary),
             )
             if (
-                all(isinstance(x, (int, float)) for x in dataset.iloc[:, columnX])
+                all(
+                    isinstance(x, (int, float))
+                    for x in dataset.iloc[:, columnX]
+                )
                 == True
             ):
                 if dataset.iloc[:, columnX].max() > 100000:
@@ -658,11 +705,13 @@ def projections(dataset, dataset_name, grid=3):
                     )
             plt.setp(axs[-1, columnX], xlabel=dataset.columns[columnX])
 
-        if all(isinstance(x, (int, float)) for x in dataset.iloc[:, columnY]) == True:
+        if (
+            all(isinstance(x, (int, float)) for x in dataset.iloc[:, columnY])
+            == True
+        ):
             if dataset.iloc[:, columnY].max() > 100000:
                 axs[columnY, columnX].ticklabel_format(
                     axis="y", style="sci", scilimits=(-2, 2)
-
                 )
         plt.setp(axs[columnY, 0], ylabel=dataset.columns[columnY])
 
@@ -684,7 +733,6 @@ def projections(dataset, dataset_name, grid=3):
         # Display the legend of the top right subplot.
         axs[0, number_parameters - 1].legend(
             label_markers, labels, title="Classes", bbox_to_anchor=(1.0, 0.8)
-
         )
 
         axs[0, 1].set_title("Parameter space projections", pad=20, fontsize=11)
@@ -757,7 +805,9 @@ def projections_all(dataset, dataset_name, grid=2):
     # Prepares a list for each full page to call the projections builder
     initial = list(range(grid))
     for page_number in range(full_pages):
-        list_temporal = [list_of_variables[(i + page_number * grid)] for i in initial]
+        list_temporal = [
+            list_of_variables[(i + page_number * grid)] for i in initial
+        ]
         projections_specific(dataset, dataset_name, list_temporal)
 
     # Prepares a list specific for the last page if it's not full
@@ -769,7 +819,9 @@ def projections_all(dataset, dataset_name, grid=2):
         projections_specific(dataset, dataset_name, list_temporal)
 
 
-def explore_test_split_ratio(dataset, dataset_name, num_test_fractions, random_tries):
+def explore_test_split_ratio(
+    dataset, dataset_name, num_test_fractions, random_tries
+):
     """Explore test-train split ratios with a linear SVC model.
     
     This function trains a linear SVC model with the given dataset, 
@@ -798,7 +850,10 @@ def explore_test_split_ratio(dataset, dataset_name, num_test_fractions, random_t
 
     # Generate a list with the requested number of test data fractions
     test_sizes = np.linspace(
-        1.0 / (num_test_fractions + 1), 1.0, num=num_test_fractions, endpoint=False
+        1.0 / (num_test_fractions + 1),
+        1.0,
+        num=num_test_fractions,
+        endpoint=False,
     )
 
     counter = 0
@@ -833,7 +888,9 @@ def explore_test_split_ratio(dataset, dataset_name, num_test_fractions, random_t
 
             # Train model
             classifier = SVC(
-                kernel="linear", decision_function_shape="ovo", class_weight="balanced"
+                kernel="linear",
+                decision_function_shape="ovo",
+                class_weight="balanced",
             )
             classifier.fit(X_train_scaled, y_train)
             y_predicted = classifier.predict(X_test_scaled)
@@ -847,7 +904,9 @@ def explore_test_split_ratio(dataset, dataset_name, num_test_fractions, random_t
     for scores_list in score:
         score_summary += [(np.mean(scores_list), np.std(scores_list))]
 
-    averages = np.array([score_summary[x][0] for x in range(len(score_summary))])
+    averages = np.array(
+        [score_summary[x][0] for x in range(len(score_summary))]
+    )
     standard_deviations = np.array(
         [score_summary[x][1] for x in range(len(score_summary))]
     )
@@ -891,7 +950,6 @@ def explore_test_split_ratio(dataset, dataset_name, num_test_fractions, random_t
         f"deviation: {test_sizes[standard_deviations.argmin()]:.4f}"
         "\nAverage score at test fraction with the smallest standard "
         f"deviation: {averages[standard_deviations.argmin()]:.4f}"
-
     )
 
     return test_sizes, averages, standard_deviations
