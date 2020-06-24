@@ -1,0 +1,44 @@
+# These environment variables must be set in CircleCI UI
+#
+# DOCKERHUB_REPO - docker hub repo, format: <username>/<repo>
+# DOCKER_USER
+# DOCKER_PASS
+#
+
+version: 2
+jobs:
+  build_deploy:
+    machine:
+      enable: true
+    steps:
+      - checkout
+      - run: ./bin/build
+      - run: ./bin/deploy
+  integration_test:
+    docker:
+      - image: continuumio/miniconda3
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: apt-get update; apt-get install make -y
+      - run: conda env create -f environment.yml
+      - run: . /opt/conda/etc/profile.d/conda.sh && conda activate presc && python setup.py install
+
+workflows:
+  version: 2
+  test_build_deploy:
+    jobs:
+      - integration_test:
+          filters:
+            tags:
+              only: /.*/
+      - build_deploy:
+          requires:
+            - integration_test
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              only: master
+

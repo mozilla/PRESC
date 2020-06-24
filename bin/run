@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+. /opt/conda/etc/profile.d/conda.sh && \
+    conda activate presc && \
+    exec $@
