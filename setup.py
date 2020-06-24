@@ -7,7 +7,7 @@ setup(
     setup_requires=["setuptools_scm", "pytest-runner"],
     tests_require=["pytest"],
     include_package_data=True,
-    packages=find_packages(exclude=["tests", "tests/*"]),
+    packages=find_packages(exclude=["archive", "tests", "tests/*"]),
     description="Performance Robustness Evaluation for Statistical Classifiers",
     author="Mozilla Corporation",
     author_email="mroviraesteva@mozilla.com",
