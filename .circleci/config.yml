@@ -7,13 +7,6 @@
 
 version: 2
 jobs:
-  build_deploy:
-    machine:
-      enable: true
-    steps:
-      - checkout
-      - run: ./bin/build
-      - run: ./bin/deploy
   integration_test:
     docker:
       - image: continuumio/miniconda3
@@ -33,12 +26,3 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - build_deploy:
-          requires:
-            - integration_test
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              only: master
-
