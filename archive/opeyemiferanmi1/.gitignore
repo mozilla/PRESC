@@ -1,0 +1,10 @@
+*.xml
+*.iml
+_pycache_
+.ipynb_checkpoints
+.idea
+.venv
+.idea/*
+idea/*
+inspectionProfiles
+inspectionProfiles/*

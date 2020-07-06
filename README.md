@@ -1,5 +1,6 @@
 # Performance Robustness Evaluation for Statistical Classifiers
 
+[![CircleCI](https://circleci.com/gh/mozilla/PRESC.svg?style=svg)](https://circleci.com/gh/mozilla/PRESC)
 [![Join the chat at https://gitter.im/PRESC-outreachy/community](https://badges.gitter.im/PRESC-outreachy/community.svg)](https://gitter.im/PRESC-outreachy/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Overview
@@ -96,7 +97,20 @@ other contributions at this point, unless to resolve errors or typos.
 Code formatting guidelines should strinctly adhere  to [Python Black](https://pypi.org/project/black/) formatting guidelines. Please ensure that all PRs pass a local black formatting check.
 
 
+
+
 ## Information for Outreachy participants
+
+__Please note that this project is currently closed to new Outreachy
+contributions.__
+
+- At this time, we are only considering Outreachy candidates who have submitted
+  a PR on or before _Friday March 20_.
+- If you have submitted a PR by this date, you may continue working on existing
+  PRs or create new ones as usual. All your contributions will be considered.
+- If you have not yet submitted a PR by this date, we will unfortunately not be
+  able to consider you as an Outreachy candidate for this round.
+
 
 This project is intentionally broadly scoped, and the initial phase will be
   exploratory.
@@ -126,7 +140,7 @@ Tasks are managed using the [GitHub issue tracker](https://github.com/mozilla/PR
 
 ### Contributions
 
-Contributions can be made by submitting a [pull request](https://help.github.com/articles/using-pull-requests) against this repository.
+Contributions can be made by submitting a [pull request](https://help.github.com/articles/using-pull-requests) against this repository. Learn more about [creating a pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
 
 - We ask each Outreachy participant to make a contribution completing
   [#2](https://github.com/mozilla/PRESC/issues/2) (train and test a
@@ -140,6 +154,17 @@ Contributions can be made by submitting a [pull request](https://help.github.com
   request review. This tag ('work in progress') indicates that the PR is not
   ready to be merged. When it is ready for final submission, you can modify the
   title to remove the "WIP:" tag.
+- Should you use a separate jupyter notebook for comparing different models? If
+  you had a PR merged in to satisfy issue #2 already and are now comparing
+  models for another issue, then a new notebook would be helpful. That being
+  said, a notebook should satisfy the following criteria:
+
+    a) it should run beginning to end without error
+
+    b) it should be easy to follow and have a clear narrative presenting context,
+   data, results, and interpretation. This may mean some redundancy in code, but
+   will often mean that your notebook is much more helpful to other people
+   looking at it in isolation (including reviewers).
 
 
 ## Getting started
@@ -150,18 +175,19 @@ Contributions can be made by submitting a [pull request](https://help.github.com
 
 3. Setup and activate environment:
 
-   for windows:
-  
-   Open anaconda prompt and cd into the folder where you cloned the repository.
-   
-   ex: cd PRESC
-   
-   then type the following commands to activate the presc environment
-
 ```
  $ conda env create -f environment.yml
  $ conda activate presc
 ```
+
+
+__For Windows:__ Open anaconda prompt and `cd` into the folder where you cloned the repository
+
+```
+cd PRESC
+```
+then type the above commands to activate the environment.
+
 
 4. Run Jupyter. The notebook will open in your browser at `localhost:8888` by default.
 
@@ -183,9 +209,29 @@ take are:
 - Install [git](https://git-scm.com/downloads) on your computer
 - Fork the repo on Github (ie. make your own personal copy)
 - Clone your fork to your local computer
+- Set remote origin (https://github.com/<_user_>/PRESC.git) and upstream (https://github.com/mozilla/PRESC.git)
+- Create a new branch for every issue or new work that you do.
+(To avoid merge conflicts keep your work in a separate folder in the same branch if it contains more than a few files.)
 - Commit changes locally on your computer
 - Push your changes to your fork on Github
 - Submit a pull request (PR) against the main repo from your fork.
+
+A few commands to start with everytime you work with a GIT repository:
+- `git fetch upstream master`
+- `git checkout FETCH_HEAD -b <new_branch_name>`
+- Make changes
+- `git status`
+This will show the files that have been modified, deleted or created
+- `git add .` (To add all the modified files)
+	OR
+  `git add <file_name>` (To add a specific file)
+- `git commit -m '<commit_message>'`
+- `git push`
+If you get an error message on executing the above command, enter the suggested `git push` command.
+
+Now, click on the link that you see once the `push` command is executed to create a Pull Request. While creating a Pull Request do mention `[ Fixes: #<issue_number> ]` in the description. This will link the issue to the Pull Request for which the latter is created.
+
+Once your Pull Request is merged do `git pull --rebase upstream master`. This will update your fork with local changes and the ones made from upstream. This is to ensure there are no file conflicts.
 
 Here are some resources to learn more about parts of this workflow you are
 unfamiliar with:
@@ -201,6 +247,7 @@ unfamiliar with:
 - This [repo](https://github.com/aSquare14/Git-Cheat-Sheet) by a previous
   Outreachy contributor lists many other resources and tutorials.
 - This [video tutorial series](https://www.youtube.com/playlist?list=PL6gx4Cwl9DGAKWClAD_iKpNC0bGHxGhcx) on Youtube may also be helpful
+- [First Contributions](https://github.com/firstcontributions/first-contributions#first-contributions) is a good place to actually practise and put your understanding to test. Feel free to make mistakes as you go along learning to make your first contribution. 
 
 Feel free to reach out to the mentors by email or on Gitter if you have further
 questions or are having trouble getting set up!
