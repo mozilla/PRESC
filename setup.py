@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 setup(
-    name="PRESC",
+    name="presc",
     use_scm_version=False,
     version="0.1.0",
     setup_requires=["setuptools_scm", "pytest-runner"],
