@@ -1,4 +1,5 @@
 [flake8]
-max-line-length = 80
-select = C,E,F,W,B,B950
-ignore = E203, E501, W503
+ignore = E203, E266, E501, W503, F403, F401
+max-complexity = 18
+max-line-length = 79
+select = B,C,E,F,W,T4,B,B9,B950
