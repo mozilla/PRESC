@@ -15,7 +15,6 @@ setup(
     description="Performance Robustness Evaluation for Statistical Classifiers",
     long_description=long_description,
     long_description_content_type="text/markdown",
-
     author="Mozilla Corporation",
     author_email="mroviraesteva@mozilla.com",
     url="https://github.com/mozilla/presc",
