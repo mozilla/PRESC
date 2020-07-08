@@ -15,3 +15,6 @@ black:
 build:
 	bin/create_version
 	docker build -t ${IMAGE_NAME} .
+
+upload:
+	twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
