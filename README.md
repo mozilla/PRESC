@@ -173,11 +173,14 @@ Contributions can be made by submitting a [pull request](https://help.github.com
 
 2. Fork this repository and clone it into your local machine(using git CLI).
 
-3. Setup and activate environment:
+3. Setup and activate environment. Note that this will also enable a
+   pre-commit hook to verify that code conforms to flake8 and black
+   formatting rules:
 
 ```
  $ conda env create -f environment.yml
  $ conda activate presc
+ $ pre-commit install
 ```
 
 

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="PRESC",
+    name="presc",
     use_scm_version=False,
     version="0.1.1",
     setup_requires=["setuptools_scm", "pytest-runner"],
