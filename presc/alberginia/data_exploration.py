@@ -78,7 +78,6 @@ def table_descriptors(dataset):
     labels = list(dataset.iloc[:, -1].unique())
     same_type = all(isinstance(x, type(labels[0])) for x in labels)
     if same_type:
-
         labels = sorted(labels)
 
     print("\nThis dataset has %s classes: " % len(labels))
