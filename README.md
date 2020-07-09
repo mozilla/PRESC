@@ -255,6 +255,17 @@ unfamiliar with:
 Feel free to reach out to the mentors by email or on Gitter if you have further
 questions or are having trouble getting set up!
 
+## Updating PyPI
+
+Use twine to upload a new version to PyPI.
+
+```bash
+python setup.py sdist
+twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+```
+
+There is a Makefile target `make upload` which will invoke twine for
+you.
 
 ## Resources
 
