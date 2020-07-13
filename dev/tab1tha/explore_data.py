@@ -26,7 +26,7 @@ def graph_visualize(df, col):
     plt.show()
 
 
-def violin_visualize(df):
+def violin_visualize(df,col="Class"):
     """This function investigates the distribution of observation results 
     among the target values by drawing a violin plot"""
     # create a figure instance
@@ -35,7 +35,7 @@ def violin_visualize(df):
      Values are just defaults chosen through tinkering. """
     ax = fig.add_axes([0, 0, 1, 1])
     # create the boxplot
-    bp = ax.violinplot(df["Class"])
+    bp = ax.violinplot(df[col])
     plt.show(bp)
 
 def histo(df, col):
