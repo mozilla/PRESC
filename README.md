@@ -104,24 +104,13 @@ Code formatting guidelines should strinctly adhere  to [Python Black](https://py
 __Please note that this project is currently closed to new Outreachy
 contributions.__
 
-- At this time, we are only considering Outreachy candidates who have submitted
-  a PR on or before _Friday March 20_.
-- If you have submitted a PR by this date, you may continue working on existing
-  PRs or create new ones as usual. All your contributions will be considered.
-- If you have not yet submitted a PR by this date, we will unfortunately not be
-  able to consider you as an Outreachy candidate for this round.
-
-
-This project is intentionally broadly scoped, and the initial phase will be
-  exploratory.
-
-- The goal is to propose and test out ideas related to the evaluation of
-  classifiers, rather than jumping straight into building features.
-- Tasks are open-ended and can be worked on by multiple
-  contributors at the same time, as different people may propose
-  complimentary ideas or approaches.
+Candidate submissions from the Spring 2020 application period have been archived
+in this [this repo](https://github.com/mozilla/PRESC-Outreachy-archive) in their
+original state, and code from these submissions will be integrated into the
+project here as needed.
 
 You can ask for help and discuss your ideas on [gitter](https://gitter.im/PRESC-outreachy/community).
+
 
 ### Issues
 
