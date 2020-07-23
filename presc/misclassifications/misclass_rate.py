@@ -14,8 +14,9 @@ from sklearn.metrics import plot_confusion_matrix
 from sklearn.metrics import classification_report
 
 
-def misclass_rate_feature(test_dataset, test_dataset_misclassifications, 
-                          feature, bins=10):
+def misclass_rate_feature(
+    test_dataset, test_dataset_misclassifications, feature, bins=10
+):
     """Computes the misclassification rate as a function of the feature values.
     
     This function allows to compute the misclassification rate of a sample for
@@ -60,19 +61,20 @@ def misclass_rate_feature(test_dataset, test_dataset_misclassifications,
         bins = compute_tiles(test_dataset, feature, tiles=4)
     elif bins == "deciles":
         bins = compute_tiles(test_dataset, feature, tiles=10)
-        
+
     # Histogram of all points
     total_histogram = np.histogram(test_dataset[feature], bins)
 
     # Histogram of misclassified points
-    misclass_histogram = np.histogram(test_dataset_misclassifications[feature], 
-                                      total_histogram[1], bins)
-    
+    misclass_histogram = np.histogram(
+        test_dataset_misclassifications[feature], total_histogram[1], bins
+    )
+
     # Compute misclassification rate
-    
+
     # The standard deviation in a counting experiment is N^(1/2).
     # According to error propagation the error of a quotient X=M/N is:
-    # ErrorX = X(ErrorM/M + ErrorN/N), 
+    # ErrorX = X(ErrorM/M + ErrorN/N),
     # here, Error_rate = rate*(M^(-1/2)+N^(-1/2))
 
     misclass_rate_histogram = np.copy(misclass_histogram)
@@ -81,25 +83,29 @@ def misclass_rate_feature(test_dataset, test_dataset_misclassifications,
     standard_deviation = []
     for index in range(len(total_histogram[0])):
         if total_histogram[0][index] != 0:
-            index_rate = misclass_rate_histogram[0][index]/total_histogram[0][index]
+            index_rate = misclass_rate_histogram[0][index] / total_histogram[0][index]
             rate += [index_rate]
             if misclass_rate_histogram[0][index] != 0:
-                standard_deviation += [index_rate*( 
-                                    total_histogram[0][index]**(-1./2) +
-                                    misclass_rate_histogram[0][index]**(-1./2))]
+                standard_deviation += [
+                    index_rate
+                    * (
+                        total_histogram[0][index] ** (-1.0 / 2)
+                        + misclass_rate_histogram[0][index] ** (-1.0 / 2)
+                    )
+                ]
             else:
-                standard_deviation += [float('nan')]
+                standard_deviation += [float("nan")]
         else:
-            rate += [float('nan')]
-            standard_deviation += [float('nan')]
+            rate += [float("nan")]
+            standard_deviation += [float("nan")]
     misclass_rate_histogram[0] = rate
 
-    return([misclass_rate_histogram[1], misclass_rate_histogram[0], standard_deviation])
+    return [misclass_rate_histogram[1], misclass_rate_histogram[0], standard_deviation]
 
 
-
-def show_misclass_rate_feature(test_dataset, test_dataset_misclassifications, 
-                               feature, bins=10):
+def show_misclass_rate_feature(
+    test_dataset, test_dataset_misclassifications, feature, bins=10
+):
     """Displays the misclassification rate for the values of a certain feature. 
 
     Parameters:
@@ -123,23 +129,34 @@ def show_misclass_rate_feature(test_dataset, test_dataset_misclassifications,
     elif bins == "deciles":
         bins = compute_tiles(test_dataset, feature, tiles=10)
 
-    misclass_rate_histogram = misclass_rate_feature(test_dataset, test_dataset_misclassifications, 
-                                                    feature, bins=bins)
-    width = [misclass_rate_histogram[0][index+1]-misclass_rate_histogram[0][index] 
-                for index in range(len(misclass_rate_histogram[1]))]
+    misclass_rate_histogram = misclass_rate_feature(
+        test_dataset, test_dataset_misclassifications, feature, bins=bins
+    )
+    width = [
+        misclass_rate_histogram[0][index + 1] - misclass_rate_histogram[0][index]
+        for index in range(len(misclass_rate_histogram[1]))
+    ]
     width_percentage = 1
-    width_interval = [bin*width_percentage for bin in width]
-    plt.ylim(0,1)
+    width_interval = [bin * width_percentage for bin in width]
+    plt.ylim(0, 1)
     plt.xlabel(feature)
     plt.ylabel("Misclassification rate")
-    plt.bar(misclass_rate_histogram[0][:-1], misclass_rate_histogram[1], yerr=misclass_rate_histogram[2],
-            width=width_interval, bottom=None, align='edge', edgecolor="white", linewidth=2)
+    plt.bar(
+        misclass_rate_histogram[0][:-1],
+        misclass_rate_histogram[1],
+        yerr=misclass_rate_histogram[2],
+        width=width_interval,
+        bottom=None,
+        align="edge",
+        edgecolor="white",
+        linewidth=2,
+    )
     plt.show()
 
 
-
-def show_misclass_rates_features(test_dataset, test_dataset_misclassifications, 
-                                 bins=10):
+def show_misclass_rates_features(
+    test_dataset, test_dataset_misclassifications, bins=10
+):
     """Displays the misclassification rate for the values of each feature.
 
     Parameters:
@@ -168,13 +185,12 @@ def show_misclass_rates_features(test_dataset, test_dataset_misclassifications,
         else:
             bins_feature = bins
 
-        show_misclass_rate_feature(test_dataset, 
-                                   test_dataset_misclassifications, 
-                                   feature, bins=bins_feature)
+        show_misclass_rate_feature(
+            test_dataset, test_dataset_misclassifications, feature, bins=bins_feature
+        )
 
 
-
-def compute_tiles(dataset, feature, tiles = 4):
+def compute_tiles(dataset, feature, tiles=4):
     """Computes optimal feature values to obtain quartiles, deciles, n-tiles...
     
     This function tries to determine the optimal feature value ranges in order  
@@ -203,20 +219,24 @@ def compute_tiles(dataset, feature, tiles = 4):
     Returns:
         edge_values (list): List of the optimal edge positions.
     """
-    points_per_tile = int(len(dataset)/float(tiles))
+    points_per_tile = int(len(dataset) / float(tiles))
     ordered_dataset = dataset.sort_values(by=feature)
-    
+
     edge_values = [ordered_dataset[feature].min()]
-    
-    for index in range(tiles-1):
-        edge_values += [ordered_dataset[feature][index*points_per_tile:(index+1)*points_per_tile-1].max()]
-        
+
+    for index in range(tiles - 1):
+        edge_values += [
+            ordered_dataset[feature][
+                index * points_per_tile : (index + 1) * points_per_tile - 1
+            ].max()
+        ]
+
     edge_values += [ordered_dataset[feature].max()]
-    
+
     return edge_values
 
 
-def show_tiles_feature(dataset, feature, tiles = 4):
+def show_tiles_feature(dataset, feature, tiles=4):
     """Plots the best attempt to obtain quartiles/deciles/n-tiles for a feature.
     
     This function shows the different tiles computed for one of the features in 
@@ -232,16 +252,25 @@ def show_tiles_feature(dataset, feature, tiles = 4):
     """
     tiles_feature = compute_tiles(dataset, feature, tiles=tiles)
     total_histogram = np.histogram(dataset[feature], bins=tiles_feature)
-    
-    width = [total_histogram[1][index+1]-total_histogram[1][index]
-         for index in range(len(total_histogram[0]))]
+
+    width = [
+        total_histogram[1][index + 1] - total_histogram[1][index]
+        for index in range(len(total_histogram[0]))
+    ]
     width_percentage = 1
-    width_interval = [bin*width_percentage for bin in width]
-    
+    width_interval = [bin * width_percentage for bin in width]
+
     plt.xlabel(feature)
     plt.ylabel("counts")
-    plt.bar(total_histogram[1][:-1], total_histogram[0], width=width_interval, 
-            bottom=None, align='edge', edgecolor="white", linewidth=3)
+    plt.bar(
+        total_histogram[1][:-1],
+        total_histogram[0],
+        width=width_interval,
+        bottom=None,
+        align="edge",
+        edgecolor="white",
+        linewidth=3,
+    )
     plt.show()
 
 
@@ -261,7 +290,7 @@ def show_tiles_features(test_dataset, tiles=4):
     """
     # List of features
     feature_list = list(test_dataset.columns)[:-1]
-    
+
     for feature in feature_list:
         if tiles == "quartiles":
             tiles_feature = 4
@@ -273,9 +302,9 @@ def show_tiles_features(test_dataset, tiles=4):
         show_tiles_feature(test_dataset, feature, tiles=tiles_feature)
 
 
-
 def main():
     pass
+
 
 if __name__ == "__main__":
     main()
