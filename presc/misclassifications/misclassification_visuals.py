@@ -64,14 +64,14 @@ def predictions_to_class(X_test, y_test, y_predicted, new_classes="hits-fails"):
 
     elif new_classes == "which-hit":
         dataset_missclass["Miss & Class"] = np.where(
-            dataset_missclass_calc["Hit"] is False,
+            dataset_missclass_calc["Hit"] == False,
             dataset_missclass_calc["Hit"].replace(False, "> Prediction fail"),
             dataset_missclass_calc["Class"].astype(str),
         )
 
     elif new_classes == "which-fail":
         dataset_missclass["Miss & Class"] = np.where(
-            dataset_missclass_calc["Hit"] is True,
+            dataset_missclass_calc["Hit"] == True,
             dataset_missclass_calc["Hit"].replace(True, "> Prediction hit"),
             dataset_missclass_calc["Class"].astype(str),
         )
