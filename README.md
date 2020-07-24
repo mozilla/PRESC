@@ -169,6 +169,7 @@ Contributions can be made by submitting a [pull request](https://help.github.com
 ```
  $ conda env create -f environment.yml
  $ conda activate presc
+ $ python setup.py develop
  $ pre-commit install
 ```
 
