@@ -1,17 +1,6 @@
-import sys
-import os
-from datetime import datetime
-
 import numpy as np
-import pandas as pd
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import plot_confusion_matrix
-from sklearn.metrics import classification_report
 
 
 def misclass_rate_feature(

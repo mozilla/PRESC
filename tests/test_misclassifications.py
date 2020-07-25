@@ -1,5 +1,7 @@
-from presc.misclassifications.misclassification_visuals import *
-from presc.misclassifications.misclass_rate import *
+from presc.misclassifications.misclassification_visuals import predictions_to_class
+from presc.misclassifications.misclass_rate import (misclass_rate_feature, show_misclass_rate_feature, 
+show_misclass_rates_features, compute_tiles, show_tiles_feature, show_tiles_features)
+
 
 
 def test_predictions_to_class():
