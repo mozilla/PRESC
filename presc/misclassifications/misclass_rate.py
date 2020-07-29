@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 def misclass_rate_feature(
-    test_dataset, test_dataset_misclassifications, feature, bins=10
+    test_dataset, test_predictions, feature, bins=10
 ):
     """Computes the misclassification rate as a function of the feature values.
     
@@ -13,7 +13,7 @@ def misclass_rate_feature(
     The function allows any binning for this calculation, which means that
     regularly spaced binnings, disparately spaced binnings that correspond to
     sets of an equal amount of data points (such as quartiles, deciles, or 
-    n-tiles), or any other arbitrary irregular binning can be used.
+    n-quantiles), or any other arbitrary irregular binning can be used.
     
     When the full dataset with all points does not have any data point in an 
     interval corresponding to a certain bin, the function yields a "nan" value 
@@ -24,9 +24,9 @@ def misclass_rate_feature(
     misclassified points do not have any data point in a certain bin interval.  
     
     Parameters:
-        test_dataset: Dataset with all the data points.
-        test_dataset_misclassifications: Dataset with only the misclassified 
-            points.
+        test_dataset: Dataset with the features of all data points, where the 
+            true class is at the last column.
+        test_predictions: List of the predicted classes for all data points.
         feature: Column name in the dataset of the feature.
         bins (int, list, str): 
             * If an integer, it divides the feature scale in regularly spaced 
@@ -46,16 +46,19 @@ def misclass_rate_feature(
     """
     # Computes position of bin edges for quartiles or deciles
     if bins == "quartiles":
-        bins = compute_tiles(test_dataset, feature, tiles=4)
+        bins = compute_quantiles(test_dataset, feature, quantiles=4)
     elif bins == "deciles":
-        bins = compute_tiles(test_dataset, feature, tiles=10)
+        bins = compute_quantiles(test_dataset, feature, quantiles=10)
 
     # Histogram of all points
     total_histogram = np.histogram(test_dataset[feature], bins)
 
+    # Builds dataset with only the misclassified data points
+    test_dataset_misclass = test_dataset[ test_dataset.iloc[:,-1] != test_predictions ]
+
     # Histogram of misclassified points
     misclass_histogram = np.histogram(
-        test_dataset_misclassifications[feature], total_histogram[1], bins
+        test_dataset_misclass[feature], total_histogram[1], bins
     )
 
     # Compute misclassification rate
@@ -92,14 +95,14 @@ def misclass_rate_feature(
 
 
 def show_misclass_rate_feature(
-    test_dataset, test_dataset_misclassifications, feature, bins=10
+    test_dataset, test_predictions, feature, bins=10
 ):
     """Displays the misclassification rate for the values of a certain feature. 
 
     Parameters:
-        test_dataset: Dataset with all the data points.
-        test_dataset_misclassifications: Dataset with only the misclassified 
-            points.
+        test_dataset: Dataset with the features of all data points, where the 
+            true class is at the last column.
+        test_predictions: List of the predicted classes for all data points.
         feature: Column name in the dataset of the feature.
         bins (int, list): 
             * If an integer, it divides the feature scale in regularly spaced 
@@ -112,7 +115,7 @@ def show_misclass_rate_feature(
             and including the outermost edges must be provided. 
     """
     misclass_rate_histogram = misclass_rate_feature(
-        test_dataset, test_dataset_misclassifications, feature, bins=bins
+        test_dataset, test_predictions, feature, bins=bins
     )
     width = [
         misclass_rate_histogram[0][index + 1] - misclass_rate_histogram[0][index]
@@ -136,15 +139,13 @@ def show_misclass_rate_feature(
     plt.show()
 
 
-def show_misclass_rates_features(
-    test_dataset, test_dataset_misclassifications, bins=10
-):
+def show_misclass_rates_features(test_dataset, test_predictions, bins=10):
     """Displays the misclassification rate for the values of each feature.
 
     Parameters:
-        test_dataset: Dataset with all the data points.
-        test_dataset_misclassifications: Dataset with only the misclassified 
-            points.
+        test_dataset: Dataset with the features of all data points, where the 
+            true class is at the last column.
+        test_predictions: List of the predicted classes for all data points.
         bins (int, list):
             * If an integer, it divides the feature scale in regularly spaced 
             bins (default value is 10).
@@ -161,12 +162,12 @@ def show_misclass_rates_features(
     # Computes position of bin edges for quartiles or deciles
     for feature in feature_list:
         show_misclass_rate_feature(
-            test_dataset, test_dataset_misclassifications, feature, bins=bins
+            test_dataset, test_predictions, feature, bins=bins
         )
 
 
-def compute_tiles(dataset, feature, tiles=4):
-    """Computes optimal feature values to obtain quartiles, deciles, n-tiles...
+def compute_quantiles(dataset, feature, quantiles=4):
+    """Computes optimal feature values to obtain n-quantiles.
     
     This function tries to determine the optimal feature value ranges in order  
     to obtain groups of data of similar sizes (i.e. with an equal amount of 
@@ -187,47 +188,38 @@ def compute_tiles(dataset, feature, tiles=4):
     Parameters:
         dataset (DataFrame): Data to try to chop in equal sets.
         feature: Column name in the dataset of the feature.
-        tiles (int): Number of equally-sized groups into which to try to divide 
-            the sample. For quartiles use 4, for deciles use 10, etc. Default 
-            value is 4.
+        quantiles (int): Number of equally-sized groups into which to try to 
+            divide the sample. For quartiles use 4, for deciles use 10, etc. 
+            Default value is 4.
     
     Returns:
         edge_values (list): List of the optimal edge positions.
     """
-    points_per_tile = int(len(dataset) / float(tiles))
-    ordered_dataset = dataset.sort_values(by=feature)
+    factor=(1./quantiles)
+    list_quantiles = [0.]
+    for tile in range(quantiles):
+        list_quantiles += [ factor*(1 + tile) ]
 
-    edge_values = [ordered_dataset[feature].min()]
-
-    for index in range(tiles - 1):
-        edge_values += [
-            ordered_dataset[feature][
-                index * points_per_tile : (index + 1) * points_per_tile - 1
-            ].max()
-        ]
-
-    edge_values += [ordered_dataset[feature].max()]
-
+    edge_values = np.quantile(dataset[feature], list_quantiles) 
     return edge_values
 
 
-def show_tiles_feature(dataset, feature, tiles=4):
-    """Plots the best attempt to obtain quartiles/deciles/n-tiles for a feature.
+def show_quantiles_feature(dataset, feature, quantiles=4):
+    """Plots the best attempt to obtain n-quantiles for a feature.
     
-    This function shows the different tiles computed for one of the features in 
-    order to assess whether the data that is being used really allows for that 
-    particular number of tiles to have a similar size or not.
+    This function shows the different quantiles computed for one of the features 
+    in order to assess whether the data that is being used really allows for 
+    that particular number of quantiles to have a similar size or not.
     
     Parameters:
         dataset (DataFrame): Data to try to chop in equal sets.
         feature: Column name in the dataset of the feature.
-        tiles (int): Number of equally-sized groups into which to try to divide 
-            the sample. For quartiles use 4, for deciles use 10, etc. Default 
-            value is 4. 
+        quantiles (int): Number of equally-sized groups into which to try to 
+            divide the sample. For quartiles use 4, for deciles use 10, etc. 
+            Default value is 4. 
     """
-    tiles_feature = compute_tiles(dataset, feature, tiles=tiles)
-    total_histogram = np.histogram(dataset[feature], bins=tiles_feature)
-
+    quantiles_feature = compute_quantiles(dataset, feature, quantiles=quantiles)
+    total_histogram = np.histogram(dataset[feature], bins=quantiles_feature)
     width = [
         total_histogram[1][index + 1] - total_histogram[1][index]
         for index in range(len(total_histogram[0]))
@@ -249,22 +241,22 @@ def show_tiles_feature(dataset, feature, tiles=4):
     plt.show()
 
 
-def show_tiles_features(test_dataset, tiles=4):
-    """Plots the best attempt to obtain quartiles/deciles/n-tiles for all features.
+def show_quantiles_features(test_dataset, quantiles=4):
+    """Plots the best attempt to obtain n quantiles for all features.
     
-    This function shows the different tiles computed for each one of the 
+    This function shows the different quantiles computed for each one of the 
     features in order to assess whether the data that is being used really 
-    allows for that particular number of tiles to have a similar size for that 
-    feature or not.
+    allows for that particular number of quantiles to have a similar size for  
+    that feature or not.
     
     Parameters:
         dataset (DataFrame): Data to try to chop in equal sets.
-        tiles (int): Number of equally-sized groups into which to try to divide 
-            the sample. For quartiles use 4, for deciles use 10, etc. Default 
-            value is 4. 
+        quantiles (int): Number of equally-sized groups into which to try to  
+            divide the sample. For quartiles use 4, for deciles use 10, etc. 
+            Default value is 4. 
     """
     # List of features
     feature_list = list(test_dataset.columns)[:-1]
 
     for feature in feature_list:
-        show_tiles_feature(test_dataset, feature, tiles=tiles)
+        show_quantiles_feature(test_dataset, feature, quantiles=quantiles)
