@@ -1,7 +1,6 @@
 import numpy as np
 
 
-
 def predictions_to_class(X_test, y_test, y_predicted, new_classes="hits-fails"):
     """Converts the data location on the confusion matrix into classes.
     

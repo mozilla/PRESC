@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-
 def misclass_rate_feature(
     test_dataset, test_dataset_misclassifications, feature, bins=10
 ):
@@ -269,4 +268,3 @@ def show_tiles_features(test_dataset, tiles=4):
 
     for feature in feature_list:
         show_tiles_feature(test_dataset, feature, tiles=tiles)
-

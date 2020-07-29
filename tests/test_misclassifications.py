@@ -2,8 +2,14 @@ import pandas as pd
 import pytest
 
 from presc.misclassifications.misclassification_visuals import predictions_to_class
-from presc.misclassifications.misclass_rate import (misclass_rate_feature, show_misclass_rate_feature, 
-show_misclass_rates_features, compute_tiles, show_tiles_feature, show_tiles_features)
+from presc.misclassifications.misclass_rate import (
+    misclass_rate_feature,
+    show_misclass_rate_feature,
+    show_misclass_rates_features,
+    compute_tiles,
+    show_tiles_feature,
+    show_tiles_features,
+)
 
 
 def test_predictions_to_class():
@@ -52,7 +58,8 @@ def dataset_predictions2class():
             "Feature 2": [1, 6, 8, 9],
             "Miss & Class": ["True", "False", "> Prediction hit", "True"],
         },
-        columns=["Feature 1", "Feature 2", "Miss & Class"], )
+        columns=["Feature 1", "Feature 2", "Miss & Class"],
+    )
     return dataset
 
 
@@ -69,12 +76,15 @@ def dataset_predictions2class_misclass():
     return dataset_misclass
 
 
-def test_misclass_rate_feature(dataset_predictions2class, 
-                               dataset_predictions2class_misclass ):
+def test_misclass_rate_feature(
+    dataset_predictions2class, dataset_predictions2class_misclass
+):
     bin_number = 2
     result = misclass_rate_feature(
-        dataset_predictions2class, dataset_predictions2class_misclass, 
-        feature="Feature 1", bins=bin_number
+        dataset_predictions2class,
+        dataset_predictions2class_misclass,
+        feature="Feature 1",
+        bins=bin_number,
     )
     assert len(result) == 3
     assert len(result[0]) == len(result[1]) + 1
@@ -84,26 +94,32 @@ def test_misclass_rate_feature(dataset_predictions2class,
     assert min(result[1]) >= 0.0
 
 
-def test_show_misclass_rate_feature(dataset_predictions2class, 
-                                    dataset_predictions2class_misclass ):
-    show_misclass_rate_feature(dataset_predictions2class, 
-                               dataset_predictions2class_misclass, "Feature 2")
+def test_show_misclass_rate_feature(
+    dataset_predictions2class, dataset_predictions2class_misclass
+):
+    show_misclass_rate_feature(
+        dataset_predictions2class, dataset_predictions2class_misclass, "Feature 2"
+    )
 
 
-def test_show_misclass_rates_features(dataset_predictions2class, 
-                                      dataset_predictions2class_misclass ):
-    show_misclass_rates_features(dataset_predictions2class, 
-                                 dataset_predictions2class_misclass )
+def test_show_misclass_rates_features(
+    dataset_predictions2class, dataset_predictions2class_misclass
+):
+    show_misclass_rates_features(
+        dataset_predictions2class, dataset_predictions2class_misclass
+    )
 
 
 @pytest.fixture
 def dataset2_predictions2class():
-    dataset = pd.DataFrame({"Feature 1": [1, 2.5, 3.5, 5],
-                            "Feature 2": [1, 6, 8, 9],
-                            "Miss & Class": ["True", "False", "> Prediction hit", "True"],
-                            },
-                            columns=["Feature 1", "Feature 2", "Miss & Class"],
-                            )
+    dataset = pd.DataFrame(
+        {
+            "Feature 1": [1, 2.5, 3.5, 5],
+            "Feature 2": [1, 6, 8, 9],
+            "Miss & Class": ["True", "False", "> Prediction hit", "True"],
+        },
+        columns=["Feature 1", "Feature 2", "Miss & Class"],
+    )
     return dataset
 
 
@@ -111,8 +127,9 @@ def test_compute_tiles(dataset2_predictions2class):
     selected_feature = "Feature 1"
     tile_number = 2
 
-    edges_bins = compute_tiles(dataset2_predictions2class, 
-                               feature=selected_feature, tiles=tile_number)
+    edges_bins = compute_tiles(
+        dataset2_predictions2class, feature=selected_feature, tiles=tile_number
+    )
 
     assert edges_bins[0] == min(dataset2_predictions2class[selected_feature])
     assert edges_bins[-1] == max(dataset2_predictions2class[selected_feature])
