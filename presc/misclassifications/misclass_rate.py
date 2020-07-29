@@ -112,12 +112,6 @@ def show_misclass_rate_feature(
             feature values corresponding to the positions separating the bins 
             and including the outermost edges must be provided. 
     """
-    # Computes position of bin edges for quartiles or deciles
-    if bins == "quartiles":
-        bins = compute_tiles(test_dataset, feature, tiles=4)
-    elif bins == "deciles":
-        bins = compute_tiles(test_dataset, feature, tiles=10)
-
     misclass_rate_histogram = misclass_rate_feature(
         test_dataset, test_dataset_misclassifications, feature, bins=bins
     )
@@ -167,15 +161,8 @@ def show_misclass_rates_features(
 
     # Computes position of bin edges for quartiles or deciles
     for feature in feature_list:
-        if bins == "quartiles":
-            bins_feature = compute_tiles(test_dataset, feature, tiles=4)
-        elif bins == "deciles":
-            bins_feature = compute_tiles(test_dataset, feature, tiles=10)
-        else:
-            bins_feature = bins
-
         show_misclass_rate_feature(
-            test_dataset, test_dataset_misclassifications, feature, bins=bins_feature
+            test_dataset, test_dataset_misclassifications, feature, bins=bins
         )
 
 
@@ -281,19 +268,5 @@ def show_tiles_features(test_dataset, tiles=4):
     feature_list = list(test_dataset.columns)[:-1]
 
     for feature in feature_list:
-        if tiles == "quartiles":
-            tiles_feature = 4
-        elif tiles == "deciles":
-            tiles_feature = 10
-        else:
-            tiles_feature = tiles
+        show_tiles_feature(test_dataset, feature, tiles=tiles)
 
-        show_tiles_feature(test_dataset, feature, tiles=tiles_feature)
-
-
-def main():
-    pass
-
-
-if __name__ == "__main__":
-    main()
