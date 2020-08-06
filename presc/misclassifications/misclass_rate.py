@@ -207,10 +207,7 @@ def compute_quantiles(dataset, feature, quantiles=4):
     Returns:
         edge_values (list): List of the optimal edge positions.
     """
-    factor = 1.0 / quantiles
-    list_quantiles = [0.0]
-    for tile in range(quantiles):
-        list_quantiles += [factor * (1 + tile)]
+    list_quantiles = np.arange(quantiles + 1) / quantiles
 
     edge_values = np.quantile(dataset[feature], list_quantiles)
     return edge_values
