@@ -70,15 +70,49 @@ def test1_misclass_rate_feature(
 
 # This decorator lists de combination of parameters to be tested.
 @pytest.mark.parametrize(
-    "feature_scenario, bins_scenario, bins_type_scenario, "
+    "feature_scenario, "
+    "categorical_scenario, bins_scenario, bins_type_scenario, "
     "result_edges_scenario, result_rate_scenario, result_sd_scenario",
     [
-        ("Feature 1", 2, "regular", [1.0, 3.0, 5.0], [1.0, 0.5], [1.414, 0.8535]),
-        ("Feature 1", 2, "quantiles", [1.0, 3.0, 5.0], [1.0, 0.5], [1.414, 0.8535]),
-        ("Feature 2", 2, "regular", [1.0, 5.0, 9.0], [1.0, 0.6666], [2.0, 0.8563]),
-        ("Feature 2", 2, "quantiles", [1.0, 7.0, 9.0], [1.0, 0.5], [1.414, 0.8536]),
         (
             "Feature 1",
+            False,
+            2,
+            "regular",
+            [1.0, 3.0, 5.0],
+            [1.0, 0.5],
+            [1.414, 0.8535],
+        ),
+        (
+            "Feature 1",
+            False,
+            2,
+            "quantiles",
+            [1.0, 3.0, 5.0],
+            [1.0, 0.5],
+            [1.414, 0.8535],
+        ),
+        (
+            "Feature 2",
+            False,
+            2,
+            "regular",
+            [1.0, 5.0, 9.0],
+            [1.0, 0.6666],
+            [2.0, 0.8563],
+        ),
+        (
+            "Feature 2",
+            False,
+            2,
+            "quantiles",
+            [1.0, 7.0, 9.0],
+            [1.0, 0.5],
+            [1.414, 0.8536],
+        ),
+        (
+            "Feature 1",
+            False,
             [0.0, 4.0, 10.0],
             "regular",
             [0.0, 4.0, 10.0],
@@ -87,6 +121,7 @@ def test1_misclass_rate_feature(
         ),
         (
             "Feature 2",
+            False,
             [0.0, 4.0, 10.0],
             "regular",
             [0.0, 4.0, 10.0],
@@ -95,6 +130,7 @@ def test1_misclass_rate_feature(
         ),
         (
             "Feature 1",
+            False,
             "quartiles",
             "regular",
             [1.0, 2.125, 3.0, 3.875, 5.0],
@@ -103,6 +139,7 @@ def test1_misclass_rate_feature(
         ),
         (
             "Feature 2",
+            False,
             "quartiles",
             "regular",
             [1.0, 4.75, 7.0, 8.25, 9.0],
@@ -115,6 +152,7 @@ def test2_misclass_rate_feature(
     dataset,
     dataset_predictions,
     feature_scenario,
+    categorical_scenario,
     bins_scenario,
     bins_type_scenario,
     result_edges_scenario,
@@ -127,6 +165,7 @@ def test2_misclass_rate_feature(
         dataset,
         dataset_predictions,
         feature_scenario,
+        categorical=categorical_scenario,
         bins=bins_scenario,
         bins_type=bins_type_scenario,
     )
@@ -141,6 +180,54 @@ def test2_misclass_rate_feature(
     np.testing.assert_allclose(
         result_edges, result_edges_scenario, rtol=1e-03, equal_nan=True
     )
+    np.testing.assert_allclose(
+        result_rate, result_rate_scenario, rtol=1e-03, equal_nan=True
+    )
+    np.testing.assert_allclose(
+        result_sd, result_sd_scenario, rtol=1e-03, equal_nan=True
+    )
+
+
+@pytest.fixture
+def dataset_categorical():
+    dataset = pd.DataFrame(
+        {
+            "Feature 1": ["red", "blue", "green", "blue", "blue"],
+            "Feature 2": [1.0, 6.0, 8.0, 9.0, 2.0],
+            "Class": ["True", "True", "True", "False", "False"],
+        },
+        columns=["Feature 1", "Feature 2", "Class"],
+    )
+    return dataset
+
+
+@pytest.fixture
+def dataset_predictions_categorical():
+    dataset_predictions = ["False", "False", "True", "False", "True"]
+    return dataset_predictions
+
+
+def test3_misclass_rate_feature(dataset_categorical, dataset_predictions_categorical):
+    """Checks for assertions that should be true for specific parameter combinations."""
+
+    result_edges, result_rate, result_sd = misclass_rate_feature(
+        dataset_categorical,
+        dataset_predictions_categorical,
+        feature="Feature 1",
+        categorical=True,
+    )
+    result_edges_scenario = ["blue", "green", "red"]
+    result_rate_scenario = [0.6667, 0.0, 1.0]
+    result_sd_scenario = [0.8563, float("nan"), 2.0]
+
+    # All results should have the expected number of elements
+    assert len(result_edges) == len(result_edges_scenario)
+    assert len(result_rate) == len(result_rate_scenario)
+    assert len(result_sd) == len(result_sd_scenario)
+
+    # All the elements of the three results should agree with the written values
+    # up to 0,1% (10^-3).
+    np.testing.assert_array_equal(result_edges, result_edges_scenario)
     np.testing.assert_allclose(
         result_rate, result_rate_scenario, rtol=1e-03, equal_nan=True
     )

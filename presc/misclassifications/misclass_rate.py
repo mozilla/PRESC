@@ -3,7 +3,12 @@ import matplotlib.pyplot as plt
 
 
 def misclass_rate_feature(
-    test_dataset, test_predictions, feature, bins=10, bins_type="regular"
+    test_dataset,
+    test_predictions,
+    feature,
+    categorical=False,
+    bins=10,
+    bins_type="regular",
 ):
     """Computes the misclassification rate as a function of the feature values.
     
@@ -28,6 +33,8 @@ def misclass_rate_feature(
             true class is at the last column.
         test_predictions: List of the predicted classes for all data points.
         feature: Column name in the dataset of the feature.
+        categorical (bool): Indicates whether it is a categorical feature.
+            Default is "False".
         bins (int, list, str): 
             * If an integer, this indicates the number of bins (default value is
             10). Whether this corresponds to dividing the feature scale in 
@@ -50,22 +57,42 @@ def misclass_rate_feature(
             2) The misclassification rate in each bin.
             3) The standard deviation of the misclassification rate in that bin.
     """
-    # Computes position of bin edges for quartiles or deciles
-    if bins == "quartiles":
-        bins = compute_quantiles(test_dataset, feature, quantiles=4)
-    elif bins == "deciles":
-        bins = compute_quantiles(test_dataset, feature, quantiles=10)
-    elif type(bins) == int and bins_type == "quantiles":
-        bins = compute_quantiles(test_dataset, feature, quantiles=bins)
-
-    # Histogram of all points
-    total_histogram_counts, bins = np.histogram(test_dataset[feature], bins)
-
     # Builds dataset with only the misclassified data points
     test_dataset_misclass = test_dataset[test_dataset.iloc[:, -1] != test_predictions]
 
-    # Histogram of misclassified points
-    misclass_histogram_counts, bins = np.histogram(test_dataset_misclass[feature], bins)
+    if categorical == False:
+
+        # Computes position of bin edges for quartiles or deciles
+        if bins == "quartiles":
+            bins = compute_quantiles(test_dataset, feature, quantiles=4)
+        elif bins == "deciles":
+            bins = compute_quantiles(test_dataset, feature, quantiles=10)
+        elif type(bins) == int and bins_type == "quantiles":
+            bins = compute_quantiles(test_dataset, feature, quantiles=bins)
+
+        # Histogram of all points
+        total_histogram_counts, bins = np.histogram(test_dataset[feature], bins)
+
+        # Histogram of misclassified points
+        misclass_histogram_counts, bins = np.histogram(
+            test_dataset_misclass[feature], bins
+        )
+
+    else:
+        # Histogram of all points for categorical features
+        total_histogram_counts = test_dataset[feature].value_counts().sort_index()
+
+        # Histogram of misclassified points for categorical features
+        correct_class_histogram_counts = test_dataset[
+            test_dataset.iloc[:, -1] == test_predictions
+        ]
+        misclass_histogram_counts = total_histogram_counts.subtract(
+            correct_class_histogram_counts[feature].value_counts(), fill_value=0
+        )
+
+        bins = np.asarray(misclass_histogram_counts.index)
+        misclass_histogram_counts = np.asarray(misclass_histogram_counts)
+        total_histogram_counts = np.asarray(total_histogram_counts)
 
     # Compute misclassification rate
 
@@ -104,6 +131,7 @@ def show_misclass_rate_feature(
     test_dataset,
     test_predictions,
     feature,
+    categorical=False,
     bins=10,
     bins_type="regular",
     width_fraction=1.0,
@@ -116,6 +144,8 @@ def show_misclass_rate_feature(
             true class is at the last column.
         test_predictions: List of the predicted classes for all data points.
         feature: Column name in the dataset of the feature.
+        categorical (bool): Indicates whether it is a categorical feature.
+            Default is "False".
         bins (int, list): 
             * If an integer, this indicates the number of bins (default value is
             10). Whether this corresponds to dividing the feature scale in 
@@ -136,31 +166,41 @@ def show_misclass_rate_feature(
             Default is "False".
     """
     result_edges, result_rate, result_sd = misclass_rate_feature(
-        test_dataset, test_predictions, feature, bins=bins
+        test_dataset, test_predictions, feature, categorical=categorical, bins=bins
     )
-    width = np.diff(result_edges)
-    width_interval = [bin * width_fraction for bin in width]
+    if categorical == False:
+        width = np.diff(result_edges)
+        width_interval = [bin * width_fraction for bin in width]
+        result_edges = result_edges[:-1]
+        alignment = "edge"
+    else:
+        result_edges = [str(item) for item in result_edges]
+        alignment = "center"
+        width_interval = 1
+
     plt.ylim(0, 1)
     plt.xlabel(feature)
     plt.ylabel("Misclassification rate")
     if show_sd == True:
         plt.bar(
-            result_edges[:-1],
+            result_edges,
+            #            result_edges[:-1],
             result_rate,
             yerr=result_sd,
             width=width_interval,
             bottom=None,
-            align="edge",
+            align=alignment,
             edgecolor="white",
             linewidth=2,
         )
     else:
         plt.bar(
-            result_edges[:-1],
+            result_edges,
+            #            result_edges[:-1],
             result_rate,
             width=width_interval,
             bottom=None,
-            align="edge",
+            align=alignment,
             edgecolor="white",
             linewidth=2,
         )
@@ -194,7 +234,7 @@ def show_misclass_rates_features(
     # Computes position of bin edges for quartiles or deciles
     for feature in feature_list:
         show_misclass_rate_feature(
-            test_dataset, test_predictions, feature, bins=bins, show_sd=False
+            test_dataset, test_predictions, feature, bins=bins, show_sd=show_sd
         )
 
 
