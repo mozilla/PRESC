@@ -107,6 +107,7 @@ def show_misclass_rate_feature(
     bins=10,
     bins_type="regular",
     width_fraction=1.0,
+    show_sd=False,
 ):
     """Displays the misclassification rate for the values of a certain feature. 
 
@@ -131,6 +132,8 @@ def show_misclass_rate_feature(
             be "regular" evenly spaced bins or "quantiles". Default value is 
             "regular".
         width_fraction (float): Fraction of the bin occupied by the bar.
+        show_sd (bool): Whether the graph should display the standard deviation.
+            Default is "False".
     """
     result_edges, result_rate, result_sd = misclass_rate_feature(
         test_dataset, test_predictions, feature, bins=bins
@@ -140,20 +143,33 @@ def show_misclass_rate_feature(
     plt.ylim(0, 1)
     plt.xlabel(feature)
     plt.ylabel("Misclassification rate")
-    plt.bar(
-        result_edges[:-1],
-        result_rate,
-        yerr=result_sd,
-        width=width_interval,
-        bottom=None,
-        align="edge",
-        edgecolor="white",
-        linewidth=2,
-    )
+    if show_sd == True:
+        plt.bar(
+            result_edges[:-1],
+            result_rate,
+            yerr=result_sd,
+            width=width_interval,
+            bottom=None,
+            align="edge",
+            edgecolor="white",
+            linewidth=2,
+        )
+    else:
+        plt.bar(
+            result_edges[:-1],
+            result_rate,
+            width=width_interval,
+            bottom=None,
+            align="edge",
+            edgecolor="white",
+            linewidth=2,
+        )
     plt.show(block=False)
 
 
-def show_misclass_rates_features(test_dataset, test_predictions, bins=10):
+def show_misclass_rates_features(
+    test_dataset, test_predictions, bins=10, show_sd=False
+):
     """Displays the misclassification rate for the values of each feature.
 
     Parameters:
@@ -169,13 +185,17 @@ def show_misclass_rates_features(test_dataset, test_predictions, bins=10):
             * If any other feature intervals are needed, then a list of the 
             feature values corresponding to the positions separating the bins 
             and including the outermost edges must be provided.    
+        show_sd (bool): Whether the graph should display the standard deviation.
+            Default is "False".
     """
     # List of features
     feature_list = list(test_dataset.columns)[:-1]
 
     # Computes position of bin edges for quartiles or deciles
     for feature in feature_list:
-        show_misclass_rate_feature(test_dataset, test_predictions, feature, bins=bins)
+        show_misclass_rate_feature(
+            test_dataset, test_predictions, feature, bins=bins, show_sd=False
+        )
 
 
 def compute_quantiles(dataset, feature, quantiles=4):
