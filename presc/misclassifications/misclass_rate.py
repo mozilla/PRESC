@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 def misclass_rate_feature(
-    test_dataset, test_predictions, feature, bins=10
+    test_dataset, test_predictions, feature, bins=10, bins_type="regular"
 ):
     """Computes the misclassification rate as a function of the feature values.
     
@@ -29,17 +29,23 @@ def misclass_rate_feature(
         test_predictions: List of the predicted classes for all data points.
         feature: Column name in the dataset of the feature.
         bins (int, list, str): 
-            * If an integer, it divides the feature scale in regularly spaced 
-            bins (default value is 10).
-            * If the string "quartile" is used, then it automatically computes  
-            the appropriate bin edge postions to optimize for a quartile 
-            grouping. 
+            * If an integer, this indicates the number of bins (default value is
+            10). Whether this corresponds to dividing the feature scale in 
+            regularly spaced bins (default) or into quantiles, it must be 
+            specified in the parameter "bins_type".
+            * If the string "quartiles" or "deciles" is used, then it 
+            automatically computes the appropriate bin edge postions to optimize 
+            for a quartile or decile grouping. 
             * If any other feature intervals are needed, then a list of the 
             feature values corresponding to the positions separating the bins 
             and including the outermost edges must be provided. 
+        bins_type (str): If the bins parameter is an integer with the number 
+            of bins, this parameter allows to specify whether these bins should
+            be "regular" evenly spaced bins or "quantiles". Default value is 
+            "regular".
 
     Returns:
-        A list with three elements which correspond to:
+        Three elements which correspond to:
             1) The edges of the bins in the feature scale.
             2) The misclassification rate in each bin.
             3) The standard deviation of the misclassification rate in that bin.
@@ -49,17 +55,17 @@ def misclass_rate_feature(
         bins = compute_quantiles(test_dataset, feature, quantiles=4)
     elif bins == "deciles":
         bins = compute_quantiles(test_dataset, feature, quantiles=10)
+    elif type(bins) == int and bins_type == "quantiles":
+        bins = compute_quantiles(test_dataset, feature, quantiles=bins)
 
     # Histogram of all points
-    total_histogram = np.histogram(test_dataset[feature], bins)
+    total_histogram_counts, bins = np.histogram(test_dataset[feature], bins)
 
     # Builds dataset with only the misclassified data points
-    test_dataset_misclass = test_dataset[ test_dataset.iloc[:,-1] != test_predictions ]
+    test_dataset_misclass = test_dataset[test_dataset.iloc[:, -1] != test_predictions]
 
     # Histogram of misclassified points
-    misclass_histogram = np.histogram(
-        test_dataset_misclass[feature], total_histogram[1], bins
-    )
+    misclass_histogram_counts, bins = np.histogram(test_dataset_misclass[feature], bins)
 
     # Compute misclassification rate
 
@@ -68,20 +74,20 @@ def misclass_rate_feature(
     # ErrorX = X(ErrorM/M + ErrorN/N),
     # here, Error_rate = rate*(M^(-1/2)+N^(-1/2))
 
-    misclass_rate_histogram = np.copy(misclass_histogram)
+    misclass_rate_histogram = np.copy(misclass_histogram_counts)
 
     rate = []
     standard_deviation = []
-    for index in range(len(total_histogram[0])):
-        if total_histogram[0][index] != 0:
-            index_rate = misclass_rate_histogram[0][index] / total_histogram[0][index]
+    for index in range(len(total_histogram_counts)):
+        if total_histogram_counts[index] != 0:
+            index_rate = misclass_rate_histogram[index] / total_histogram_counts[index]
             rate += [index_rate]
-            if misclass_rate_histogram[0][index] != 0:
+            if misclass_rate_histogram[index] != 0:
                 standard_deviation += [
                     index_rate
                     * (
-                        total_histogram[0][index] ** (-1.0 / 2)
-                        + misclass_rate_histogram[0][index] ** (-1.0 / 2)
+                        total_histogram_counts[index] ** (-1.0 / 2)
+                        + misclass_rate_histogram[index] ** (-1.0 / 2)
                     )
                 ]
             else:
@@ -89,13 +95,18 @@ def misclass_rate_feature(
         else:
             rate += [float("nan")]
             standard_deviation += [float("nan")]
-    misclass_rate_histogram[0] = rate
+    misclass_rate_histogram = rate
 
-    return [misclass_rate_histogram[1], misclass_rate_histogram[0], standard_deviation]
+    return bins, misclass_rate_histogram, standard_deviation
 
 
 def show_misclass_rate_feature(
-    test_dataset, test_predictions, feature, bins=10
+    test_dataset,
+    test_predictions,
+    feature,
+    bins=10,
+    bins_type="regular",
+    width_fraction=1.0,
 ):
     """Displays the misclassification rate for the values of a certain feature. 
 
@@ -105,38 +116,41 @@ def show_misclass_rate_feature(
         test_predictions: List of the predicted classes for all data points.
         feature: Column name in the dataset of the feature.
         bins (int, list): 
-            * If an integer, it divides the feature scale in regularly spaced 
-            bins (default value is 10).
+            * If an integer, this indicates the number of bins (default value is
+            10). Whether this corresponds to dividing the feature scale in 
+            regularly spaced bins (default) or into quantiles, it must be 
+            specified in the parameter "bins_type".
             * If the string "quartiles" or "deciles" is used, then it 
             automatically computes the appropriate bin edge postions to optimize 
-            for a quartile grouping. 
+            for a quartile or decile grouping. 
             * If any other feature intervals are needed, then a list of the 
             feature values corresponding to the positions separating the bins 
             and including the outermost edges must be provided. 
+        bins_type (str): If the bins parameter is an integer with the number 
+            of bins, this parameter allows to specify whether these bins should
+            be "regular" evenly spaced bins or "quantiles". Default value is 
+            "regular".
+        width_fraction (float): Fraction of the bin occupied by the bar.
     """
-    misclass_rate_histogram = misclass_rate_feature(
+    result_edges, result_rate, result_sd = misclass_rate_feature(
         test_dataset, test_predictions, feature, bins=bins
     )
-    width = [
-        misclass_rate_histogram[0][index + 1] - misclass_rate_histogram[0][index]
-        for index in range(len(misclass_rate_histogram[1]))
-    ]
-    width_percentage = 1
-    width_interval = [bin * width_percentage for bin in width]
+    width = np.diff(result_edges)
+    width_interval = [bin * width_fraction for bin in width]
     plt.ylim(0, 1)
     plt.xlabel(feature)
     plt.ylabel("Misclassification rate")
     plt.bar(
-        misclass_rate_histogram[0][:-1],
-        misclass_rate_histogram[1],
-        yerr=misclass_rate_histogram[2],
+        result_edges[:-1],
+        result_rate,
+        yerr=result_sd,
         width=width_interval,
         bottom=None,
         align="edge",
         edgecolor="white",
         linewidth=2,
     )
-    plt.show()
+    plt.show(block=False)
 
 
 def show_misclass_rates_features(test_dataset, test_predictions, bins=10):
@@ -161,9 +175,7 @@ def show_misclass_rates_features(test_dataset, test_predictions, bins=10):
 
     # Computes position of bin edges for quartiles or deciles
     for feature in feature_list:
-        show_misclass_rate_feature(
-            test_dataset, test_predictions, feature, bins=bins
-        )
+        show_misclass_rate_feature(test_dataset, test_predictions, feature, bins=bins)
 
 
 def compute_quantiles(dataset, feature, quantiles=4):
@@ -195,16 +207,16 @@ def compute_quantiles(dataset, feature, quantiles=4):
     Returns:
         edge_values (list): List of the optimal edge positions.
     """
-    factor=(1./quantiles)
-    list_quantiles = [0.]
+    factor = 1.0 / quantiles
+    list_quantiles = [0.0]
     for tile in range(quantiles):
-        list_quantiles += [ factor*(1 + tile) ]
+        list_quantiles += [factor * (1 + tile)]
 
-    edge_values = np.quantile(dataset[feature], list_quantiles) 
+    edge_values = np.quantile(dataset[feature], list_quantiles)
     return edge_values
 
 
-def show_quantiles_feature(dataset, feature, quantiles=4):
+def show_quantiles_feature(dataset, feature, quantiles=4, width_fraction=1.0):
     """Plots the best attempt to obtain n-quantiles for a feature.
     
     This function shows the different quantiles computed for one of the features 
@@ -217,6 +229,7 @@ def show_quantiles_feature(dataset, feature, quantiles=4):
         quantiles (int): Number of equally-sized groups into which to try to 
             divide the sample. For quartiles use 4, for deciles use 10, etc. 
             Default value is 4. 
+        width_fraction (float): Fraction of the bin occupied by the bar. 
     """
     quantiles_feature = compute_quantiles(dataset, feature, quantiles=quantiles)
     total_histogram = np.histogram(dataset[feature], bins=quantiles_feature)
@@ -224,8 +237,7 @@ def show_quantiles_feature(dataset, feature, quantiles=4):
         total_histogram[1][index + 1] - total_histogram[1][index]
         for index in range(len(total_histogram[0]))
     ]
-    width_percentage = 1
-    width_interval = [bin * width_percentage for bin in width]
+    width_interval = [bin * width_fraction for bin in width]
 
     plt.xlabel(feature)
     plt.ylabel("counts")
@@ -238,10 +250,10 @@ def show_quantiles_feature(dataset, feature, quantiles=4):
         edgecolor="white",
         linewidth=3,
     )
-    plt.show()
+    plt.show(block=False)
 
 
-def show_quantiles_features(test_dataset, quantiles=4):
+def show_quantiles_features(test_dataset, quantiles=4, width_fraction=1.0):
     """Plots the best attempt to obtain n quantiles for all features.
     
     This function shows the different quantiles computed for each one of the 
@@ -259,4 +271,6 @@ def show_quantiles_features(test_dataset, quantiles=4):
     feature_list = list(test_dataset.columns)[:-1]
 
     for feature in feature_list:
-        show_quantiles_feature(test_dataset, feature, quantiles=quantiles)
+        show_quantiles_feature(
+            test_dataset, feature, quantiles=quantiles, width_fraction=width_fraction
+        )
