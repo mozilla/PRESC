@@ -11,44 +11,44 @@ def misclass_rate_feature(
     bins_type="regular",
 ):
     """Computes the misclassification rate as a function of the feature values.
-    
+
     This function allows to compute the misclassification rate of a sample for
-    the values of any particular feature. 
-    
+    the values of any particular feature.
+
     The function allows any binning for this calculation, which means that
     regularly spaced binnings, disparately spaced binnings that correspond to
-    sets of an equal amount of data points (such as quartiles, deciles, or 
+    sets of an equal amount of data points (such as quartiles, deciles, or
     n-quantiles), or any other arbitrary irregular binning can be used.
-    
-    When the full dataset with all points does not have any data point in an 
-    interval corresponding to a certain bin, the function yields a "nan" value 
-    for the misclassification rate to prevent a zero division error and also to 
-    distinguish the bins without information from the bins with a zero 
+
+    When the full dataset with all points does not have any data point in an
+    interval corresponding to a certain bin, the function yields a "nan" value
+    for the misclassification rate to prevent a zero division error and also to
+    distinguish the bins without information from the bins with a zero
     misclassification rate. The same happens with the standard deviation when
-    either the full dataset with all points or the dataset with only the 
-    misclassified points do not have any data point in a certain bin interval.  
-    
+    either the full dataset with all points or the dataset with only the
+    misclassified points do not have any data point in a certain bin interval.
+
     Parameters:
-        test_dataset: Dataset with the features of all data points, where the 
+        test_dataset: Dataset with the features of all data points, where the
             true class is at the last column.
         test_predictions: List of the predicted classes for all data points.
         feature: Column name in the dataset of the feature.
         categorical (bool): Indicates whether it is a categorical feature.
             Default is "False".
-        bins (int, list, str): 
+        bins (int, list, str):
             * If an integer, this indicates the number of bins (default value is
-            10). Whether this corresponds to dividing the feature scale in 
-            regularly spaced bins (default) or into quantiles, it must be 
+            10). Whether this corresponds to dividing the feature scale in
+            regularly spaced bins (default) or into quantiles, it must be
             specified in the parameter "bins_type".
-            * If the string "quartiles" or "deciles" is used, then it 
-            automatically computes the appropriate bin edge postions to optimize 
-            for a quartile or decile grouping. 
-            * If any other feature intervals are needed, then a list of the 
-            feature values corresponding to the positions separating the bins 
-            and including the outermost edges must be provided. 
-        bins_type (str): If the bins parameter is an integer with the number 
+            * If the string "quartiles" or "deciles" is used, then it
+            automatically computes the appropriate bin edge postions to optimize
+            for a quartile or decile grouping.
+            * If any other feature intervals are needed, then a list of the
+            feature values corresponding to the positions separating the bins
+            and including the outermost edges must be provided.
+        bins_type (str): If the bins parameter is an integer with the number
             of bins, this parameter allows to specify whether these bins should
-            be "regular" evenly spaced bins or "quantiles". Default value is 
+            be "regular" evenly spaced bins or "quantiles". Default value is
             "regular".
 
     Returns:
@@ -60,7 +60,7 @@ def misclass_rate_feature(
     # Builds dataset with only the misclassified data points
     test_dataset_misclass = test_dataset[test_dataset.iloc[:, -1] != test_predictions]
 
-    if categorical == False:
+    if categorical is False:
 
         # Computes position of bin edges for quartiles or deciles
         if bins == "quartiles":
@@ -137,29 +137,29 @@ def show_misclass_rate_feature(
     width_fraction=1.0,
     show_sd=False,
 ):
-    """Displays the misclassification rate for the values of a certain feature. 
+    """Displays the misclassification rate for the values of a certain feature.
 
     Parameters:
-        test_dataset: Dataset with the features of all data points, where the 
+        test_dataset: Dataset with the features of all data points, where the
             true class is at the last column.
         test_predictions: List of the predicted classes for all data points.
         feature: Column name in the dataset of the feature.
         categorical (bool): Indicates whether it is a categorical feature.
             Default is "False".
-        bins (int, list): 
+        bins (int, list):
             * If an integer, this indicates the number of bins (default value is
-            10). Whether this corresponds to dividing the feature scale in 
-            regularly spaced bins (default) or into quantiles, it must be 
+            10). Whether this corresponds to dividing the feature scale in
+            regularly spaced bins (default) or into quantiles, it must be
             specified in the parameter "bins_type".
-            * If the string "quartiles" or "deciles" is used, then it 
-            automatically computes the appropriate bin edge postions to optimize 
-            for a quartile or decile grouping. 
-            * If any other feature intervals are needed, then a list of the 
-            feature values corresponding to the positions separating the bins 
-            and including the outermost edges must be provided. 
-        bins_type (str): If the bins parameter is an integer with the number 
+            * If the string "quartiles" or "deciles" is used, then it
+            automatically computes the appropriate bin edge postions to optimize
+            for a quartile or decile grouping.
+            * If any other feature intervals are needed, then a list of the
+            feature values corresponding to the positions separating the bins
+            and including the outermost edges must be provided.
+        bins_type (str): If the bins parameter is an integer with the number
             of bins, this parameter allows to specify whether these bins should
-            be "regular" evenly spaced bins or "quantiles". Default value is 
+            be "regular" evenly spaced bins or "quantiles". Default value is
             "regular".
         width_fraction (float): Fraction of the bin occupied by the bar.
         show_sd (bool): Whether the graph should display the standard deviation.
@@ -168,7 +168,7 @@ def show_misclass_rate_feature(
     result_edges, result_rate, result_sd = misclass_rate_feature(
         test_dataset, test_predictions, feature, categorical=categorical, bins=bins
     )
-    if categorical == False:
+    if categorical is False:
         width = np.diff(result_edges)
         width_interval = [bin * width_fraction for bin in width]
         result_edges = result_edges[:-1]
@@ -181,10 +181,9 @@ def show_misclass_rate_feature(
     plt.ylim(0, 1)
     plt.xlabel(feature)
     plt.ylabel("Misclassification rate")
-    if show_sd == True:
+    if show_sd:
         plt.bar(
             result_edges,
-            #            result_edges[:-1],
             result_rate,
             yerr=result_sd,
             width=width_interval,
@@ -196,7 +195,6 @@ def show_misclass_rate_feature(
     else:
         plt.bar(
             result_edges,
-            #            result_edges[:-1],
             result_rate,
             width=width_interval,
             bottom=None,
@@ -213,18 +211,18 @@ def show_misclass_rates_features(
     """Displays the misclassification rate for the values of each feature.
 
     Parameters:
-        test_dataset: Dataset with the features of all data points, where the 
+        test_dataset: Dataset with the features of all data points, where the
             true class is at the last column.
         test_predictions: List of the predicted classes for all data points.
         bins (int, list):
-            * If an integer, it divides the feature scale in regularly spaced 
+            * If an integer, it divides the feature scale in regularly spaced
             bins (default value is 10).
-            * If the string "quartile" is used, then it automatically computes  
-            the appropriate bin edge postions to optimize for a quartile 
-            grouping. 
-            * If any other feature intervals are needed, then a list of the 
-            feature values corresponding to the positions separating the bins 
-            and including the outermost edges must be provided.    
+            * If the string "quartile" is used, then it automatically computes
+            the appropriate bin edge postions to optimize for a quartile
+            grouping.
+            * If any other feature intervals are needed, then a list of the
+            feature values corresponding to the positions separating the bins
+            and including the outermost edges must be provided.
         show_sd (bool): Whether the graph should display the standard deviation.
             Default is "False".
     """
@@ -240,30 +238,30 @@ def show_misclass_rates_features(
 
 def compute_quantiles(dataset, feature, quantiles=4):
     """Computes optimal feature values to obtain n-quantiles.
-    
-    This function tries to determine the optimal feature value ranges in order  
-    to obtain groups of data of similar sizes (i.e. with an equal amount of 
+
+    This function tries to determine the optimal feature value ranges in order
+    to obtain groups of data of similar sizes (i.e. with an equal amount of
     samples), despite corresponding to feature intervals of different sizes.
-    
-    Very often this is not strictly possible. In particular, when the precision 
+
+    Very often this is not strictly possible. In particular, when the precision
     of the feature is small and many data points share the same feature values
-    (i.e. the feature behaves as pseudo-discrete). In this case, these large 
-    subsets of data points sharing the same value either get all counted in one 
-    bin or they get all counted in another. Which makes it impossible to 
+    (i.e. the feature behaves as pseudo-discrete). In this case, these large
+    subsets of data points sharing the same value either get all counted in one
+    bin or they get all counted in another. Which makes it impossible to
     perfectly equilibrate the different groups.
-    
-    To arbitrarily split between two contiguous bins a subset of data points 
-    with the same feature value is not acceptable if different histograms and 
+
+    To arbitrarily split between two contiguous bins a subset of data points
+    with the same feature value is not acceptable if different histograms and
     distributions have to be compared, or if normalization or other operations
     among them have to be carried out.
-    
+
     Parameters:
         dataset (DataFrame): Data to try to chop in equal sets.
         feature: Column name in the dataset of the feature.
-        quantiles (int): Number of equally-sized groups into which to try to 
-            divide the sample. For quartiles use 4, for deciles use 10, etc. 
+        quantiles (int): Number of equally-sized groups into which to try to
+            divide the sample. For quartiles use 4, for deciles use 10, etc.
             Default value is 4.
-    
+
     Returns:
         edge_values (list): List of the optimal edge positions.
     """
@@ -275,18 +273,18 @@ def compute_quantiles(dataset, feature, quantiles=4):
 
 def show_quantiles_feature(dataset, feature, quantiles=4, width_fraction=1.0):
     """Plots the best attempt to obtain n-quantiles for a feature.
-    
-    This function shows the different quantiles computed for one of the features 
-    in order to assess whether the data that is being used really allows for 
+
+    This function shows the different quantiles computed for one of the features
+    in order to assess whether the data that is being used really allows for
     that particular number of quantiles to have a similar size or not.
-    
+
     Parameters:
         dataset (DataFrame): Data to try to chop in equal sets.
         feature: Column name in the dataset of the feature.
-        quantiles (int): Number of equally-sized groups into which to try to 
-            divide the sample. For quartiles use 4, for deciles use 10, etc. 
-            Default value is 4. 
-        width_fraction (float): Fraction of the bin occupied by the bar. 
+        quantiles (int): Number of equally-sized groups into which to try to
+            divide the sample. For quartiles use 4, for deciles use 10, etc.
+            Default value is 4.
+        width_fraction (float): Fraction of the bin occupied by the bar.
     """
     quantiles_feature = compute_quantiles(dataset, feature, quantiles=quantiles)
     total_histogram = np.histogram(dataset[feature], bins=quantiles_feature)
@@ -312,17 +310,17 @@ def show_quantiles_feature(dataset, feature, quantiles=4, width_fraction=1.0):
 
 def show_quantiles_features(test_dataset, quantiles=4, width_fraction=1.0):
     """Plots the best attempt to obtain n quantiles for all features.
-    
-    This function shows the different quantiles computed for each one of the 
-    features in order to assess whether the data that is being used really 
-    allows for that particular number of quantiles to have a similar size for  
+
+    This function shows the different quantiles computed for each one of the
+    features in order to assess whether the data that is being used really
+    allows for that particular number of quantiles to have a similar size for
     that feature or not.
-    
+
     Parameters:
         dataset (DataFrame): Data to try to chop in equal sets.
-        quantiles (int): Number of equally-sized groups into which to try to  
-            divide the sample. For quartiles use 4, for deciles use 10, etc. 
-            Default value is 4. 
+        quantiles (int): Number of equally-sized groups into which to try to
+            divide the sample. For quartiles use 4, for deciles use 10, etc.
+            Default value is 4.
     """
     # List of features
     feature_list = list(test_dataset.columns)[:-1]
