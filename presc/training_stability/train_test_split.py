@@ -152,16 +152,6 @@ def explore_test_split_ratio(
                 score_random += [
                     confusion_matrix(y_test, y_predicted)[1, 1] / len(y_predicted)
                 ]
-            if metric == "correct_classifications rate":
-                # Adds elements in the diagonal and divides by the total number
-                # of predictions
-                score_random += [
-                    confusion_matrix(y_test, y_predicted)[1, 1] / len(y_predicted)
-                ]
-            if metric == "misclassifications rate":
-                # Adds elements outside of the diagonal and divides by the total
-                # number of predictions
-                pass
 
         score += [score_random]
 
