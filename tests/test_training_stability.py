@@ -4,11 +4,13 @@ import pytest
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+from sklearn.datasets import make_classification
 
 from presc.training_stability.train_test_split import explore_test_split_ratio
 from presc.training_stability.training_stability_common import (
     show_averages_and_variations,
 )
+
 
 
 @pytest.fixture(
@@ -34,14 +36,16 @@ def metrics_param(request):
 
 
 def test1_explore_test_split_ratio(metrics_param):
-    dataset_binary = pd.DataFrame(
-        {
-            "Feature 1": [1.0, 2.5, 3.5, 2.0, 5.0],
-            "Feature 2": [1.0, 6.0, 8.0, 9.0, 2.0],
-            "Class": ["True", "False", "True", "False", "True"],
-        },
-        columns=["Feature 1", "Feature 2", "Class"],
-    )
+    # Generating binary classification dataset
+    dataset_binary = make_classification(n_samples=50, n_features=3, n_informative=3, n_redundant=0, n_classes=2, 
+                    n_clusters_per_class=2, weights=[0.7], flip_y=0.04, class_sep=1.0, hypercube=True, 
+                    shift=[0, 0.3, 1], scale=[100, 1, 5], random_state=0)
+
+    dataset1 = pd.DataFrame(dataset_binary[0])
+    dataset2 = pd.DataFrame(dataset_binary[1])
+    dataset_binary = pd.concat([dataset1, dataset2], axis=1)
+    dataset_binary.columns = [0, 1, 2, "class"]
+
     classifier = SVC(
         kernel="linear", decision_function_shape="ovr", class_weight="balanced"
     )
@@ -56,20 +60,23 @@ def test1_explore_test_split_ratio(metrics_param):
     )
 
 
+
 @pytest.fixture(params=["accuracy", "balanced_accuracy"])
 def metrics_param_multiclass(request):
     return request.param
 
 
-def test2_explore_test_split_ratio():
-    dataset_multiclass = pd.DataFrame(
-        {
-            "Feature 1": [1.0, 2.5, 3.5, 2.0, 5.0],
-            "Feature 2": [1.0, 6.0, 8.0, 9.0, 2.0],
-            "Class": ["red", "blue", "green", "blue", "blue"],
-        },
-        columns=["Feature 1", "Feature 2", "Class"],
-    )
+def test2_explore_test_split_ratio(metrics_param_multiclass):
+    # Generating multiple classification dataset
+    dataset_multiclass = make_classification(n_samples=50, n_features=3, n_informative=3, n_redundant=0, n_classes=3, 
+                    n_clusters_per_class=2, weights=[0.3, 0.4], flip_y=0.04, class_sep=1.0, hypercube=True, 
+                    shift=[0, 0.3, 1], scale=[100, 1, 5], random_state=0)
+
+    dataset1 = pd.DataFrame(dataset_multiclass[0])
+    dataset2 = pd.DataFrame(dataset_multiclass[1])
+    dataset_multiclass = pd.concat([dataset1, dataset2], axis=1)
+    dataset_multiclass.columns = [0, 1, 2, "class"]
+
     classifier = SVC(
         kernel="linear", decision_function_shape="ovo", class_weight="balanced"
     )
