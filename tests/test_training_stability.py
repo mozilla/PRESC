@@ -14,13 +14,24 @@ from presc.training_stability.training_stability_common import (
 )
 
 
-
 @pytest.fixture
 def dataset_binary():
     """Generate binary classification dataset."""
-    dataset = make_classification(n_samples=50, n_features=3, n_informative=3, n_redundant=0, n_classes=2, 
-                    n_clusters_per_class=2, weights=[0.7], flip_y=0.04, class_sep=1.0, hypercube=True, 
-                    shift=[0, 0.3, 1], scale=[100, 1, 5], random_state=0)
+    dataset = make_classification(
+        n_samples=50,
+        n_features=3,
+        n_informative=3,
+        n_redundant=0,
+        n_classes=2,
+        n_clusters_per_class=2,
+        weights=[0.7],
+        flip_y=0.04,
+        class_sep=1.0,
+        hypercube=True,
+        shift=[0, 0.3, 1],
+        scale=[100, 1, 5],
+        random_state=0,
+    )
 
     dataset1 = pd.DataFrame(dataset[0])
     dataset2 = pd.DataFrame(dataset[1])
@@ -32,16 +43,27 @@ def dataset_binary():
 @pytest.fixture
 def dataset_multiclass():
     """Generate multiple classification dataset."""
-    dataset = make_classification(n_samples=50, n_features=3, n_informative=3, n_redundant=0, n_classes=3, 
-                    n_clusters_per_class=2, weights=[0.3, 0.4], flip_y=0.04, class_sep=1.0, hypercube=True, 
-                    shift=[0, 0.3, 1], scale=[100, 1, 5], random_state=0)
+    dataset = make_classification(
+        n_samples=50,
+        n_features=3,
+        n_informative=3,
+        n_redundant=0,
+        n_classes=3,
+        n_clusters_per_class=2,
+        weights=[0.3, 0.4],
+        flip_y=0.04,
+        class_sep=1.0,
+        hypercube=True,
+        shift=[0, 0.3, 1],
+        scale=[100, 1, 5],
+        random_state=0,
+    )
 
     dataset1 = pd.DataFrame(dataset[0])
     dataset2 = pd.DataFrame(dataset[1])
     dataset = pd.concat([dataset1, dataset2], axis=1)
     dataset.columns = [0, 1, 2, "class"]
     return dataset
-
 
 
 @pytest.fixture(
@@ -82,7 +104,6 @@ def test1_explore_test_split_ratio(dataset_binary, metrics_param):
     )
 
 
-
 @pytest.fixture(params=["accuracy", "balanced_accuracy"])
 def metrics_param_multiclass(request):
     return request.param
@@ -104,52 +125,80 @@ def test2_explore_test_split_ratio(dataset_multiclass, metrics_param_multiclass)
     )
 
 
-
 def test1_explore_cross_validation_kfolds(dataset_binary):
 
     # Define parameters
     scaler = StandardScaler()
-    classifier = SVC(kernel='linear', C=1, random_state=0)
-    pipeline = Pipeline([('scaler', scaler), ('classifier', classifier)])
+    classifier = SVC(kernel="linear", C=1, random_state=0)
+    pipeline = Pipeline([("scaler", scaler), ("classifier", classifier)])
     metrics = "accuracy"
 
     kfolds_list = [2, 5, 20]
-    explore_cross_validation_kfolds(dataset_binary, pipeline, metrics=metrics, 
-                                    kfolds_list=kfolds_list, repetitions=1, 
-                                    minimum_repetitions=False)
+    explore_cross_validation_kfolds(
+        dataset_binary,
+        pipeline,
+        metrics=metrics,
+        kfolds_list=kfolds_list,
+        repetitions=1,
+        minimum_repetitions=False,
+    )
 
-    explore_cross_validation_kfolds(dataset_binary, pipeline, metrics=metrics, 
-                                    kfolds_list=kfolds_list, repetitions=5, 
-                                    minimum_repetitions=True)
+    explore_cross_validation_kfolds(
+        dataset_binary,
+        pipeline,
+        metrics=metrics,
+        kfolds_list=kfolds_list,
+        repetitions=5,
+        minimum_repetitions=True,
+    )
 
     kfolds_list = [2, 5, 10]
-    explore_cross_validation_kfolds(dataset_binary, pipeline, metrics=metrics, 
-                                    kfolds_list=kfolds_list, repetitions=5, 
-                                    minimum_repetitions=False)
-
+    explore_cross_validation_kfolds(
+        dataset_binary,
+        pipeline,
+        metrics=metrics,
+        kfolds_list=kfolds_list,
+        repetitions=5,
+        minimum_repetitions=False,
+    )
 
 
 def test2_explore_cross_validation_kfolds(dataset_multiclass):
 
     # Define parameters
     scaler = StandardScaler()
-    classifier = SVC(kernel='linear', C=1, random_state=0)
-    pipeline = Pipeline([('scaler', scaler), ('classifier', classifier)])
+    classifier = SVC(kernel="linear", C=1, random_state=0)
+    pipeline = Pipeline([("scaler", scaler), ("classifier", classifier)])
     metrics = "accuracy"
 
     kfolds_list = [2, 5, 20]
-    explore_cross_validation_kfolds(dataset_multiclass, pipeline, metrics=metrics, 
-                                    kfolds_list=kfolds_list, repetitions=1, 
-                                    minimum_repetitions=False)
+    explore_cross_validation_kfolds(
+        dataset_multiclass,
+        pipeline,
+        metrics=metrics,
+        kfolds_list=kfolds_list,
+        repetitions=1,
+        minimum_repetitions=False,
+    )
 
-    explore_cross_validation_kfolds(dataset_multiclass, pipeline, metrics=metrics, 
-                                    kfolds_list=kfolds_list, repetitions=5, 
-                                    minimum_repetitions=True)
+    explore_cross_validation_kfolds(
+        dataset_multiclass,
+        pipeline,
+        metrics=metrics,
+        kfolds_list=kfolds_list,
+        repetitions=5,
+        minimum_repetitions=True,
+    )
 
     kfolds_list = [2, 5, 10]
-    explore_cross_validation_kfolds(dataset_multiclass, pipeline, metrics=metrics, 
-                                    kfolds_list=kfolds_list, repetitions=5, 
-                                    minimum_repetitions=False)
+    explore_cross_validation_kfolds(
+        dataset_multiclass,
+        pipeline,
+        metrics=metrics,
+        kfolds_list=kfolds_list,
+        repetitions=5,
+        minimum_repetitions=False,
+    )
 
 
 def test_show_averages_and_variations():

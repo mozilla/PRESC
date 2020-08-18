@@ -12,8 +12,8 @@ def show_averages_and_variations(
 ):
     """Displays averages and their standard deviations.
 
-    This function allows in general to visualize data corresponding to many 
-    repetitions, by showing the averages as a function of a variable and their 
+    This function allows in general to visualize data corresponding to many
+    repetitions, by showing the averages as a function of a variable and their
     corresponding standard deviations.
 
     Parameters:
@@ -58,6 +58,6 @@ def show_averages_and_variations(
     print(
         "\n" + x_name + " where " + metric_name + " has smallest standard "
         f"deviation: {x[standard_deviations.argmin()]:.4f}"
-        "\nAverage " + metric_name + " at "+ x_name + " with the smallest standard "
+        "\nAverage " + metric_name + " at " + x_name + " with the smallest standard "
         f"deviation: {averages[standard_deviations.argmin()]:.4f}"
     )

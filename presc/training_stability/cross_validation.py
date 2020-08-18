@@ -5,10 +5,15 @@ from sklearn.model_selection import cross_validate
 from sklearn.model_selection import KFold
 
 
-def explore_cross_validation_kfolds(dataset, pipeline, metrics=["accuracy"], 
-                                    kfolds_list=[3, 4, 5, 7, 10],
-                                    repetitions=1, minimum_repetitions = False):
-    """Explore the cross-validation k-fold number with the specified pipeline. 
+def explore_cross_validation_kfolds(
+    dataset,
+    pipeline,
+    metrics=["accuracy"],
+    kfolds_list=[3, 4, 5, 7, 10],
+    repetitions=1,
+    minimum_repetitions=False,
+):
+    """Explore the cross-validation k-fold number with the specified pipeline.
 
     Choosing the number of k-folds with which to carry out the cross-validation
     is not an obvious decision. This function allows to explore the k-fold space
@@ -28,7 +33,7 @@ def explore_cross_validation_kfolds(dataset, pipeline, metrics=["accuracy"],
     values to average, and setting the number of k-folds identical to the number
     of data points corresponds to a leave-one-out cross validation scheme where
     all the data points but one are used for training, and the model is
-    validated for one point on each iteration. 
+    validated for one point on each iteration.
 
     Smaller training samples (i.e., a smaller number of k-folds) make it easier
     that the training subset is not as representative and that the classifier
@@ -64,8 +69,8 @@ def explore_cross_validation_kfolds(dataset, pipeline, metrics=["accuracy"],
             k-fold value.
     """
 
-    X = dataset.iloc[:,:-1]
-    y = dataset.iloc[:,-1] 
+    X = dataset.iloc[:, :-1]
+    y = dataset.iloc[:, -1]
 
     repetitions_original = repetitions
 
@@ -78,31 +83,36 @@ def explore_cross_validation_kfolds(dataset, pipeline, metrics=["accuracy"],
         # many times as necessary.
         if minimum_repetitions is True:
             if num <= repetitions_original:
-                repetitions = ceil(repetitions_original/num)
+                repetitions = ceil(repetitions_original / num)
             else:
                 repetitions = 1
-        
+
         scores_list = []
         scores_kfold = []
 
         for repetition in range(repetitions):
-            cv = KFold(n_splits=num, shuffle=True) #, random_state=None)
-            scores = cross_validate(pipeline, X, y, scoring=metrics, cv=cv, return_estimator=False)
+            cv = KFold(n_splits=num, shuffle=True)  # , random_state=None)
+            scores = cross_validate(
+                pipeline, X, y, scoring=metrics, cv=cv, return_estimator=False
+            )
             scores_list += [scores]
-       
+
         # Gather all repetitions of each kfold
         scores_kfold = {metric: [] for metric in scores}
 
         for element in scores_list:
             for metric in element:
                 scores_kfold[metric] += list(element[metric])
-        
+
         # Consolidate all repetitions
-        scores_kfold = {metric: [np.mean(scores_kfold[metric]), np.std(scores_kfold[metric])] for metric in scores_kfold}
-        
+        scores_kfold = {
+            metric: [np.mean(scores_kfold[metric]), np.std(scores_kfold[metric])]
+            for metric in scores_kfold
+        }
+
         # Gather all kfolds
         if scores_summary is None:
-            scores_summary = {metric: [[],[]] for metric in scores}
+            scores_summary = {metric: [[], []] for metric in scores}
 
         for metric in scores_kfold:
             scores_summary[metric][0] += [scores_kfold[metric][0]]
