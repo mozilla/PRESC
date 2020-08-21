@@ -31,13 +31,13 @@ def explore_cross_validation_kfolds(
             cross-validation scores.
         repetitions (int): Number of times to repeat the cross-validation for
             each k-fold number (if "minimum_kfolds" is set to False) or
-            minimum number of k-folds that must be computed (if 
-            "minimum_kfolds" is set to True). In the latter case, the 
+            minimum number of k-folds that must be computed (if
+            "minimum_kfolds" is set to True). In the latter case, the
             "repetitions" value must be larger than the largest k-folds value.
             By default it carries out the cross-validation ten times for each
             requested k-fold value.
         minimum_kfolds (bool): If "minimum_kfolds" is set to True, "repetitions"
-            becomes the minimum number of k-folds. The number of needed 
+            becomes the minimum number of k-folds. The number of needed
             cross-validation runs for each k-fold value are computed so that
             the total number of k-folds after all computations reach that
             minimum. For example, the cross validation for five k-folds
@@ -60,9 +60,11 @@ def explore_cross_validation_kfolds(
 
     repetitions_original = repetitions
     if minimum_kfolds is True and repetitions <= max(kfolds_list):
-        print("WARNING: 'minimum_kfolds' is set to True but the total number "
-              "of k-folds (set through \nthe parameter 'repetitions') is smaller "
-              "or equal than the largest k-fold value.")
+        print(
+            "WARNING: 'minimum_kfolds' is set to True but the total number "
+            "of k-folds (set through \nthe parameter 'repetitions') is smaller "
+            "or equal than the largest k-fold value."
+        )
 
     scores_summary = None
 
@@ -101,7 +103,7 @@ def explore_cross_validation_kfolds(
         scores_kfold = {
             metric: [np.mean(scores_kfold[metric]), np.std(scores_kfold[metric])]
             for metric in scores_kfold
-            }
+        }
 
         # Gather all kfolds
         if scores_summary is None:

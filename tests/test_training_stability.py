@@ -109,7 +109,9 @@ def metrics_param_multiclass(request):
     return request.param
 
 
-def test_explore_test_split_ratio_multiclass(dataset_multiclass, metrics_param_multiclass):
+def test_explore_test_split_ratio_multiclass(
+    dataset_multiclass, metrics_param_multiclass
+):
 
     classifier = SVC(
         kernel="linear", decision_function_shape="ovo", class_weight="balanced"
