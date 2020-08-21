@@ -88,7 +88,7 @@ def metrics_param(request):
     return request.param
 
 
-def test1_explore_test_split_ratio(dataset_binary, metrics_param):
+def test_explore_test_split_ratio_binary(dataset_binary, metrics_param):
 
     classifier = SVC(
         kernel="linear", decision_function_shape="ovr", class_weight="balanced"
@@ -109,7 +109,7 @@ def metrics_param_multiclass(request):
     return request.param
 
 
-def test2_explore_test_split_ratio(dataset_multiclass, metrics_param_multiclass):
+def test_explore_test_split_ratio_multiclass(dataset_multiclass, metrics_param_multiclass):
 
     classifier = SVC(
         kernel="linear", decision_function_shape="ovo", class_weight="balanced"
@@ -125,7 +125,7 @@ def test2_explore_test_split_ratio(dataset_multiclass, metrics_param_multiclass)
     )
 
 
-def test1_explore_cross_validation_kfolds(dataset_binary):
+def test_explore_cross_validation_kfolds_binary(dataset_binary):
 
     # Define parameters
     scaler = StandardScaler()
@@ -140,7 +140,7 @@ def test1_explore_cross_validation_kfolds(dataset_binary):
         metrics=metrics,
         kfolds_list=kfolds_list,
         repetitions=1,
-        minimum_repetitions=False,
+        minimum_kfolds=False,
     )
 
     explore_cross_validation_kfolds(
@@ -149,7 +149,7 @@ def test1_explore_cross_validation_kfolds(dataset_binary):
         metrics=metrics,
         kfolds_list=kfolds_list,
         repetitions=5,
-        minimum_repetitions=True,
+        minimum_kfolds=True,
     )
 
     kfolds_list = [2, 5, 10]
@@ -159,11 +159,11 @@ def test1_explore_cross_validation_kfolds(dataset_binary):
         metrics=metrics,
         kfolds_list=kfolds_list,
         repetitions=5,
-        minimum_repetitions=False,
+        minimum_kfolds=False,
     )
 
 
-def test2_explore_cross_validation_kfolds(dataset_multiclass):
+def test_explore_cross_validation_kfolds_multiclass(dataset_multiclass):
 
     # Define parameters
     scaler = StandardScaler()
@@ -178,7 +178,7 @@ def test2_explore_cross_validation_kfolds(dataset_multiclass):
         metrics=metrics,
         kfolds_list=kfolds_list,
         repetitions=1,
-        minimum_repetitions=False,
+        minimum_kfolds=False,
     )
 
     explore_cross_validation_kfolds(
@@ -187,7 +187,7 @@ def test2_explore_cross_validation_kfolds(dataset_multiclass):
         metrics=metrics,
         kfolds_list=kfolds_list,
         repetitions=5,
-        minimum_repetitions=True,
+        minimum_kfolds=True,
     )
 
     kfolds_list = [2, 5, 10]
@@ -197,7 +197,7 @@ def test2_explore_cross_validation_kfolds(dataset_multiclass):
         metrics=metrics,
         kfolds_list=kfolds_list,
         repetitions=5,
-        minimum_repetitions=False,
+        minimum_kfolds=False,
     )
 
 
