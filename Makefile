@@ -1,4 +1,6 @@
-.PHONY: upload pytest black setup_conda
+.PHONY: upload pytest setup_conda
+
+all: pytest
 
 setup_conda:
 	# Install all dependencies and setup repo in dev mode
@@ -7,9 +9,6 @@ setup_conda:
 pytest:
 	pytest
 	flake8 presc tests
-
-black:
-	black presc tests
 
 # build:
 # 	bin/create_version
