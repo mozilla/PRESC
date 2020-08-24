@@ -10,6 +10,10 @@ pytest:
 	pytest
 	flake8 presc tests
 
+pytest_ci:
+	pytest -sv
+	flake8 presc tests
+
 # build:
 # 	bin/create_version
 # 	docker build -t ${IMAGE_NAME} .
