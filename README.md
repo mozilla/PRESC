@@ -81,9 +81,20 @@ formatting, which is enforced by a pre-commit hook (see below).
 
 ## Getting started
 
-Make sure you have conda (eg. [Miniconda](https://conda.io/miniconda.html))
-installed. `conda init` should be run during installation to set the PATH
-properly.
+1. Install [Anaconda](https://www.anaconda.com/download) or [Miniconda](https://conda.io/miniconda.html).
+
+2. Fork this repository and clone it into your local machine(using git CLI).
+
+3. Setup and activate environment. Note that this will also enable a
+   pre-commit hook to verify that code conforms to flake8 and black
+   formatting rules:
+
+```
+ $ conda env create -f environment.yml
+ $ conda activate presc
+ $ python setup.py develop
+ $ pre-commit install
+```
 
 Set up and activate the environment. This will also enable a pre-commit hook to
 verify that code conforms to flake8 and black formatting rules.
