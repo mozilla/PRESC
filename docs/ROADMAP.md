@@ -327,8 +327,8 @@ __Applications:__
 __Type__: Model performance metric
 
 
-Stability of model selection
-----------------------------
+Stability of methodology
+------------------------
 
 While models are generally selected to maximize some measure of performance, the
 final choice of model also carries an inherent dependence on the methodology
@@ -337,6 +337,65 @@ For example, if a different train-test split were used, the final model would
 likely be slightly different.
 These analyses measure the effects of methodological choices on model
 performance, with the goal of minimizing them.
+
+TODO: when to apply
+
+### Train-test splitting
+
+When training a model, a test set is typically held out at the beginning so as
+to provide an unbiased estimate of model performance on unseen data.
+However, the size of this test set itself influences the quality of this
+estimate.
+To assess this, we consider the variability and bias in performance metrics as
+the test set size varies.
+This is estimated by splitting the input dataset at different proportions and
+training and testing a model across these.
+
+__Input:__
+
+- Dataset
+    * ie. training set
+- Model specification
+- Performance metric
+
+__Output:__ Function (sequence of tuples) mapping train-test split size to
+performance estimates represented as a mean with confidence bounds
+
+__Applications:__
+
+- Measure of error (variance/bias) in test set performance evaluations
+- Selection of train-test split size to minimize bias and variance
+- Deviation from average-case performance
+
+__Type__: Model performance confidence metric
+
+### Cross-validation folds
+
+Similarly, the choice of validation methodology will influence the quality of
+estimates obtained using it.
+PRESC assesses this by computing model cross-validation (CV) model performance
+estimates across different numbers of folds.
+
+__Input:__
+
+- Dataset
+    * ie. training set
+- Model specification
+- Performance metric
+
+__Output:__ Function (sequence of tuples) mapping number of CV folds to
+performance estimates represented as a mean with confidence bounds
+
+__Applications:__
+
+- Measure of error (variance/bias) in CV performance evaluations
+- Selection of number of CV folds to minimize bias and variance
+- Deviation from average-case performance
+
+__Type__: Model performance confidence metric
+
+
+
 
 
 
