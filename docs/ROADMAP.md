@@ -57,9 +57,9 @@ For example:
   from that for correctly classified points?
     * Is there evidence of systematic bias?
 
-These analyses generally apply to the predictions on a test set by a trained
-model, such as the final evaluation on a held-out test set or model selection on
-a validation set.
+__Application scope:__ These generally apply to the predictions on a test set by
+a trained model, such as the final evaluation on a held-out test set or model
+selection on a validation set.
 
 ### Conditional confusion matrix
 
@@ -236,8 +236,8 @@ practice.
 Here we consider performance evaluations that account for distributional
 differences in training and test sets.
 
-These can be applied either as strategies for model selection or as an
-evaluation methodology on a final test set.
+__Application scope:__ These can be applied either as strategies for model
+selection or as an evaluation methodology on a final test set.
 
 ### Feature-based splitting
 
@@ -330,15 +330,21 @@ __Type__: Model performance metric
 Stability of methodology
 ------------------------
 
-While models are generally selected to maximize some measure of performance, the
-final choice of model also carries an inherent dependence on the methodology
-used to train it.
+While models are generally selected to maximize some measure of performance,
+the final choice of model also carries an inherent dependence on the
+methodology used to train it.
 For example, if a different train-test split were used, the final model would
 likely be slightly different.
 These analyses measure the effects of methodological choices on model
 performance, with the goal of minimizing them.
+Note that, for any of these approaches which uses resampling to estimate
+variability, computation cost needs to be taken into account as a part of the
+design.
 
-TODO: when to apply
+__Application scope:__ These generally require a model specification and
+training set, and can be applied post-hoc (to assess error in reported
+results) or prior to training (to help select methodology, using an assumed
+prior model choice).
 
 ### Train-test splitting
 
@@ -395,6 +401,39 @@ __Applications:__
 __Type__: Model performance confidence metric
 
 
+Other
+-----
+
+### Novelty
+
+Scenarios in which classification models are deployed generally evolve over
+time, and eventually the data used to train the model may no longer be
+representative of the cases for which predictions are requested.
+PRESC will include functionality to determine how much a new set of labeled
+data (if available) has diverged from the current training set.
+This will help to inform when a model update is needed.
+
+__Input:__
+
+- Previous dataset
+    * ie. current training set
+- New dataset
+    * ie. newly available labeled data
+
+__Output:__ Similarity measure between the two datasets (scalar or
+distributional)
+
+__Applications:__
+
+- Measure of novelty for new labeled data (eg. available as a result of
+  ongoing human review)
+- Measure of appropriateness of the model on new data
+    * eg. improvement in performance on the new data between a model trained
+      including the new data and the original model, as a function of novelty
+- Decision rule for when to trigger a model update
+- Deviation from baseline computed from subsets of the existing training set
+
+__Type__: Dataset comparison metric
 
 
 
