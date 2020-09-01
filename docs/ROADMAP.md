@@ -8,18 +8,19 @@ Prioritization and implementation details are maintained in the repo
 [issues](https://github.com/mozilla/PRESC/issues).
 
 At the core of PRESC is a collection of analyses that can be run on a given
-statistical model and dataset to inform the developer on different aspects of
-the model's performance and behaviour.
-The two main intended uses are a graphical presentation in a report and a
-pass/fail determination obtained by comparing the results against threshold
+statistical model and dataset pair to inform the developer on different
+aspects of the model's performance and behaviour.
+The two main intended uses are a graphical presentation in a report and the
+detection of potential issues by comparing the results against threshold
 values determined by the user.
-In either case, it would be up to the user to decide on a course of action to
-correct deficiencies in the model surfaced by these evaluations.
+In either case, results will require some degree of interpretation in the
+context of the problem domain, and it will be up to the user to decide on a
+course of action to correct deficiencies in the model surfaced by these
+evaluations.
 
 Planned analyses are described below, grouped by theme.
 Some of these will lend themselves to multiple possible visualizations or
 summaries, while others will be applicable in a single clear way.
-As of right now, the details are fleshed out to varying extents.
 The first step in developing many of these will be to build a prototype and test
 them out against different models and datasets to get an idea of how they
 behave.
@@ -326,6 +327,37 @@ __Applications:__
 
 __Type__: Model performance metric
 
+### Novelty
+
+Scenarios in which classification models are deployed generally evolve over
+time, and eventually the data used to train the model may no longer be
+representative of the cases for which predictions are requested.
+PRESC will include functionality to determine how much a new set of labeled
+data (if available) has diverged from the current training set.
+This will help to inform when a model update is needed.
+
+__Input:__
+
+- Previous dataset
+    * ie. current training set
+- New dataset
+    * ie. newly available labeled data
+
+__Output:__ Similarity measure between the two datasets (scalar or
+distributional)
+
+__Applications:__
+
+- Measure of novelty for new labeled data (eg. available as a result of
+  ongoing human review)
+- Measure of appropriateness of the model on new data
+    * eg. improvement in performance on the new data between a model trained
+      including the new data and the original model, as a function of novelty
+- Decision rule for when to trigger a model update
+- Deviation from baseline computed from subsets of the existing training set
+
+__Type__: Dataset comparison metric
+
 
 Stability of methodology
 ------------------------
@@ -399,43 +431,6 @@ __Applications:__
 - Deviation from average-case performance
 
 __Type__: Model performance confidence metric
-
-
-Other
------
-
-### Novelty
-
-Scenarios in which classification models are deployed generally evolve over
-time, and eventually the data used to train the model may no longer be
-representative of the cases for which predictions are requested.
-PRESC will include functionality to determine how much a new set of labeled
-data (if available) has diverged from the current training set.
-This will help to inform when a model update is needed.
-
-__Input:__
-
-- Previous dataset
-    * ie. current training set
-- New dataset
-    * ie. newly available labeled data
-
-__Output:__ Similarity measure between the two datasets (scalar or
-distributional)
-
-__Applications:__
-
-- Measure of novelty for new labeled data (eg. available as a result of
-  ongoing human review)
-- Measure of appropriateness of the model on new data
-    * eg. improvement in performance on the new data between a model trained
-      including the new data and the original model, as a function of novelty
-- Decision rule for when to trigger a model update
-- Deviation from baseline computed from subsets of the existing training set
-
-__Type__: Dataset comparison metric
-
-
 
 
 
