@@ -16,6 +16,8 @@ overlooked in application, including:
 - In-depth analysis of misclassifications and their distribution in the feature
   space
 
+More details about the specific features we are considering are presented in the
+[project roadmap](./docs/ROADMAP.md).
 We believe that these evaluations are essential for developing confidence in
 the selection and tuning of machine learning models intended to address user
 needs, and are important prerequisites towards building
@@ -65,8 +67,8 @@ original state, and will be integrated here as needed.
 
 Contributions are welcome.
 We are using the repo [issues](https://github.com/mozilla/PRESC/issues) to
-manage project tasks in alignment with the [roadmap], as well as hosting
-discussions.
+manage project tasks in alignment with the [roadmap](./docs/ROADMAP.md), as well
+as hosting discussions.
 You can also reach out on [Gitter](https://gitter.im/PRESC-outreachy/community).
 
 We recommend that submissions for new feature implementations include a Juypter
