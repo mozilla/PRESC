@@ -62,13 +62,12 @@ __Application scope:__ These generally apply to the predictions on a test set by
 a trained model, such as the final evaluation on a held-out test set or model
 selection on a validation set.
 
-### Conditional confusion matrix
+### Conditional metrics
 
-The standard confusion matrix lists counts of overall classification results by
-class for a test set, and is used to compute scalar metrics such as accuracy,
-precision and recall.
-PRESC will additionally compute a confusion matrix restricted to different
-subsets of the feature space or test set. 
+Standard performance metrics such as accuracy, precision and recall are
+computed by summmarizing overall differences between predicted and true labels.
+PRESC will additionally compute these differences restricted to subsets of the
+feature space or test set.
 This way, the confusion matrix and related metrics can be viewed as they vary
 across the values of a feature.
 This is similar to calibration, which considers accuracy as a function of
@@ -79,8 +78,10 @@ __Input:__
 - Predicted labels for a test set from a trained model
 - Scheme for partitioning the test set
     * eg. binning values of a given feature
+- Metric
+    * function of predicted and true labels
 
-__Output:__ Confusion matrix (a _m x m_ tuple) for each partition
+__Output:__ Metric values for each partition
 
 __Applications:__
 
