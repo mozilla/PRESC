@@ -83,7 +83,7 @@ formatting, which is enforced by a pre-commit hook (see below).
 
 ## Getting started
 
-Make sure you have conda (eg. [Miniconda](https://conda.io/miniconda.html))
+Make sure you have conda (eg. [Miniconda](https://docs.conda.io/en/latest/miniconda.html))
 installed. `conda init` should be run during installation to set the PATH
 properly.
 
