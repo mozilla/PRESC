@@ -5,6 +5,13 @@ import random
 import seaborn as sns
 
 data = pd.read_csv("C:/Users/castromi/Documents/GitHub/PRESC/datasets/mushrooms.csv")
+columns_name = list(data.columns)
+counts_dictionary = {}
+data_transpose = data.transpose()
+
+for attribute in columns_name:
+    counts_dictionary[attribute] = data[attribute].value_counts()
+
 
 """ Compute the number d of categorical attributes the objects have """
 
@@ -18,32 +25,31 @@ data = pd.read_csv("C:/Users/castromi/Documents/GitHub/PRESC/datasets/mushrooms.
 other point in the data set"""
 
 
-def distance_to_data(dpoint, data, metric):
+def distance_to_data(dpoint, data, metric, sample_size=1000):
     # assuming data is a pandas dataframe
+    sampled_indexes = random.sample(range(len(data)), sample_size)
     distance = 0
-    for i in range(0, len(data)):
+    for i in sampled_indexes:
         distance = distance + metric(dpoint, data.iloc[i])
 
-    return distance / len(data)
+    return distance / sample_size
 
 
 """ Implementing Overlap """
 
 
-def plot_distribution(data, metric, sample=100):
-    distance_array = np.empty(sample)
+def plot_distribution(data, metric, sample_size=1000):
+    distance_array = np.empty(sample_size)
     sampled_indexes = random.sample(
-        range(len(data)), sample
-    )  # sample 20 non-repeating indexes
+        range(len(data)), sample_size
+    )  # generate the random indexes
     j = 0
-    print(sampled_indexes)
     for i in sampled_indexes:
         distance_array[j] = distance_to_data(
             data.iloc[i], data.drop(data.index[i]), metric
         )  # compute the distance to every other point
-        print(j)
         j = j + 1
-    print(distance_array)
+
     sns.set()
     plt.hist(distance_array, bins=20)
     plt.show()
@@ -82,23 +88,53 @@ def overlap(dpoint1, dpoint2):
     pass
 
 
-"""
-def goodall2(dpoint1,dpoint2):
-    attributesd1=list(dpoint1.index)   #get the labels
-    attributesd2=list(dpoint2.index)
+def goodall2(dpoint1, dpoint2):
+    attributesd1 = list(dpoint1.index)
+    # attributesd2 = list(dpoint2.index)
+    goodall2_score = 0
+    for attribute in attributesd1:
+        attribute_score = 0
+        if dpoint1[attribute] == dpoint2[attribute]:  # if the values are the same
+            counts = data[attribute].value_counts()
+            for count in counts:
+                attribute_score = modified_frequency(count) + attribute_score
 
+            goodall2_score = (1 - attribute_score) + goodall2_score
 
-    fk = data[attributed1[0]
-    #list_dpoint1=np.array(dpoint1)
-    #list_dpoint2=np.array(dpoint2)
-    if attributesd1 == attributesd2:
-        overlap = (set(dpoint1) & set(dpoint2))/len(attributesd1)
-
-
-
+    return goodall2_score / len(attributesd1)
 
     pass
-"""
+
+
+def goodall3(dpoint1, dpoint2):
+    attributesd1 = list(dpoint1.index)
+    # attributesd2 = list(dpoint2.index)
+    goodall3_score = 0
+    for attribute in attributesd1:
+        attribute_score = 0
+        value_point1 = dpoint1[attribute]
+        value_point2 = dpoint2[attribute]
+        if value_point1 == value_point2:
+            count = counts_dictionary[attribute][value_point1]
+            attribute_score = modified_frequency(count)
+            goodall3_score = (1 - attribute_score) + goodall3_score
+
+    return goodall3_score / len(attributesd1)
+
+    pass
+
+
+def value_count(attribute, value):
+    filt = data[attribute].value_counts()
+    value_counts = filt[value]
+    print(value_counts)
+    return value_counts
+
+
+def modified_frequency(counts):
+    data_len = len(data)
+    estimated_freq = (counts * (counts - 1)) / ((data_len) * (data_len - 1))
+    return estimated_freq
 
 
 def times_value_happens(data, attribute, value):
@@ -109,22 +145,20 @@ def times_value_happens(data, attribute, value):
 
 
 def main():
-    a = data.iloc[0]
-    print(a.index[1])
+    a = data.iloc[-1]
     b = data.iloc[-30]
-    print(list(a.index))
-    print(len(data))
-    print(type(a))
-    print(type(b))
-    print(len(a))
-    print(a[a.index[0]])
-    print(b[b.index[22]])
+    # overlap(a, b)
+    print(goodall3(a, b))
 
-    overlap(a, b)
+    # print(counts)
+    print("go")
+    # print(distance_to_data(a,data,goodall3))
+    # print(distance_to_data(a,data,overlap))
     #    c=data.loc[["edibility","cap-shape"]]
-
-    # plot_distribution(data,overlap,400)
-    times_value_happens(data, a.index[1], a[a.index[1]])
+    print(data_transpose)
+    print(data_transpose.loc[0])
+    # plot_distribution(data,goodall3)
+    #    empirical_frequency(a.index[4], a[a.index[4]])
 
     pass
 
