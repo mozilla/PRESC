@@ -156,7 +156,7 @@ def main():
     # print(distance_to_data(a,data,overlap))
     #    c=data.loc[["edibility","cap-shape"]]
     print(data_transpose)
-    print(data_transpose.loc[0])
+    print(data_transpose.loc["0"])
     # plot_distribution(data,goodall3)
     #    empirical_frequency(a.index[4], a[a.index[4]])
 
