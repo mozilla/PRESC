@@ -15,7 +15,7 @@ functionalities:
 """
 # Helper functions:
 
-class DatasetWrapper:
+class DatasetWrapper(object):
     name = ""
     dataset = None
 
