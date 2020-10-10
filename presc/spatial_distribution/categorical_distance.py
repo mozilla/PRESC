@@ -5,7 +5,7 @@ Created on Fri Oct  9 11:47:47 2020
 @author: castromi
 """
 
-import pandas as pd
+
 from matplotlib import pyplot as plt
 import numpy as np
 import random
@@ -182,17 +182,3 @@ class SpatialDistribution:
         return fig, ax, distance_array_metric1, distance_array_metric2
 
     pass
-
-
-def main():
-    data = pd.read_csv("new_data")
-
-    model = None
-    myspat = SpatialDistribution(model, data)
-
-    myspat.plot_distance_histogram("goodall2", 0.1)
-
-    pass
-
-
-main()
