@@ -16,27 +16,42 @@ class DatasetWrapper(object):
     X, y = None, None
     X_train, X_test, y_train, y_test = None, None, None, None
 
-    def __init__(self, dataset_file: str) -> None:
+    def __init__(self, dataset_file: str, label: str) -> None:
         """
         Description:
-            To initialize a dataset object using the link found in the datasets folder
+            To initialize a dataset object using the link found in the datasets folder.
 
         Args:
-            test_dataset_name (string): a string that is the name of one of the test/datasets
+            dataset_file (string): path to the dataset file to use.
+            label (string) : name of the label column
         """
 
         try:
             # read the dataset from file path
             self._dataset = pd.read_csv(dataset_file)
 
-            # set X,y
-            self.X, self.y = self._dataset.iloc[:, :-1], self._dataset.iloc[:, -1]
-        except (FileNotFoundError, IOError):
+            # set self.X and self.y by label column
+            self.X = self._dataset.drop(columns=[label])
+            self.y = self._dataset[label]
+
+        except (FileNotFoundError, pd.errors.ParserError, KeyError):
             print(
-                "Please check the file path that your passed is valid.\n"
+                "\nPlease check the file path and column label that your passed is valid.\n"
                 + "It should be in the format dataset/xxx.csv if you are currently in the PRESC folder.\n"
+                + "The label column is specified in the README.md.\n"
             )
             raise
+
+    def set_label(self, label: str) -> None:
+        """
+        Description:
+            This function allows users to reset the label column and will also update the feature columns.
+
+        Args:
+            label (string): name of the label column
+        """
+        self.X = self._dataset.drop(columns=[label])
+        self.y = self._dataset[label]
 
     def split_test_train(self, test_size: float = 0.2, random_state: int = 0) -> None:
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
@@ -47,6 +62,21 @@ class DatasetWrapper(object):
         return self._dataset
 
     def get_label(self, subset: str = None) -> object:
+        """
+        Description:
+            This function allows user to get the label column of a dataset.
+            By default, it will return the label column of the unsplit/raw dataset.
+            If "test"/"train" is passed in the subset parameter, it will return the corresponding label column.
+
+        Args:
+            subset (str, optional): . Defaults to None.
+
+        Raises:
+            ValueError: If a string other than "test" and "train" is passed in, a ValueError is raised.
+
+        Returns:
+            object: label column of the specified dataset by the subset parameter.
+        """
         if subset == "test":
             return self.y_test
         elif subset == "train":
@@ -57,6 +87,11 @@ class DatasetWrapper(object):
         return self.y
 
     def get_features(self, subset: str = None) -> object:
+        """
+        Description:
+            This function allows user to get the feature column(s) of a dataset.
+            It works in a similar fashion as get_label(). See get_label() for more details.
+        """
         if subset == "test":
             return self.X_test
         elif subset == "train":
