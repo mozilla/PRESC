@@ -101,6 +101,11 @@ def test_set_label(wine_dataset_wrapper, expected_wine_dataset):
     )
 
 
+def test_set_label_not_exist(wine_dataset_wrapper):
+    with pytest.raises(KeyError):
+        wine_dataset_wrapper.set_label("not_a_label")
+
+
 # test invalid subset for get_features and get_label
 def test_invalid_get_features(wine_dataset_wrapper):
     with pytest.raises(ValueError):

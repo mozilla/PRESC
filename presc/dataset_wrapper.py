@@ -46,12 +46,19 @@ class DatasetWrapper(object):
         """
         Description:
             This function allows users to reset the label column and will also update the feature columns.
-
+            Make sure you re-split the test and train data if you called this function after calling split.
         Args:
             label (string): name of the label column
         """
-        self.X = self._dataset.drop(columns=[label])
-        self.y = self._dataset[label]
+        try:
+            self.X = self._dataset.drop(columns=[label])
+            self.y = self._dataset[label]
+        except KeyError:
+            print(
+                "Please make sure that the label you speficy is in the columns:"
+                + ", ".join(self._dataset.columns.tolist())
+            )
+            raise
 
     def split_test_train(self, test_size: float = 0.2, random_state: int = 0) -> None:
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
