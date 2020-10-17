@@ -10,27 +10,60 @@ from matplotlib import pyplot as plt
 import numpy as np
 import random
 import seaborn as sns
+import pandas as pd
 
 
 class SpatialDistribution:
-    def __init__(self, model, data):
+    """Creates a SpatialDistribution class through which we will
+    information on the spatial distribution of the data at hand
+
+    Args:
+            data: pandas dataframe of the data to be analyzed
+            label_predicted: List or pandas series that holds the label predicted
+                             by the model
+            label_true: List or pandas series that holds the true labels
+            model:Currently not implemented and set to None, in the future it might ask for the specific
+                    sklearn trained model for more functionalities
+    """
+
+    def __init__(self, data, label_predicted, label_true, model=None):
+
         self._data = data
         self._data_len = len(data)
         self._col_names = list(data.columns)
         self._model = model
-        self.metrics_dict = dict(
-            zip(["overlap", "goodall2"], [self.overlap, self.goodall2])
+        self._metrics_dict = dict(
+            zip(["overlap", "goodall2"], [self.overlap, self.goodall2])  # Dictionary
         )
-        self._counts_per_attribute = self.__buildcounts()
+        self._counts_per_attribute = (
+            self.__buildcounts()
+        )  # dictionary of counts of occurances of attribute instances
+        self._append_prediction_label()
+
         pass
 
+    def _append_prediction_label(self):
+        """Creates and appends a column to the self._data that has a boolean variable that
+        indicates if the data point was clasify correctly"""
+
+        pred_status_label = pd.Series(self.label_predicted) == pd.Series(
+            self.label_true
+        )
+        pd.concat([self._data, pred_status_label.rename("correctly-predicted")], axis=1)
+
     def __buildcounts(self):
+        """Builds a dictionary with the attributes as key that hold the counts of the occurrances
+        of different values in the data
+        """
         counts_dict = {}
         for attribute in self._col_names:
             counts_dict[attribute] = self._data[attribute].value_counts()
         return counts_dict
 
     def goodall2(self, dpoint1, dpoint2):
+        """Computes the goodall2 similary measurement for categorical data, see paper by
+        Varun, Shyam and Vipin in the bibliography carpet for reference"""
+
         d1_attributes = list(dpoint1.index)
         d2_attributes = list(dpoint2.index)
 
@@ -55,6 +88,9 @@ class SpatialDistribution:
         pass
 
     def goodall3(self, dpoint1, dpoint2):
+        """Computes the goodall3 similarity measurment for categorical data, see paper by
+        Varun, Shyam, Vipin in the bibliography reference for reference"""
+
         d1_attributes = list(dpoint1.index)
         d2_attributes = list(dpoint2.index)
         goodall3_score = 0
@@ -76,12 +112,10 @@ class SpatialDistribution:
         pass
 
     def overlap(self, dpoint1, dpoint2):
+        """Computes the overlap similarity measure for categorical data"""
 
-        d1_attributes = list(dpoint1.index)
-        d2_attributes = list(dpoint2.index)
-
-        if d1_attributes == d2_attributes:
-            overlap_score = len(set(dpoint1) & set(dpoint2)) / len(d1_attributes)
+        if list(dpoint1.index) == list(dpoint2.index):
+            overlap_score = len(set(dpoint1) & set(dpoint2)) / len(dpoint1)
             return overlap_score
         else:
             # write exception
@@ -89,12 +123,24 @@ class SpatialDistribution:
             pass
 
     def goodall_frequency(self, counts):
+        """Computes a probability estimate of an attribute required to compute
+        goodall similarity measures"""
         estimated_freq = (counts * (counts - 1)) / (
             (self._data_len) * (self._data_len - 1)
         )
         return estimated_freq
 
     def distance_to_data(self, dpoint, metric, distance_sample=0.013):
+        """Computes an estimate of the average distance of a data point to every
+        other data points by taking a random sample of a given size and avereging
+        the result
+        Args:
+             dpoint: data point to work with
+             metric: string, similarity metric used to compute the distance
+             distance_sample: float for 0 to 1 that indicates the percentage
+                              from the total data that should be used to
+                              estimate the average distance"""
+
         if distance_sample < 1:
             distance_sample = round(distance_sample * self._data_len)
         elif distance_sample > self._data_len:
@@ -110,6 +156,13 @@ class SpatialDistribution:
         return distance / (distance_sample)
 
     def plot_distance_histogram(self, metric, histo_sample=100, distance_sample=0.0073):
+        """Plots an histogram that approximates the distribution of the distance of the point relative to every
+        other, it does it by taking random samples from the data of size defined by the user
+        Args:
+            Metric: distance metric used to compute the distance
+            histo_sample: number of points that are going to be used to create the histogram
+            distance_sample: percentage of the data that should be used for each point sampled for
+                              the histogram to compute it's approximate distance to every other point"""
         if histo_sample < 1:
             histo_sample = round(histo_sample * self._data_len)
         elif histo_sample > self._data_len:
@@ -138,6 +191,16 @@ class SpatialDistribution:
     def plot_distance_scatterplot(
         self, metric1, metric2, scatter_sample=0.1, distance_sample=0.001
     ):
+        """Produces a scatter plot of the distance of every point to every other
+        using to different metrics as axises
+        Args:
+                metric1: metric to be used in the x axis
+                metric2: metric to be used in the y axis
+                scatter_sample: percentage of the data to be plotted
+                distance_sample: percentage of the data to be used in the
+                                distance estimation of every point in the
+                                scattere plot"""
+
         data = self._data
         distance_array_metric1, distance_array_metric2 = (
             np.empty(scatter_sample),
@@ -151,17 +214,20 @@ class SpatialDistribution:
 
         sampled_indexes = random.sample(range(len(data)), scatter_sample)
 
-        j = 0
-        for i in sampled_indexes:
-            distance_array_metric1[j] = self.distance_to_data(
-                data.iloc[i], metric1, distance_sample=distance_sample
+        distance_index = 0
+        for index in sampled_indexes:
+            distance_array_metric1[distance_index] = self.distance_to_data(
+                data.iloc[index], metric1, distance_sample=distance_sample
             )
-            distance_array_metric2[j] = self.distance_to_data(
-                data.iloc[i], metric2, distance_sample=distance_sample
+            distance_array_metric2[distance_index] = self.distance_to_data(
+                data.iloc[index], metric2, distance_sample=distance_sample
             )
-            j = j + 1
+            distance_index = distance_index + 1
             print(
-                "Processing data :", round(100 * j / scatter_sample, 5), "%", end="\r"
+                "Processing data :",
+                round(100 * distance_index / scatter_sample, 5),
+                "%",
+                end="\r",
             )
             continue
 
