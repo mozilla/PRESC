@@ -7,6 +7,7 @@ File | Description | Source link (with details) | Preprocessing applied | Label 
 `winequality.csv` | Quality ratings of Portuguese white wines | [UCI](https://archive.ics.uci.edu/ml/datasets/Wine+Quality) | Added binarized label column `recommend` indicating `quality >= 7` | `recommend`
 `vehicles.csv` | Recognizing vehicle type from its silhouette | [OpenML](https://www.openml.org/d/54) | None | `Class`
 `eeg.csv` | EEG eye state measurements | [OpenML](https://www.openml.org/d/1471) | Dropped a few outlier rows | `Class`
+`Surgical-deepnet.csv`| Surgical cases related to complication |  [Kaggle](https://www.kaggle.com/omnamahshivai/surgical-dataset-binary-classification) | None | `complication`
 
 These can all be loaded using Pandas:
 
