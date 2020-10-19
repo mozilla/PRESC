@@ -9,6 +9,7 @@ def misclass_rate_feature(
     categorical=False,
     bins=10,
     bins_type="regular",
+    metric = "accuracy score"
 ):
     """Computes the misclassification rate as a function of the feature values.
 
@@ -50,25 +51,48 @@ def misclass_rate_feature(
             of bins, this parameter allows to specify whether these bins should
             be "regular" evenly spaced bins or "quantiles". Default value is
             "regular".
+        metric(str): Metrics wanted to be show. accuracy score,f1 score,
+            recall score can be showed acoording to the paramenter "accuracy score",
+            "f1 score","recall score".
 
     Returns:
         Three elements which correspond to:
             1) The edges of the bins in the feature scale.
             2) The misclassification rate in each bin.
             3) The standard deviation of the misclassification rate in that bin.
+            4) The metric to be evaluate
+            5) The metric score list
     """
     # Builds dataset with only the misclassified data points
     test_dataset_misclass = test_dataset[test_dataset.iloc[:, -1] != test_predictions]
+    
+    if 'pred' not in test_dataset.columns:
+        test_dataset['pred'] = test_predictions
+    y_test_name = list(test_dataset.columns)[-2]
 
     if categorical is False:
 
         # Computes position of bin edges for quartiles or deciles
         if bins == "quartiles":
             bins = compute_quantiles(test_dataset, feature, quantiles=4)
+            lbls = ['1','2','3','4']
+            groups = test_dataset.groupby(by = pd.qcut(test_dataset[feature], q=4,duplicates="drop",labels= lbls))
+            
         elif bins == "deciles":
             bins = compute_quantiles(test_dataset, feature, quantiles=10)
+            lbls = ['1','2','3','4','5','6','7','8','9','10']
+            groups = test_dataset.groupby(by = pd.qcut(test_dataset[feature], q=10,duplicates="drop",labels= lbls))
+            
         elif type(bins) == int and bins_type == "quantiles":
+            lbls = []
+            bin_num = bins
+            for i in range(1,bins+1):
+                lbls.append(str(i))
             bins = compute_quantiles(test_dataset, feature, quantiles=bins)
+            groups = test_dataset.groupby(by = pd.qcut(test_dataset[feature], q=bin_num,duplicates="drop",labels= lbls))
+
+            bin_num = bins
+            
 
         # Histogram of all points
         total_histogram_counts, bins = np.histogram(test_dataset[feature], bins)
@@ -77,6 +101,13 @@ def misclass_rate_feature(
         misclass_histogram_counts, bins = np.histogram(
             test_dataset_misclass[feature], bins
         )
+
+        # groups for regular bin edges
+        lbls = []
+        for i in range(1,bin_num+1):
+                lbls.append(str(i))
+        groups = test_dataset.groupby(by = pd.cut(test_dataset[feature], bins=bin_num,labels= lbls))
+
 
     else:
         # Histogram of all points for categorical features
@@ -123,8 +154,51 @@ def misclass_rate_feature(
             rate += [float("nan")]
             standard_deviation += [float("nan")]
     misclass_rate_histogram = rate
+    
+    
+    # compute metrics
+    
+    metric_list=[]
+    
+    if metric == "accuracy score":
+        accuracy_score_list=[]
 
-    return bins, misclass_rate_histogram, standard_deviation
+        for index in range(1,len(total_histogram_counts)+1):
+                    theGroup = []
+                    theGroup = groups.get_group(str(index))
+                    test_y = pd.Series(theGroup[y_test_name]).to_numpy()
+                    pred_y = pd.Series(theGroup['pred']).to_numpy()
+                    acc_sc = accuracy_score(test_y,pred_y)
+                    accuracy_score_list.append(acc_sc)
+        metric_list = accuracy_score_list
+        
+    elif metric == "recall score":
+        recall_score_list = []
+
+        for index in range(1,len(total_histogram_counts)+1):
+                    theGroup = []
+                    theGroup = groups.get_group(str(index))
+                    test_y = pd.Series(theGroup[y_test_name]).to_numpy()
+                    pred_y = pd.Series(theGroup['pred']).to_numpy()
+                    re_sc = recall_score(test_y,pred_y)
+                    recall_score_list.append(re_sc)
+        metric_list = recall_score_list
+        
+    elif metric == "f1 score":
+        f1_score_list = []
+
+        for index in range(1,len(total_histogram_counts)+1):
+                    theGroup = []
+                    theGroup = groups.get_group(str(index))
+                    test_y = pd.Series(theGroup[y_test_name]).to_numpy()
+                    pred_y = pd.Series(theGroup['pred']).to_numpy()
+                    f1_sc = f1_score(test_y,pred_y)
+                    f1_score_list.append(f1_sc)
+        metric_list = f1_score_list
+                
+    del test_dataset['pred']
+
+    return bins, misclass_rate_histogram, standard_deviation,,metric,metric_list
 
 
 def show_misclass_rate_feature(
@@ -165,7 +239,7 @@ def show_misclass_rate_feature(
         show_sd (bool): Whether the graph should display the standard deviation.
             Default is "False".
     """
-    result_edges, result_rate, result_sd = misclass_rate_feature(
+    result_edges, result_rate, result_sd,metric,metric_list = misclass_rate_feature(
         test_dataset, test_predictions, feature, categorical=categorical, bins=bins
     )
     if categorical is False:
@@ -202,6 +276,14 @@ def show_misclass_rate_feature(
             edgecolor="white",
             linewidth=2,
         )
+    plt.show(block=False)
+    
+    plt.ylim(0, 1)
+    plt.xlabel(feature)
+    plt.ylabel(metric)
+    plt.plot(result_edges,metric_list,color = "black")
+    plt.bar(result_edges,metric_list,width=width_interval,bottom=None,align=alignment,
+            edgecolor="white",linewidth=2)
     plt.show(block=False)
 
 
