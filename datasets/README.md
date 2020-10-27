@@ -7,7 +7,19 @@ File | Description | Source link (with details) | Preprocessing applied | Label 
 `winequality.csv` | Quality ratings of Portuguese white wines | [UCI](https://archive.ics.uci.edu/ml/datasets/Wine+Quality) | Added binarized label column `recommend` indicating `quality >= 7` | `recommend`
 `vehicles.csv` | Recognizing vehicle type from its silhouette | [OpenML](https://www.openml.org/d/54) | None | `Class`
 `eeg.csv` | EEG eye state measurements | [OpenML](https://www.openml.org/d/1471) | Dropped a few outlier rows | `Class`
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 `mushrooms.csv` | Classification mushrooms edibility based on physical features | [UCI](https://archive.ics.uci.edu/ml/datasets/Mushroom) |Renamed the column `class` to `edibility` for descriptiveness| `edibility` 
+=======
+`Surgical-deepnet.csv`| Surgical cases related to complication |  [Kaggle](https://www.kaggle.com/omnamahshivai/surgical-dataset-binary-classification) | None | `complication`
+>>>>>>> 0e17cc24a6adc6c43ff51866b668d68c5ad3a877
+=======
+`Surgical-deepnet.csv`| Surgical cases related to complication |  [Kaggle](https://www.kaggle.com/omnamahshivai/surgical-dataset-binary-classification) | None | `complication`
+>>>>>>> 0e17cc24a6adc6c43ff51866b668d68c5ad3a877
+=======
+`mushrooms.csv` | Classification mushrooms edibility based on physical features | [UCI](https://archive.ics.uci.edu/ml/datasets/Mushroom) |Renamed the column `class` to `edibility` for descriptiveness| `edibility` 
+>>>>>>> parent of 5b67b33... commit all
 
 These can all be loaded using Pandas:
 

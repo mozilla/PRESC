@@ -26,19 +26,32 @@ class SpatialDistribution:
                     sklearn trained model for more functionalities
     """
 
-    def __init__(self, data, label_predicted, label_true, model=None):
-
+    def __init__(self, data, label_predicted, label_true, _KNNmodel=None, type=None):
         self._data = data
+        self.type = type
+        self.label_predicted = np.array(label_predicted)
+        self.label_true = np.array(label_true)
         self._data_len = len(data)
         self._col_names = list(data.columns)
-        self._model = model
+
         self._metrics_dict = dict(
-            zip(["overlap", "goodall2"], [self.overlap, self.goodall2])  # Dictionary
+            zip(
+                ["overlap", "goodall2", "goodall3"],
+                [self.overlap, self.goodall2, self.goodall3],
+            )  # Dictionary
         )
         self._counts_per_attribute = (
             self.__buildcounts()
         )  # dictionary of counts of occurances of attribute instances
+
+        self._KNNmodel = None
+        self.cat_data = None
+        self.num_data = None
         self._append_prediction_label()
+
+        if self.type == "mix":
+            self.num_data = self._data.select_dtypes(include="number")
+            self.cat_data = self._data.select_dtype(exclude="number")
 
         pass
 
@@ -46,15 +59,19 @@ class SpatialDistribution:
         """Creates and appends a column to the self._data that has a boolean variable that
         indicates if the data point was clasify correctly"""
 
-        pred_status_label = pd.Series(self.label_predicted) == pd.Series(
-            self.label_true
+        pred_status_label = pd.Series(
+            [i == j for i, j in zip(self.label_predicted, self.label_true)]
         )
-        pd.concat([self._data, pred_status_label.rename("correctly-predicted")], axis=1)
+
+        return pd.concat(
+            [self._data, pred_status_label.rename("correctly-predicted")], axis=1
+        )
 
     def __buildcounts(self):
         """Builds a dictionary with the attributes as key that hold the counts of the occurrances
         of different values in the data
         """
+
         counts_dict = {}
         for attribute in self._col_names:
             counts_dict[attribute] = self._data[attribute].value_counts()
@@ -100,8 +117,10 @@ class SpatialDistribution:
                 value_point1 = dpoint1[attribute]
                 value_point2 = dpoint2[attribute]
                 if value_point1 == value_point2:
-                    count = self._counts_per_attribute[attribute]
-                    attribute_score = self.modified_frequency(count)
+                    count = self._counts_per_attribute[attribute][value_point1]
+
+                    attribute_score = self.goodall_frequency(count)
+
                     goodall3_score = (1 - attribute_score) + goodall3_score
 
             return goodall3_score / len(d1_attributes)
@@ -146,7 +165,7 @@ class SpatialDistribution:
         elif distance_sample > self._data_len:
             distance_sample = self._data_len
 
-        metric = self.metrics_dict[str(metric)]
+        metric = self._metrics_dict[str(metric)]
         sampled_indexes = random.sample(range(self._data_len), distance_sample)
 
         distance = 0
@@ -154,6 +173,81 @@ class SpatialDistribution:
             distance = distance + metric(dpoint, self._data.iloc[i])
 
         return distance / (distance_sample)
+
+    def array_of_distance(self, dpoint, metric, k):
+        """Creates a list that for a points holds in soarted order the next nearest point
+        to them in  given a metric (ie the highest the position in the list the furtherst it is
+        from the point )"""
+        metric = self._metrics_dict[metric]
+        distance_array = []
+        for i in range(0, self._data_len):
+            next_point = self._data.iloc[i]
+            # print("my point ", list(dpoint))
+            # print(list(next_point))
+            distance_new = metric(dpoint, next_point)
+            # print(distance_new)
+            distance_array.append((distance_new, i))
+
+        distance_array.sort(key=lambda x: x[0])
+
+        return distance_array
+
+    def plot_knearest_points(self, dpoint, k):
+        # metrics = ["goodall2", "goodall3", "overlap"]
+
+        k_nearest_per_metric = self.array_of_distance(dpoint, "overlap", k)
+        overlap_to_point = k_nearest_per_metric
+
+        # print(distance_to_point)
+        sns.set()
+        fig, ax = plt.subplots(1, 2)
+        overlap_to_point = [tuple[0] for tuple in k_nearest_per_metric]
+
+        index_of_neighbour = [tuple[1] for tuple in k_nearest_per_metric]
+
+        goodall2_to_point = [
+            self.goodall2(dpoint, self._data.iloc[i]) for i in index_of_neighbour
+        ]
+        goodall3_to_point = [
+            self.goodall3(dpoint, self._data.iloc[i]) for i in index_of_neighbour
+        ]
+        # print(len(distance_to_point))
+        # print(distance_to_point1)
+        # print(overlap_to_point[:k*100:k])
+        # distance_to_point1 = [k_nearest_per_metric[1][i][0] for i in range(0,k)]
+
+        # distance_to_point2 = [k_nearest_per_metric[2][i][0] for i in range(0,k)]
+        # index_of_neighbour= [k_nearest_per_metric[1][i][1] for i in range(0,k)]
+        # print(index_of_neighbour)
+
+        # for i in range(0,4):
+        # print(distance_to_point)
+        ax[0].set_xlim(goodall2_to_point[-1] * 1.05, 0)
+        ax[0].set_xlabel("goodall2 distance")
+        ax[1].set_xlabel("goodall3 distance")
+        ax[0].yaxis.set_ticks_position("right")
+        ax[1].set_ylabel("Overlap K-Nearest")
+        sns.scatterplot(
+            goodall2_to_point,
+            overlap_to_point,
+            ax=ax[0],
+            s=10,
+            hue=index_of_neighbour,
+            alpha=0.4,
+            legend=False,
+        )
+        sns.scatterplot(
+            goodall3_to_point,
+            overlap_to_point,
+            ax=ax[1],
+            s=10,
+            hue=index_of_neighbour,
+            alpha=0.4,
+            legend=False,
+        )
+
+        # sns.scatterplot(distance_to_point2,distance_to_point1,ax=ax[0][1])
+        plt.show()
 
     def plot_distance_histogram(self, metric, histo_sample=100, distance_sample=0.0073):
         """Plots an histogram that approximates the distribution of the distance of the point relative to every
@@ -233,7 +327,8 @@ class SpatialDistribution:
 
         sns.set()
         fig, ax = plt.subplots()
-        label = np.asarray(data.iloc[sampled_indexes]["correctly-predicted"])
+        data_w_predlabel = self._append_prediction_label()
+        label = np.asarray(data_w_predlabel["correctly-predicted"][sampled_indexes])
         sns.scatterplot(
             distance_array_metric1,
             distance_array_metric2,
@@ -246,5 +341,3 @@ class SpatialDistribution:
         ax.set_title("Data distance")
         plt.show()
         return fig, ax, distance_array_metric1, distance_array_metric2
-
-    pass
