@@ -18,3 +18,5 @@ dependencies:
   - pytest-cov=2.10.0
   - twine=3.2.0
   - imbalanced-learn=0.7.0
+  - pandas-profiling=2.8.0 
+
