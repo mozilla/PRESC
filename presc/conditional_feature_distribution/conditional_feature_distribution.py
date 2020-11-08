@@ -15,13 +15,12 @@ Histograms of distribution of feature in each confusion matrix
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# TODO: What about the case where there is a class that does not exist in either ys?
-
 
 def plot_all_histogram_conditional_feature_distribution(
     y_predict, feature_column, y_actual, bins: int = None
 ):
     # TODO: fix the description
+    # TODO: deal with bins
     """
     Description:
         Plots one histogram that represens the distribution of a feature.
@@ -41,7 +40,7 @@ def plot_all_histogram_conditional_feature_distribution(
     """
 
     # check if the feature_column is either a pandas series of list
-    if not isinstance(feature_column, (pd.Series.dtype, list)):
+    if not isinstance(feature_column, (pd.Series, list)):
         raise (
             ValueError(
                 "The feature column should be either a list or a pandas Series object"
@@ -49,7 +48,7 @@ def plot_all_histogram_conditional_feature_distribution(
         )
 
     # check if feature_column is the same length as the dataset length
-    if len(feature_column) != len(y_actual) or len(y_predict) != (y_actual):
+    if len(feature_column) != y_actual.size or y_predict.size != y_actual.size:
         raise (
             ValueError(
                 "The feature column should have the same length as the dataset and the predicted labels"
@@ -58,14 +57,13 @@ def plot_all_histogram_conditional_feature_distribution(
 
     # create confusion matrix label for each row
     confusion_matrix_group = []
-
-    for i in range(len(y_actual)):
-        label = str(y_actual[i]) + "_predicted_as" + str(y_predict[i])
-        confusion_matrix_group[i] = label
+    for i in range(y_actual.size):
+        label = str(y_actual.iat[i]) + "_predicted_as_" + str(y_predict[i])
+        confusion_matrix_group.append(label)
 
     # make a dataframe for feature column and confusion matrix group
     feature_name = "feature"
-    if isinstance(feature_column, pd.Series.dtype):
+    if isinstance(feature_column, pd.Series):
         feature_name = feature_column.name
 
     histo_df = pd.DataFrame(
@@ -76,25 +74,28 @@ def plot_all_histogram_conditional_feature_distribution(
     unique_groups = sorted(list(set(confusion_matrix_group)))
 
     for group in unique_groups:
-        group_df = histo_df.loc[
-            histo_df["confusion_matrix_group"] == group
-        ].feature_name
-        plot_histogram(group, group_df, bins)
+        group_df = histo_df.loc[histo_df["confusion_matrix_group"] == group]
+        plot_histogram(group, feature_name, group_df, bins)
 
 
 def plot_histogram(
-    confusion_matrix_group_name, group_specific_feature_column, bins: int = None
+    confusion_matrix_group_name,
+    feature_name,
+    group_specific_feature_column,
+    bins: int = None,
 ):
 
     # check whether the feature column is categorical of numeric
-    if group_specific_feature_column.dtype in (int, float):
-        feature_array = group_specific_feature_column.to_numpy()
+    if group_specific_feature_column[feature_name].dtypes in (int, float):
+        feature_array = group_specific_feature_column[feature_name].to_numpy()
 
-        plt.his(x=feature_array, bins=bins)
+        plt.hist(x=feature_array, bins=bins)
 
-        plt.xlabel(group_specific_feature_column.name)
+        plt.xlabel(feature_name)
         plt.ylabel("Frequency")
+        plt.title("Group: " + confusion_matrix_group_name)
     else:
+        # TODO: use plt.hist() for this to keep the code consistent
         group_specific_feature_column.value_counts().plot(kind="bar")
 
     plt.show()
