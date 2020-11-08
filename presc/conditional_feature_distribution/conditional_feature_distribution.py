@@ -17,16 +17,16 @@ def plot_all_histogram_conditional_feature_distribution(
         If categorical, then the x-axis would be categories instead of bins.
 
     Args:
-        y_predict (pd.DataFrame): [Predicted labels for a test set from a trained model]
-        feature_column (object): [Column of data from the test set]
-        y_actual (pd.DataFrame): [True labels for a test set from a trained model]
-        bins (int): [Number of bins for the histograms. Defaults to None]
+        y_predict (pd.DataFrame): Predicted labels for a test set from a trained model
+        feature_column (object): Column of data from the test set
+        y_actual (pd.DataFrame): True labels for a test set from a trained model
+        bins (int): Number of bins for the histograms. Defaults to None
     """
     # TODO: plot the histograms all on the same page in the order as the cofusion matrix
     # check if the feature_column is either a pandas series of list
     if not isinstance(feature_column, (pd.Series, list)):
         raise (
-            ValueError(
+            TypeError(
                 "The feature column should be either a list or a pandas Series object"
             )
         )
@@ -56,12 +56,17 @@ def plot_all_histogram_conditional_feature_distribution(
 
     # plot histogram for each unique group
     unique_groups = sorted(list(set(confusion_matrix_group)))
+    group_sizes = []
 
     for group in unique_groups:
         group_df = histo_df.loc[histo_df["confusion_matrix_group"] == group][
             feature_name
         ]
+        group_sizes.append(group_df.size)
         plot_histogram(group, feature_name, group_df, bins)
+
+    # purely returning this for testing purposes
+    return group_sizes
 
 
 def plot_histogram(
@@ -94,8 +99,14 @@ def plot_histogram(
         plt.ylabel("Frequency")
         plt.title("Group: " + confusion_matrix_group_name)
     else:
-        # TODO: use plt.hist() for this to keep the code consistent once
-        group_df.value_counts().plot(kind="bar")
+        x = np.arange(group_df.value_counts().size)
+        plt.bar(height=group_df.value_counts(), x=x)
+
+        plt.xlabel(group_df.name)
+        cateogries = group_df.unique()
+        plt.xticks(x, cateogries)
+        plt.ylabel("Frequency")
+        plt.title("Group: " + confusion_matrix_group_name)
 
     plt.show()
 
