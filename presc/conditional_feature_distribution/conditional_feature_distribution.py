@@ -70,7 +70,9 @@ def plot_histogram(
     group_df,
     bins: int = None,
 ):
-    """[summary]
+    """
+    Description:
+        Plots a single histogram that corresponds to a quadrant on the confusion matrix
 
     Args:
         confusion_matrix_group_name (str): The group that corresponds to a quadrant on the confusion matrix plot
