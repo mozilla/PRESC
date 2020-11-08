@@ -1,17 +1,3 @@
-"""
-We compute the distribution of a feature over the test set restricted to each cell of the confusion matrix.
-This allows us to compare distributions between misclassified and correctly classified points.
-
-Input [pandas series or list]:
-
-Predicted labels for a test set from a trained model
-Column of data from the test set (eg. values of a feature)
-could also be predicted scores or a function of the features
-
-
-Output:
-Histograms of distribution of feature in each confusion matrix
-"""
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -20,26 +6,23 @@ import matplotlib.pyplot as plt
 def plot_all_histogram_conditional_feature_distribution(
     y_predict, feature_column, y_actual, bins: int = None
 ):
-    # TODO: fix the description
-    # TODO: deal with bins
     """
     Description:
-        Plots one histogram that represens the distribution of a feature.
+        Plots histograms that represens the distribution of a feature.
+        Each histogram should corresponds to a group on the confusion matrix of the test data.
 
-        Input:
-            A pandas series or list that is the same length as the dataset
-
-        Output:
-            X-axis represents the bins over the range of column values for that feature.
-            Y-axis represents relative frequency counts.
-            If categorical, then the x-axis would be categories instead of bins.
+    Output:
+        X-axis represents the bins over the range of column values for that feature.
+        Y-axis represents raw frequency counts.
+        If categorical, then the x-axis would be categories instead of bins.
 
     Args:
-        predicted_labels ([str]): [Predicted labels for a test set from a trained model]
+        y_predict (pd.DataFrame): [Predicted labels for a test set from a trained model]
         feature_column (object): [Column of data from the test set]
-        bins (int): [Number of bins for the histograms. Use matplotlib default if unspecified]
+        y_actual (pd.DataFrame): [True labels for a test set from a trained model]
+        bins (int): [Number of bins for the histograms. Defaults to None]
     """
-
+    # TODO: plot the histograms all on the same page in the order as the cofusion matrix
     # check if the feature_column is either a pandas series of list
     if not isinstance(feature_column, (pd.Series, list)):
         raise (
@@ -75,32 +58,41 @@ def plot_all_histogram_conditional_feature_distribution(
     unique_groups = sorted(list(set(confusion_matrix_group)))
 
     for group in unique_groups:
-        group_df = histo_df.loc[histo_df["confusion_matrix_group"] == group]
+        group_df = histo_df.loc[histo_df["confusion_matrix_group"] == group][
+            feature_name
+        ]
         plot_histogram(group, feature_name, group_df, bins)
 
 
 def plot_histogram(
-    confusion_matrix_group_name,
-    feature_name,
+    confusion_matrix_group_name: str,
+    feature_name: str,
     group_df,
     bins: int = None,
 ):
+    """[summary]
+
+    Args:
+        confusion_matrix_group_name (str): The group that corresponds to a quadrant on the confusion matrix plot
+        group_df (pd.DataFrame): the data that contains the feature values for a group
+        bins (int, optional): Use Freedman Diaconis's methods to get bin numbers if not specified. Defaults to None.
+    """
 
     # check whether the feature column is categorical of numeric
-    if group_df[feature_name].dtypes in (int, float):
-        feature_array = group_df[feature_name].to_numpy()
+    if group_df.dtypes in (int, float):
+        feature_array = group_df.to_numpy()
 
         # calcluate for a defualt bin number using Freedman–Diaconis rule
         if bins is None:
-            bins = freedman_diaconis(group_df[feature_name])
+            bins = freedman_diaconis(group_df)
 
         plt.hist(x=feature_array, bins=bins)
 
-        plt.xlabel(feature_name)
+        plt.xlabel(group_df.name)
         plt.ylabel("Frequency")
         plt.title("Group: " + confusion_matrix_group_name)
     else:
-        # TODO: use plt.hist() for this to keep the code consistent
+        # TODO: use plt.hist() for this to keep the code consistent once
         group_df.value_counts().plot(kind="bar")
 
     plt.show()
