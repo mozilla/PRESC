@@ -12,6 +12,7 @@ could also be predicted scores or a function of the features
 Output:
 Histograms of distribution of feature in each confusion matrix
 """
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -81,13 +82,17 @@ def plot_all_histogram_conditional_feature_distribution(
 def plot_histogram(
     confusion_matrix_group_name,
     feature_name,
-    group_specific_feature_column,
+    group_df,
     bins: int = None,
 ):
 
     # check whether the feature column is categorical of numeric
-    if group_specific_feature_column[feature_name].dtypes in (int, float):
-        feature_array = group_specific_feature_column[feature_name].to_numpy()
+    if group_df[feature_name].dtypes in (int, float):
+        feature_array = group_df[feature_name].to_numpy()
+
+        # calcluate for a defualt bin number using Freedman–Diaconis rule
+        if bins is None:
+            bins = freedman_diaconis(group_df[feature_name])
 
         plt.hist(x=feature_array, bins=bins)
 
@@ -96,6 +101,21 @@ def plot_histogram(
         plt.title("Group: " + confusion_matrix_group_name)
     else:
         # TODO: use plt.hist() for this to keep the code consistent
-        group_specific_feature_column.value_counts().plot(kind="bar")
+        group_df.value_counts().plot(kind="bar")
 
     plt.show()
+
+
+def freedman_diaconis(data):
+    IQR = np.diff(np.quantile(data, q=[0.25, 0.75]))[0]
+    N = data.size
+    bw = (2 * IQR) / np.power(N, 1 / 3)
+
+    if bw == 0:
+        return 10
+
+    datmin, datmax = data.min(), data.max()
+    datrng = datmax - datmin
+    bin_nums = int(datrng / bw) + 1
+
+    return bin_nums
