@@ -103,8 +103,8 @@ def main():
 
     # spatdis.array_of_distance(spatdis._data.iloc[-1],'overlap')
     # spatdis.plot_knearest_points(spatdis._data.iloc[-100], "overlap","goodall3","lin",8000)
-    spatdis.plot_full_histogram_report(
-        distance_sample=0.0001, mdistance_sample=0.001, histo_sample=50
+    spatdis.plot_distance_histogram(
+        "overlap", distance_sample=0.0001, mdistance_sample=0.001, histo_sample=50
     )
 
 
