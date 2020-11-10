@@ -12,6 +12,7 @@ import random
 import seaborn as sns
 import pandas as pd
 import math
+from tqdm import tqdm
 
 
 class SpatialDistribution:
@@ -303,39 +304,25 @@ class SpatialDistribution:
         distance_array = np.empty(histo_sample)
         sampled_indexes = random.sample(range(self._data_len), histo_sample)
 
+        print("Processing correctly classified datapoints")
         j = 0
-        for i in sampled_indexes:
+        for i in tqdm(sampled_indexes):
             distance_array[j] = self.distance_to_data(
                 self._data.iloc[i], metric, distance_sample
             )
-            if j % 10 == 0:
-                print(
-                    "Processing data :", round(100 * j / histo_sample, 2), "%", end="\r"
-                )
             j = j + 1
-            if j == len(sampled_indexes) - 1:
-                print("Processing data :", str(100), "%", end="\r")
-            continue
+
         """ Misclas Histograms"""
 
         condition = ~self.data_w_predlabel["correctly-predicted"]
         misclass_indexes = self.data_w_predlabel.index[condition].tolist()
         misclass_distance_array = np.empty(len(misclass_indexes))
-        print("")
-        for i in range(0, len(misclass_indexes)):
+        print("Processing misclasfied datapoints")
+        for i in tqdm(range(0, len(misclass_indexes))):
             index = misclass_indexes[i]
             misclass_distance_array[i] = self.distance_to_data(
                 self._data.iloc[index], metric, mdistance_sample
             )
-            if i % 10 == 0:
-                print(
-                    "Processing misclasfied data :",
-                    round(100 * i / len(misclass_indexes), 2),
-                    "% ",
-                    end="\r",
-                )
-        print("Processing misclasfied data :", str(100), "%", end="\r")
-        print("")
 
         sns.set()
         all_data_std = np.std(distance_array)
