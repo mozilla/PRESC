@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.metrics import accuracy_score, f1_score
 
 
 def misclass_rate_feature(
@@ -9,18 +11,17 @@ def misclass_rate_feature(
     categorical=False,
     bins=10,
     bins_type="regular",
-    metric = "accuracy score"
+    metric_function=lambda y_true, y_pred: f1_score(
+        y_true, y_pred, pos_label="True", zero_division=0
+    ),
 ):
     """Computes the misclassification rate as a function of the feature values.
-
     This function allows to compute the misclassification rate of a sample for
     the values of any particular feature.
-
     The function allows any binning for this calculation, which means that
     regularly spaced binnings, disparately spaced binnings that correspond to
     sets of an equal amount of data points (such as quartiles, deciles, or
     n-quantiles), or any other arbitrary irregular binning can be used.
-
     When the full dataset with all points does not have any data point in an
     interval corresponding to a certain bin, the function yields a "nan" value
     for the misclassification rate to prevent a zero division error and also to
@@ -28,7 +29,6 @@ def misclass_rate_feature(
     misclassification rate. The same happens with the standard deviation when
     either the full dataset with all points or the dataset with only the
     misclassified points do not have any data point in a certain bin interval.
-
     Parameters:
         test_dataset: Dataset with the features of all data points, where the
             true class is at the last column.
@@ -51,48 +51,52 @@ def misclass_rate_feature(
             of bins, this parameter allows to specify whether these bins should
             be "regular" evenly spaced bins or "quantiles". Default value is
             "regular".
-        metric(str): Metrics wanted to be show. accuracy score,f1 score,
-            recall score can be showed acoording to the paramenter "accuracy score",
-            "f1 score","recall score".
+        metric_function(lambda function): This parameter will take in a lambda function
+            which will work on matched true y value and predicted y value. Please make sure
+            to write a runnable metric score function(from sklearn.metric) with all parameters
+            (with its value) you want to set. This misclass_rate_feature function will work
+            exactly the metric function which you give on binned data.
+            Such as: metric_function=lambda y_true, y_pred: f1_score(y_true, y_pred, pos_label="True", zero_division=0)
 
     Returns:
         Three elements which correspond to:
             1) The edges of the bins in the feature scale.
             2) The misclassification rate in each bin.
             3) The standard deviation of the misclassification rate in that bin.
-            4) The metric to be evaluate
-            5) The metric score list
+            4) The list of conditional metrics in each bin.
     """
     # Builds dataset with only the misclassified data points
     test_dataset_misclass = test_dataset[test_dataset.iloc[:, -1] != test_predictions]
-    
-    if 'pred' not in test_dataset.columns:
-        test_dataset['pred'] = test_predictions
-    y_test_name = list(test_dataset.columns)[-2]
+
+    y_test_name = list(test_dataset.columns)[-1]
+
+    y_pred_series = pd.Series(test_predictions, test_dataset.index)
 
     if categorical is False:
 
-        # Computes position of bin edges for quartiles or deciles
+        # Computes position of bin edges and groups for quartiles or deciles
         if bins == "quartiles":
             bins = compute_quantiles(test_dataset, feature, quantiles=4)
-            lbls = ['1','2','3','4']
-            groups = test_dataset.groupby(by = pd.qcut(test_dataset[feature], q=4,duplicates="drop",labels= lbls))
-            
+            groups = test_dataset.groupby(
+                by=pd.qcut(test_dataset[feature], q=4, duplicates="drop")
+            )
+
         elif bins == "deciles":
             bins = compute_quantiles(test_dataset, feature, quantiles=10)
-            lbls = ['1','2','3','4','5','6','7','8','9','10']
-            groups = test_dataset.groupby(by = pd.qcut(test_dataset[feature], q=10,duplicates="drop",labels= lbls))
-            
-        elif type(bins) == int and bins_type == "quantiles":
-            lbls = []
-            bin_num = bins
-            for i in range(1,bins+1):
-                lbls.append(str(i))
-            bins = compute_quantiles(test_dataset, feature, quantiles=bins)
-            groups = test_dataset.groupby(by = pd.qcut(test_dataset[feature], q=bin_num,duplicates="drop",labels= lbls))
+            groups = test_dataset.groupby(
+                by=pd.qcut(test_dataset[feature], q=10, duplicates="drop")
+            )
 
+        elif type(bins) == int and bins_type == "quantiles":
             bin_num = bins
-            
+            bins = compute_quantiles(test_dataset, feature, quantiles=bins)
+            groups = test_dataset.groupby(
+                by=pd.qcut(test_dataset[feature], q=bin_num, duplicates="drop")
+            )
+
+        # groups for regular bin edges or known bin edges
+        else:
+            groups = test_dataset.groupby(by=pd.cut(test_dataset[feature], bins=bins))
 
         # Histogram of all points
         total_histogram_counts, bins = np.histogram(test_dataset[feature], bins)
@@ -102,14 +106,36 @@ def misclass_rate_feature(
             test_dataset_misclass[feature], bins
         )
 
-        # groups for regular bin edges
-        lbls = []
-        for i in range(1,bin_num+1):
-                lbls.append(str(i))
-        groups = test_dataset.groupby(by = pd.cut(test_dataset[feature], bins=bin_num,labels= lbls))
-
+        # compute metric
+        metric_list = []
+        # get all groups and compute their metrics for each group
+        for key in groups.groups.keys():
+            try:
+                theGroup = groups.get_group(key)
+                test_y = pd.Series(theGroup[y_test_name]).to_numpy()
+                pred_y = []
+                for row in theGroup.index:
+                    pred_y.append(y_pred_series.at[row])
+                sc = metric_function(test_y, pred_y)
+                metric_list.append(sc)
+            except KeyError:
+                metric_list.append(0)
 
     else:
+        # compute metric
+        groups = test_dataset.groupby(by=feature)
+
+        metric_list = []
+        # get all groups and compute their metrics for each group
+        for key in groups.groups.keys():
+            theGroup = groups.get_group(key)
+            test_y = pd.Series(theGroup[y_test_name]).to_numpy()
+            pred_y = []
+            for row in theGroup.index:
+                pred_y.append(y_pred_series.at[row])
+            sc = accuracy_score(test_y, pred_y)
+            metric_list.append(sc)
+
         # Histogram of all points for categorical features
         total_histogram_counts = test_dataset[feature].value_counts().sort_index()
 
@@ -154,51 +180,8 @@ def misclass_rate_feature(
             rate += [float("nan")]
             standard_deviation += [float("nan")]
     misclass_rate_histogram = rate
-    
-    
-    # compute metrics
-    
-    metric_list=[]
-    
-    if metric == "accuracy score":
-        accuracy_score_list=[]
 
-        for index in range(1,len(total_histogram_counts)+1):
-                    theGroup = []
-                    theGroup = groups.get_group(str(index))
-                    test_y = pd.Series(theGroup[y_test_name]).to_numpy()
-                    pred_y = pd.Series(theGroup['pred']).to_numpy()
-                    acc_sc = accuracy_score(test_y,pred_y)
-                    accuracy_score_list.append(acc_sc)
-        metric_list = accuracy_score_list
-        
-    elif metric == "recall score":
-        recall_score_list = []
-
-        for index in range(1,len(total_histogram_counts)+1):
-                    theGroup = []
-                    theGroup = groups.get_group(str(index))
-                    test_y = pd.Series(theGroup[y_test_name]).to_numpy()
-                    pred_y = pd.Series(theGroup['pred']).to_numpy()
-                    re_sc = recall_score(test_y,pred_y)
-                    recall_score_list.append(re_sc)
-        metric_list = recall_score_list
-        
-    elif metric == "f1 score":
-        f1_score_list = []
-
-        for index in range(1,len(total_histogram_counts)+1):
-                    theGroup = []
-                    theGroup = groups.get_group(str(index))
-                    test_y = pd.Series(theGroup[y_test_name]).to_numpy()
-                    pred_y = pd.Series(theGroup['pred']).to_numpy()
-                    f1_sc = f1_score(test_y,pred_y)
-                    f1_score_list.append(f1_sc)
-        metric_list = f1_score_list
-                
-    del test_dataset['pred']
-
-    return bins, misclass_rate_histogram, standard_deviation,,metric,metric_list
+    return bins, misclass_rate_histogram, standard_deviation, metric_list
 
 
 def show_misclass_rate_feature(
@@ -239,18 +222,26 @@ def show_misclass_rate_feature(
         show_sd (bool): Whether the graph should display the standard deviation.
             Default is "False".
     """
-    result_edges, result_rate, result_sd,metric,metric_list = misclass_rate_feature(
+    result_edges, result_rate, result_sd, metric_list = misclass_rate_feature(
         test_dataset, test_predictions, feature, categorical=categorical, bins=bins
     )
     if categorical is False:
+        centers = []
+        for i in range(0, len(result_edges) - 1):
+            center = (result_edges[i + 1] - result_edges[i]) / 2 + result_edges[i]
+            centers.append(center)
+        xCoor = centers
+
         width = np.diff(result_edges)
         width_interval = [bin * width_fraction for bin in width]
         result_edges = result_edges[:-1]
         alignment = "edge"
+
     else:
         result_edges = [str(item) for item in result_edges]
         alignment = "center"
         width_interval = 1
+        xCoor = result_edges
 
     plt.ylim(0, 1)
     plt.xlabel(feature)
@@ -277,13 +268,19 @@ def show_misclass_rate_feature(
             linewidth=2,
         )
     plt.show(block=False)
-    
+
     plt.ylim(0, 1)
     plt.xlabel(feature)
-    plt.ylabel(metric)
-    plt.plot(result_edges,metric_list,color = "black")
-    plt.bar(result_edges,metric_list,width=width_interval,bottom=None,align=alignment,
-            edgecolor="white",linewidth=2)
+    plt.plot(xCoor, metric_list, color="black")
+    plt.bar(
+        result_edges,
+        metric_list,
+        width=width_interval,
+        bottom=None,
+        align=alignment,
+        edgecolor="white",
+        linewidth=2,
+    )
     plt.show(block=False)
 
 
