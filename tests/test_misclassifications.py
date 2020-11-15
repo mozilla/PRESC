@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import pytest
+from sklearn.metrics import accuracy_score, recall_score, f1_score, precision_score
 
 from presc.misclassifications.misclass_rate import (
     misclass_rate_feature,
@@ -46,18 +47,35 @@ def bins_type_param(request):
     return request.param
 
 
+@pytest.fixture(
+    params=[
+        lambda y_true, y_pred: f1_score(
+            y_true, y_pred, pos_label="True", zero_division=0
+        )
+    ]
+)
+def metric_function_param(request):
+    return request.param
+
+
 def test1_misclass_rate_feature(
-    dataset, dataset_predictions, feature_param, bins_param, bins_type_param
+    dataset,
+    dataset_predictions,
+    feature_param,
+    bins_param,
+    bins_type_param,
+    metric_function_param,
 ):
     """Checks for assertions that should always apply regardless of the dataset
     and the parameters.
     """
-    result_edges, result_rate, result_sd = misclass_rate_feature(
+    result_edges, result_rate, result_sd, metric_list = misclass_rate_feature(
         dataset,
         dataset_predictions,
         feature=feature_param,
         bins=bins_param,
         bins_type=bins_type_param,
+        metric_function=metric_function_param,
     )
     assert len(result_edges) == len(result_rate) + 1
     if type(bins_param) == int:
@@ -66,85 +84,125 @@ def test1_misclass_rate_feature(
         assert len(result_rate) == len(bins_param) - 1
     assert max(result_rate) <= 1.0
     assert min(result_rate) >= 0.0
+    assert len(result_edges) == len(metric_list) + 1
+    assert type(metric_list) == list
+    for i in metric_list:
+        assert i <= 1.0
 
 
 # This decorator lists de combination of parameters to be tested.
 @pytest.mark.parametrize(
     "feature_scenario, "
-    "categorical_scenario, bins_scenario, bins_type_scenario, "
-    "result_edges_scenario, result_rate_scenario, result_sd_scenario",
+    "categorical_scenario, bins_scenario, bins_type_scenario, metric_function_scenario,"
+    "result_edges_scenario, result_rate_scenario, result_sd_scenario, metric_list_scenario",
     [
         (
             "Feature 1",
             False,
             2,
             "regular",
+            (lambda y_true, y_pred: accuracy_score(y_true, y_pred)),
             [1.0, 3.0, 5.0],
             [1.0, 0.5],
             [1.414, 0.8535],
+            [0, 0.5],
         ),
         (
             "Feature 1",
             False,
             2,
             "quantiles",
+            (
+                lambda y_true, y_pred: recall_score(
+                    y_true, y_pred, pos_label="True", zero_division=0
+                )
+            ),
             [1.0, 3.0, 5.0],
             [1.0, 0.5],
             [1.414, 0.8535],
+            [0, 0],
         ),
         (
             "Feature 2",
             False,
             2,
             "regular",
+            (
+                lambda y_true, y_pred: f1_score(
+                    y_true, y_pred, pos_label="True", zero_division=0
+                )
+            ),
             [1.0, 5.0, 9.0],
             [1.0, 0.6666],
             [2.0, 0.8563],
+            [0, 0],
         ),
         (
             "Feature 2",
             False,
             2,
             "quantiles",
+            (
+                lambda y_true, y_pred: f1_score(
+                    y_true, y_pred, pos_label="True", zero_division=0
+                )
+            ),
             [1.0, 7.0, 9.0],
             [1.0, 0.5],
             [1.414, 0.8536],
+            [0, 0],
         ),
         (
             "Feature 1",
             False,
             [0.0, 4.0, 10.0],
             "regular",
+            (lambda y_true, y_pred: accuracy_score(y_true, y_pred)),
             [0.0, 4.0, 10.0],
             [0.6666, 1.0],
             [0.8563, 2.0],
+            [0.3333, 0],
         ),
         (
             "Feature 2",
             False,
             [0.0, 4.0, 10.0],
             "regular",
+            (
+                lambda y_true, y_pred: recall_score(
+                    y_true, y_pred, pos_label="True", zero_division=0
+                )
+            ),
             [0.0, 4.0, 10.0],
             [1.0, 0.6666],
             [2.0, 0.8563],
+            [0, 0],
         ),
         (
             "Feature 1",
             False,
             "quartiles",
             "regular",
+            (lambda y_true, y_pred: accuracy_score(y_true, y_pred)),
             [1.0, 2.125, 3.0, 3.875, 5.0],
             [1.0, 1.0, 0.0, 1.0],
             [2.0, 2.0, float("nan"), 2.0],
+            [0, 0, 1, 0],
         ),
         (
             "Feature 2",
             False,
             "quartiles",
             "regular",
+            (
+                lambda y_true, y_pred: precision_score(
+                    y_true, y_pred, pos_label="True", zero_division=0
+                )
+            ),
             [1.0, 4.75, 7.0, 8.25, 9.0],
             [1.0, 1.0, 0.0, 1.0],
             [2.0, 2.0, float("nan"), 2.0],
+            [0, 0, 0, 0],
         ),
     ],
 )
@@ -155,25 +213,29 @@ def test2_misclass_rate_feature(
     categorical_scenario,
     bins_scenario,
     bins_type_scenario,
+    metric_function_scenario,
     result_edges_scenario,
     result_rate_scenario,
     result_sd_scenario,
+    metric_list_scenario,
 ):
     """Checks for assertions that should be true for specific parameter combinations."""
 
-    result_edges, result_rate, result_sd = misclass_rate_feature(
+    result_edges, result_rate, result_sd, metric_list = misclass_rate_feature(
         dataset,
         dataset_predictions,
         feature_scenario,
         categorical=categorical_scenario,
         bins=bins_scenario,
         bins_type=bins_type_scenario,
+        metric_function=metric_function_scenario,
     )
 
     # All results should have the expected number of elements
     assert len(result_edges) == len(result_edges_scenario)
     assert len(result_rate) == len(result_rate_scenario)
     assert len(result_sd) == len(result_sd_scenario)
+    assert len(metric_list) == len(metric_list_scenario)
 
     # All the elements of the three results should agree with the written values
     # up to 0,1% (10^-3).
@@ -185,6 +247,9 @@ def test2_misclass_rate_feature(
     )
     np.testing.assert_allclose(
         result_sd, result_sd_scenario, rtol=1e-03, equal_nan=True
+    )
+    np.testing.assert_allclose(
+        metric_list, metric_list_scenario, rtol=1e-03, equal_nan=True
     )
 
 
@@ -210,20 +275,23 @@ def dataset_predictions_categorical():
 def test3_misclass_rate_feature(dataset_categorical, dataset_predictions_categorical):
     """Checks for assertions that should be true for specific parameter combinations."""
 
-    result_edges, result_rate, result_sd = misclass_rate_feature(
+    result_edges, result_rate, result_sd, metric_list = misclass_rate_feature(
         dataset_categorical,
         dataset_predictions_categorical,
         feature="Feature 1",
         categorical=True,
+        metric_function=(lambda y_true, y_pred: accuracy_score(y_true, y_pred)),
     )
     result_edges_scenario = ["blue", "green", "red"]
     result_rate_scenario = [0.6667, 0.0, 1.0]
     result_sd_scenario = [0.8563, float("nan"), 2.0]
+    metric_list_scenario = [0.3333, 1, 0]
 
     # All results should have the expected number of elements
     assert len(result_edges) == len(result_edges_scenario)
     assert len(result_rate) == len(result_rate_scenario)
     assert len(result_sd) == len(result_sd_scenario)
+    assert len(metric_list) == len(metric_list_scenario)
 
     # All the elements of the three results should agree with the written values
     # up to 0,1% (10^-3).
