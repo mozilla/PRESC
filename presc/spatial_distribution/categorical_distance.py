@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+# flake8: noqa
+# black: noqa
 """
 Created on Fri Oct  9 11:47:47 2020
-
 @author: castromi
 """
-# noqa: E712
+
 
 from matplotlib import pyplot as plt
 import numpy as np
@@ -20,15 +21,14 @@ class SpatialDistribution:
     information on the spatial distribution of the data at hand
 
     Args:
-            data: pandas dataframe of the data to be analyzed
-            label_predicted: List or pandas series that holds the label predicted
-                             by the model
-            label_true: List or pandas series that holds the true labels
-            model:Currently not implemented and set to None, in the future it might ask for the specific
-                    sklearn trained model for more functionalities
+            data(Pandas dataframe):The data to be analyzed
+            label_predicted(List or Pandas Series):The label predicted by the model
+            label_true(List or pandas series):That holds the true labels
+            type(str): To be implemente will be used to determine if we are dealing with
+                       numeric, categorical or mixed data
     """
 
-    def __init__(self, data, label_predicted, label_true, _KNNmodel=None, type=None):
+    def __init__(self, data, label_predicted, label_true, type=None):
         self._data = data
         self.type = type
         self.label_predicted = np.array(label_predicted)
@@ -47,9 +47,8 @@ class SpatialDistribution:
             self.__buildcounts()
         )  # dictionary of counts of occurances of attribute instances
 
-        self._KNNmodel = None
-        self.cat_data = None
-        self.num_data = None
+        self.cat_data = None  # This will be use when we extend the module for numerical
+        self.num_data = None  # plus categorical data types
 
         if self.type == "mix":
             self.num_data = self._data.select_dtypes(include="number")
@@ -79,36 +78,42 @@ class SpatialDistribution:
             counts_dict[attribute] = self._data[attribute].value_counts()
         return counts_dict
 
+    def available_metrics(self):
+        """Prints the available metrics """
+        metrics = list(self._metrics_dict.keys())
+        for metric in metrics:
+            print(metric)
+
     def goodall2(self, dpoint1, dpoint2):
         """Computes the goodall2 similary measurement for categorical data, see paper by
-        Varun, Shyam and Vipin in the bibliography carpet for reference"""
+        Varun, Shyam and Vipin in the bibliography carpet for reference
+        Args:
+            dpoint1(Pandas Series): Data point to compare
+            dpoin2(Pandas Series): Data point to compare
+        """
 
-        d1_attributes = list(dpoint1.index)
-        d2_attributes = list(dpoint2.index)
-
-        if d1_attributes == d2_attributes:
-            intersection = dpoint1 == dpoint2
-            common_attributes = list(dpoint1[intersection].index)
-            goodall2_score = 0
-            for attribute in common_attributes:
-                attribute_score = 0
-                counts = self._counts_per_attribute[attribute]
-
-                for count in counts:
+        intersection = dpoint1 == dpoint2
+        common_attributes = list(dpoint1[intersection].index)
+        goodall2_score = 0
+        for attribute in common_attributes:
+            attribute_score = 0
+            common_value = dpoint[attribute]
+            counts = self._counts_per_attribute[attribute]
+            for count in counts:
+                if counts[common_value] < count:
                     attribute_score = self.goodall_frequency(count) + attribute_score
-                    pass
 
-                goodall2_score = (1 - attribute_score) + goodall2_score
+            goodall2_score = (1 - attribute_score) + goodall2_score
 
-            return goodall2_score / len(d1_attributes)
-        else:
-            # Raise exeption points do not have the same attributes
-            pass
-        pass
+        return goodall2_score / len(d1_attributes)
 
     def goodall3(self, dpoint1, dpoint2):
         """Computes the goodall3 similarity measurment for categorical data, see paper by
-        Varun, Shyam, Vipin in the bibliography reference for reference"""
+        Varun, Shyam, Vipin in the bibliography reference for reference
+        Args:
+            dpoint1(Pandas Series): Data point to compare
+            dpoin2(Pandas Series): Data point to compare
+        """
 
         d1_attributes = list(dpoint1.index)
         d2_attributes = list(dpoint2.index)
@@ -130,13 +135,15 @@ class SpatialDistribution:
             # write exception
             pass
 
-        pass
-
     def overlap(self, dpoint1, dpoint2):
-        """Computes the overlap similarity measure for categorical data"""
+        """Computes the overlap similarity measure for categorical data
+        Args:
+            dpoint1(Pandas Series): Data point to compare
+            dpoin2(Pandas Series): Data point to compare
+        """
 
         if list(dpoint1.index) == list(dpoint2.index):
-            overlap_score = len(set(dpoint1) & set(dpoint2)) / len(dpoint1)
+            overlap_score = (dpoint1 == dpoint2).mean()
             return overlap_score
         else:
             # write exception
@@ -144,26 +151,27 @@ class SpatialDistribution:
             pass
 
     def lin(self, dpoint1, dpoint2):
-        d1_attributes = list(dpoint1.index)
-        d2_attributes = list(dpoint2.index)
-
-        if d1_attributes == d2_attributes:
-            lin = 0
-            weight = self.lin_weight(dpoint1, dpoint2)
-            for attribute in d1_attributes:
-                frequency_dpoint1 = self.empirical_frequency(
-                    dpoint1[attribute], attribute
-                )
-                frequency_dpoint2 = self.empirical_frequency(
-                    dpoint2[attribute], attribute
-                )
-                if dpoint1[attribute] == dpoint2[attribute]:
-                    lin = lin + 2 * np.log(frequency_dpoint1)
-                else:
-                    lin = lin + 2 * np.log(frequency_dpoint1 + frequency_dpoint2)
+        """Computes the Lin similarity measurment for categorical data, see paper by
+        Varun, Shyam, Vipin in the bibliography reference for reference
+        Args:
+            dpoint1(Pandas Series): Data point to compare
+            dpoin2(Pandas Series): Data point to compare
+        """
+        lin = 0
+        weight = self.lin_weight(dpoint1, dpoint2)
+        for attribute in d1_attributes:
+            frequency_dpoint1 = self.empirical_frequency(dpoint1[attribute], attribute)
+            frequency_dpoint2 = self.empirical_frequency(dpoint2[attribute], attribute)
+            if dpoint1[attribute] == dpoint2[attribute]:
+                lin = lin + 2 * np.log(frequency_dpoint1)
+            else:
+                lin = lin + 2 * np.log(frequency_dpoint1 + frequency_dpoint2)
         return weight * lin
 
     def lin_weight(self, dpoint1, dpoint2):
+        """Computes the lin wiehgt as describe in the paper of Varun, Shyam and Vipin in the
+        bibliography"""
+
         d1_attributes = list(dpoint1.index)
         weight_denominator = 0
         for attribute in d1_attributes:
@@ -176,8 +184,6 @@ class SpatialDistribution:
             )
 
         return 1 / weight_denominator
-
-        return
 
     def empirical_frequency(self, value, attribute):
         counts = self._counts_per_attribute[attribute][value]
@@ -196,11 +202,12 @@ class SpatialDistribution:
         other data points by taking a random sample of a given size and avereging
         the result
         Args:
-             dpoint: data point to work with
-             metric: string, similarity metric used to compute the distance
-             distance_sample: float for 0 to 1 that indicates the percentage
+             dpoint(Pandas Series): Pandas Series data point to work with
+             metric (str): similarity metric used to compute the distance
+             distance_sample(numeric): Number that if from 0 to 1  indicates the percentage
                               from the total data that should be used to
-                              estimate the average distance"""
+                              estimate the average distance and if greater indicates the precise number
+                              of samples to be take"""
 
         if distance_sample < 1:
             distance_sample = round(distance_sample * self._data_len)
@@ -219,9 +226,15 @@ class SpatialDistribution:
         return distance / (distance_sample)
 
     def array_of_distance(self, dpoint, metric, k):
-        """Creates a list that for a points holds in soarted order the next nearest point
-        to them in  given a metric (ie the highest the position in the list the furtherst it is
-        from the point )"""
+        """Creates a list that for a point holds (in soarted order) the next k-nearest point
+        to in  given a metric (ie the highest the position in the list the furtherst it is
+        from the point )
+
+        Args:
+            dpoint1(Pandas Series): Data point from which we'll get the nearest neighbours
+            metric(str): The metric use
+            k(int): The number of points
+        """
         metric = self._metrics_dict[metric]
         distance_array = []
         for i in range(0, self._data_len):
@@ -234,6 +247,19 @@ class SpatialDistribution:
         return distance_array
 
     def plot_knearest_points(self, dpoint, metric1, metric2, metric3, k):
+        """Given a pandas Series data point computes and visualize the k-nearest points in metric1
+        and how this same point projects in metric2 and metric3 plotting everything in a graph
+        where metric1 will be in the y-axis and the points in metric2 and metric3 will be projected in quadrant
+        I and IV correspondingly
+
+        Args:
+             dpoin1 (Pandas Series): Data point from which we'll find the k nearest neighbours
+             metric1 (str): Name of the similarity metric used to find the k nearest neighbours
+             metric2 (str): Name of a similarity metric to project the knn in the I quadrant
+             metric3 (str): Name of a similarity metric to project the knn in the IV quadrant
+             k (int): Number of nearest neighbours to find
+        """
+
         metrics = [metric2, metric3]
         main_metric = metric1
         k_nearest_per_metric = self.array_of_distance(dpoint, main_metric, k)
@@ -291,10 +317,18 @@ class SpatialDistribution:
         """Plots an histogram that approximates the distribution of the distance of the point relative to every
         other, it does it by taking random samples from the data of size defined by the user
         Args:
-            Metric: distance metric used to compute the distance
-            histo_sample: number of points that are going to be used to create the histogram
-            distance_sample: percentage of the data that should be used for each point sampled for
-                              the histogram to compute it's approximate distance to every other point"""
+            metric (str): distance metric used to compute the distance
+            histo_sample(int): number of points that are going to be used to create the histogram
+            distance_sample(float/int): Percentage of the correctly classified  data that should be used for each point sampled for
+                                        the histogram to compute it's approximate distance to every other point. if less or equal to 1 it
+                                        represents a percentage if greater than 1 it represents the exact number of sampled points
+
+            mdistance_sample(float/int): Percentage of the  misclassified  data that should be used for each point sampled for
+                                        the histogram to compute it's approximate distance to every other point. if less or equal to 1 it
+                                        represents a percentage if greater than 1 it represents the exact number of sampled points
+            bar_width(float): Width of the histogram bars
+            ax (Matplotlib Axis object): Axis to plot the graph
+        """
 
         if histo_sample < 1:
             histo_sample = round(histo_sample * self._data_len)
@@ -312,8 +346,7 @@ class SpatialDistribution:
             )
             j = j + 1
 
-        """ Misclas Histograms"""
-
+        # Processing the misclasfied points
         condition = ~self.data_w_predlabel["correctly-predicted"]
         misclass_indexes = self.data_w_predlabel.index[condition].tolist()
         misclass_distance_array = np.empty(len(misclass_indexes))
@@ -373,6 +406,21 @@ class SpatialDistribution:
         mdistance_sample=0.05,
         bar_width=0.01,
     ):
+        """Plots the histograms and the kernel density estimation for the
+        distribution in all the available metrics of the average distance that a point
+        has to every other point
+        Args:
+             dpoint (Pandas Series): Pandas Series data point to work with
+             metric (str): similarity metric used to compute the distance
+             distance_sample (numeric): number that if between 0 to 1 that indicates the percentage
+                              from the total data that should be used to
+                              estimate the average distance for correctly classified
+                              points if greater indicates the number of samples used to computed
+                              the average distance of a given point to every other
+             mdistance_sample (numeric): The same as above but for points that were misclasfied
+             bar_width (float): The width of the histograms bar
+        """
+
         col_number = 2
         row_number = 2
         fig, axis = plt.subplots(row_number, col_number)
@@ -394,9 +442,18 @@ class SpatialDistribution:
         plt.show()
         return
 
-    def plot_distance_misclasified(
-        self, metric1, metric2, scatter_sample=1, distance_sample=0.01
-    ):
+    def plot_distance_misclasified(self, metric1, metric2, distance_sample=0.01):
+        """Plots a scatter point of the average distance of the misclasfied points to every
+        other point
+        in 2 metrics using the x and y axis correspondingly
+        Args:
+            metric1 (str): similarity metric used in the x axis
+            metric2 (str): similarity metric used in the y axis
+            distance_sample (numeric): Number that if from 0 to 1  indicates the percentage
+                             from the total data that should be used to
+                             estimate the average distance and if greater indicates the precise number
+                             of samples to be take
+        """
         data = self._data
         data_indexes = self.data_w_predlabel.index
         condition = ~self.data_w_predlabel["correctly-predicted"]
@@ -408,7 +465,7 @@ class SpatialDistribution:
         )
         if scatter_sample == 1:
             distance_index = 0
-            for index in missclass_indexes:
+            for index in tqdm(missclass_indexes):
                 distance_array_metric1[distance_index] = self.distance_to_data(
                     data.iloc[index], metric1, distance_sample=distance_sample
                 )
@@ -416,12 +473,6 @@ class SpatialDistribution:
                     data.iloc[index], metric2, distance_sample=distance_sample
                 )
                 distance_index = distance_index + 1
-                print(
-                    "Processing data :",
-                    round(100 * distance_index / len(data), 5),
-                    "%",
-                    end="\r",
-                )
                 continue
 
             sns.set()
@@ -442,12 +493,13 @@ class SpatialDistribution:
         """Produces a scatter plot of the distance of every point to every other
         using to different metrics as axises
         Args:
-                metric1: metric to be used in the x axis
-                metric2: metric to be used in the y axis
-                scatter_sample: percentage of the data to be plotted
-                distance_sample: percentage of the data to be used in the
-                                distance estimation of every point in the
-                                scattere plot"""
+                metric1(str): metric to be used in the x axis
+                metric2(str): metric to be used in the y axis
+                scatter_sample(numeric): If less than  or equal 1 it represents the
+                percentage of the data to be plotted if greater than 1 it represents the exact number of sampled_indexes
+                distance_sample(numeric):  If less than  or equal 1 it represents the
+                percentage of the data to be used in the estimation of the distance of the average distance of the points
+                to every other point. If greater than 1 it represents the exact size of the sample"""
 
         data = self._data
         distance_array_metric1, distance_array_metric2 = (
@@ -462,7 +514,7 @@ class SpatialDistribution:
         sampled_indexes = random.sample(range(len(data)), scatter_sample)
 
         distance_index = 0
-        for index in sampled_indexes:
+        for index in tqdm(sampled_indexes):
             distance_array_metric1[distance_index] = self.distance_to_data(
                 data.iloc[index], metric1, distance_sample=distance_sample
             )
@@ -470,13 +522,6 @@ class SpatialDistribution:
                 data.iloc[index], metric2, distance_sample=distance_sample
             )
             distance_index = distance_index + 1
-            print(
-                "Processing data :",
-                round(100 * distance_index / scatter_sample, 5),
-                "%",
-                end="\r",
-            )
-            continue
 
         sns.set()
         fig, ax = plt.subplots()
