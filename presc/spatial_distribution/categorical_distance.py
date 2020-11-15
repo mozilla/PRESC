@@ -308,7 +308,7 @@ class SpatialDistribution:
     def plot_distance_histogram(
         self,
         metric,
-        histo_sample=500,
+        histo_sample=0.2,
         distance_sample=0.005,
         mdistance_sample=0.05,
         bar_width=0.01,
@@ -330,7 +330,7 @@ class SpatialDistribution:
             ax (Matplotlib Axis object): Axis to plot the graph
         """
 
-        if histo_sample < 1:
+        if histo_sample <= 1:
             histo_sample = round(histo_sample * self._data_len)
         elif histo_sample > self._data_len:
             histo_sample = self._data_len
@@ -364,17 +364,19 @@ class SpatialDistribution:
         m_data_mean = np.mean(misclass_distance_array)
         label_all_data = (
             "All points: "
-            + "std= "
+            + "(std= "
             + str(round(all_data_std, 3))
-            + " mean= "
+            + " ,μ= "
             + str(round(all_data_mean, 3))
+            + ")"
         )
         label_m_data = (
             "misclassified: "
-            + "std= "
+            + "(std= "
             + str(round(m_data_std, 3))
-            + " mean= "
+            + " μ= "
             + str(round(m_data_mean, 3))
+            + ")"
         )
 
         n = math.ceil((distance_array.max() - distance_array.min()) / bar_width)
@@ -383,7 +385,7 @@ class SpatialDistribution:
             fig, ax = plt.subplots()
             ax.set_title("Data distance histogram")
             show = True
-        ax.grid()
+        # ax.grid()
         ax.set_alpha(0.5)
         ax.set_xlabel(metric + " distance distribution")
         ax.set_ylabel("Percentage of points (%)")
@@ -423,7 +425,7 @@ class SpatialDistribution:
 
         col_number = 2
         row_number = 2
-        fig, axis = plt.subplots(row_number, col_number)
+        fig, axis = plt.subplots(row_number, col_number, figsize=(24, 16))
         metrics = list(self._metrics_dict.keys())
         fig.suptitle("Data distance histograms")
         fig.subplots_adjust(hspace=0.25)
@@ -445,7 +447,7 @@ class SpatialDistribution:
     def plot_distance_misclasified(
         self, metric1, metric2, distance_sample=0.01, scatter_sample=1
     ):
-        """Plots a scatter point of the average distance of the misclasfied points to every
+        """Plots a scatterplot of the average distance of the misclasfied points to every
         other point
         in 2 metrics using the x and y axis correspondingly
         Args:
@@ -493,7 +495,11 @@ class SpatialDistribution:
             return fig, ax, distance_array_metric1, distance_array_metric2
 
     def plot_distance_scatterplot(
-        self, metric1, metric2, scatter_sample=0.1, distance_sample=0.001
+        self,
+        metric1,
+        metric2,
+        scatter_sample=0.1,
+        distance_sample=0.001,
     ):
         """Produces a scatter plot of the distance of every point to every other
         using to different metrics as axises
@@ -543,4 +549,4 @@ class SpatialDistribution:
         ax.set_ylabel(metric2 + " average distance to other points")
         ax.set_title("Data distance")
         plt.show()
-        return fig, ax, distance_array_metric1, distance_array_metric2
+        return fig, ax
