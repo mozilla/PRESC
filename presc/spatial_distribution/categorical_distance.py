@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-# flake8: noqa
-# black: noqa
+
 """
 Created on Fri Oct  9 11:47:47 2020
 @author: castromi
@@ -97,7 +96,7 @@ class SpatialDistribution:
         goodall2_score = 0
         for attribute in common_attributes:
             attribute_score = 0
-            common_value = dpoint[attribute]
+            common_value = dpoint1[attribute]
             counts = self._counts_per_attribute[attribute]
             for count in counts:
                 if counts[common_value] < count:
@@ -105,7 +104,7 @@ class SpatialDistribution:
 
             goodall2_score = (1 - attribute_score) + goodall2_score
 
-        return goodall2_score / len(d1_attributes)
+        return goodall2_score / len(dpoint1)
 
     def goodall3(self, dpoint1, dpoint2):
         """Computes the goodall3 similarity measurment for categorical data, see paper by
@@ -159,6 +158,7 @@ class SpatialDistribution:
         """
         lin = 0
         weight = self.lin_weight(dpoint1, dpoint2)
+        d1_attributes = list(dpoint1.index)
         for attribute in d1_attributes:
             frequency_dpoint1 = self.empirical_frequency(dpoint1[attribute], attribute)
             frequency_dpoint2 = self.empirical_frequency(dpoint2[attribute], attribute)
@@ -442,7 +442,9 @@ class SpatialDistribution:
         plt.show()
         return
 
-    def plot_distance_misclasified(self, metric1, metric2, distance_sample=0.01):
+    def plot_distance_misclasified(
+        self, metric1, metric2, distance_sample=0.01, scatter_sample=1
+    ):
         """Plots a scatter point of the average distance of the misclasfied points to every
         other point
         in 2 metrics using the x and y axis correspondingly
@@ -453,6 +455,9 @@ class SpatialDistribution:
                              from the total data that should be used to
                              estimate the average distance and if greater indicates the precise number
                              of samples to be take
+            scatter_sample(numeric): Number that if from 0 to 1 indicates the percentage from the total
+                                     misclassified points that should be sample to plot if greater indicates
+                                     the exact size of the sample rather than the percentage
         """
         data = self._data
         data_indexes = self.data_w_predlabel.index
