@@ -83,6 +83,13 @@ class SpatialDistribution:
         for metric in metrics:
             print(metric)
 
+    def get_datapoint(self, index):
+        """ """
+        return self._data.iloc[index]
+
+    def get_data_len(self):
+        return self._data_len
+
     def goodall2(self, dpoint1, dpoint2):
         """Computes the goodall2 similary measurement for categorical data, see paper by
         Varun, Shyam and Vipin in the bibliography carpet for reference
@@ -209,7 +216,7 @@ class SpatialDistribution:
                               estimate the average distance and if greater indicates the precise number
                               of samples to be take"""
 
-        if distance_sample < 1:
+        if distance_sample <= 1:
             distance_sample = round(distance_sample * self._data_len)
         elif distance_sample > self._data_len:
             distance_sample = self._data_len
@@ -276,9 +283,10 @@ class SpatialDistribution:
 
             metric_distance = [
                 metric(dpoint, self._data.iloc[i]) for i in index_of_neighbour
-            ][:k]
+            ]
             kpoints_other_space.append(metric_distance)
 
+        print(kpoints_other_space)
         ax[0].set_xlim(kpoints_other_space[0][-1] * 1.05, 0)
         ax[0].set_xlabel(metrics[0] + " distance")
         ax[1].set_xlabel(metrics[1] + " distance")
@@ -513,15 +521,15 @@ class SpatialDistribution:
                 to every other point. If greater than 1 it represents the exact size of the sample"""
 
         data = self._data
+
+        if scatter_sample <= 1:
+            scatter_sample = round(scatter_sample * self._data_len)
+        elif scatter_sample > self._data_len:
+            scatter_sample = self._data_len
         distance_array_metric1, distance_array_metric2 = (
             np.empty(scatter_sample),
             np.empty(scatter_sample),
         )
-        if scatter_sample < 1:
-            scatter_sample = round(scatter_sample * self._data_len)
-        elif scatter_sample > self._data_len:
-            scatter_sample = self._data_len
-
         sampled_indexes = random.sample(range(len(data)), scatter_sample)
 
         distance_index = 0
