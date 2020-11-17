@@ -3,7 +3,7 @@ import pytest
 
 from sklearn.model_selection import train_test_split
 from pathlib import Path
-from presc.dataset_wrapper import DatasetWrapper
+from presc.dataset import Dataset
 
 DATASET_DIR = Path(__file__).resolve().parent.parent.joinpath("datasets/")
 
@@ -11,28 +11,28 @@ WINE_DATA_PATH = DATASET_DIR.joinpath("winequality.csv")
 WINE_LABEL_COL = "recommend"
 random_state, test_size = 0, 0.2
 
-# test invalid initailization of DatasetWrapper object
+# test invalid initailization of Dataset object
 
 
 def test_fie_does_not_exist():
     with pytest.raises(FileNotFoundError):
-        DatasetWrapper("does_not_exist.csv", "trivial")
+        Dataset("does_not_exist.csv", "trivial")
 
 
 def test_fie_format_incorrect():
     with pytest.raises(pd.errors.ParserError):
-        DatasetWrapper(Path(__file__).parent.parent.joinpath("setup.py"), "trivial")
+        Dataset(Path(__file__).parent.parent.joinpath("setup.py"), "trivial")
 
 
 def test_label_not_in_dataset():
     with pytest.raises(KeyError):
-        DatasetWrapper(WINE_DATA_PATH, "wrong_label")
+        Dataset(WINE_DATA_PATH, "wrong_label")
 
 
 # test winequality dataset and functionalities:
 @pytest.fixture
 def wine_dataset_wrapper():
-    dataset_wrapper = DatasetWrapper(WINE_DATA_PATH, WINE_LABEL_COL)
+    dataset_wrapper = Dataset(WINE_DATA_PATH, WINE_LABEL_COL)
     return dataset_wrapper
 
 

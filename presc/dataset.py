@@ -2,20 +2,15 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 """
-Dataset Wrapper API
+Dataset API
 
 Provides some functionalities to access the datasets as a pandas DataFrame object.
 You can access the raw dataset as well as the the feature and label columns.
 You can also split the dataset into train and test datasets, and access them.
-
 """
 
 
-class DatasetWrapper(object):
-    _dataset = None
-    X, y = None, None
-    X_train, X_test, y_train, y_test = None, None, None, None
-
+class Dataset:
     def __init__(self, dataset_file: str, label: str) -> None:
         """
         Description:
@@ -33,6 +28,12 @@ class DatasetWrapper(object):
             # set self.X and self.y by label column
             self.X = self._dataset.drop(columns=[label])
             self.y = self._dataset[label]
+            self.X_train, self.X_test, self.y_train, self.y_test = (
+                None,
+                None,
+                None,
+                None,
+            )
 
         except (FileNotFoundError, pd.errors.ParserError, KeyError):
             print(
