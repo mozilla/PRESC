@@ -10,12 +10,13 @@ from sklearn.metrics import confusion_matrix
 from presc.conditional_feature_distribution.conditional_feature_distribution import (
     plot_all_histogram_conditional_feature_distribution,
 )
+from presc.dataset_wrapper import DatasetWrapper
 
 DATASET_DIR = Path(__file__).resolve().parent.parent.joinpath("datasets/")
 
 WINE_DATA_PATH = DATASET_DIR.joinpath("winequality.csv")
 WINE_LABEL_COL = "recommend"
-random_state = 0
+random_state, test_size = 0, 0.5806
 
 
 @pytest.fixture
@@ -26,7 +27,7 @@ def wine_y_actual_and_y_predict_and_X_test():
     X = dataset.iloc[:, :-1]
     y = dataset.iloc[:, -1]
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.5806, random_state=random_state
+        X, y, test_size=test_size, random_state=random_state
     )
 
     scaler = StandardScaler().fit(X_train)
@@ -39,7 +40,7 @@ def wine_y_actual_and_y_predict_and_X_test():
     classifier.fit(X_train_scaled, y_train)
     y_predict = classifier.predict(X_test_scaled)
 
-    return (y_test, y_predict, X_test)
+    return (y_test, y_predict, X_test, X_train_scaled)
 
 
 # test invalid feature_column
@@ -64,7 +65,7 @@ def test_wrong_length_feature_column(wine_y_actual_and_y_predict_and_X_test):
         )
 
 
-# test valid feature column
+# test valid feature column that is numeric
 def test_valid_numeric(wine_y_actual_and_y_predict_and_X_test):
     expected_group_sizes = confusion_matrix(
         wine_y_actual_and_y_predict_and_X_test[0],
@@ -75,12 +76,11 @@ def test_valid_numeric(wine_y_actual_and_y_predict_and_X_test):
         y_predict=wine_y_actual_and_y_predict_and_X_test[1],
         feature_column=wine_y_actual_and_y_predict_and_X_test[2].pH,
     )
-
     assert len(expected_group_sizes) == len(actual_group_sizes)
     assert all([a == b for a, b in zip(expected_group_sizes, actual_group_sizes)])
 
 
-# test valid feature column
+# test valid feature column that is categorical
 def test_valid_category(wine_y_actual_and_y_predict_and_X_test):
     expected_group_sizes = confusion_matrix(
         wine_y_actual_and_y_predict_and_X_test[0],
@@ -92,6 +92,52 @@ def test_valid_category(wine_y_actual_and_y_predict_and_X_test):
         feature_column=[
             "1" for _ in range(len(wine_y_actual_and_y_predict_and_X_test[1]))
         ],
+    )
+    assert len(expected_group_sizes) == len(actual_group_sizes)
+    assert all([a == b for a, b in zip(expected_group_sizes, actual_group_sizes)])
+
+
+# test the feature with the DatasetWrapper API (module test)
+
+VEHICLES_DATA_PATH = DATASET_DIR.joinpath("vehicles.csv")
+VEHICLES_LABEL_COL = "Class"
+
+
+@pytest.fixture
+def vehicles_dataset_wrapper():
+    dataset_wrapper = DatasetWrapper(VEHICLES_DATA_PATH, VEHICLES_LABEL_COL)
+    dataset_wrapper.split_test_train(test_size=0.4, random_state=random_state)
+    return dataset_wrapper
+
+
+# test valid feature column that is numeric
+def test_valid_numeric_vehicles_dw(vehicles_dataset_wrapper):
+
+    # pre-process
+    scaler = StandardScaler().fit(vehicles_dataset_wrapper.get_features(subset="train"))
+    X_train_scaled = scaler.transform(
+        vehicles_dataset_wrapper.get_features(subset="train")
+    )
+    X_test_scaled = scaler.transform(
+        vehicles_dataset_wrapper.get_features(subset="test")
+    )
+    y_train = vehicles_dataset_wrapper.get_label(subset="train")
+    y_test = vehicles_dataset_wrapper.get_label(subset="test")
+
+    classifier = SVC(kernel="linear", decision_function_shape="ovo")
+    classifier.fit(X_train_scaled, y_train)
+    y_predict = classifier.predict(X_test_scaled)
+
+    expected_group_sizes = confusion_matrix(y_test, y_predict).ravel()
+
+    # before we consider adding the missing confusion matrix group, we will remove the 0s
+    expected_group_sizes = expected_group_sizes[expected_group_sizes > 0]
+
+    CIRCULARITY = vehicles_dataset_wrapper.get_features(subset="test")["CIRCULARITY"]
+    actual_group_sizes = plot_all_histogram_conditional_feature_distribution(
+        y_actual=y_test,
+        y_predict=y_predict,
+        feature_column=CIRCULARITY,
     )
     assert len(expected_group_sizes) == len(actual_group_sizes)
     assert all([a == b for a, b in zip(expected_group_sizes, actual_group_sizes)])
