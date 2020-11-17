@@ -40,10 +40,9 @@ def plot_all_histogram_conditional_feature_distribution(
         )
 
     # create confusion matrix label for each row
-    confusion_matrix_group = []
-    for i in range(y_actual.size):
-        label = str(y_actual.iat[i]) + "_predicted_as_" + str(y_predict[i])
-        confusion_matrix_group.append(label)
+    y_a = y_actual.astype("str")
+    y_p = y_predict.astype("str")
+    confusion_matrix_group = y_a.str.cat(y_p, sep="_predicted_as_")
 
     # make a dataframe for feature column and confusion matrix group
     feature_name = "feature"
@@ -55,10 +54,8 @@ def plot_all_histogram_conditional_feature_distribution(
     )
 
     # plot histogram for each unique group
-    unique_groups = sorted(list(set(confusion_matrix_group)))
     group_sizes = []
-
-    for group in unique_groups:
+    for group, group_df in histo_df.groupby("confusion_matrix_group"):
         group_df = histo_df.loc[histo_df["confusion_matrix_group"] == group][
             feature_name
         ]
@@ -108,7 +105,7 @@ def plot_histogram(
         plt.ylabel("Frequency")
         plt.title("Group: " + confusion_matrix_group_name)
 
-    plt.show()
+    plt.show(block=False)
 
 
 def freedman_diaconis(data):
