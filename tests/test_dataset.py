@@ -14,25 +14,15 @@ random_state, test_size = 0, 0.2
 # test invalid initailization of Dataset object
 
 
-def test_fie_does_not_exist():
-    with pytest.raises(FileNotFoundError):
-        Dataset("does_not_exist.csv", "trivial")
-
-
-def test_fie_format_incorrect():
-    with pytest.raises(pd.errors.ParserError):
-        Dataset(Path(__file__).parent.parent.joinpath("setup.py"), "trivial")
-
-
-def test_label_not_in_dataset():
+def test_label_not_in_dataset(expected_wine_dataset):
     with pytest.raises(KeyError):
-        Dataset(WINE_DATA_PATH, "wrong_label")
+        Dataset(expected_wine_dataset, "wrong_label")
 
 
 # test winequality dataset and functionalities:
 @pytest.fixture
-def wine_dataset_wrapper():
-    dataset_wrapper = Dataset(WINE_DATA_PATH, WINE_LABEL_COL)
+def wine_dataset_wrapper(expected_wine_dataset):
+    dataset_wrapper = Dataset(expected_wine_dataset, WINE_LABEL_COL)
     return dataset_wrapper
 
 
@@ -43,22 +33,24 @@ def expected_wine_dataset():
 
 
 def test_get_raw_dataset(wine_dataset_wrapper, expected_wine_dataset):
-    actual_dataset = wine_dataset_wrapper.get_raw_dataset()
+    actual_dataset = wine_dataset_wrapper.raw_dataset
     assert actual_dataset.equals(expected_wine_dataset)
 
 
 def test_get_features(wine_dataset_wrapper, expected_wine_dataset):
-    actual_X = wine_dataset_wrapper.get_features()
+    actual_X = wine_dataset_wrapper.features
     assert actual_X.equals(expected_wine_dataset.drop(columns=[WINE_LABEL_COL]))
 
 
 def test_get_label(wine_dataset_wrapper, expected_wine_dataset):
-    actual_y = wine_dataset_wrapper.get_label()
+    actual_y = wine_dataset_wrapper.labels
     assert actual_y.equals(expected_wine_dataset[WINE_LABEL_COL])
 
 
 def test_split_test_train(wine_dataset_wrapper, expected_wine_dataset):
-    wine_dataset_wrapper.split_test_train()
+    wine_dataset_wrapper.split_test_train(
+        test_size=test_size, random_state=random_state
+    )
 
     (
         expected_train_X,
@@ -79,24 +71,20 @@ def test_split_test_train(wine_dataset_wrapper, expected_wine_dataset):
         expected_test_y, left_index=True, right_index=True, how="left"
     )
 
-    assert expected_train_X.equals(wine_dataset_wrapper.get_features(subset="train"))
-    assert expected_test_X.equals(wine_dataset_wrapper.get_features(subset="test"))
-    assert expected_train_y.equals(wine_dataset_wrapper.get_label(subset="train"))
-    assert expected_test_y.equals(wine_dataset_wrapper.get_label(subset="test"))
+    assert expected_train_X.equals(wine_dataset_wrapper.train_features)
+    assert expected_test_X.equals(wine_dataset_wrapper.test_features)
+    assert expected_train_y.equals(wine_dataset_wrapper.train_labels)
+    assert expected_test_y.equals(wine_dataset_wrapper.test_labels)
 
     assert expected_train.equals(wine_dataset_wrapper.get_train_dataset())
     assert expected_test.equals(wine_dataset_wrapper.get_test_dataset())
 
 
 def test_set_label(wine_dataset_wrapper, expected_wine_dataset):
-    assert wine_dataset_wrapper.get_label().equals(
-        expected_wine_dataset[WINE_LABEL_COL]
-    )
-
     wine_dataset_wrapper.set_label("quality")
-    assert wine_dataset_wrapper.y.name == "quality"
-    assert wine_dataset_wrapper.get_label().equals(expected_wine_dataset["quality"])
-    assert wine_dataset_wrapper.get_features().equals(
+    assert wine_dataset_wrapper._y.name == "quality"
+    assert wine_dataset_wrapper.labels.equals(expected_wine_dataset["quality"])
+    assert wine_dataset_wrapper.features.equals(
         expected_wine_dataset.drop(columns=["quality"])
     )
 
@@ -104,14 +92,3 @@ def test_set_label(wine_dataset_wrapper, expected_wine_dataset):
 def test_set_label_not_exist(wine_dataset_wrapper):
     with pytest.raises(KeyError):
         wine_dataset_wrapper.set_label("not_a_label")
-
-
-# test invalid subset for get_features and get_label
-def test_invalid_get_features(wine_dataset_wrapper):
-    with pytest.raises(ValueError):
-        wine_dataset_wrapper.get_features(subset="hello")
-
-
-def test_invalid_get_label(wine_dataset_wrapper):
-    with pytest.raises(ValueError):
-        wine_dataset_wrapper.get_label(subset="wine")
