@@ -3,8 +3,7 @@ from sklearn.model_selection import train_test_split
 
 
 class Dataset:
-    """
-    Dataset API
+    """Dataset API
 
     Provides some functionalities to access the datasets as a pandas DataFrame object.
     You can access the raw dataset as well as the the feature and label columns.
@@ -27,10 +26,10 @@ class Dataset:
         self.set_label(label)
 
     def set_label(self, label: str) -> None:
-        """
-        Description:
-            This function allows users to reset the label column and will also update the feature columns.
-            Make sure you re-split the test and train data if you called this function after calling split.
+        """This function allows users to reset the label column and will also update the feature columns.
+
+        Make sure you re-split the test and train data if you called this function after calling split.
+
         Args:
             label (string): name of the label column
         """
@@ -58,6 +57,11 @@ class Dataset:
     def features(self) -> pd.DataFrame:
         """Returns the full dataset feature columns."""
         return self._X
+
+    @property
+    def feature_names(self) -> list:
+        """Returns the feature names as a list."""
+        return list(self.features.columns)
 
     @property
     def labels(self) -> pd.Series:
