@@ -58,3 +58,8 @@ class ClassificationModel:
     def dataset(self):
         """Returns the underlying dataset."""
         return self._dataset
+
+    @property
+    def classifier(self):
+        """Returns the underlying classifier."""
+        return self._classifier
