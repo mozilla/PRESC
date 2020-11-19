@@ -1,5 +1,6 @@
 import pandas as pd
 import pytest
+from numpy.testing import assert_array_equal
 
 from sklearn.model_selection import train_test_split
 from pathlib import Path
@@ -38,8 +39,10 @@ def test_get_raw_dataset(wine_dataset_wrapper, expected_wine_dataset):
 
 
 def test_get_features(wine_dataset_wrapper, expected_wine_dataset):
+    expected_feats = expected_wine_dataset.drop(columns=[WINE_LABEL_COL])
     actual_X = wine_dataset_wrapper.features
-    assert actual_X.equals(expected_wine_dataset.drop(columns=[WINE_LABEL_COL]))
+    assert actual_X.equals(expected_feats)
+    assert_array_equal(wine_dataset_wrapper.feature_names, expected_feats.columns)
 
 
 def test_get_label(wine_dataset_wrapper, expected_wine_dataset):
