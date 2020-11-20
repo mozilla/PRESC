@@ -272,8 +272,6 @@ def compute_conditional_metric(
         else:
             groups = test_dataset.groupby(by=pd.cut(test_dataset[feature], bins=bins))
 
-        total_histogram_counts, bins = np.histogram(test_dataset[feature], bins)
-
         # compute metric
         metric_list = []
         # get all groups and compute their metrics for each group
