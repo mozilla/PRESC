@@ -85,8 +85,13 @@ class SpatialDistribution:
 
     def get_available_metrics(self):
         """Prints the available metrics """
-        metrics = list(self._categoric_metrics_dict.keys())
-        for metric in metrics:
+        cat_metrics = list(self._categoric_metrics_dict.keys())
+        numeric_metrics = list(self._numeric_metrics_dict.keys())
+        print("Categorical Metrics")
+        for metric in cat_metrics:
+            print(metric)
+        print("Numeric Metrics")
+        for metric in numeric_metrics:
             print(metric)
 
     def get_metric(self, metric):
@@ -109,12 +114,23 @@ class SpatialDistribution:
         return self._data.iloc[index]
 
     def get_data_len(self):
+
         return self._data_len
 
     def l2_norm(self, dpoint1, dpoint2):
         dpoint1 = np.array(dpoint1)
         dpoint2 = np.array(dpoint2)
         return np.linalg.norm(dpoint1 - dpoint2, ord=2)
+
+    def l1_norm(self, dpoint1, dpoint2):
+        dpoint1 = np.array(dpoint1)
+        dpoint2 = np.array(dpoint2)
+        return np.linalg.norm(dpoint1 - dpoint2, ord=1)
+
+    def linf_norm(self, dpoint1, dpoint2):
+        dpoint1 = np.array(dpoint1)
+        dpoint2 = np.array(dpoint2)
+        return np.linalg.norm(dpoint1 - dpoint2, ord=np.inf)
 
     def goodall2(self, dpoint1, dpoint2):
         """Computes the goodall2 similary measurement for categorical data, see paper by
