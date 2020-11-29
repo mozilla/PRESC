@@ -29,29 +29,36 @@ class SpatialDistribution:
 
     def __init__(self, data, label_predicted, label_true, type=None):
         self._data = data
+        self.cat_data = self._data.select_dtypes(
+            exclude="number"
+        )  # This will be use when we extend the module for numerical
+        self.num_data = self._data.select_dtypes(
+            include="number"
+        )  # plus categorical data types
         self.type = type
         self.label_predicted = np.array(label_predicted)
         self.label_true = np.array(label_true)
         self._data_len = len(data)
         self.data_w_predlabel = self._append_prediction_label()
-        self._col_names = list(data.columns)
-
-        self._metrics_dict = dict(
+        self._all_col_names = list(data.columns)
+        self._cat_col_names = list(self.cat_data.columns)
+        self._num_col_names = list(self.num_data.columns)
+        self._categoric_metrics_dict = dict(
             zip(
                 ["overlap", "goodall2", "goodall3", "lin"],
                 [self.overlap, self.goodall2, self.goodall3, self.lin],
             )  # Dictionary
         )
+        self._numeric_metrics_dict = dict(
+            zip(
+                ["l2_norm"],
+                [self.l2_norm],
+            )  # Dictionary
+        )
+
         self._counts_per_attribute = (
             self.__buildcounts()
         )  # dictionary of counts of occurances of attribute instances
-
-        self.cat_data = None  # This will be use when we extend the module for numerical
-        self.num_data = None  # plus categorical data types
-
-        if self.type == "mix":
-            self.num_data = self._data.select_dtypes(include="number")
-            self.cat_data = self._data.select_dtype(exclude="number")
 
         pass
 
@@ -72,15 +79,28 @@ class SpatialDistribution:
         of different values in the data
         """
         counts_dict = {}
-        for attribute in self._col_names:
-            counts_dict[attribute] = self._data[attribute].value_counts()
+        for attribute in self._cat_col_names:
+            counts_dict[attribute] = self.cat_data[attribute].value_counts()
         return counts_dict
 
     def get_available_metrics(self):
         """Prints the available metrics """
-        metrics = list(self._metrics_dict.keys())
+        metrics = list(self._categoric_metrics_dict.keys())
         for metric in metrics:
             print(metric)
+
+    def get_metric(self, metric):
+        """Add documentation """
+        categorical_metric = self._categoric_metrics_dict.get(metric, None)
+
+        if categorical_metric is None:
+            numeric_metric = self._numeric_metrics_dict.get(
+                metric, None
+            )  # search in numeric dictionary
+            if numeric_metric is None:
+                raise ValueError("Specified metric is not implemented")
+            return numeric_metric, "numeric"
+        return categorical_metric, "categorical"
 
     def get_datapoint(self, index):
         """Returns a data point
@@ -90,6 +110,11 @@ class SpatialDistribution:
 
     def get_data_len(self):
         return self._data_len
+
+    def l2_norm(self, dpoint1, dpoint2):
+        dpoint1 = np.array(dpoint1)
+        dpoint2 = np.array(dpoint2)
+        return np.linalg.norm(dpoint1 - dpoint2, ord=2)
 
     def goodall2(self, dpoint1, dpoint2):
         """Computes the goodall2 similary measurement for categorical data, see paper by
@@ -233,6 +258,14 @@ class SpatialDistribution:
                               of samples to be take
         Returns(float): Estimate of average distance from a point to the data"""
 
+        metric, type = self.get_metric(metric)
+        if type == "categorical":
+            data = self.cat_data
+            dpoint = dpoint[dpoint.apply(lambda x: isinstance(x, str))]
+        else:
+            data = self.num_data
+            dpoint = dpoint[dpoint.apply(lambda x: not isinstance(x, str))]
+
         if distance_sample <= 1:
             distance_sample = round(distance_sample * self._data_len)
             if distance_sample == 0:
@@ -242,12 +275,11 @@ class SpatialDistribution:
         else:
             distance_sample = self._data_len
 
-        metric = self._metrics_dict[str(metric)]
         sampled_indexes = random.sample(range(self._data_len), distance_sample)
 
         distance = 0
         for i in sampled_indexes:
-            distance = distance + metric(dpoint, self._data.iloc[i])
+            distance = distance + metric(dpoint, data.iloc[i])
 
         return distance / (distance_sample)
 
@@ -268,16 +300,28 @@ class SpatialDistribution:
         Returns(list): List of tuples
 
         """
+        metric, type = self.get_metric(metric)
 
-        metric = self._metrics_dict[metric]
+        if type == "categorical":
+            data = self.cat_data
+            dpoint = dpoint[dpoint.apply(lambda x: isinstance(x, str))]
+
+        else:
+            data = self.num_data
+            dpoint = dpoint[dpoint.apply(lambda x: not isinstance(x, str))]
+
         distance_misclas_array = []
         distance_correct_only = []
         distance_array = []
         for i in range(0, self._data_len):
-            nxt_point = self._data.iloc[i]
+            nxt_point = data.iloc[
+                i
+            ]  # you are getting nxt_point from the data filtered with only numeric or categorical columns
             distance_new = metric(dpoint, nxt_point)
             distance_array.append((distance_new, i))
-            nxt_point_correctly_predicted = self.data_w_predlabel.iloc[i].loc[
+            nxt_point_correctly_predicted = self.data_w_predlabel.iloc[
+                i
+            ].loc[  # usign the index to prevent conflict
                 "correctly-predicted"
             ]
             if nxt_point_correctly_predicted:
@@ -297,65 +341,6 @@ class SpatialDistribution:
 
         distance_array.sort(key=lambda x: x[0])
         return distance_array
-
-    def plot_knearest_points(self, dpoint, metric1, metric2, metric3, k, show=True):
-        """Given a pandas Series data point computes and visualize the k-nearest points in metric1
-        and how this same point projects in metric2 and metric3 plotting everything in a graph
-        where metric1 will be in the y-axis and the points in metric2 and metric3 will be projected in quadrant
-        I and IV correspondingly
-
-        Args:
-             dpoin1 (Pandas Series): Data point from which we'll find the k nearest neighbours
-             metric1 (str): Name of the similarity metric used to find the k nearest neighbours
-             metric2 (str): Name of a similarity metric to project the knn in the I quadrant
-             metric3 (str): Name of a similarity metric to project the knn in the IV quadrant
-             k (int): Number of nearest neighbours to find
-        """
-
-        metrics = [metric2, metric3]
-        main_metric = metric1
-        k_nearest_per_metric = self.array_of_distance(dpoint, main_metric)
-
-        sns.set()
-        fig, ax = plt.subplots(1, 2)
-        fig.subplots_adjust(wspace=0.25)
-        metric1_to_point = [tuple[0] for tuple in k_nearest_per_metric][:k]
-        index_of_neighbour = [tuple[1] for tuple in k_nearest_per_metric][:k]
-
-        kpoints_other_space = []
-        for metric in metrics:
-            metric = self._metrics_dict[metric]
-
-            metric_distance = [
-                metric(dpoint, self._data.iloc[i]) for i in index_of_neighbour
-            ]
-            kpoints_other_space.append(metric_distance)
-
-        ax[0].set_xlim(kpoints_other_space[0][-1] * 1.05, 0)
-        ax[0].set_xlabel(metrics[0] + " distance")
-        ax[1].set_xlabel(metrics[1] + " distance")
-        ax[0].yaxis.set_ticks_position("right")
-        ax[1].set_ylabel(main_metric + " distance")
-        sns.scatterplot(
-            kpoints_other_space[0],
-            metric1_to_point,
-            ax=ax[0],
-            s=10,
-            hue=index_of_neighbour,
-            alpha=0.3,
-            legend=False,
-        )
-        sns.scatterplot(
-            kpoints_other_space[1],
-            metric1_to_point,
-            ax=ax[1],
-            s=10,
-            hue=index_of_neighbour,
-            alpha=0.4,
-            legend=False,
-        )
-        if show:
-            plt.show()
 
     def plot_distance_point_histogram(self, metric, dpoint, bar_width=0.01, show=True):
         """Function that given a metric and a dpoint plots a graphs of the histograms of the distribution of the distance
@@ -406,7 +391,7 @@ class SpatialDistribution:
         ax.set_title("Data distance histogram")
         ax.set_alpha(0.5)
         ax.set_xlabel(metric + " distance distribution")
-        ax.set_ylabel("Percentage of points (%)")
+        ax.set_ylabel("Number of points")
         bins_number_correct = math.ceil(
             (
                 distance_to_correctly_clasified.max()
@@ -560,7 +545,7 @@ class SpatialDistribution:
         col_number = 2
         row_number = 2
         fig, axis = plt.subplots(row_number, col_number, figsize=(24, 16))
-        metrics = list(self._metrics_dict.keys())
+        metrics = list(self._categoric_metrics_dict.keys())
         fig.suptitle("Data distance histograms")
         fig.subplots_adjust(hspace=0.25)
 

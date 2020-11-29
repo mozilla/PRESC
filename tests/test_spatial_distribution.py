@@ -21,7 +21,7 @@ def random_catd_analysis():
         for feature in range(0, 9):
             data_entry.append(rd.choice(lower_upper_alphabet))
 
-        data_entry.append(rd.choice([0, 1]))  # appending the classification row
+        data_entry.append(rd.choice([True, False]))  # appending the classification row
         data_entry = tuple(data_entry)
         toy_data.append(data_entry)
 
@@ -153,8 +153,8 @@ def test_overlap_symmetry(random_catd_analysis):
     dpoint2 = random_catd_analysis.get_datapoint(
         rd.randint(0, random_catd_analysis.get_data_len() - 1)
     )
-    overlap_left = random_catd_analysis.lin(dpoint1, dpoint2)
-    overlap_right = random_catd_analysis.lin(dpoint1, dpoint2)
+    overlap_left = random_catd_analysis.overlap(dpoint1, dpoint2)
+    overlap_right = random_catd_analysis.overlap(dpoint1, dpoint2)
     np.testing.assert_approx_equal(overlap_left, overlap_right)
 
 
