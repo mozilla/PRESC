@@ -193,20 +193,17 @@ def compute_conditional_metric(
         y_true, y_pred, pos_label="True", zero_division=0
     ),
 ):
-    """Computes the misclassification rate as a function of the feature values.
-    This function allows to compute the misclassification rate of a sample for
+    """Computes the conditional metrics.
+    This function allows to compute the conditional metrics of a sample for
     the values of any particular feature.
     The function allows any binning for this calculation, which means that
     regularly spaced binnings, disparately spaced binnings that correspond to
     sets of an equal amount of data points (such as quartiles, deciles, or
     n-quantiles), or any other arbitrary irregular binning can be used.
     When the full dataset with all points does not have any data point in an
-    interval corresponding to a certain bin, the function yields a "nan" value
-    for the misclassification rate to prevent a zero division error and also to
-    distinguish the bins without information from the bins with a zero
-    misclassification rate. The same happens with the standard deviation when
-    either the full dataset with all points or the dataset with only the
-    misclassified points do not have any data point in a certain bin interval.
+    interval corresponding to a certain bin, the function yields a "0" value
+    for the metric.
+
     Parameters:
         test_dataset: Dataset with the features of all data points, where the
             true class is at the last column.
