@@ -245,29 +245,49 @@ def compute_conditional_metric(
 
     if categorical is False:
 
-        # Computes position of bin edges and groups for quartiles or deciles
         if bins == "quartiles":
             bins = compute_quantiles(test_dataset, feature, quantiles=4)
             groups = test_dataset.groupby(
-                by=pd.qcut(test_dataset[feature], q=4, duplicates="drop")
+                by=pd.cut(
+                    test_dataset[feature],
+                    bins=bins,
+                    include_lowest=True,
+                    duplicates="drop",
+                )
             )
 
         elif bins == "deciles":
             bins = compute_quantiles(test_dataset, feature, quantiles=10)
             groups = test_dataset.groupby(
-                by=pd.qcut(test_dataset[feature], q=10, duplicates="drop")
+                by=pd.cut(
+                    test_dataset[feature],
+                    bins=bins,
+                    include_lowest=True,
+                    duplicates="drop",
+                )
             )
 
         elif type(bins) == int and bins_type == "quantiles":
-            bin_num = bins
             bins = compute_quantiles(test_dataset, feature, quantiles=bins)
             groups = test_dataset.groupby(
-                by=pd.qcut(test_dataset[feature], q=bin_num, duplicates="drop")
+                by=pd.cut(
+                    test_dataset[feature],
+                    bins=bins,
+                    include_lowest=True,
+                    duplicates="drop",
+                )
             )
 
         # groups for regular bin edges or known bin edges
         else:
-            groups = test_dataset.groupby(by=pd.cut(test_dataset[feature], bins=bins))
+            groups = test_dataset.groupby(
+                by=pd.cut(
+                    test_dataset[feature],
+                    bins=bins,
+                    include_lowest=True,
+                    duplicates="drop",
+                )
+            )
 
         # compute metric
         metric_list = []
