@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import pytest
+from sklearn.metrics import f1_score, accuracy_score
 
 from presc.misclassifications.misclass_rate import (
     misclass_rate_feature,
@@ -9,6 +10,7 @@ from presc.misclassifications.misclass_rate import (
     compute_quantiles,
     show_quantiles_feature,
     show_quantiles_features,
+    compute_conditional_metric,
 )
 
 
@@ -66,6 +68,47 @@ def test1_misclass_rate_feature(
         assert len(result_rate) == len(bins_param) - 1
     assert max(result_rate) <= 1.0
     assert min(result_rate) >= 0.0
+
+
+@pytest.fixture(
+    params=[
+        (
+            lambda y_true, y_pred: f1_score(
+                y_true, y_pred, pos_label="True", zero_division=0
+            )
+        ),
+        (lambda y_true, y_pred: accuracy_score(y_true, y_pred)),
+    ]
+)
+def metric_function_param(request):
+    return request.param
+
+
+def test1_compute_conditional_metric(
+    dataset,
+    dataset_predictions,
+    feature_param,
+    bins_param,
+    bins_type_param,
+    metric_function_param,
+):
+    """Checks for assertions that should always apply regardless of the dataset
+    and the parameters.
+    """
+    bins, metric_list = compute_conditional_metric(
+        dataset,
+        dataset_predictions,
+        feature=feature_param,
+        bins=bins_param,
+        bins_type=bins_type_param,
+        metric_function=metric_function_param,
+    )
+    if type(bins_param) == int:
+        assert len(metric_list) == bins_param
+    elif type(bins_param) == list:
+        assert len(bins) == len(metric_list) + 1
+    assert max(metric_list) <= 1.0
+    assert min(metric_list) >= 0.0
 
 
 # This decorator lists de combination of parameters to be tested.
