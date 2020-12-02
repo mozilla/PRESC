@@ -73,6 +73,9 @@ instance/
 # Sphinx documentation
 docs/_build/
 
+# Jupyter Book artifacts
+presc/report/_build/
+
 # PyBuilder
 target/
 

@@ -1,4 +1,5 @@
 [flake8]
+exclude = _build
 ignore = E203, E266, E501, W503
     #, F403, F401
 max-complexity = 30
