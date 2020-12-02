@@ -193,6 +193,7 @@ def compute_conditional_metric(
         y_true, y_pred, pos_label="True", zero_division=0
     ),
 ):
+
     """Computes the conditional metrics.
     This function allows to compute the conditional metrics of a sample for
     the values of any particular feature.
@@ -203,7 +204,6 @@ def compute_conditional_metric(
     When the full dataset with all points does not have any data point in an
     interval corresponding to a certain bin, the function yields a "0" value
     for the metric.
-
     Parameters:
         test_dataset: Dataset with the features of all data points, where the
             true class is at the last column.
@@ -243,52 +243,20 @@ def compute_conditional_metric(
 
     y_pred_series = pd.Series(test_predictions, test_dataset.index)
 
+    bins = feature_binning(
+        test_dataset=test_dataset,
+        feature=feature,
+        categorical=categorical,
+        bins=bins,
+        bins_type=bins_type,
+    )
+
     if categorical is False:
-
-        if bins == "quartiles":
-            bins = compute_quantiles(test_dataset, feature, quantiles=4)
-            groups = test_dataset.groupby(
-                by=pd.cut(
-                    test_dataset[feature],
-                    bins=bins,
-                    include_lowest=True,
-                    duplicates="drop",
-                )
+        groups = test_dataset.groupby(
+            by=pd.cut(
+                test_dataset[feature], bins=bins, include_lowest=True, duplicates="drop"
             )
-
-        elif bins == "deciles":
-            bins = compute_quantiles(test_dataset, feature, quantiles=10)
-            groups = test_dataset.groupby(
-                by=pd.cut(
-                    test_dataset[feature],
-                    bins=bins,
-                    include_lowest=True,
-                    duplicates="drop",
-                )
-            )
-
-        elif type(bins) == int and bins_type == "quantiles":
-            bins = compute_quantiles(test_dataset, feature, quantiles=bins)
-            groups = test_dataset.groupby(
-                by=pd.cut(
-                    test_dataset[feature],
-                    bins=bins,
-                    include_lowest=True,
-                    duplicates="drop",
-                )
-            )
-
-        # groups for regular bin edges or known bin edges
-        else:
-            groups = test_dataset.groupby(
-                by=pd.cut(
-                    test_dataset[feature],
-                    bins=bins,
-                    include_lowest=True,
-                    duplicates="drop",
-                )
-            )
-
+        )
         # compute metric
         metric_list = []
         # get all groups and compute their metrics for each group
@@ -302,6 +270,7 @@ def compute_conditional_metric(
             except KeyError:
                 sc = metric_function([0], [0])
                 metric_list.append(sc)
+
     else:
         # compute metric
         groups = test_dataset.groupby(by=feature)
@@ -314,12 +283,7 @@ def compute_conditional_metric(
             pred_y = y_pred_series[theGroup.index]
             sc = metric_function(test_y, pred_y)
             metric_list.append(sc)
-
-        # Histogram of all points for categorical features
-        total_histogram_counts = test_dataset[feature].value_counts().sort_index()
-
-        bins = np.asarray(total_histogram_counts.index)
-
+            
     return bins, metric_list
 
 
@@ -437,3 +401,65 @@ def show_quantiles_features(test_dataset, quantiles=4, width_fraction=1.0):
         show_quantiles_feature(
             test_dataset, feature, quantiles=quantiles, width_fraction=width_fraction
         )
+
+
+def feature_binning(
+    test_dataset, feature, categorical=False, bins=10, bins_type="regular"
+):
+    """This function does binning based on any required features.
+    This function can do regularly spaced binnings, disparately spaced binnings
+    that corresponds to sets of an equal amount of data points
+    (such as quartiles, deciles, or n-quantiles),
+    or any other arbitrary irregular binning can be used.
+
+    Parameters:
+        test_dataset: Dataset with the features of all data points, where the
+            true class is at the last column.
+        test_predictions: List of the predicted classes for all data points.
+        feature: Column name in the dataset of the feature.
+        categorical (bool): Indicates whether it is a categorical feature.
+            Default is "False".
+        bins (int, list, str):
+            * If an integer, this indicates the number of bins (default value is
+            10). Whether this corresponds to dividing the feature scale in
+            regularly spaced bins (default) or into quantiles, it must be
+            specified in the parameter "bins_type".
+            * If the string "quartiles" or "deciles" is used, then it
+            automatically computes the appropriate bin edge postions to optimize
+            for a quartile or decile grouping.
+            * If any other feature intervals are needed, then a list of the
+            feature values corresponding to the positions separating the bins
+            and including the outermost edges must be provided.
+        bins_type (str): If the bins parameter is an integer with the number
+            of bins, this parameter allows to specify whether these bins should
+            be "regular" evenly spaced bins or "quantiles". Default value is
+            "regular".
+
+    Returns:
+            The edges of the bins in the feature scale.
+    """
+
+    if categorical is False:
+
+        # Computes position of bin edges and groups for quartiles or deciles
+        if bins == "quartiles":
+            bins = compute_quantiles(test_dataset, feature, quantiles=4)
+
+        elif bins == "deciles":
+            bins = compute_quantiles(test_dataset, feature, quantiles=10)
+
+        elif type(bins) == int and bins_type == "quantiles":
+            bins = compute_quantiles(test_dataset, feature, quantiles=bins)
+
+        # groups for regular bin edges or known bin edges
+        else:
+            total_histogram_counts, bins = np.histogram(test_dataset[feature], bins)
+
+    else:
+
+        # Histogram of all points for categorical features
+        total_histogram_counts = test_dataset[feature].value_counts().sort_index()
+
+        bins = np.asarray(total_histogram_counts.index)
+
+    return bins

@@ -11,6 +11,7 @@ from presc.misclassifications.misclass_rate import (
     show_quantiles_feature,
     show_quantiles_features,
     compute_conditional_metric,
+    feature_binning,
 )
 
 
@@ -110,6 +111,19 @@ def test1_compute_conditional_metric(
     assert max(metric_list) <= 1.0
     assert min(metric_list) >= 0.0
 
+
+
+def test_feature_binning(dataset, feature_param, bins_param, bins_type_param):
+    bins = feature_binning(
+        dataset,
+        feature=feature_param,
+        bins=bins_param,
+        bins_type=bins_type_param,
+    )
+    if type(bins_param) == int:
+        assert len(bins) == bins_param + 1
+    elif type(bins_param) == list:
+        assert len(bins) == len(bins_param)
 
 # This decorator lists de combination of parameters to be tested.
 @pytest.mark.parametrize(
