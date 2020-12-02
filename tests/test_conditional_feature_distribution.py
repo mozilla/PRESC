@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix
 from presc.conditional_feature_distribution.conditional_feature_distribution import (
     plot_all_histogram_conditional_feature_distribution,
 )
-from presc.dataset_wrapper import DatasetWrapper
+from presc.dataset import Dataset
 
 DATASET_DIR = Path(__file__).resolve().parent.parent.joinpath("datasets/")
 
@@ -97,7 +97,7 @@ def test_valid_category(wine_y_actual_and_y_predict_and_X_test):
     assert all([a == b for a, b in zip(expected_group_sizes, actual_group_sizes)])
 
 
-# test the feature with the DatasetWrapper API (module test)
+# test the feature with the Dataset API (module test)
 
 VEHICLES_DATA_PATH = DATASET_DIR.joinpath("vehicles.csv")
 VEHICLES_LABEL_COL = "Class"
@@ -105,7 +105,7 @@ VEHICLES_LABEL_COL = "Class"
 
 @pytest.fixture
 def vehicles_dataset_wrapper():
-    dataset_wrapper = DatasetWrapper(VEHICLES_DATA_PATH, VEHICLES_LABEL_COL)
+    dataset_wrapper = Dataset(pd.read_csv(VEHICLES_DATA_PATH), VEHICLES_LABEL_COL)
     dataset_wrapper.split_test_train(test_size=0.4, random_state=random_state)
     return dataset_wrapper
 
@@ -114,15 +114,11 @@ def vehicles_dataset_wrapper():
 def test_valid_numeric_vehicles_dw(vehicles_dataset_wrapper):
 
     # pre-process
-    scaler = StandardScaler().fit(vehicles_dataset_wrapper.get_features(subset="train"))
-    X_train_scaled = scaler.transform(
-        vehicles_dataset_wrapper.get_features(subset="train")
-    )
-    X_test_scaled = scaler.transform(
-        vehicles_dataset_wrapper.get_features(subset="test")
-    )
-    y_train = vehicles_dataset_wrapper.get_label(subset="train")
-    y_test = vehicles_dataset_wrapper.get_label(subset="test")
+    scaler = StandardScaler().fit(vehicles_dataset_wrapper.train_features)
+    X_train_scaled = scaler.transform(vehicles_dataset_wrapper.train_features)
+    X_test_scaled = scaler.transform(vehicles_dataset_wrapper.test_features)
+    y_train = vehicles_dataset_wrapper.train_labels
+    y_test = vehicles_dataset_wrapper.test_labels
 
     classifier = SVC(kernel="linear", decision_function_shape="ovo")
     classifier.fit(X_train_scaled, y_train)
@@ -133,11 +129,9 @@ def test_valid_numeric_vehicles_dw(vehicles_dataset_wrapper):
     # before we consider adding the missing confusion matrix group, we will remove the 0s
     expected_group_sizes = expected_group_sizes[expected_group_sizes > 0]
 
-    CIRCULARITY = vehicles_dataset_wrapper.get_features(subset="test")["CIRCULARITY"]
+    CIRCULARITY = vehicles_dataset_wrapper.test_features["CIRCULARITY"]
     actual_group_sizes = plot_all_histogram_conditional_feature_distribution(
-        y_actual=y_test,
-        y_predict=y_predict,
-        feature_column=CIRCULARITY,
+        y_actual=y_test, y_predict=y_predict, feature_column=CIRCULARITY,
     )
     assert len(expected_group_sizes) == len(actual_group_sizes)
     assert all([a == b for a, b in zip(expected_group_sizes, actual_group_sizes)])

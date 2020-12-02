@@ -112,6 +112,7 @@ def test1_compute_conditional_metric(
     assert min(metric_list) >= 0.0
 
 
+
 def test_feature_binning(dataset, feature_param, bins_param, bins_type_param):
     bins = feature_binning(
         dataset,
@@ -124,9 +125,7 @@ def test_feature_binning(dataset, feature_param, bins_param, bins_type_param):
     elif type(bins_param) == list:
         assert len(bins) == len(bins_param)
 
-    # This decorator lists de combination of parameters to be tested.
-
-
+# This decorator lists de combination of parameters to be tested.
 @pytest.mark.parametrize(
     "feature_scenario, "
     "categorical_scenario, bins_scenario, bins_type_scenario, "
