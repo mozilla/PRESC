@@ -1,0 +1,21 @@
+title: PRESC Report
+author: ""
+
+# Force re-execution of notebooks on each build.
+execute:
+  execute_notebooks: force
+
+# Information about where the book exists on the web
+repository:
+  url: https://github.com/mozilla/PRESC
+  path_to_book: presc/report
+  branch: master
+
+# Add GitHub buttons
+html:
+  use_issues_button: false
+  use_repository_button: true
+
+# Additional launch buttons
+launch_buttons:
+  binderhub_url: ""
