@@ -67,10 +67,7 @@ def plot_all_histogram_conditional_feature_distribution(
 
 
 def plot_histogram(
-    confusion_matrix_group_name: str,
-    feature_name: str,
-    group_df,
-    bins: int = None,
+    confusion_matrix_group_name: str, feature_name: str, group_df, bins: int = None,
 ):
     """
     Description:

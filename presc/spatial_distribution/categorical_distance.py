@@ -485,8 +485,7 @@ class SpatialDistribution:
             sns.set()
             fig, ax = plt.subplots()
             sns.scatterplot(
-                distance_array_metric1,
-                distance_array_metric2,
+                distance_array_metric1, distance_array_metric2,
             )
             ax.set_xlabel(metric1 + " average distance to other points")
             ax.set_ylabel(metric2 + " average distance to other points")
@@ -495,11 +494,7 @@ class SpatialDistribution:
             return fig, ax, distance_array_metric1, distance_array_metric2
 
     def plot_distance_scatterplot(
-        self,
-        metric1,
-        metric2,
-        scatter_sample=0.1,
-        distance_sample=0.001,
+        self, metric1, metric2, scatter_sample=0.1, distance_sample=0.001,
     ):
         """Produces a scatter plot of the distance of every point to every other
         using to different metrics as axises

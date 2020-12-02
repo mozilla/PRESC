@@ -283,7 +283,7 @@ def compute_conditional_metric(
             pred_y = y_pred_series[theGroup.index]
             sc = metric_function(test_y, pred_y)
             metric_list.append(sc)
-            
+
     return bins, metric_list
 
 
