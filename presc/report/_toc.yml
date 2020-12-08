@@ -4,3 +4,4 @@
   chapters:
     - file: misclass_rate
     - file: cond_feature_distr
+    - file: conditional_metrics
