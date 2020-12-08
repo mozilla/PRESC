@@ -7,6 +7,7 @@ Created on Fri Oct  9 11:47:47 2020
 
 
 from matplotlib import pyplot as plt
+from sklearn.preprocessing import StandardScaler
 import numpy as np
 import random
 import seaborn as sns
@@ -29,12 +30,9 @@ class SpatialDistribution:
 
     def __init__(self, data, label_predicted, label_true, type=None):
         self._data = data
-        self.cat_data = self._data.select_dtypes(
-            exclude="number"
-        )  # This will be use when we extend the module for numerical
-        self.num_data = self._data.select_dtypes(
-            include="number"
-        )  # plus categorical data types
+        self.cat_data = self._data.select_dtypes(exclude="number")
+        self.num_data = self._data.select_dtypes(include="number")
+        self.num_scaled_data = self.__build_scaled_data()
         self.type = type
         self.label_predicted = np.array(label_predicted)
         self.label_true = np.array(label_true)
@@ -51,7 +49,7 @@ class SpatialDistribution:
         )
         self._numeric_metrics_dict = dict(
             zip(
-                ["l2_norm"],
+                ["l2_norm", "l1_norm"],
                 [self.l2_norm],
             )  # Dictionary
         )
@@ -83,6 +81,18 @@ class SpatialDistribution:
             counts_dict[attribute] = self.cat_data[attribute].value_counts()
         return counts_dict
 
+    def __build_scaled_data(self):
+        """scales the numeric data returning a scaled data framed with the same column names """
+
+        if not self.num_data.empty:
+            num_scaled_data = StandardScaler().fit_transform(self.num_data.values)
+            num_scaled_data_df = pd.DataFrame(
+                num_scaled_data,
+                index=self.num_data.index,
+                columns=self.num_data.columns,
+            )
+            return num_scaled_data_df
+
     def get_available_metrics(self):
         """Prints the available metrics """
         cat_metrics = list(self._categoric_metrics_dict.keys())
@@ -95,7 +105,12 @@ class SpatialDistribution:
             print(metric)
 
     def get_metric(self, metric):
-        """Add documentation """
+        """Given the string representation of a metric returns the callable method
+        and the type of the metric (either numerical or categorical) if the metric is not found
+        because it's not implemente it raises value a error
+        Args:
+            metric(str): the name of the metric"""
+
         categorical_metric = self._categoric_metrics_dict.get(metric, None)
 
         if categorical_metric is None:
@@ -114,23 +129,17 @@ class SpatialDistribution:
         return self._data.iloc[index]
 
     def get_data_len(self):
-
         return self._data_len
 
     def l2_norm(self, dpoint1, dpoint2):
-        dpoint1 = np.array(dpoint1)
-        dpoint2 = np.array(dpoint2)
+        dpoint1 = np.array(self.num_scaled_data.iloc[dpoint1.name])
+        dpoint2 = np.array(self.num_scaled_data.iloc[dpoint2.name])
         return np.linalg.norm(dpoint1 - dpoint2, ord=2)
 
     def l1_norm(self, dpoint1, dpoint2):
-        dpoint1 = np.array(dpoint1)
-        dpoint2 = np.array(dpoint2)
+        dpoint1 = np.array(self.num_scaled_data.iloc[dpoint1.name])
+        dpoint2 = np.array(self.num_scaled_data.iloc[dpoint2.name])
         return np.linalg.norm(dpoint1 - dpoint2, ord=1)
-
-    def linf_norm(self, dpoint1, dpoint2):
-        dpoint1 = np.array(dpoint1)
-        dpoint2 = np.array(dpoint2)
-        return np.linalg.norm(dpoint1 - dpoint2, ord=np.inf)
 
     def goodall2(self, dpoint1, dpoint2):
         """Computes the goodall2 similary measurement for categorical data, see paper by
@@ -139,6 +148,11 @@ class SpatialDistribution:
             dpoint1(Pandas Series): Data point to compare
             dpoin2(Pandas Series): Data point to compare
         """
+        dpoint1 = dpoint1[self._cat_col_names]
+        dpoint2 = dpoint2[self._cat_col_names]
+
+        if len(list(dpoint1.index)) == 0:
+            raise ValueError("The points don't have categorical attributes to compare")
 
         intersection = dpoint1 == dpoint2
         common_attributes = list(
@@ -175,28 +189,27 @@ class SpatialDistribution:
             dpoint1(Pandas Series): Data point to compare
             dpoin2(Pandas Series): Data point to compare
         """
+        dpoint1 = dpoint1[self._cat_col_names]
+        dpoint2 = dpoint2[self._cat_col_names]
 
         d1_attributes = list(dpoint1.index)
         d2_attributes = list(dpoint2.index)
         goodall3_score = 0
-        if d1_attributes == d2_attributes:
-            for attribute in d1_attributes:
-                attribute_score = 0
-                value_point1 = dpoint1[attribute]
-                value_point2 = dpoint2[attribute]
-                if (
-                    value_point1 == value_point2
-                ):  # for all category attributes that have matching values
-                    count = self._counts_per_attribute[attribute][value_point1]
-                    attribute_score = self.goodall_frequency(
-                        count
-                    )  # increase the attribute score using the count of ocurrance the matching value
-                    goodall3_score = (1 - attribute_score) + goodall3_score
+        if d1_attributes != d2_attributes:
+            raise ValueError("The points have different columns ")
+        if len(d1_attributes) == 0:
+            raise ValueError("The points don't have categorical attributes to compare")
 
-            return goodall3_score / len(d1_attributes)
-        else:
-            # write exception
-            pass
+        for attribute in d1_attributes:
+            attribute_score = 0
+            value_point1 = dpoint1[attribute]
+            value_point2 = dpoint2[attribute]
+            if value_point1 == value_point2:
+
+                count = self._counts_per_attribute[attribute][value_point1]
+                attribute_score = self.goodall_frequency(count)
+                goodall3_score = (1 - attribute_score) + goodall3_score
+        return goodall3_score / len(d1_attributes)
 
     def overlap(self, dpoint1, dpoint2):
         """Computes the overlap similarity measure for categorical data
@@ -204,14 +217,14 @@ class SpatialDistribution:
             dpoint1(Pandas Series): Data point to compare
             dpoin2(Pandas Series): Data point to compare
         """
+        dpoint1 = dpoint1[self._cat_col_names]
+        dpoint2 = dpoint2[self._cat_col_names]
 
         if list(dpoint1.index) == list(dpoint2.index):
             overlap_score = (dpoint1 == dpoint2).mean()
             return overlap_score
         else:
-            # write exception
-
-            pass
+            raise ValueError("The Panda Series have different columns ")
 
     def lin(self, dpoint1, dpoint2):
         """Computes the Lin similarity measurment for categorical data, see paper by
@@ -220,6 +233,8 @@ class SpatialDistribution:
             dpoint1(Pandas Series): Data point to compare
             dpoin2(Pandas Series): Data point to compare
         """
+        dpoint1 = dpoint1[self._cat_col_names]
+        dpoint2 = dpoint2[self._cat_col_names]
         lin = 0
         weight = self.lin_weight(dpoint1, dpoint2)
         d1_attributes = list(dpoint1.index)
@@ -277,10 +292,10 @@ class SpatialDistribution:
         metric, type = self.get_metric(metric)
         if type == "categorical":
             data = self.cat_data
-            dpoint = dpoint[dpoint.apply(lambda x: isinstance(x, str))]
+            dpoint = data.iloc[dpoint.name]
         else:
-            data = self.num_data
-            dpoint = dpoint[dpoint.apply(lambda x: not isinstance(x, str))]
+            data = self.num_scaled_data
+            dpoint = data.iloc[dpoint.name]
 
         if distance_sample <= 1:
             distance_sample = round(distance_sample * self._data_len)
@@ -303,11 +318,11 @@ class SpatialDistribution:
         self, dpoint, metric, misclass_only=False, correct_only=False
     ):
         """Creates a list of tuples (distance,index) that holds the distances of all
-        the points to dpoint in a given metric and their position (index) in the dataset.
-        The list of tuples is soarted based on the distance in increasing order.
+        the points to the specified dpoint in a given metric and their position (index) in the dataset.
+        The list of tuples is soarted based on the distance in increasing order of distance.
 
         Args:
-            dpoint1(Pandas Series): Data point from which we'll get the distances to the other points
+            dpoint(Pandas Series): Data point from which we'll get the distances to the other points
             metric(str): The metric to use
             missclass_only(bool):Default to False, that if True the list only contains the tuples of
                                  (distance,index) to misclasfied points
@@ -320,11 +335,11 @@ class SpatialDistribution:
 
         if type == "categorical":
             data = self.cat_data
-            dpoint = dpoint[dpoint.apply(lambda x: isinstance(x, str))]
+            dpoint = data.iloc[dpoint.name]  # get only the categorical entries
 
         else:
             data = self.num_data
-            dpoint = dpoint[dpoint.apply(lambda x: not isinstance(x, str))]
+            dpoint = data.iloc[dpoint.name]  # get only the numerical entries
 
         distance_misclas_array = []
         distance_correct_only = []
@@ -358,7 +373,9 @@ class SpatialDistribution:
         distance_array.sort(key=lambda x: x[0])
         return distance_array
 
-    def plot_distance_point_histogram(self, metric, dpoint, bar_width=0.01, show=True):
+    def plot_distance_to_point_histogram(
+        self, dpoint, metric, other_metrics=None, bar_width=0.01, show=True
+    ):
         """Function that given a metric and a dpoint plots a graphs of the histograms of the distribution of the distance
         from dpoint to every point that has been correctly classified and the distance from dpoint to every point that has been
         misclassified
@@ -366,8 +383,11 @@ class SpatialDistribution:
         Args:
             metric(str): Name of the similarity metric to be used
             dpoint(Pandas Series): data point that will be used as reference to compute the histogram of relative distances
+            other_metrics(list of strings): In case the user wants to use more than one metric to compute the distance the other metrics that will be added up
+                                            are to be specified here.
             bar_width(numeric):bar width for the histogram
             show(bool):boolean that controls if the graph is shown"""
+
         distance_to_correctly_clasified = np.array(
             [
                 tuple[0]
@@ -380,6 +400,33 @@ class SpatialDistribution:
                 for tuple in self.array_of_distance(dpoint, metric, misclass_only=True)
             ]
         )
+        x_label = "distance to points in: "
+        if other_metrics is not None:
+            for metrics in other_metrics:
+                new_distance_to_correctly_clasified = np.array(
+                    [
+                        tuple[0]
+                        for tuple in self.array_of_distance(
+                            dpoint, metric, misclass_only=False
+                        )
+                    ]
+                )
+                new_distance_to_misclasified = np.array(
+                    [
+                        tuple[0]
+                        for tuple in self.array_of_distance(
+                            dpoint, metric, misclass_only=True
+                        )
+                    ]
+                )
+                distance_to_correctly_clasified = np.add(
+                    distance_to_correctly_clasified, new_distance_to_correctly_clasified
+                )
+                distance_to_misclasified = np.add(
+                    distance_to_misclasified, new_distance_to_misclasified
+                )
+                x_label = x_label + " + " + metrics
+
         sns.set()
         correct_data_std = np.std(distance_to_correctly_clasified)
         correct_data_mean = np.mean(distance_to_correctly_clasified)
@@ -406,7 +453,7 @@ class SpatialDistribution:
         fig, ax = plt.subplots()
         ax.set_title("Data distance histogram")
         ax.set_alpha(0.5)
-        ax.set_xlabel(metric + " distance distribution")
+        ax.set_xlabel(x_label)
         ax.set_ylabel("Number of points")
         bins_number_correct = math.ceil(
             (
@@ -422,21 +469,19 @@ class SpatialDistribution:
 
         sns.distplot(
             distance_to_correctly_clasified,
-            norm_hist=True,
             bins=bins_number_correct,
             label=label_all_data,
             ax=ax,
         )
         sns.distplot(
             distance_to_misclasified,
-            norm_hist=True,
             bins=bins_number_misclass,
             label=label_m_data,
             ax=ax,
         )
         ax.legend()
         if show:
-            plt.show()
+            plt.show(block=False)
 
     def plot_avg_distance_histogram(
         self,
@@ -478,7 +523,7 @@ class SpatialDistribution:
         distance_array = np.empty(histo_sample)
         sampled_indexes = random.sample(range(self._data_len), histo_sample)
 
-        print("Processing correctly classified datapoints")
+        print("Processing correctly classified datapoints in metric ", metric)
         j = 0
         for i in tqdm(sampled_indexes):
             distance_array[j] = self.distance_to_data(
@@ -490,7 +535,7 @@ class SpatialDistribution:
         condition = ~self.data_w_predlabel["correctly-predicted"]
         misclass_indexes = self.data_w_predlabel.index[condition].tolist()
         misclass_distance_array = np.empty(len(misclass_indexes))
-        print("Processing misclasfied datapoints")
+        print("Processing misclasfied datapoints in metric ", metric)
         for i in tqdm(range(0, len(misclass_indexes))):
             index = misclass_indexes[i]
             misclass_distance_array[i] = self.distance_to_data(
@@ -533,10 +578,10 @@ class SpatialDistribution:
         ax.legend()
 
         if show:
-            plt.show()
+            plt.show(block=False)
         pass
 
-    def plot_full_histogram_report(
+    def plot_full_cat_histogram_report(
         self,
         histo_sample=2000,
         distance_sample=0.005,
@@ -575,7 +620,7 @@ class SpatialDistribution:
                     ax=axis[i][j],
                 )
 
-        plt.show()
+        plt.show(block=False)
         return
 
     def plot_distance_misclassified(
@@ -625,7 +670,7 @@ class SpatialDistribution:
             ax.set_xlabel(metric1 + " average distance to other points")
             ax.set_ylabel(metric2 + " average distance to other points")
             ax.set_title("Misclassified points average distance to all data")
-            plt.show()
+            plt.show(block=False)
             return fig, ax, distance_array_metric1, distance_array_metric2
 
     def plot_distance_scatterplot(
@@ -682,5 +727,5 @@ class SpatialDistribution:
         ax.set_xlabel(metric1 + " average distance to other points")
         ax.set_ylabel(metric2 + " average distance to other points")
         ax.set_title("Data distance")
-        plt.show()
+        plt.show(block=False)
         return fig, ax

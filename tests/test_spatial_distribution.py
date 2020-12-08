@@ -37,18 +37,18 @@ def random_catd_analysis():
 @pytest.fixture
 def catd_analysis():
     column_names = []
-    for i in range(5):
+    for i in range(8):
         name = "feature_" + str(i)
         column_names.append(name)
     column_names.append("label")
 
     toy_data = [
-        ("p", "t", "x", "v", "q", "p"),
-        ("e", "y", "x", "y", "q", "p"),
-        ("p", "x", "s", "y", "t", "p"),
-        ("e", "x", "s", "y", "t", "a"),
-        ("e", "b", "s", "w", "t", "a"),
-        ("p", "x", "y", "w", "t", "p"),
+        ("p", "t", "x", "v", "q", "p", 1, 2, 3),
+        ("e", "y", "x", "y", "q", "p", 3, 4, 5),
+        ("p", "x", "s", "y", "t", "p", 7, 8, 9),
+        ("e", "x", "s", "y", "t", "a", 9, 10, 11),
+        ("e", "b", "s", "w", "t", "a", 11, 2, 3),
+        ("p", "x", "y", "w", "t", "p", 8, 9, 10),
     ]
 
     df = pd.DataFrame(toy_data, columns=column_names)
@@ -177,15 +177,23 @@ def test_array_of_distance_intersection(random_catd_analysis):
     assert len(set_intersection) == 0
 
 
+def test_plot_distance_point_histogram(catd_analysis):
+    dpoint = catd_analysis.get_datapoint(1)
+    other_metrics = ["overlap", "goodall2"]
+    catd_analysis.plot_distance_to_point_histogram(
+        dpoint, "lin", other_metrics=other_metrics, bar_width=5
+    )
+
+
 def test_avg_distance_histogram(catd_analysis):
     catd_analysis.plot_avg_distance_histogram("lin", histo_sample=1, distance_sample=1)
 
 
 def test_plot_distance_scatterplot(catd_analysis):
     catd_analysis.plot_distance_scatterplot(
-        "lin", "goodall2", scatter_sample=1, distance_sample=1
+        "lin", "l2_norm", scatter_sample=1, distance_sample=1
     )
 
 
 def test_plot_distance_misclassifed(catd_analysis):
-    catd_analysis.plot_distance_misclassified("lin", "goodall2", distance_sample=1)
+    catd_analysis.plot_distance_misclassified("lin", "l2_norm", distance_sample=1)
