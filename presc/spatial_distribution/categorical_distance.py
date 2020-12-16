@@ -50,7 +50,7 @@ class SpatialDistribution:
         self._numeric_metrics_dict = dict(
             zip(
                 ["l2_norm", "l1_norm"],
-                [self.l2_norm],
+                [self.l2_norm, self.l1_norm],
             )  # Dictionary
         )
 
@@ -65,7 +65,8 @@ class SpatialDistribution:
         indicates if the data point was clasify correctly"""
 
         pred_status_label = pd.Series(
-            [i == j for i, j in zip(self.label_predicted, self.label_true)]
+            [i == j for i, j in zip(self.label_predicted, self.label_true)],
+            index=self._data.index,
         )
 
         return pd.concat(
@@ -132,13 +133,13 @@ class SpatialDistribution:
         return self._data_len
 
     def l2_norm(self, dpoint1, dpoint2):
-        dpoint1 = np.array(self.num_scaled_data.iloc[dpoint1.name])
-        dpoint2 = np.array(self.num_scaled_data.iloc[dpoint2.name])
+        dpoint1 = np.array(self.num_scaled_data.loc[dpoint1.name])
+        dpoint2 = np.array(self.num_scaled_data.loc[dpoint2.name])
         return np.linalg.norm(dpoint1 - dpoint2, ord=2)
 
     def l1_norm(self, dpoint1, dpoint2):
-        dpoint1 = np.array(self.num_scaled_data.iloc[dpoint1.name])
-        dpoint2 = np.array(self.num_scaled_data.iloc[dpoint2.name])
+        dpoint1 = np.array(self.num_scaled_data.loc[dpoint1.name])
+        dpoint2 = np.array(self.num_scaled_data.loc[dpoint2.name])
         return np.linalg.norm(dpoint1 - dpoint2, ord=1)
 
     def goodall2(self, dpoint1, dpoint2):
@@ -292,10 +293,10 @@ class SpatialDistribution:
         metric, type = self.get_metric(metric)
         if type == "categorical":
             data = self.cat_data
-            dpoint = data.iloc[dpoint.name]
+            dpoint = data.loc[dpoint.name]
         else:
             data = self.num_scaled_data
-            dpoint = data.iloc[dpoint.name]
+            dpoint = data.loc[dpoint.name]
 
         if distance_sample <= 1:
             distance_sample = round(distance_sample * self._data_len)
@@ -306,11 +307,11 @@ class SpatialDistribution:
         else:
             distance_sample = self._data_len
 
-        sampled_indexes = random.sample(range(self._data_len), distance_sample)
+        sampled_indexes = random.sample(list(data.index), distance_sample)
 
         distance = 0
         for i in sampled_indexes:
-            distance = distance + metric(dpoint, data.iloc[i])
+            distance = distance + metric(dpoint, data.loc[i])
 
         return distance / (distance_sample)
 
@@ -335,11 +336,11 @@ class SpatialDistribution:
 
         if type == "categorical":
             data = self.cat_data
-            dpoint = data.iloc[dpoint.name]  # get only the categorical entries
+            dpoint = data.loc[dpoint.name]  # get only the categorical entries
 
         else:
             data = self.num_data
-            dpoint = data.iloc[dpoint.name]  # get only the numerical entries
+            dpoint = data.loc[dpoint.name]  # get only the numerical entries
 
         distance_misclas_array = []
         distance_correct_only = []
@@ -400,7 +401,7 @@ class SpatialDistribution:
                 for tuple in self.array_of_distance(dpoint, metric, misclass_only=True)
             ]
         )
-        x_label = "distance to points in: "
+        x_label = "distance to points in: " + str(metric)
         if other_metrics is not None:
             for metrics in other_metrics:
                 new_distance_to_correctly_clasified = np.array(
@@ -451,10 +452,12 @@ class SpatialDistribution:
         )
 
         fig, ax = plt.subplots()
-        ax.set_title("Data distance histogram")
+        ax.set_title(
+            "Histogram of the distribution of distances from the given to the rest of the data"
+        )
         ax.set_alpha(0.5)
         ax.set_xlabel(x_label)
-        ax.set_ylabel("Number of points")
+        ax.set_ylabel("Percentage of points")
         bins_number_correct = math.ceil(
             (
                 distance_to_correctly_clasified.max()
@@ -467,17 +470,22 @@ class SpatialDistribution:
             / bar_width
         )
 
-        sns.distplot(
+        sns.histplot(
             distance_to_correctly_clasified,
             bins=bins_number_correct,
             label=label_all_data,
             ax=ax,
+            kde=True,
+            stat="density",
         )
-        sns.distplot(
+        sns.histplot(
             distance_to_misclasified,
             bins=bins_number_misclass,
             label=label_m_data,
             ax=ax,
+            kde=True,
+            stat="density",
+            color="coral",
         )
         ax.legend()
         if show:
@@ -512,34 +520,40 @@ class SpatialDistribution:
         if ax is None:
             sns.set()
             fig, ax = plt.subplots()
-            ax.set_title("Data distance histogram")
+            ax.set_title("Histogram of Estimate average distance between data points")
             show = True
 
-        if histo_sample <= 1:
-            histo_sample = round(histo_sample * self._data_len)
-        elif histo_sample > self._data_len:
-            histo_sample = self._data_len
+        true_condition = self.data_w_predlabel["correctly-predicted"]
+        true_class_indexes = self.data_w_predlabel.index[true_condition].tolist()
 
+        if histo_sample <= 1:
+            histo_sample = round(histo_sample * len(true_class_indexes))
+        elif histo_sample > len(true_class_indexes):
+            histo_sample = len(true_class_indexes)
+
+        true_condition = self.data_w_predlabel["correctly-predicted"]
+        true_class_indexes = self.data_w_predlabel.index[true_condition].tolist()
         distance_array = np.empty(histo_sample)
-        sampled_indexes = random.sample(range(self._data_len), histo_sample)
+
+        sampled_indexes = random.sample(true_class_indexes, histo_sample)
 
         print("Processing correctly classified datapoints in metric ", metric)
         j = 0
         for i in tqdm(sampled_indexes):
             distance_array[j] = self.distance_to_data(
-                self._data.iloc[i], metric, distance_sample
+                self._data.loc[i], metric, distance_sample
             )
             j = j + 1
 
         # Processing the misclasfied points
-        condition = ~self.data_w_predlabel["correctly-predicted"]
-        misclass_indexes = self.data_w_predlabel.index[condition].tolist()
+        false_condition = ~self.data_w_predlabel["correctly-predicted"]
+        misclass_indexes = self.data_w_predlabel.index[false_condition].tolist()
         misclass_distance_array = np.empty(len(misclass_indexes))
         print("Processing misclasfied datapoints in metric ", metric)
         for i in tqdm(range(0, len(misclass_indexes))):
             index = misclass_indexes[i]
             misclass_distance_array[i] = self.distance_to_data(
-                self._data.iloc[index], metric, mdistance_sample
+                self._data.loc[index], metric, mdistance_sample
             )
 
         all_data_std = np.std(distance_array)
@@ -563,17 +577,32 @@ class SpatialDistribution:
             + ")"
         )
 
-        n = math.ceil((distance_array.max() - distance_array.min()) / bar_width)
-
+        n_clasified = math.ceil(
+            (distance_array.max() - distance_array.min()) / bar_width
+        )
+        n_misclasified = math.ceil(
+            (misclass_distance_array.max() - misclass_distance_array.min()) / bar_width
+        )
         # ax.grid()
         ax.set_alpha(0.5)
         ax.set_xlabel(metric + " distance distribution")
         ax.set_ylabel("Percentage of points (%)")
-        sns.distplot(
-            distance_array, norm_hist=True, bins=n, label=label_all_data, ax=ax
+        sns.histplot(
+            distance_array,
+            kde=True,
+            stat="density",
+            bins=n_clasified,
+            label=label_all_data,
+            ax=ax,
         )
-        sns.distplot(
-            misclass_distance_array, bins=n, label=label_m_data, ax=ax, norm_hist=True
+        sns.histplot(
+            misclass_distance_array,
+            kde=True,
+            stat="density",
+            bins=n_misclasified,
+            label=label_m_data,
+            ax=ax,
+            color="coral",
         )
         ax.legend()
 
@@ -653,10 +682,10 @@ class SpatialDistribution:
             distance_index = 0
             for index in tqdm(missclass_indexes):
                 distance_array_metric1[distance_index] = self.distance_to_data(
-                    data.iloc[index], metric1, distance_sample=distance_sample
+                    data.loc[index], metric1, distance_sample=distance_sample
                 )
                 distance_array_metric2[distance_index] = self.distance_to_data(
-                    data.iloc[index], metric2, distance_sample=distance_sample
+                    data.loc[index], metric2, distance_sample=distance_sample
                 )
                 distance_index = distance_index + 1
                 continue
@@ -664,7 +693,8 @@ class SpatialDistribution:
             sns.set()
             fig, ax = plt.subplots()
             sns.scatterplot(
-                distance_array_metric1, distance_array_metric2,
+                distance_array_metric1,
+                distance_array_metric2,
             )
             ax.set_xlabel(metric1 + " average distance to other points")
             ax.set_ylabel(metric2 + " average distance to other points")
@@ -673,7 +703,11 @@ class SpatialDistribution:
             return fig, ax, distance_array_metric1, distance_array_metric2
 
     def plot_distance_scatterplot(
-        self, metric1, metric2, scatter_sample=0.1, distance_sample=0.001,
+        self,
+        metric1,
+        metric2,
+        scatter_sample=0.1,
+        distance_sample=0.001,
     ):
         """Produces a scatter plot of the distance of every point to every other
         using to different metrics as axises
@@ -696,15 +730,15 @@ class SpatialDistribution:
             np.empty(scatter_sample),
             np.empty(scatter_sample),
         )
-        sampled_indexes = random.sample(range(len(data)), scatter_sample)
+        sampled_indexes = random.sample(list(self._data.index), scatter_sample)
 
         distance_index = 0
         for index in tqdm(sampled_indexes):
             distance_array_metric1[distance_index] = self.distance_to_data(
-                data.iloc[index], metric1, distance_sample=distance_sample
+                data.loc[index], metric1, distance_sample=distance_sample
             )
             distance_array_metric2[distance_index] = self.distance_to_data(
-                data.iloc[index], metric2, distance_sample=distance_sample
+                data.loc[index], metric2, distance_sample=distance_sample
             )
             distance_index = distance_index + 1
 
@@ -716,11 +750,14 @@ class SpatialDistribution:
             distance_array_metric1,
             distance_array_metric2,
             size=label,
-            sizes=(10, 80),
+            sizes=(20, 60),
             hue=label,
         )
         ax.set_xlabel(metric1 + " average distance to other points")
         ax.set_ylabel(metric2 + " average distance to other points")
-        ax.set_title("Data distance")
+        ax.set_title(
+            "Scatterplot of estimated average distance of a data point to every other"
+        )
+        ax.legend(title="Corretly classified?")
         plt.show(block=False)
         return fig, ax
