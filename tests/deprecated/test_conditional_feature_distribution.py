@@ -7,12 +7,12 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix
 
-from presc.conditional_feature_distribution.conditional_feature_distribution import (
+from presc.deprecated.conditional_feature_distribution.conditional_feature_distribution import (
     plot_all_histogram_conditional_feature_distribution,
 )
-from presc.dataset import Dataset
+from presc.deprecated.train_test_dataset import TrainTestDataset
 
-DATASET_DIR = Path(__file__).resolve().parent.parent.joinpath("datasets/")
+DATASET_DIR = Path(__file__).resolve().parent.parent.parent.joinpath("datasets/")
 
 WINE_DATA_PATH = DATASET_DIR.joinpath("winequality.csv")
 WINE_LABEL_COL = "recommend"
@@ -97,7 +97,7 @@ def test_valid_category(wine_y_actual_and_y_predict_and_X_test):
     assert all([a == b for a, b in zip(expected_group_sizes, actual_group_sizes)])
 
 
-# test the feature with the Dataset API (module test)
+# test the feature with the TrainTestDataset API (module test)
 
 VEHICLES_DATA_PATH = DATASET_DIR.joinpath("vehicles.csv")
 VEHICLES_LABEL_COL = "Class"
@@ -105,7 +105,9 @@ VEHICLES_LABEL_COL = "Class"
 
 @pytest.fixture
 def vehicles_dataset_wrapper():
-    dataset_wrapper = Dataset(pd.read_csv(VEHICLES_DATA_PATH), VEHICLES_LABEL_COL)
+    dataset_wrapper = TrainTestDataset(
+        pd.read_csv(VEHICLES_DATA_PATH), VEHICLES_LABEL_COL
+    )
     dataset_wrapper.split_test_train(test_size=0.4, random_state=random_state)
     return dataset_wrapper
 
@@ -131,7 +133,9 @@ def test_valid_numeric_vehicles_dw(vehicles_dataset_wrapper):
 
     CIRCULARITY = vehicles_dataset_wrapper.test_features["CIRCULARITY"]
     actual_group_sizes = plot_all_histogram_conditional_feature_distribution(
-        y_actual=y_test, y_predict=y_predict, feature_column=CIRCULARITY,
+        y_actual=y_test,
+        y_predict=y_predict,
+        feature_column=CIRCULARITY,
     )
     assert len(expected_group_sizes) == len(actual_group_sizes)
     assert all([a == b for a, b in zip(expected_group_sizes, actual_group_sizes)])

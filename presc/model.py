@@ -1,63 +1,52 @@
-def is_misclassified(y_predicted, y_true):
-    """Return a boolean Series indicating which test cases were misclassified."""
-    return y_predicted != y_true
+from pandas import Series, DataFrame
 
 
 class ClassificationModel:
     """Represents a classification problem.
 
-    Instances wrap a ML model together with its associated dataset.
+    Instances wrap a ML model together with its associated training dataset.
 
     Args:
         classifier (sklearn Classifier): the classifier to wrap
-        dataset (Dataset): the data associated with the classification model
+        dataset (Dataset): optionally include the associated training dataset
         should_train (bool): should the classifier be (re-)trained on the given dataset?
     """
 
-    def __init__(self, classifier, dataset, should_train=False):
+    def __init__(self, classifier, train_dataset=None, should_train=False):
         self._classifier = classifier
-        self._dataset = dataset
+        self._train_dataset = train_dataset
         if should_train:
             # Train the classifier on the given dataset.
             self.train()
-        # Precompute predictions for the test set.
-        self._test_preds = self.predict()
-        # Precompute a series indicating misclassified test samples.
-        self._test_misclassified = is_misclassified(
-            self._test_preds, self._dataset.test_labels
-        )
 
-    def train(self, X_train=None, y_train=None):
+    def train(self, train_dataset=None):
         """Train the underlying classification model.
 
-        Training data defaults to the instance training set.
+        train_dataset: a Dataset to train on. Defaults to the prespecified
+            training dataset, if any.
         """
-        X_train = X_train or self._dataset.train_features
-        y_train = y_train or self._dataset.train_labels
-        self._classifier.fit(X_train, y_train)
+        if train_dataset is None:
+            train_dataset = self._train_dataset
 
-    def predict(self, X_test=None):
-        """Predict labels for the given feature dataset.
+        self._classifier.fit(train_dataset.features, train_dataset.labels)
 
-        Defaults to the instance test set.
+    def predict_labels(self, test_dataset):
+        """Predict labels for the given test dataset.
+
+        Returns a like-indexed Series.
         """
-        X_test = X_test or self._dataset.test_features
-        return self._classifier.predict(X_test)
+        pred = self._classifier.predict(test_dataset.features)
+        return Series(pred, index=test_dataset.features.index)
 
-    @property
-    def test_predictions(self):
-        """Returns the predicted labels for the test set."""
-        return self._test_preds
+    def predict_probs(self, test_dataset):
+        """Compute predicted probabilities for the given test dataset.
 
-    @property
-    def test_misclassified(self):
-        """Returns a boolean Series indicating misclassified test set cases."""
-        return self._test_misclassified
+        Fails if not supported by the classifier.
 
-    @property
-    def dataset(self):
-        """Returns the underlying dataset."""
-        return self._dataset
+        Returns a like-indexed DataFrame of probabilities for each class.
+        """
+        pred = self._classifier.predict_proba(test_dataset.features)
+        return DataFrame(pred, index=test_dataset.features.index)
 
     @property
     def classifier(self):

@@ -2,6 +2,6 @@
 
 - part: Misclassifications
   chapters:
-    - file: misclass_rate
-    - file: cond_feature_distr
-    - file: conditional_metrics
+    #    - file: misclass_rate
+    - file: conditional_distribution
+    - file: conditional_metric

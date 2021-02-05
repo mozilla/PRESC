@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 from sklearn.metrics import f1_score, accuracy_score
 
-from presc.misclassifications.misclass_rate import (
+from presc.deprecated.misclassifications.misclass_rate import (
     misclass_rate_feature,
     show_misclass_rate_feature,
     show_misclass_rates_features,
@@ -114,7 +114,10 @@ def test1_compute_conditional_metric(
 
 def test_feature_binning(dataset, feature_param, bins_param, bins_type_param):
     bins = feature_binning(
-        dataset, feature=feature_param, bins=bins_param, bins_type=bins_type_param,
+        dataset,
+        feature=feature_param,
+        bins=bins_param,
+        bins_type=bins_type_param,
     )
     if type(bins_param) == int:
         assert len(bins) == bins_param + 1
