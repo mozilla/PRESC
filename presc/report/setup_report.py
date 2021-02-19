@@ -8,6 +8,7 @@ from presc.model import ClassificationModel
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+from sklearn.model_selection import ShuffleSplit
 
 # Better quality plots
 from IPython.display import set_matplotlib_formats
@@ -18,14 +19,17 @@ set_matplotlib_formats("svg")
 
 df = pd.read_csv("../../datasets/winequality.csv")
 df = df.drop(columns=["quality"])
+dataset = Dataset(df, label_col="recommend")
 
-dataset = Dataset(df, label="recommend")
-dataset.split_test_train(0.3)
+splitter = ShuffleSplit(n_splits=1, test_size=0.3, random_state=543)
+train_ind, test_ind = next(splitter.split(dataset.features))
+train_dataset = dataset.subset(train_ind, by_position=True)
+test_dataset = dataset.subset(test_ind, by_position=True)
 
 # Set up the model
 
 model = Pipeline([("scaler", StandardScaler()), ("clf", SVC(class_weight="balanced"))])
-cm = ClassificationModel(model, dataset, should_train=True)
+cm = ClassificationModel(model, train_dataset, retrain_now=True)
 
 # Config options (TODO: read from file)
-config = {"misclass_rate": {"num_bins": 20}}
+config = {"conditional_metric": {"num_bins": 20}}

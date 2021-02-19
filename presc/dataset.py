@@ -1,101 +1,68 @@
-import pandas as pd
-from sklearn.model_selection import train_test_split
-
-
 class Dataset:
-    """Dataset API
+    """Convenience API for a dataset used with classification model.
 
-    Provides some functionalities to access the datasets as a pandas DataFrame object.
-    You can access the raw dataset as well as the the feature and label columns.
-    You can also split the dataset into train and test datasets, and access them.
+    Wraps a pandas DataFrame and provides shortcuts to access feature and label
+    columns. It also allows for other columns, eg. computed columns, to be
+    included or added later.
 
-    Args:
-        df (DataFrame): the underlying dataset
-        label (string) : name of the label column
+    df: a pandas DataFrame
+    label_col: the name of the column containing the labels
+    feature_cols: an array-like of column names corresponding to model features.
+        If not specified, all columns aside from the label column will be
+        assumed to be features.
     """
 
-    def __init__(self, df: pd.DataFrame, label: str) -> None:
-        self._dataset = df
-        self._X = None
-        self._y = None
-        self._X_train = None
-        self._X_test = None
-        self._y_train = None
-        self._y_test = None
-
-        self.set_label(label)
-
-    def set_label(self, label: str) -> None:
-        """This function allows users to reset the label column and will also update the feature columns.
-
-        Make sure you re-split the test and train data if you called this function after calling split.
-
-        Args:
-            label (string): name of the label column
-        """
-        try:
-            self._X = self._dataset.drop(columns=[label])
-            self._y = self._dataset[label]
-        except KeyError:
-            print(
-                "Please make sure that the label you speficy is in the columns:"
-                + ", ".join(self._dataset.columns.tolist())
-            )
-            raise
-
-    def split_test_train(self, test_size: float = 0.2, random_state: int = 0) -> None:
-        self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(
-            self._X, self._y, test_size=test_size, random_state=random_state
-        )
+    def __init__(self, df, label_col, feature_cols=None):
+        self._df = df
+        self._label_col = label_col
+        if feature_cols is None:
+            feature_cols = [c for c in df.columns if c != label_col]
+        self._feature_cols = feature_cols
 
     @property
-    def raw_dataset(self) -> pd.DataFrame:
-        """Returns the underlying dataset."""
-        return self._dataset
+    def size(self):
+        return self._df.shape[0]
 
     @property
-    def features(self) -> pd.DataFrame:
-        """Returns the full dataset feature columns."""
-        return self._X
-
-    @property
-    def feature_names(self) -> list:
+    def feature_names(self):
         """Returns the feature names as a list."""
-        return list(self.features.columns)
+        return list(self._feature_cols)
 
     @property
-    def labels(self) -> pd.Series:
-        """Returns the full dataset label column."""
-        return self._y
+    def features(self):
+        """Returns the dataset feature columns."""
+        return self._df[self._feature_cols]
 
     @property
-    def train_features(self) -> pd.DataFrame:
-        """Returns the feature columns for the training set portion."""
-        return self._X_train
+    def labels(self):
+        """Returns the dataset label column."""
+        return self._df[self._label_col]
 
     @property
-    def train_labels(self) -> pd.Series:
-        """Returns the label column for the training set portion."""
-        return self._y_train
+    def other_cols(self):
+        """Returns the dataset columns other than features and label."""
+        other_cols = [
+            c
+            for c in self._df.columns
+            if c != self._label_col and c not in self._feature_cols
+        ]
+        return self._df[other_cols]
 
     @property
-    def test_features(self) -> pd.DataFrame:
-        """Returns the feature columns for the test set portion."""
-        return self._X_test
+    def df(self):
+        """Returns the underlying DataFrame."""
+        return self._df
 
-    @property
-    def test_labels(self) -> pd.Series:
-        """Returns the label column for the test set portion."""
-        return self._y_test
+    def subset(self, subset_rows, by_position=False):
+        """Returns a Dataset corresponding to a subset of this one.
 
-    def get_test_dataset(self) -> pd.DataFrame:
-        dataset_test = self._X_test.merge(
-            self._y_test, left_index=True, right_index=True, how="left"
+        subset_rows: selector for the rows to include in the subset (that can be
+            passed to `.loc` or `.iloc`).
+        by_position: if `True`, `subset_rows` is interpeted as row numbers (used
+        with `.iloc`). Otherwise, `subset_rows` is used with `.loc`.
+        """
+        indexer = "iloc" if by_position else "loc"
+        subset_df = getattr(self._df, indexer)[subset_rows]
+        return self.__class__(
+            subset_df, label_col=self._label_col, feature_cols=self._feature_cols
         )
-        return dataset_test
-
-    def get_train_dataset(self) -> pd.DataFrame:
-        dataset_train = self._X_train.merge(
-            self._y_train, left_index=True, right_index=True, how="left"
-        )
-        return dataset_train
