@@ -29,7 +29,7 @@ test_dataset = dataset.subset(test_ind, by_position=True)
 # Set up the model
 
 model = Pipeline([("scaler", StandardScaler()), ("clf", SVC(class_weight="balanced"))])
-cm = ClassificationModel(model, train_dataset, should_train=True)
+cm = ClassificationModel(model, train_dataset, retrain_now=True)
 
 # Config options (TODO: read from file)
 config = {"conditional_metric": {"num_bins": 20}}

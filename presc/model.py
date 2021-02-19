@@ -1,5 +1,7 @@
 from pandas import Series, DataFrame
 
+from presc.utils import PrescError
+
 
 class ClassificationModel:
     """Represents a classification problem.
@@ -9,13 +11,13 @@ class ClassificationModel:
     Args:
         classifier (sklearn Classifier): the classifier to wrap
         dataset (Dataset): optionally include the associated training dataset
-        should_train (bool): should the classifier be (re-)trained on the given dataset?
+        retrain_now (bool): should the classifier first be (re-)trained on the given dataset?
     """
 
-    def __init__(self, classifier, train_dataset=None, should_train=False):
+    def __init__(self, classifier, train_dataset=None, retrain_now=False):
         self._classifier = classifier
         self._train_dataset = train_dataset
-        if should_train:
+        if retrain_now:
             # Train the classifier on the given dataset.
             self.train()
 
@@ -41,12 +43,18 @@ class ClassificationModel:
     def predict_probs(self, test_dataset):
         """Compute predicted probabilities for the given test dataset.
 
-        Fails if not supported by the classifier.
+        This must be supported by the underlying classifier, otherwise an
+        error will be raised.
 
         Returns a like-indexed DataFrame of probabilities for each class.
         """
-        pred = self._classifier.predict_proba(test_dataset.features)
-        return DataFrame(pred, index=test_dataset.features.index)
+        try:
+            pred = self._classifier.predict_proba(test_dataset.features)
+            return DataFrame(pred, index=test_dataset.features.index)
+        except AttributeError as e:
+            raise PrescError(
+                "classifier does not support predicted probabilities"
+            ) from e
 
     @property
     def classifier(self):

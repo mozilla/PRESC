@@ -20,7 +20,7 @@ def _histogram_bin_labels(bin_edges):
 def compute_conditional_distribution(
     data_col, true_labs, pred_labs, as_categorical=False, config=None
 ):
-    """Compute a distributional summary
+    """Compute a distributional summary.
 
     The metric is computed within unique values of the grouping column
     (categorical) or within bins partitioning its range (continuous).
@@ -147,7 +147,13 @@ class ConditionalDistribution:
 
     model: the ClassificationModel to run the evaluation for
     test_dataset: a Dataset to use for evaluation.
-    config: optional dict of config options to override the defaults
+    config: optional dict of config options to override the defaults. Available options:
+        `binning`: binning scheme to use for a numerical column, passed to `numpy.histogram`.
+            Can be a fixed number of bins or a string indicating a binning scheme, default: "fd"
+        `common_bins`: should the bins be computed over the entire column and shared
+            across groups (`True`) or computed within each group (`False`), default: True
+        `plot_width_fraction`: width of the bars relative to available space on the plot.
+            Smaller means more space between the bars, default: 1.0
     """
 
     def __init__(self, model, test_dataset, config=None):
@@ -177,7 +183,7 @@ class ConditionalDistribution:
         )
 
     def display(self, colnames=None):
-        """Displays the conditional distribution result for each specified column.
+        """Computes and displays the conditional distribution result for each specified column.
 
         colnames: a list of column names to run the evaluation over, creating a plot
             for each. If not supplied, defaults to all feature columns.

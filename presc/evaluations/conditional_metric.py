@@ -113,7 +113,12 @@ class ConditionalMetric:
 
     model: the ClassificationModel to run the evaluation for
     test_dataset: a Dataset to use for evaluation.
-    config: optional dict of config options to override the defaults
+    config: optional dict of config options to override the defaults. Available options:
+        `num_bins`: number of bins to use for grouping a numerical column, default: 10
+        `quantile`: should the bin widths correpond to quantiles of a numerical column's
+            distribution (`True`) or be equally-spaced over its range (`False`), default: False
+        `plot_width_fraction`: width of the bars relative to available space on the plot.
+            Smaller means more space between the bars, default: 1.0
     """
 
     def __init__(self, model, test_dataset, config=None):
@@ -150,15 +155,16 @@ class ConditionalMetric:
             config=self._config,
         )
 
-    def display(self, colnames=None):
-        """Displays the conditional metric result for each specified column.
+    def display(self, colnames=None, metric_name="Metric value"):
+        """Computes and displays the conditional metric result for each specified column.
 
         colnames: a list of column names to run the evaluation over, creating a plot
             for each. If not supplied, defaults to all feature columns.
+        metric_name: display name identifying the metric to show on the plot
         """
         if colnames is None:
             colnames = self._test_dataset.feature_names
         for colname in colnames:
             # TODO: don't hardcode the metric
             eval_result = self.compute_for_column(colname, metric=METRIC)
-            eval_result.display_result(xlab=colname, ylab="Metric value")
+            eval_result.display_result(xlab=colname, ylab=metric_name)
