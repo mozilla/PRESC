@@ -7,8 +7,6 @@ import matplotlib.pyplot as plt
 # Set here temporarily
 METRIC = accuracy_score
 
-DEFAULT_CONFIG = {"num_bins": 10, "quantile": False, "plot_width_fraction": 1.0}
-
 
 def compute_conditional_metric(
     grouping_col, true_labs, pred_labs, metric, as_categorical=False, config=None
@@ -26,13 +24,10 @@ def compute_conditional_metric(
         predicted labels.
     as_categorical: should the grouping column be treated as categorical, ie. binned
         on its unique values? If it is not numeric, this param is ignored.
-    config: optional dict of config options to override the defaults
+    config: dict of config options
 
     Returns a `ConditionalMetricResult` instance.
     """
-    _config = dict(DEFAULT_CONFIG)
-    if config:
-        _config.update(config)
 
     y_vals = DataFrame({"y_true": true_labs, "y_pred": pred_labs})
     if is_discrete(grouping_col):
@@ -43,8 +38,8 @@ def compute_conditional_metric(
     else:
         grouping, bins = get_bins(
             grouping_col,
-            num_bins=_config["num_bins"],
-            quantile=_config["quantile"],
+            num_bins=config["num_bins"],
+            quantile=config["quantile"],
         )
     binned_metric_vals = y_vals.groupby(grouping).apply(
         lambda gp: metric(gp["y_true"], gp["y_pred"])
@@ -54,6 +49,7 @@ def compute_conditional_metric(
         vals=binned_metric_vals,
         bins=Series(bins),
         categorical=as_categorical,
+        config=config,
     )
 
 
@@ -64,23 +60,23 @@ class ConditionalMetricResult:
     bins: a Series listing the bin endpoints. If the feature was treated as
         numeric, this will have length `len(vals)+1`, otherwise `len(vals)`.
     categorical: was the feature treated as categorical?
+    config: dict of config options
+
     """
 
     def __init__(self, vals, bins, categorical, config=None):
         self.vals = vals
         self.bins = bins
         self.categorical = categorical
+        self.config = config
 
-    def display_result(self, xlab, ylab, config=None):
+    def display_result(self, xlab, ylab):
         """Display the evaluation result for the given grouping and metric.
 
         xlab: label to display on the x-axis
         ylab: label to display on the y-axis
-        config: optional dict of config options to override the defaults
+
         """
-        _config = dict(DEFAULT_CONFIG)
-        if config:
-            _config.update(config)
 
         if self.categorical:
             result_edges = self.bins.astype("str")
@@ -91,7 +87,7 @@ class ConditionalMetricResult:
             alignment = "edge"
             # First element will be NaN.
             bin_widths = self.bins.diff()[1:]
-            width_interval = bin_widths * _config["plot_width_fraction"]
+            width_interval = bin_widths * self.config["plot_width_fraction"]
 
         plt.ylim(0, 1)
         plt.xlabel(xlab)
@@ -113,7 +109,7 @@ class ConditionalMetric:
 
     model: the ClassificationModel to run the evaluation for
     test_dataset: a Dataset to use for evaluation.
-    config: optional dict of config options to override the defaults. Available options:
+    config: dict of config options. Available options:
         `num_bins`: number of bins to use for grouping a numerical column, default: 10
         `quantile`: should the bin widths correpond to quantiles of a numerical column's
             distribution (`True`) or be equally-spaced over its range (`False`), default: False
@@ -122,10 +118,7 @@ class ConditionalMetric:
     """
 
     def __init__(self, model, test_dataset, config=None):
-        _config = dict(DEFAULT_CONFIG)
-        if config:
-            _config.update(config)
-        self._config = _config
+        self._config = config
         self._model = model
         self._test_dataset = test_dataset
         self._test_pred = self._model.predict_labels(test_dataset)
