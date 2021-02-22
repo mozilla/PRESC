@@ -38,10 +38,5 @@ config_filename = "./report_config.yml"
 if len(sys.argv) == 2:
     config_filename = sys.argv[1]
 
-print(f"Using config file: {config_filename}")
 with open(config_filename) as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
-    print(f"loaded conditional_metric config: {config['conditional_metric']}")
-    print(
-        f"loaded conditional_distribution config: {config['conditional_distribution']}"
-    )
