@@ -1,0 +1,9 @@
+conditional_metric:
+  num_bins: 20
+  quantile: False
+  plot_width_fraction: 1.0
+
+conditional_distribution:
+  binning: fd
+  common_bins: True
+  plot_width_fraction: 1.0
