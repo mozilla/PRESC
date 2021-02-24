@@ -13,7 +13,6 @@ from sklearn.model_selection import ShuffleSplit
 # Better quality plots
 from IPython.display import set_matplotlib_formats
 
-import yaml
 import sys
 
 set_matplotlib_formats("svg")
@@ -34,9 +33,6 @@ test_dataset = dataset.subset(test_ind, by_position=True)
 model = Pipeline([("scaler", StandardScaler()), ("clf", SVC(class_weight="balanced"))])
 cm = ClassificationModel(model, train_dataset, retrain_now=True)
 
-config_filename = "./report_config.yml"
+config_filename = None
 if len(sys.argv) == 2:
     config_filename = sys.argv[1]
-
-with open(config_filename) as f:
-    config = yaml.load(f, Loader=yaml.FullLoader)

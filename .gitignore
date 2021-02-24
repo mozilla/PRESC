@@ -76,6 +76,9 @@ docs/_build/
 # Jupyter Book artifacts
 _build/
 
+# PRESC artifacts
+_context_store.db
+
 # PyBuilder
 target/
 
