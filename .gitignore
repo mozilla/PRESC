@@ -78,6 +78,7 @@ _build/
 
 # PRESC artifacts
 _context_store.db
+presc_report/
 
 # PyBuilder
 target/
