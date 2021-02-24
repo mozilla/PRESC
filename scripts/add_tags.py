@@ -4,7 +4,7 @@ import nbformat as nbf
 from pathlib import Path
 
 TAGS_ALL_CELLS = ["remove-input"]
-REPORT_DIR = Path(__file__).parent
+REPORT_DIR = Path(__file__).parent / ".." / "presc" / "report" / "resources"
 
 notebooks = REPORT_DIR.glob("*.ipynb")
 
