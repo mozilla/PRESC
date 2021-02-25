@@ -17,6 +17,22 @@ jobs:
       - run: apt-get update; apt-get install make -y
       - run: conda env create -f environment.yml
       - run: . /opt/conda/etc/profile.d/conda.sh && conda activate presc && python setup.py install && make pytest_ci
+      - deploy:
+          name: Trigger docs deployment
+          working_directory: ./sphinx_docs/build/html
+          command: |
+            touch .nojekyll
+            REV=$(git rev-parse HEAD)
+            git init
+            git config user.name "PRESC Documenter"
+            git config user.email "glenda+prescdoc@mozilla.commm"
+            git checkout -b gh-pages
+            git add .
+            git commit -m "Update docs to ${REV} [skip ci]"
+            git remote add mozilla git@github.com:mozilla/PRESC.git
+            # Eat output so it doesn't spit out the sensitive GH_TOKEN if something goes wrong:
+            git push -q -f mozilla gh-pages > /dev/null 2>&1
+
 
 workflows:
   version: 2
@@ -26,3 +42,5 @@ workflows:
           filters:
             tags:
               only: /.*/
+            branches:
+              ignore: gh-pages

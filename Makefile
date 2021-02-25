@@ -13,6 +13,7 @@ pytest:
 pytest_ci:
 	pytest -sv
 	flake8 presc tests
+	$(MAKE) -C sphinx_docs clean html
 
 # build:
 # 	bin/create_version
