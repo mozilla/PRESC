@@ -28,6 +28,9 @@ jobs:
       - checkout
       - attach_workspace:
           at: sphinx_docs/build
+      - add_ssh_keys:
+          fingerprints:
+            - "10:c5:55:73:57:68:17:cb:78:a4:6f:f7:08:34:ec:04"
       - run:
           name: Trigger docs deployment
           working_directory: ./sphinx_docs/build/html
