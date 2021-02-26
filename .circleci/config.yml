@@ -18,7 +18,7 @@ jobs:
       - run: conda env create -f environment.yml
       - run: . /opt/conda/etc/profile.d/conda.sh && conda activate presc && python setup.py install && make pytest_ci
       - persist_to_workspace:
-          root: ./sphinx_docs/_build
+          root: ./PRESC/sphinx_docs/_build
           paths: html
 
   docs_deploy:
@@ -27,7 +27,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: sphinx_docs/_build
+          at: ./PRESC/sphinx_docs/_build
       - run:
           name: Trigger docs deployment
           working_directory: ./sphinx_docs/build/html
