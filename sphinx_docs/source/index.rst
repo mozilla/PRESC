@@ -3,14 +3,21 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PRESC's awesome documentation!
+Welcome to PRESC's documentation!
 =================================
+.. image:: https://circleci.com/gh/mozilla/PRESC.svg?style=svg
+    :alt: Build Status
+    :target: https://circleci.com/gh/mozilla/PRESC
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Documentation
 
+.. toctree::
+   :caption: API Reference
+   :maxdepth: 2
 
+   modules
 
 Indices and tables
 ==================
