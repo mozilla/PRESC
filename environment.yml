@@ -1,4 +1,4 @@
-name: presc
+name: presc2
 channels:
   - conda-forge
 dependencies:
@@ -19,7 +19,7 @@ dependencies:
   - twine=3.2.0
   - imbalanced-learn=0.7.0
   - pandas-profiling=2.8.0
-  - sphinx-rtd-theme=0.5.1
   - pip:
     - jupyter-book==0.9.1
+    - sphinx-rtd-theme==0.5.1
 
