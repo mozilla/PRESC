@@ -25,6 +25,27 @@ CONTEXT_STORE_BASENAME = "_context_store"
 DEFAULT_CONFIG_PATH = Path(__file__).parent / "default_config.yml"
 
 
+def load_config(config_filepath=None):
+    """Loads the configuration from the given file.
+
+    config_filepath: path to a YAML file listing PRESC config options
+
+    Returns the config values as a dict.
+    """
+    if not config_filepath:
+        config_filepath = DEFAULT_CONFIG_PATH
+    try:
+        with open(config_filepath) as f:
+            config = yaml.load(f, Loader=yaml.FullLoader)
+        return config
+    except IOError as e:
+        msg = f"Error opening config file {config_filepath}"
+        raise PrescError(msg) from e
+    except yaml.YAMLError as e:
+        msg = f"Error parsing config file {config_filepath}"
+        raise PrescError(msg) from e
+
+
 class ReportRunner:
     """Main entrypoint to run the PRESC report for the given modeling inputs.
 
@@ -50,7 +71,7 @@ class ReportRunner:
 
     def __init__(self, output_path=".", execution_path=None, config_filepath=None):
         # The main config options, as a dict.
-        self.config = self._load_config(config_filepath)
+        self.config = load_config(config_filepath)
         # Path where the report output is written.
         # Outputs are nested in a subdir.
         self.output_path = Path(output_path) / REPORT_OUTPUT_DIR
@@ -94,7 +115,7 @@ class ReportRunner:
         clean: should previous outputs be cleaned? Default: True
         """
         if config_filepath:
-            config = self._load_config(config_filepath)
+            config = load_config(config_filepath)
         else:
             config = self.config
 
@@ -181,26 +202,6 @@ class ReportRunner:
             except FileNotFoundError:
                 pass
         self._run_jb_clean()
-
-    def _load_config(self, config_filepath):
-        """Loads the configuration from the given filel
-
-        config_filepath: path to a YAML file listing PRESC config options
-
-        Returns the config values as a dict.
-        """
-        if not config_filepath:
-            config_filepath = DEFAULT_CONFIG_PATH
-        try:
-            with open(config_filepath) as f:
-                config = yaml.load(f, Loader=yaml.FullLoader)
-            return config
-        except IOError as e:
-            msg = f"Error opening config file {config_filepath}"
-            raise PrescError(msg) from e
-        except yaml.YAMLError as e:
-            msg = f"Error parsing config file {config_filepath}"
-            raise PrescError(msg) from e
 
     def _run_jb_clean(self):
         """Run `jupyter-book clean`."""
