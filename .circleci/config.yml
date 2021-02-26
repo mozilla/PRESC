@@ -17,7 +17,18 @@ jobs:
       - run: apt-get update; apt-get install make -y
       - run: conda env create -f environment.yml
       - run: . /opt/conda/etc/profile.d/conda.sh && conda activate presc && python setup.py install && make pytest_ci
-      - deploy:
+      - persist_to_workspace:
+          root: sphinx_docs/_build
+          paths: html
+
+  docs_deploy:
+    docker:
+      - image: continuumio/miniconda3
+    steps:
+      - checkout
+      - attach_workspace:
+          at: sphinx_docs/_build
+      - run:
           name: Trigger docs deployment
           working_directory: ./sphinx_docs/build/html
           command: |
@@ -44,3 +55,9 @@ workflows:
               only: /.*/
             branches:
               ignore: gh-pages
+      - docs_deploy:
+          requires:
+            - integration_test
+          filters:
+            branches:
+              only: master
