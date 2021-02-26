@@ -1,4 +1,4 @@
-name: presc2
+name: presc
 channels:
   - conda-forge
 dependencies:
