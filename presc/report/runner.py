@@ -180,15 +180,18 @@ class ReportRunner:
         """The main page of the HTML report."""
         # Return symlink, if available, for a more user-friendly experience.
         if self._linked_main_page.exists():
-            report_path = self._linked_main_page
+            # Resolve to an absolute path up to the symlink.
+            report_path = (
+                self._linked_main_page.parent.resolve() / self._linked_main_page.name
+            )
         else:
-            report_path = self.report_main_page
+            report_path = self.report_main_page.resolve()
         if not report_path.exists():
             msg = "Report file does not appear to exist."
             msg += " Make sure the report has already been built."
             raise AttributeError(msg)
 
-        return str(report_path.resolve())
+        return str(report_path)
 
     def open(self):
         """Open the report in the default web browser."""
