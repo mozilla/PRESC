@@ -7,13 +7,15 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   presc.evaluations
+   presc.spatial_distribution
    presc.training_stability
 
 Submodules
 ----------
 
 presc.dataset module
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: presc.dataset
    :members:
@@ -21,7 +23,7 @@ presc.dataset module
    :show-inheritance:
 
 presc.model module
-------------------
+~~~~~~~~~~~~~~~~~~
 
 .. automodule:: presc.model
    :members:
@@ -29,17 +31,10 @@ presc.model module
    :show-inheritance:
 
 presc.utils module
-------------------
+~~~~~~~~~~~~~~~~~~
 
 .. automodule:: presc.utils
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: presc
-   :members:
-   :undoc-members:
-   :show-inheritance:
