@@ -13,15 +13,25 @@ Welcome to PRESC's documentation!
    :maxdepth: 2
    :caption: Documentation
 
+   readme_toplevel
+   readme_report
+   readme_roadmap
+
 .. toctree::
    :caption: API Reference
    :maxdepth: 2
 
    modules
 
-Indices and tables
-==================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Data Sets
+
+   readme_datasets
+
+Reference
+=========
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`

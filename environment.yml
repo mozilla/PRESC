@@ -22,4 +22,6 @@ dependencies:
   - pip:
     - jupyter-book==0.9.1
     - sphinx-rtd-theme==0.5.1
+    - m2r2==0.2.7
+
 
