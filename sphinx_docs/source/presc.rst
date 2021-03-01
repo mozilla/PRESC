@@ -1,6 +1,3 @@
-presc package
-=============
-
 Subpackages
 -----------
 
