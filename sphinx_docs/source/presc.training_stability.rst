@@ -1,8 +1,6 @@
 presc.training\_stability package
 =================================
 
-Submodules
-----------
 
 presc.training\_stability.cross\_validation module
 --------------------------------------------------
@@ -24,14 +22,6 @@ presc.training\_stability.training\_stability\_common module
 ------------------------------------------------------------
 
 .. automodule:: presc.training_stability.training_stability_common
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: presc.training_stability
    :members:
    :undoc-members:
    :show-inheritance:
