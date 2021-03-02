@@ -75,6 +75,7 @@ def test_config(tmp_path):
 
 def test_report_runner(tmp_path):
     # Check paths are initialized correctly by the runner
+    os.chdir(tmp_path)
     rr = ReportRunner()
     assert str(rr.output_path.parent.resolve()) == os.getcwd()
     assert rr.output_path.exists()
