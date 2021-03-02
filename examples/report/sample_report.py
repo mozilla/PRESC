@@ -11,10 +11,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.model_selection import ShuffleSplit
 
-# Better quality plots
-# from IPython.display import set_matplotlib_formats
-# set_matplotlib_formats("svg")
-
 import sys
 from pathlib import Path
 
