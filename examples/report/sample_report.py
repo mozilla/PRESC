@@ -1,26 +1,25 @@
-"""Prepare the inputs to the PRESC report."""
+"""Example script demonstrating how to run the PRESC report."""
 
 import pandas as pd
 
 from presc.dataset import Dataset
 from presc.model import ClassificationModel
+from presc.report.runner import ReportRunner
 
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.model_selection import ShuffleSplit
 
-# Better quality plots
-from IPython.display import set_matplotlib_formats
-
-import yaml
 import sys
+from pathlib import Path
 
-set_matplotlib_formats("svg")
+THIS_DIR = Path(__file__).parent
+DATASET_DIR = THIS_DIR / ".." / ".." / "datasets" / "winequality.csv"
 
 # Load the dataset.
 
-df = pd.read_csv("../../datasets/winequality.csv")
+df = pd.read_csv(DATASET_DIR)
 df = df.drop(columns=["quality"])
 dataset = Dataset(df, label_col="recommend")
 
@@ -34,9 +33,12 @@ test_dataset = dataset.subset(test_ind, by_position=True)
 model = Pipeline([("scaler", StandardScaler()), ("clf", SVC(class_weight="balanced"))])
 cm = ClassificationModel(model, train_dataset, retrain_now=True)
 
-config_filename = "./report_config.yml"
+config_filename = None
 if len(sys.argv) == 2:
     config_filename = sys.argv[1]
 
-with open(config_filename) as f:
-    config = yaml.load(f, Loader=yaml.FullLoader)
+presc_report = ReportRunner(config_filepath=config_filename)
+presc_report.run(model=cm, test_dataset=test_dataset)
+
+print(f"The report is available at {presc_report.report_html}")
+presc_report.open()

@@ -1,5 +1,6 @@
 title: PRESC Report
 author: ""
+only_build_toc_files: true
 
 # Force re-execution of notebooks on each build.
 execute:
