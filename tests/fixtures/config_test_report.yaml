@@ -1,0 +1,30 @@
+report:
+  title: PRESC report
+  author: ""
+  evaluations_include: "*"
+  evaluations_exclude: null
+
+evaluations:
+  conditional_metric:
+    columns_include:
+      - a
+      - c
+    columns_exclude: null
+    computation:
+      num_bins: 3
+      quantile: False
+      as_categorical: False
+      columns: null
+
+  conditional_distribution:
+    columns_include:
+      - a
+      - c
+    columns_exclude: null
+    computation:
+      binning: fd
+      common_bins: True
+      as_categorical: False
+      columns: null
+
+

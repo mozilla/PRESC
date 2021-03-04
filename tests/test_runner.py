@@ -11,6 +11,8 @@ import yaml
 from presc.report.runner import Context, ReportRunner, load_config
 from presc.utils import PrescError
 
+TEST_REPORT_CONFIG_PATH = Path(__file__).parent / "fixtures" / "config_test_report.yaml"
+
 
 @pytest.fixture
 def webbrowser_patched(monkeypatch):
@@ -105,7 +107,13 @@ def test_run_report(
     exec_path_run = tmp_path / "test_exec"
     rr = ReportRunner(output_path=out_path_run, execution_path=exec_path_run)
     # Run a report on the test data. This will take ~10 seconds
-    rr.run(model=classification_model, test_dataset=test_dataset)
+    # Use a custom config that reduces computation and is more appropriate for
+    # the small test dataset.
+    rr.run(
+        model=classification_model,
+        test_dataset=test_dataset,
+        config_filepath=TEST_REPORT_CONFIG_PATH,
+    )
 
     # Check top-level output files exist and paths resolve
     assert isinstance(rr._jb_build_result, CompletedProcess)
@@ -176,7 +184,11 @@ def test_run_report_tmp_exec_dir(tmp_path, classification_model, test_dataset):
     rr = ReportRunner(output_path=out_path_run)
     # Run a report using the using default temp execution dir.
     # This will take ~10 seconds
-    rr.run(model=classification_model, test_dataset=test_dataset)
+    rr.run(
+        model=classification_model,
+        test_dataset=test_dataset,
+        config_filepath=TEST_REPORT_CONFIG_PATH,
+    )
 
     # Just check that it worked.
     assert rr.report_main_page.exists()
@@ -189,7 +201,11 @@ def test_run_report_error_notebook(tmp_path, pipeline_classifier, test_dataset):
     exec_path_run = tmp_path / "test_exec"
     rr = ReportRunner(output_path=out_path_run, execution_path=exec_path_run)
     # pipeline_classifier is not a valid ClassificationModel instance
-    rr.run(model=pipeline_classifier, test_dataset=test_dataset)
+    rr.run(
+        model=pipeline_classifier,
+        test_dataset=test_dataset,
+        config_filepath=TEST_REPORT_CONFIG_PATH,
+    )
 
     # jupyter-book build job succeeded even though notebooks didn't
     assert rr._jb_build_result.returncode == 0
@@ -232,7 +248,11 @@ def test_run_report_error_build(
     rr = ReportRunner(output_path=out_path_run)
     # run() function generates warnings
     with pytest.warns(UserWarning) as warning_records:
-        rr.run(model=classification_model, test_dataset=test_dataset)
+        rr.run(
+            model=classification_model,
+            test_dataset=test_dataset,
+            config_filepath=TEST_REPORT_CONFIG_PATH,
+        )
     assert len(warning_records) == 2
     # Warning from build function
     first_warning = warning_records[0].message.args[0]
