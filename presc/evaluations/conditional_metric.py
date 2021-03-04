@@ -66,7 +66,6 @@ class ConditionalMetricResult:
     bins: a Series listing the bin endpoints. If the feature was treated as
         numeric, this will have length `len(vals)+1`, otherwise `len(vals)`.
     categorical: was the feature treated as categorical?
-    config: dict of config options
     num_bins: number of bins used for grouping
     quantile: was grouping quantile-based?
     """
@@ -89,13 +88,12 @@ class ConditionalMetricResult:
         if self.categorical:
             result_edges = self.bins.astype("str")
             alignment = "center"
-            # width_interval = 1
+            widths = 1
         else:
             result_edges = self.bins[:-1]
             alignment = "edge"
             # First element will be NaN.
-            bin_widths = self.bins.diff()[1:]
-            # width_interval = bin_widths * self.config["plot_width_fraction"]
+            widths = self.bins.diff()[1:]
 
         plt.ylim(0, 1)
         plt.xlabel(xlab)
@@ -103,8 +101,7 @@ class ConditionalMetricResult:
         plt.bar(
             result_edges,
             self.vals,
-            # width=width_interval,
-            width=bin_widths,
+            width=widths,
             bottom=None,
             align=alignment,
             edgecolor="white",
@@ -161,8 +158,7 @@ class ConditionalMetric:
         """Computes and displays the conditional metric result for each specified column.
 
         colnames: a list of column names to run the evaluation over, creating a plot
-            for each. If not supplied, defaults to columns specifed in the
-            config.
+            for each. If not supplied, defaults to columns specifed in the config.
         metric_name: display name identifying the metric to show on the plot
         """
         if colnames:
