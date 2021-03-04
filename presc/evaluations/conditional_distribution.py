@@ -1,4 +1,5 @@
 from presc.evaluations.utils import is_discrete
+from presc.utils import include_exclude_list
 
 from numpy import histogram, histogram_bin_edges
 from pandas import Series, MultiIndex
@@ -16,7 +17,7 @@ def _histogram_bin_labels(bin_edges):
 
 
 def compute_conditional_distribution(
-    data_col, true_labs, pred_labs, as_categorical=False, config=None
+    data_col, true_labs, pred_labs, as_categorical=False, binning="fd", common_bins=True
 ):
     """Compute a distributional summary.
 
@@ -28,9 +29,12 @@ def compute_conditional_distribution(
     pred_labs: Series of labels predicted by a model for the test dataset
     as_categorical: should the data column be treated as categorical, ie. binned
         on its unique values? If it is not numeric, this param is ignored.
-    config: dict of config options
+    binning: binning scheme to use for a numerical column, passed to `numpy.histogram`.
+        Can be a fixed number of bins or a string indicating a binning scheme
+    common_bins: should the bins be computed over the entire column and shared
+        across groups (`True`) or computed within each group (`False`)
 
-    Returns a `ConditionalMetricResult` instance.
+    Returns a `ConditionalDistributionResult` instance.
     """
 
     grouping = [true_labs, pred_labs]
@@ -39,7 +43,7 @@ def compute_conditional_distribution(
     if as_categorical:
         grouping.append(data_col)
         distribs = data_col.groupby(grouping).size()
-        if config["common_bins"]:
+        if common_bins:
             # Extend the index in each label group to include all data values
             data_vals = distribs.index.get_level_values(-1).unique()
             y_vals = distribs.index.droplevel(-1).unique()
@@ -53,10 +57,10 @@ def compute_conditional_distribution(
             # Convert the innermost index level to a Series of bin edges.
             bin_edges = distribs.rename(None).reset_index(level=-1).iloc[:, 0]
     else:
-        if config["common_bins"]:
-            bins = histogram_bin_edges(data_col, bins=config["binning"])
+        if common_bins:
+            bins = histogram_bin_edges(data_col, bins=binning)
         else:
-            bins = config["binning"]
+            bins = binning
         # distribs will be a series with values (<hist_values>, <bin_edges>)
         distribs = data_col.groupby(grouping).apply(lambda x: histogram(x, bins=bins))
         bin_edges = distribs.map(lambda x: x[1])
@@ -71,12 +75,16 @@ def compute_conditional_distribution(
         distribs = Series(
             distribs.map(lambda x: x[0]).explode().values, index=index_with_bins
         )
-        if config["common_bins"]:
+        if common_bins:
             # Retain the unique bin edges as an array
             bin_edges = Series(bin_edges.iloc[0])
 
     return ConditionalDistributionResult(
-        vals=distribs, bins=Series(bin_edges), categorical=as_categorical, config=config
+        vals=distribs,
+        bins=Series(bin_edges),
+        categorical=as_categorical,
+        binning=binning,
+        common_bins=common_bins,
     )
 
 
@@ -91,14 +99,16 @@ class ConditionalDistributionResult:
         will have length `len(vals)+1` (within each group), otherwise
         `len(vals)`.
     categorical: was the feature treated as categorical?
-    config: dict of config options
+    binning: the binning scheme used
+    common_bins: were common bins used across all groups?
     """
 
-    def __init__(self, vals, bins, categorical, config=None):
+    def __init__(self, vals, bins, categorical, binning, common_bins):
         self.vals = vals
         self.bins = bins
         self.categorical = categorical
-        self.config = config
+        self.binning = binning
+        self.common_bins = common_bins
 
     def display_result(self, xlab):
         """Display the distributions for the given data column.
@@ -138,46 +148,58 @@ class ConditionalDistribution:
 
     model: the ClassificationModel to run the evaluation for
     test_dataset: a Dataset to use for evaluation.
-    config: dict of config options. Available options:
-        `binning`: binning scheme to use for a numerical column, passed to `numpy.histogram`.
-            Can be a fixed number of bins or a string indicating a binning scheme, default: "fd"
-        `common_bins`: should the bins be computed over the entire column and shared
-            across groups (`True`) or computed within each group (`False`), default: True
-        `plot_width_fraction`: width of the bars relative to available space on the plot.
-            Smaller means more space between the bars, default: 1.0
+    config: the main config dict
     """
 
-    def __init__(self, model, test_dataset, config=None):
-        self._config = config
+    def __init__(self, model, test_dataset, config):
+        self._config = config["evaluations"]["conditional_distribution"]
         self._model = model
         self._test_dataset = test_dataset
-        self._test_pred = self._model.predict_labels(test_dataset)
+        self._test_pred = self._model.predict_labels(test_dataset).rename("predicted")
 
-    def compute_for_column(self, colname, as_categorical=False):
+    def compute_for_column(self, colname, **kwargs):
         """Compute the evaluation for the given dataset column.
 
         colname: a column in the dataset to compute distributions for
         as_categorical: should the feature be treated as categorical, ie.
             binned on its unique values? If the feature is not numeric, this
             param is ignored.
+        kwargs: overrides to the default option values for the computation.
+
         Returns a `ConditionalDistributionResult` instance.
         """
+        comp_config = dict(self._config["computation"])
+        col_overrides = comp_config.pop("columns", {})
+        if col_overrides:
+            comp_config.update(col_overrides.get(colname, {}))
+        comp_config.update(kwargs)
+
         return compute_conditional_distribution(
             data_col=self._test_dataset.df[colname],
             true_labs=self._test_dataset.labels,
             pred_labs=self._test_pred,
-            as_categorical=as_categorical,
-            config=self._config,
+            as_categorical=comp_config["as_categorical"],
+            binning=comp_config["binning"],
+            common_bins=comp_config["common_bins"],
         )
 
     def display(self, colnames=None):
-        """Computes and displays the conditional distribution result for each specified column.
+        """Computes and displays the conditional distribution result for each
+        specified column.
 
         colnames: a list of column names to run the evaluation over, creating a plot
-            for each. If not supplied, defaults to all feature columns.
+            for each. If not supplied, defaults to columns specifed in the config.
         """
-        if colnames is None:
-            colnames = self._test_dataset.feature_names
-        for colname in colnames:
+        if colnames:
+            incl = colnames
+            excl = None
+        else:
+            incl = self._config["columns_include"]
+            excl = self._config["columns_exclude"]
+        cols = include_exclude_list(
+            self._test_dataset.column_names, included=incl, excluded=excl
+        )
+
+        for colname in cols:
             eval_result = self.compute_for_column(colname)
             eval_result.display_result(xlab=colname)

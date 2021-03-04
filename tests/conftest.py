@@ -10,6 +10,7 @@ from numpy import arange
 
 from presc.model import ClassificationModel
 from presc.dataset import Dataset
+from presc.report.runner import load_config
 
 DATASET_DF_PATH = Path(__file__).parent / "fixtures" / "dataset.pkl"
 
@@ -56,3 +57,8 @@ def pipeline_classifier(dataset_transform):
 @pytest.fixture
 def classification_model(pipeline_classifier, train_dataset):
     return ClassificationModel(pipeline_classifier, train_dataset, retrain_now=True)
+
+
+@pytest.fixture
+def config_default():
+    return load_config()

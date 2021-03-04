@@ -3,7 +3,6 @@ from copy import deepcopy
 import pytest
 import yaml
 
-from presc.report.runner import load_config
 from presc.evaluations.conditional_metric import (
     ConditionalMetric,
     METRIC,
@@ -24,11 +23,6 @@ conditional_metric:
     - c
     - e
 """
-
-
-@pytest.fixture
-def config_default():
-    return load_config()
 
 
 @pytest.fixture
