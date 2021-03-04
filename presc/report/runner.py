@@ -22,7 +22,7 @@ JB_BUILD_LOG = "jupyterbook_build.log"
 # for the report.
 CONTEXT_STORE_BASENAME = "_context_store"
 # Path to the default config file
-DEFAULT_CONFIG_PATH = Path(__file__).parent / "default_config.yml"
+DEFAULT_CONFIG_PATH = Path(__file__).parent.parent / "config_default.yaml"
 
 
 def load_config(config_filepath=None):
