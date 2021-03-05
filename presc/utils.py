@@ -14,6 +14,8 @@ def include_exclude_list(all_vals, included="*", excluded=None):
 
     The special values "*" and None are interpreted as "all" and "none"
     respectively for `included` and `excluded`.
+
+    Returns the list of values out of `all_vals` that should be included.
     """
     if not included or excluded == "*":
         return []
