@@ -7,7 +7,8 @@ from presc.evaluations.conditional_distribution import (
     ConditionalDistribution,
     ConditionalDistributionResult,
 )
-from presc import config
+from presc import global_config
+from presc.configuration import PrescConfig
 
 
 COLUMN_OVERRIDE_YAML = """
@@ -60,7 +61,7 @@ def test_eval_compute_for_column(
     assert cdr.common_bins is True
 
     # Global override
-    config.set({"evaluations.conditional_distribution.computation.binning": 2})
+    global_config.set({"evaluations.conditional_distribution.computation.binning": 2})
     cde = ConditionalDistribution(classification_model, test_dataset)
     cdr = cde.compute_for_column("a")
     # Same number of bins in each group
@@ -69,8 +70,9 @@ def test_eval_compute_for_column(
     assert cdr.common_bins is True
 
     # Evaluation-level override
-    config.reset_defaults()
-    conf_default = config.dump()
+    # explicit settings
+    global_config.reset_defaults()
+    conf_default = global_config.dump()
     cde = ConditionalDistribution(
         classification_model, test_dataset, settings={"computation.binning": 4}
     )
@@ -79,7 +81,23 @@ def test_eval_compute_for_column(
     assert_array_equal(cdr.vals.groupby(["label", "predicted"]).size().unique(), 4)
     assert cdr.binning == 4
     assert cdr.common_bins is True
-    assert config.dump() == conf_default
+    assert global_config.dump() == conf_default
+    # config object + settings
+    new_config = PrescConfig(global_config)
+    new_config.set({"evaluations.conditional_distribution.computation.binning": 5})
+    cde = ConditionalDistribution(
+        classification_model,
+        test_dataset,
+        settings={"computation.common_bins": False},
+        config=new_config,
+    )
+    cdr = cde.compute_for_column("a")
+    assert_array_equal(cdr.vals.groupby(["label", "predicted"]).size().unique(), 5)
+    # Bins are not all the same
+    assert isinstance(cdr.bins.index, MultiIndex)
+    assert cdr.binning == 5
+    assert cdr.common_bins is False
+    assert global_config.dump() == conf_default
 
     # Column-specific override
     cde = ConditionalDistribution(
@@ -91,10 +109,10 @@ def test_eval_compute_for_column(
     cdr_b = cde.compute_for_column("b")
     assert cdr_b.vals.groupby(["label", "predicted"]).size().nunique() == 1
     assert cdr_b.common_bins is True
-    assert config.dump() == conf_default
+    assert global_config.dump() == conf_default
 
     # kwarg override
-    conf_cde = str(cde._config.flatten())
+    conf_cde = cde._config.dump()
     cdr_a = cde.compute_for_column("a", binning=3, common_bins=False)
     assert_array_equal(cdr_a.vals.groupby(["label", "predicted"]).size().unique(), 3)
     # Bins are not all the same
@@ -106,8 +124,8 @@ def test_eval_compute_for_column(
     assert not isinstance(cdr_b.bins.index, MultiIndex)
     assert cdr_b.binning == 3
     assert cdr_b.common_bins is True
-    assert config.dump() == conf_default
-    assert str(cde._config.flatten()) == conf_cde
+    assert global_config.dump() == conf_default
+    assert cde._config.dump() == conf_cde
 
 
 def test_eval_display(

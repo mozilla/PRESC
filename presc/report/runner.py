@@ -9,6 +9,8 @@ import webbrowser
 import yaml
 
 from presc.utils import PrescError, include_exclude_list
+from presc.configuration import PrescConfig
+from presc import global_config
 
 # Path to the report source dir
 REPORT_SOURCE_PATH = Path(__file__).parent / "resources"
@@ -23,29 +25,6 @@ JB_BUILD_LOG = "jupyterbook_build.log"
 # Path to the store for the inputs to the report, relative to the execution dir
 # for the report.
 CONTEXT_STORE_BASENAME = "_context_store"
-# Path to the default config file
-DEFAULT_CONFIG_PATH = Path(__file__).parent.parent / "config_default.yaml"
-
-
-def load_config(config_filepath=None):
-    """Loads the configuration from the given file.
-
-    config_filepath: path to a YAML file listing PRESC config options
-
-    Returns the config values as a dict.
-    """
-    if not config_filepath:
-        config_filepath = DEFAULT_CONFIG_PATH
-    try:
-        with open(config_filepath) as f:
-            config = yaml.load(f, Loader=yaml.FullLoader)
-        return config
-    except IOError as e:
-        msg = f"Error opening config file {config_filepath}"
-        raise PrescError(msg) from e
-    except yaml.YAMLError as e:
-        msg = f"Error parsing config file {config_filepath}"
-        raise PrescError(msg) from e
 
 
 def _updated_jb_config(report_config):
@@ -59,8 +38,8 @@ def _updated_jb_config(report_config):
     with open(REPORT_SOURCE_PATH / JB_CONFIG_FILENAME) as f:
         jb_config = yaml.load(f, Loader=yaml.FullLoader)
 
-    jb_config["title"] = report_config["title"]
-    jb_config["author"] = report_config["author"]
+    jb_config["title"] = report_config["title"].get()
+    jb_config["author"] = report_config["author"].get()
     return yaml.dump(jb_config)
 
 
@@ -75,30 +54,40 @@ def _updated_jb_toc(report_config):
     Returns the updated JB TOC file as a YAML-formatted string that can be
     written to a _toc.yml.
     """
-    # Rather than parsing as YAML and dealing with the nested structure,
-    # just look through the raw lines of the file for report page entries
-    # starting with "- file: "
     with open(REPORT_SOURCE_PATH / JB_TOC_FILENAME) as f:
-        toc_lines = f.readlines()
+        toc_str = f.read()
 
-    stripped_lines = [(i, x.strip()) for i, x in enumerate(toc_lines)]
-    all_pages = {i: x[8:] for i, x in stripped_lines if x.startswith("- file: ")}
+    stripped_lines = [x.strip() for x in toc_str.split("\n")]
+    all_pages = [x[8:] for x in stripped_lines if x.startswith("- file: ")]
     incl_pages = include_exclude_list(
-        list(all_pages.values()),
-        report_config["evaluations_include"],
-        report_config["evaluations_exclude"],
+        all_pages,
+        report_config["evaluations_include"].get(),
+        report_config["evaluations_exclude"].get(),
     )
-    # Landing page should always be included.
     if "landing" not in incl_pages:
         incl_pages.append("landing")
 
-    # Retain all TOC lines except those corresponding to excluded pages.
-    filtered_toc = [
-        x
-        for i, x in enumerate(toc_lines)
-        if i not in all_pages or all_pages[i] in incl_pages
-    ]
-    return "".join(filtered_toc)
+    def drop_file_entries(toc_part, incl_list):
+        if isinstance(toc_part, list):
+            filtered = [drop_file_entries(x, incl_list) for x in toc_part]
+            return [x for x in filtered if x]
+        if isinstance(toc_part, dict):
+            if "file" in toc_part.keys() and toc_part["file"] not in incl_list:
+                return None
+            else:
+                filtered = {
+                    k: drop_file_entries(v, incl_list) for k, v in toc_part.items()
+                }
+                return {k: v for k, v in filtered.items() if v}
+        else:
+            return toc_part
+
+    toc = yaml.load(toc_str, Loader=yaml.FullLoader)
+    # Drop excluded file entries from the TOC and any subsections that are left empty.
+    filtered_toc = drop_file_entries(toc, incl_pages)
+    # Drop any top-level entries that don't have files in their hierarchy
+    filtered_toc = [x for x in filtered_toc if "file" in str(x)]
+    return yaml.dump(filtered_toc)
 
 
 class ReportRunner:
@@ -120,13 +109,15 @@ class ReportRunner:
         specified, defaults to the current working dir.
     execution_path: path from which the report is built. If not specified, a
         temporary dir is used.
-    config_filepath: path to a YAML file listing config options to govern the
-        report behaviour. If not specified, the default config is used.
+    config_filepath: path to a YAML file listing overrides to the default config
+        options.
     """
 
     def __init__(self, output_path=".", execution_path=None, config_filepath=None):
-        # The main config options, as a dict.
-        self.config = load_config(config_filepath)
+        report_config = PrescConfig(global_config)
+        if config_filepath:
+            report_config.update_from_file(config_filepath)
+        self.config = report_config
         # Path where the report output is written.
         # Outputs are nested in a subdir.
         self.output_path = Path(output_path) / REPORT_OUTPUT_DIR
@@ -156,7 +147,7 @@ class ReportRunner:
         """List of paths to remove from the top-level output dir on clean."""
         return [self._linked_main_page, self.jb_clean_log, self.jb_build_log]
 
-    def run(self, model, test_dataset, config_filepath=None, clean=True):
+    def run(self, model, test_dataset, settings=None, clean=True):
         """Runs the PRESC report for the given modeling inputs.
 
         The report is written to <output_path>/presc_report. If this dir already
@@ -164,15 +155,15 @@ class ReportRunner:
 
         model: a pre-trained ClassificationModel instance to evaluate
         test_dataset: a test Dataset instance used to evaluate model performance
-        config_filepath: path to a YAML file listing config options to govern
-            the report behaviour. If specified, this overrides the current
-            config.
+        settings: a dict specifying option values to override report settings,
+            eg. `{"report.title": "My Report"}`.
         clean: should previous outputs be cleaned? Default: True
         """
-        if config_filepath:
-            config = load_config(config_filepath)
+        if settings:
+            run_config = PrescConfig(self.config)
+            run_config.set(settings)
         else:
-            config = self.config
+            run_config = self.config
 
         if clean:
             self.clean()
@@ -207,13 +198,13 @@ class ReportRunner:
 
         # Update the default JB config files based on the PRESC config options.
         with open(exec_path / JB_CONFIG_FILENAME, "w") as f:
-            f.write(_updated_jb_config(config["report"]))
+            f.write(_updated_jb_config(run_config["report"]))
         with open(exec_path / JB_TOC_FILENAME, "w") as f:
-            f.write(_updated_jb_toc(config["report"]))
+            f.write(_updated_jb_toc(run_config["report"]))
 
         # Write the inputs to the data store.
         ctx = Context(store_dir=exec_path)
-        ctx.store_inputs(model=model, test_dataset=test_dataset, config=config)
+        ctx.store_inputs(model=model, test_dataset=test_dataset, config=run_config)
 
         # Build the report.
         self._run_jb_build(exec_path)

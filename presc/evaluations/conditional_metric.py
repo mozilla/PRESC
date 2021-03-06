@@ -1,6 +1,7 @@
 from presc.evaluations.utils import get_bins, is_discrete
 from presc.utils import include_exclude_list
-from presc.local_config import LocalConfig
+from presc.configuration import PrescConfig
+from presc import global_config
 
 from pandas import DataFrame, Series
 from sklearn.metrics import accuracy_score
@@ -117,18 +118,19 @@ class ConditionalMetric:
 
     model: the ClassificationModel to run the evaluation for
     test_dataset: a Dataset to use for evaluation.
-    settings: a dict specifying option values under
-        `evaluations.conditional_metric`, eg. `{"computation.num_bins": 5}`.
-        These are restricted to the class instance and do not change the
-        global config.
+    settings: an optional dict specifying option values under
+        `evaluations.conditional_metric`, eg. `{"computation.num_bins": 5}`
+        These are restricted to the class instance and do not change the global config.
+    config: an optional PrescConfig instance to read options from. This will be
+        overridden by `settings` values.
     """
 
-    def __init__(self, model, test_dataset, settings=None):
-        local_config = LocalConfig()
+    def __init__(self, model, test_dataset, settings=None, config=None):
+        source_config = config or global_config
+        self._config = PrescConfig(source_config)
         if settings:
-            eval_config = local_config["evaluations"]["conditional_metric"]
-            eval_config.set_args(settings, dots=True)
-        self._config = local_config
+            self._config.set({"evaluations": {"conditional_metric": settings}})
+
         self._model = model
         self._test_dataset = test_dataset
         self._test_pred = self._model.predict_labels(test_dataset)
@@ -147,8 +149,8 @@ class ConditionalMetric:
 
         Returns a `ConditionalMetricResult` instance.
         """
-        lc = LocalConfig(self._config)
-        comp_config = lc["evaluations"]["conditional_metric"]["computation"]
+        comp_config = PrescConfig(self._config)
+        comp_config = comp_config["evaluations"]["conditional_metric"]["computation"]
         col_overrides = comp_config["columns"][colname]
         try:
             col_overrides = col_overrides.get()

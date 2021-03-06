@@ -6,7 +6,8 @@ from presc.evaluations.conditional_metric import (
     METRIC,
     ConditionalMetricResult,
 )
-from presc import config
+from presc import global_config
+from presc.configuration import PrescConfig
 
 
 COLUMN_OVERRIDE_YAML = """
@@ -54,23 +55,38 @@ def test_eval_compute_for_column(
     assert len(cmr.vals) == 10
     assert cmr.num_bins == 10
 
-    # Glabal override
-    config.set({"evaluations.conditional_metric.computation.num_bins": 6})
+    # Global override
+    global_config.set({"evaluations.conditional_metric.computation.num_bins": 6})
     cme = ConditionalMetric(classification_model, test_dataset)
     cmr = cme.compute_for_column("a", metric=METRIC)
     assert len(cmr.vals) == 6
     assert cmr.num_bins == 6
 
-    # Evaluation-level override
-    config.reset_defaults()
-    conf_default = config.dump()
+    # Evaluation-level override:
+    # explicit settings
+    global_config.reset_defaults()
+    conf_default = global_config.dump()
     cme = ConditionalMetric(
         classification_model, test_dataset, settings={"computation.num_bins": 7}
     )
     cmr = cme.compute_for_column("a", metric=METRIC)
     assert len(cmr.vals) == 7
     assert cmr.num_bins == 7
-    assert config.dump() == conf_default
+    assert global_config.dump() == conf_default
+    # config object + settings
+    new_config = PrescConfig(global_config)
+    new_config.set({"evaluations.conditional_metric.computation.num_bins": 4})
+    cme = ConditionalMetric(
+        classification_model,
+        test_dataset,
+        settings={"computation.quantile": True},
+        config=new_config,
+    )
+    cmr = cme.compute_for_column("a", metric=METRIC)
+    assert len(cmr.vals) == 4
+    assert cmr.num_bins == 4
+    assert cmr.quantile is True
+    assert global_config.dump() == conf_default
 
     # Column-specific override
     cme = ConditionalMetric(
@@ -82,10 +98,10 @@ def test_eval_compute_for_column(
     cmr_b = cme.compute_for_column("b", metric=METRIC)
     assert len(cmr_b.vals) == 10
     assert cmr_b.num_bins == 10
-    assert config.dump() == conf_default
+    assert global_config.dump() == conf_default
 
     # kwarg override
-    conf_cme = str(cme._config.flatten())
+    conf_cme = cme._config.dump()
     cmr_a = cme.compute_for_column("a", metric=METRIC, num_bins=4, quantile=True)
     assert len(cmr_a.vals) == 4
     assert cmr_a.num_bins == 4
@@ -93,8 +109,8 @@ def test_eval_compute_for_column(
     cmr_b = cme.compute_for_column("b", metric=METRIC, num_bins=3)
     assert len(cmr_b.vals) == 3
     assert cmr_b.num_bins == 3
-    assert config.dump() == conf_default
-    assert str(cme._config.flatten()) == conf_cme
+    assert global_config.dump() == conf_default
+    assert cme._config.dump() == conf_cme
 
 
 def test_eval_display(
