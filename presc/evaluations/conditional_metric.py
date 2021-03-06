@@ -1,9 +1,11 @@
 from presc.evaluations.utils import get_bins, is_discrete
 from presc.utils import include_exclude_list
+from presc.local_config import LocalConfig
 
 from pandas import DataFrame, Series
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
+from confuse import ConfigError
 
 # Set here temporarily
 METRIC = accuracy_score
@@ -115,11 +117,18 @@ class ConditionalMetric:
 
     model: the ClassificationModel to run the evaluation for
     test_dataset: a Dataset to use for evaluation.
-    config: the main config dict
+    settings: a dict specifying option values under
+        `evaluations.conditional_metric`, eg. `{"computation.num_bins": 5}`.
+        These are restricted to the class instance and do not change the
+        global config.
     """
 
-    def __init__(self, model, test_dataset, config):
-        self._config = config["evaluations"]["conditional_metric"]
+    def __init__(self, model, test_dataset, settings=None):
+        local_config = LocalConfig()
+        if settings:
+            eval_config = local_config["evaluations"]["conditional_metric"]
+            eval_config.set_args(settings, dots=True)
+        self._config = local_config
         self._model = model
         self._test_dataset = test_dataset
         self._test_pred = self._model.predict_labels(test_dataset)
@@ -134,24 +143,30 @@ class ConditionalMetric:
         metric: the evaluation metric to compute across the partitions. This should be
             a function f(y_true, y_pred) which accepts Series of true and
             predicted labels.
-        kwargs: overrides to the default option values for the computation.
+        kwargs: on-the-fly overrides to the config option values for the computation.
 
         Returns a `ConditionalMetricResult` instance.
         """
-        comp_config = dict(self._config["computation"])
-        col_overrides = comp_config.pop("columns", {})
+        lc = LocalConfig(self._config)
+        comp_config = lc["evaluations"]["conditional_metric"]["computation"]
+        col_overrides = comp_config["columns"][colname]
+        try:
+            col_overrides = col_overrides.get()
+        except ConfigError:
+            col_overrides = None
         if col_overrides:
-            comp_config.update(col_overrides.get(colname, {}))
-        comp_config.update(kwargs)
+            comp_config.set(col_overrides)
+        if kwargs:
+            comp_config.set(kwargs)
 
         return compute_conditional_metric(
             grouping_col=self._test_dataset.df[colname],
             true_labs=self._test_dataset.labels,
             pred_labs=self._test_pred,
             metric=metric,
-            as_categorical=comp_config["as_categorical"],
-            num_bins=comp_config["num_bins"],
-            quantile=comp_config["quantile"],
+            as_categorical=comp_config["as_categorical"].get(bool),
+            num_bins=comp_config["num_bins"].get(int),
+            quantile=comp_config["quantile"].get(bool),
         )
 
     def display(self, colnames=None, metric_name="Metric value"):
@@ -165,8 +180,9 @@ class ConditionalMetric:
             incl = colnames
             excl = None
         else:
-            incl = self._config["columns_include"]
-            excl = self._config["columns_exclude"]
+            eval_config = self._config["evaluations"]["conditional_metric"]
+            incl = eval_config["columns_include"].get()
+            excl = eval_config["columns_exclude"].get()
         cols = include_exclude_list(
             self._test_dataset.column_names, included=incl, excluded=excl
         )

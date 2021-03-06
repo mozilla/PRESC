@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 import pytest
 import yaml
 
@@ -8,41 +6,32 @@ from presc.evaluations.conditional_metric import (
     METRIC,
     ConditionalMetricResult,
 )
+from presc import config
 
 
 COLUMN_OVERRIDE_YAML = """
-columns:
-  a:
-    num_bins: 5
+computation:
+  columns:
+    a:
+      num_bins: 5
 """
 
 COLNAME_LIST_YAML = """
-conditional_metric:
-  columns_include:
-    - a
-    - c
-    - e
+columns_include:
+  - a
+  - c
+  - e
 """
 
 
 @pytest.fixture
-def config_col_override(config_default):
-    conf = deepcopy(config_default)
-    extra = yaml.load(COLUMN_OVERRIDE_YAML, Loader=yaml.FullLoader)
-    conf["evaluations"]["conditional_metric"]["computation"]["columns"] = extra[
-        "columns"
-    ]
-    return conf
+def config_col_override():
+    return yaml.load(COLUMN_OVERRIDE_YAML, Loader=yaml.FullLoader)
 
 
 @pytest.fixture
-def config_colname(config_col_override):
-    conf = deepcopy(config_col_override)
-    extra = yaml.load(COLNAME_LIST_YAML, Loader=yaml.FullLoader)
-    conf["evaluations"]["conditional_metric"]["columns_include"] = extra[
-        "conditional_metric"
-    ]["columns_include"]
-    return conf
+def config_colname_and_override():
+    return yaml.load(COLNAME_LIST_YAML + COLUMN_OVERRIDE_YAML, Loader=yaml.FullLoader)
 
 
 @pytest.fixture
@@ -57,42 +46,65 @@ def result_class_no_display(monkeypatch):
 
 
 def test_eval_compute_for_column(
-    test_dataset, classification_model, config_default, config_col_override
+    test_dataset, classification_model, config_col_override
 ):
     # Defaults
-    cme = ConditionalMetric(classification_model, test_dataset, config_default)
+    cme = ConditionalMetric(classification_model, test_dataset)
     cmr = cme.compute_for_column("a", metric=METRIC)
     assert len(cmr.vals) == 10
     assert cmr.num_bins == 10
 
+    # Glabal override
+    config.set({"evaluations.conditional_metric.computation.num_bins": 6})
+    cme = ConditionalMetric(classification_model, test_dataset)
+    cmr = cme.compute_for_column("a", metric=METRIC)
+    assert len(cmr.vals) == 6
+    assert cmr.num_bins == 6
+
+    # Evaluation-level override
+    config.reset_defaults()
+    conf_default = config.dump()
+    cme = ConditionalMetric(
+        classification_model, test_dataset, settings={"computation.num_bins": 7}
+    )
+    cmr = cme.compute_for_column("a", metric=METRIC)
+    assert len(cmr.vals) == 7
+    assert cmr.num_bins == 7
+    assert config.dump() == conf_default
+
     # Column-specific override
-    cme = ConditionalMetric(classification_model, test_dataset, config_col_override)
+    cme = ConditionalMetric(
+        classification_model, test_dataset, settings=config_col_override
+    )
     cmr_a = cme.compute_for_column("a", metric=METRIC)
     assert len(cmr_a.vals) == 5
     assert cmr_a.num_bins == 5
     cmr_b = cme.compute_for_column("b", metric=METRIC)
     assert len(cmr_b.vals) == 10
     assert cmr_b.num_bins == 10
+    assert config.dump() == conf_default
 
     # kwarg override
+    conf_cme = str(cme._config.flatten())
     cmr_a = cme.compute_for_column("a", metric=METRIC, num_bins=4, quantile=True)
     assert len(cmr_a.vals) == 4
     assert cmr_a.num_bins == 4
     assert cmr_a.quantile is True
-    cmr_b = cme.compute_for_column("b", metric=METRIC, num_bins=4)
-    assert len(cmr_b.vals) == 4
-    assert cmr_b.num_bins == 4
+    cmr_b = cme.compute_for_column("b", metric=METRIC, num_bins=3)
+    assert len(cmr_b.vals) == 3
+    assert cmr_b.num_bins == 3
+    assert config.dump() == conf_default
+    assert str(cme._config.flatten()) == conf_cme
 
 
 def test_eval_display(
     test_dataset,
     classification_model,
-    config_default,
-    config_colname,
+    config_colname_and_override,
     result_class_no_display,
     capsys,
 ):
-    cme = ConditionalMetric(classification_model, test_dataset, config_default)
+    cme = ConditionalMetric(classification_model, test_dataset)
     cme.display()
     cols_displayed = capsys.readouterr().out
     assert len(cols_displayed.split()) == 5
@@ -101,7 +113,9 @@ def test_eval_display(
     cols_displayed = capsys.readouterr().out
     assert [x.strip() for x in cols_displayed.split()] == ["a:10", "c:3"]
 
-    cme = ConditionalMetric(classification_model, test_dataset, config_colname)
+    cme = ConditionalMetric(
+        classification_model, test_dataset, settings=config_colname_and_override
+    )
     cme.display()
     cols_displayed = capsys.readouterr().out
     assert [x.strip() for x in cols_displayed.split()] == ["a:5", "c:3", "e:10"]

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import confuse
+from confuse import Configuration
 
 from presc.utils import PrescError
 
@@ -8,10 +8,13 @@ DEFAULT_CONFIG_PATH = Path(__file__).with_name("config_default.yaml")
 
 
 class PrescConfig:
-    """Wrapper around a confuse Configuration object."""
+    """Wrapper around a confuse Configuration object.
+
+    This is the persistent global config for the PRESC package.
+    """
 
     def __init__(self):
-        self._config = confuse.Configuration("PRESC", read=False)
+        self._config = Configuration("PRESC", read=False)
         self.reset_defaults()
 
     def reset_defaults(self):
@@ -37,7 +40,7 @@ class PrescConfig:
         ```
         """
         if not isinstance(settings, dict):
-            raise PrescError("Config setting must be specified in a dict")
+            raise PrescError("Config settings must be specified in a dict")
         self._config.set_args(settings, dots=True)
 
     @property

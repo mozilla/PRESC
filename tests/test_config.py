@@ -1,5 +1,6 @@
 import presc
 from presc.configuration import PrescConfig
+from presc.local_config import LocalConfig
 
 from confuse import Configuration
 import yaml
@@ -95,3 +96,38 @@ def test_presc_config(tmp_path):
 
     # dump() should give valid YAML. Parsing should not fail.
     yaml.load(conf.dump(), Loader=yaml.FullLoader)
+
+
+def test_local_config():
+    lc = LocalConfig()
+    assert lc._source_config is presc.config.settings
+    orig_dump = presc.config.dump()
+
+    # Local config changes don't carry through to underlying config
+    lc.set_args({"report.title": "ABC"}, dots=True)
+    lc.set({"report": {"author": "XYZ"}})
+    assert lc["report"]["title"].get() == "ABC"
+    assert lc["report"]["author"].get() == "XYZ"
+    assert presc.config.dump() == orig_dump
+
+    # Underlying config changes are picked up in local config
+    assert lc["report"]["evaluations_include"].get() == "*"
+    presc.config.set({"report.evaluations_include": "a"})
+    assert lc["report"]["evaluations_include"].get() == "a"
+
+    # Local configs can be nested
+    orig_dump = presc.config.dump()
+    lc_dump = str(lc.flatten())
+    lc2 = LocalConfig(lc)
+    lc2.set_args({"report.title": "IJK"}, dots=True)
+    assert lc2["report"]["title"].get() == "IJK"
+    assert lc2["report"]["author"].get() == "XYZ"
+    assert lc["report"]["evaluations_include"].get() == "a"
+    assert presc.config.dump() == orig_dump
+    assert str(lc.flatten()) == lc_dump
+
+    lc.set({"report": {"author": "PQR"}})
+    assert lc2["report"]["title"].get() == "IJK"
+    assert lc2["report"]["author"].get() == "PQR"
+    assert lc["report"]["evaluations_include"].get() == "a"
+    assert presc.config.dump() == orig_dump
