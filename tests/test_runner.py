@@ -2,14 +2,54 @@ import os
 from subprocess import CompletedProcess
 from pathlib import Path
 import shutil
+from copy import deepcopy
 
 from pandas.testing import assert_frame_equal
 import pytest
 from sklearn.pipeline import Pipeline
 import yaml
 
-from presc.report.runner import Context, ReportRunner, load_config
+from presc.report.runner import (
+    Context,
+    ReportRunner,
+    load_config,
+    _updated_jb_config,
+    _updated_jb_toc,
+)
 from presc.utils import PrescError
+
+TEST_REPORT_CONFIG_PATH = Path(__file__).parent / "fixtures" / "config_test_report.yaml"
+
+REPORT_CONFIG_YAML = """
+report:
+  title: abc
+  author: xyz
+  evaluations_exclude:
+    - landing
+    - conditional_metric
+"""
+
+
+@pytest.fixture
+def config_report(config_default):
+    conf = deepcopy(config_default["report"])
+    extra = yaml.load(REPORT_CONFIG_YAML, Loader=yaml.FullLoader)
+    conf.update(extra["report"])
+    return conf
+
+
+@pytest.fixture
+def config_override_report(config_default, config_report):
+    conf = deepcopy(config_default)
+    conf["report"] = config_report
+    return conf
+
+
+@pytest.fixture
+def config_error(config_default):
+    conf = deepcopy(config_default)
+    conf["evaluations"] = {"abc": 1}
+    return conf
 
 
 @pytest.fixture
@@ -73,6 +113,20 @@ def test_config(tmp_path):
     assert isinstance(default_config, dict)
 
 
+def test_update_jb_configs(config_report):
+    jb_config_str = _updated_jb_config(config_report)
+    jb_config = yaml.load(jb_config_str, Loader=yaml.FullLoader)
+    assert jb_config["title"] == "abc"
+    assert jb_config["author"] == "xyz"
+
+    jb_toc_str = _updated_jb_toc(config_report)
+    assert "landing" in jb_toc_str
+    assert "conditional_metric" not in jb_toc_str
+    assert "conditional_distribution" in jb_toc_str
+    # Check the result is valid YAML
+    yaml.load(jb_toc_str, Loader=yaml.FullLoader)
+
+
 def test_report_runner(tmp_path):
     # Check paths are initialized correctly by the runner
     os.chdir(tmp_path)
@@ -105,7 +159,13 @@ def test_run_report(
     exec_path_run = tmp_path / "test_exec"
     rr = ReportRunner(output_path=out_path_run, execution_path=exec_path_run)
     # Run a report on the test data. This will take ~10 seconds
-    rr.run(model=classification_model, test_dataset=test_dataset)
+    # Use a custom config that reduces computation and is more appropriate for
+    # the small test dataset.
+    rr.run(
+        model=classification_model,
+        test_dataset=test_dataset,
+        config_filepath=TEST_REPORT_CONFIG_PATH,
+    )
 
     # Check top-level output files exist and paths resolve
     assert isinstance(rr._jb_build_result, CompletedProcess)
@@ -176,7 +236,11 @@ def test_run_report_tmp_exec_dir(tmp_path, classification_model, test_dataset):
     rr = ReportRunner(output_path=out_path_run)
     # Run a report using the using default temp execution dir.
     # This will take ~10 seconds
-    rr.run(model=classification_model, test_dataset=test_dataset)
+    rr.run(
+        model=classification_model,
+        test_dataset=test_dataset,
+        config_filepath=TEST_REPORT_CONFIG_PATH,
+    )
 
     # Just check that it worked.
     assert rr.report_main_page.exists()
@@ -189,7 +253,11 @@ def test_run_report_error_notebook(tmp_path, pipeline_classifier, test_dataset):
     exec_path_run = tmp_path / "test_exec"
     rr = ReportRunner(output_path=out_path_run, execution_path=exec_path_run)
     # pipeline_classifier is not a valid ClassificationModel instance
-    rr.run(model=pipeline_classifier, test_dataset=test_dataset)
+    rr.run(
+        model=pipeline_classifier,
+        test_dataset=test_dataset,
+        config_filepath=TEST_REPORT_CONFIG_PATH,
+    )
 
     # jupyter-book build job succeeded even though notebooks didn't
     assert rr._jb_build_result.returncode == 0
@@ -232,7 +300,11 @@ def test_run_report_error_build(
     rr = ReportRunner(output_path=out_path_run)
     # run() function generates warnings
     with pytest.warns(UserWarning) as warning_records:
-        rr.run(model=classification_model, test_dataset=test_dataset)
+        rr.run(
+            model=classification_model,
+            test_dataset=test_dataset,
+            config_filepath=TEST_REPORT_CONFIG_PATH,
+        )
     assert len(warning_records) == 2
     # Warning from build function
     first_warning = warning_records[0].message.args[0]
@@ -263,14 +335,16 @@ def test_run_report_error_build(
         rr.open()
 
 
-def test_run_report_error_config(tmp_path, classification_model, test_dataset):
+def test_run_report_error_config(
+    tmp_path, classification_model, test_dataset, config_error
+):
     # Passing in config file to run() overrides default config.
     # Fake config causes error.
     out_path_run = tmp_path / "test_run"
     exec_path_run = tmp_path / "test_exec"
     fake_config_file = tmp_path / "fake_config.yaml"
     with open(fake_config_file, "w") as f:
-        yaml.dump({"fake_option": 123}, f)
+        yaml.dump(config_error, f)
 
     rr = ReportRunner(output_path=out_path_run, execution_path=exec_path_run)
     rr.run(
@@ -303,3 +377,45 @@ def test_run_report_error_config(tmp_path, classification_model, test_dataset):
         eval_html = f.read()
     assert "Error" in eval_html
     assert "Traceback" in eval_html
+
+
+def test_run_report_override_config(
+    tmp_path, classification_model, test_dataset, config_override_report
+):
+    out_path_run = tmp_path / "test_run"
+    exec_path_run = tmp_path / "test_exec"
+    config_path = tmp_path / "custom_config.yaml"
+    with open(config_path, "w") as f:
+        yaml.dump(config_override_report, f)
+
+    rr = ReportRunner(
+        output_path=out_path_run,
+        execution_path=exec_path_run,
+        config_filepath=config_path,
+    )
+    rr.run(
+        model=classification_model,
+        test_dataset=test_dataset,
+    )
+
+    # Report ran successfully.
+    assert rr._jb_build_result.returncode == 0
+    with open(rr.jb_build_log) as f:
+        build_log = f.read()
+    assert build_log.startswith("Running Jupyter-Book")
+    assert "Finished generating HTML" in build_log
+    assert "error" not in build_log.lower()
+    assert "failed" not in build_log.lower()
+
+    # Excluded page was not rendered.
+    assert rr.report_main_page.exists()
+    output_files = os.listdir(rr.report_main_page.parent)
+    assert "landing.html" in output_files
+    assert "conditional_metric.html" not in output_files
+    assert "conditional_distribution.html" in output_files
+
+    # Overridden attributes got picked up in the report pages.
+    with open(rr.report_main_page.with_name("landing.html")) as f:
+        landing_html = f.read()
+    assert "abc</title>" in landing_html
+    assert "By xyz" in landing_html

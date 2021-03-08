@@ -49,6 +49,12 @@ class Dataset:
         return self._df[other_cols]
 
     @property
+    def column_names(self):
+        """Returns feature and other column names."""
+        other_colnames = list(self.other_cols.columns)
+        return self.feature_names + other_colnames
+
+    @property
     def df(self):
         """Returns the underlying DataFrame."""
         return self._df

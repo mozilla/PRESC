@@ -8,10 +8,12 @@ import webbrowser
 
 import yaml
 
-from presc.utils import PrescError
+from presc.utils import PrescError, include_exclude_list
 
 # Path to the report source dir
 REPORT_SOURCE_PATH = Path(__file__).parent / "resources"
+JB_CONFIG_FILENAME = "_config.yml"
+JB_TOC_FILENAME = "_toc.yml"
 REPORT_OUTPUT_DIR = "presc_report"
 REPORT_EXECUTION_DIR = "_exec"
 REPORT_MAIN_PAGE = "report.html"
@@ -22,7 +24,7 @@ JB_BUILD_LOG = "jupyterbook_build.log"
 # for the report.
 CONTEXT_STORE_BASENAME = "_context_store"
 # Path to the default config file
-DEFAULT_CONFIG_PATH = Path(__file__).parent / "default_config.yml"
+DEFAULT_CONFIG_PATH = Path(__file__).parent.parent / "config_default.yaml"
 
 
 def load_config(config_filepath=None):
@@ -44,6 +46,59 @@ def load_config(config_filepath=None):
     except yaml.YAMLError as e:
         msg = f"Error parsing config file {config_filepath}"
         raise PrescError(msg) from e
+
+
+def _updated_jb_config(report_config):
+    """Override default jupyter-book options.
+
+    report_config: PRESC config options for the report
+
+    Returns the updated JB config file as a YAML-formatted string that can be
+    written to a _config.yml.
+    """
+    with open(REPORT_SOURCE_PATH / JB_CONFIG_FILENAME) as f:
+        jb_config = yaml.load(f, Loader=yaml.FullLoader)
+
+    jb_config["title"] = report_config["title"]
+    jb_config["author"] = report_config["author"]
+    return yaml.dump(jb_config)
+
+
+def _updated_jb_toc(report_config):
+    """Override default report TOC.
+
+    This does not change the sections or the order of the pages but only which
+    pages are included.
+
+    report_config: PRESC config options for the report
+
+    Returns the updated JB TOC file as a YAML-formatted string that can be
+    written to a _toc.yml.
+    """
+    # Rather than parsing as YAML and dealing with the nested structure,
+    # just look through the raw lines of the file for report page entries
+    # starting with "- file: "
+    with open(REPORT_SOURCE_PATH / JB_TOC_FILENAME) as f:
+        toc_lines = f.readlines()
+
+    stripped_lines = [(i, x.strip()) for i, x in enumerate(toc_lines)]
+    all_pages = {i: x[8:] for i, x in stripped_lines if x.startswith("- file: ")}
+    incl_pages = include_exclude_list(
+        list(all_pages.values()),
+        report_config["evaluations_include"],
+        report_config["evaluations_exclude"],
+    )
+    # Landing page should always be included.
+    if "landing" not in incl_pages:
+        incl_pages.append("landing")
+
+    # Retain all TOC lines except those corresponding to excluded pages.
+    filtered_toc = [
+        x
+        for i, x in enumerate(toc_lines)
+        if i not in all_pages or all_pages[i] in incl_pages
+    ]
+    return "".join(filtered_toc)
 
 
 class ReportRunner:
@@ -149,6 +204,13 @@ class ReportRunner:
         except shutil.Error as e:
             msg = f"Failed to copy report source to execution dir {exec_path}"
             raise PrescError(msg) from e
+
+        # Update the default JB config files based on the PRESC config options.
+        with open(exec_path / JB_CONFIG_FILENAME, "w") as f:
+            f.write(_updated_jb_config(config["report"]))
+        with open(exec_path / JB_TOC_FILENAME, "w") as f:
+            f.write(_updated_jb_toc(config["report"]))
+
         # Write the inputs to the data store.
         ctx = Context(store_dir=exec_path)
         ctx.store_inputs(model=model, test_dataset=test_dataset, config=config)
