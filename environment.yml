@@ -2,6 +2,7 @@ name: presc
 channels:
   - conda-forge
 dependencies:
+  - confuse=1.4.0
   - flake8=3.7.9
   - numpy=1.18.1
   - pandas=1.1.3

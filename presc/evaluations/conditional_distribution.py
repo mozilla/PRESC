@@ -1,9 +1,12 @@
 from presc.evaluations.utils import is_discrete
 from presc.utils import include_exclude_list
+from presc.configuration import PrescConfig
+from presc import global_config
 
 from numpy import histogram, histogram_bin_edges
 from pandas import Series, MultiIndex
 import matplotlib.pyplot as plt
+from confuse import ConfigError
 
 
 def _histogram_bin_labels(bin_edges):
@@ -148,11 +151,19 @@ class ConditionalDistribution:
 
     model: the ClassificationModel to run the evaluation for
     test_dataset: a Dataset to use for evaluation.
-    config: the main config dict
+    settings: an optional dict specifying option values under
+        `evaluations.conditional_distribution`, eg. `{"computation.binning": 5}`
+        These are restricted to the class instance and do not change the global config.
+    config: an optional PrescConfig instance to read options from. This will be
+        overridden by `settings` values.
     """
 
-    def __init__(self, model, test_dataset, config):
-        self._config = config["evaluations"]["conditional_distribution"]
+    def __init__(self, model, test_dataset, settings=None, config=None):
+        source_config = config or global_config
+        self._config = PrescConfig(source_config)
+        if settings:
+            self._config.set({"evaluations": {"conditional_distribution": settings}})
+
         self._model = model
         self._test_dataset = test_dataset
         self._test_pred = self._model.predict_labels(test_dataset).rename("predicted")
@@ -161,26 +172,31 @@ class ConditionalDistribution:
         """Compute the evaluation for the given dataset column.
 
         colname: a column in the dataset to compute distributions for
-        as_categorical: should the feature be treated as categorical, ie.
-            binned on its unique values? If the feature is not numeric, this
-            param is ignored.
-        kwargs: overrides to the default option values for the computation.
+        kwargs: on-the-fly overrides to the config option values for the computation.
 
         Returns a `ConditionalDistributionResult` instance.
         """
-        comp_config = dict(self._config["computation"])
-        col_overrides = comp_config.pop("columns", {})
+        comp_config = PrescConfig(self._config)
+        comp_config = comp_config["evaluations"]["conditional_distribution"][
+            "computation"
+        ]
+        col_overrides = comp_config["columns"][colname]
+        try:
+            col_overrides = col_overrides.get()
+        except ConfigError:
+            col_overrides = None
         if col_overrides:
-            comp_config.update(col_overrides.get(colname, {}))
-        comp_config.update(kwargs)
+            comp_config.set(col_overrides)
+        if kwargs:
+            comp_config.set(kwargs)
 
         return compute_conditional_distribution(
             data_col=self._test_dataset.df[colname],
             true_labs=self._test_dataset.labels,
             pred_labs=self._test_pred,
-            as_categorical=comp_config["as_categorical"],
-            binning=comp_config["binning"],
-            common_bins=comp_config["common_bins"],
+            as_categorical=comp_config["as_categorical"].get(bool),
+            binning=comp_config["binning"].get(),
+            common_bins=comp_config["common_bins"].get(bool),
         )
 
     def display(self, colnames=None):
@@ -194,8 +210,9 @@ class ConditionalDistribution:
             incl = colnames
             excl = None
         else:
-            incl = self._config["columns_include"]
-            excl = self._config["columns_exclude"]
+            eval_config = self._config["evaluations"]["conditional_distribution"]
+            incl = eval_config["columns_include"].get()
+            excl = eval_config["columns_exclude"].get()
         cols = include_exclude_list(
             self._test_dataset.column_names, included=incl, excluded=excl
         )

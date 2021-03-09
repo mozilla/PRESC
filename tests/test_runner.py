@@ -2,7 +2,6 @@ import os
 from subprocess import CompletedProcess
 from pathlib import Path
 import shutil
-from copy import deepcopy
 
 from pandas.testing import assert_frame_equal
 import pytest
@@ -12,11 +11,11 @@ import yaml
 from presc.report.runner import (
     Context,
     ReportRunner,
-    load_config,
     _updated_jb_config,
-    _updated_jb_toc,
 )
 from presc.utils import PrescError
+from presc import global_config
+from presc.configuration import PrescConfig
 
 TEST_REPORT_CONFIG_PATH = Path(__file__).parent / "fixtures" / "config_test_report.yaml"
 
@@ -31,24 +30,10 @@ report:
 
 
 @pytest.fixture
-def config_report(config_default):
-    conf = deepcopy(config_default["report"])
+def config_report():
+    conf = PrescConfig(global_config)
     extra = yaml.load(REPORT_CONFIG_YAML, Loader=yaml.FullLoader)
-    conf.update(extra["report"])
-    return conf
-
-
-@pytest.fixture
-def config_override_report(config_default, config_report):
-    conf = deepcopy(config_default)
-    conf["report"] = config_report
-    return conf
-
-
-@pytest.fixture
-def config_error(config_default):
-    conf = deepcopy(config_default)
-    conf["evaluations"] = {"abc": 1}
+    conf.set(extra)
     return conf
 
 
@@ -93,38 +78,15 @@ def test_context(tmp_path, test_dataset, classification_model):
     assert_frame_equal(ctx.test_dataset.df, test_dataset.df)
 
 
-def test_config(tmp_path):
-    dummy_config = {"a": 1, "b": {"c": ["x", "y", "z"], "d": True}}
-    yaml_file = tmp_path / "config.yaml"
-    with open(yaml_file, "w") as f:
-        yaml.dump(dummy_config, f)
-    not_yaml_file = tmp_path / "config.txt"
-    with open(not_yaml_file, "w") as f:
-        f.write("\t" + str(dummy_config))
-
-    loaded_config = load_config(yaml_file)
-    assert loaded_config == dummy_config
-    with pytest.raises(PrescError):
-        load_config(not_yaml_file)
-    with pytest.raises(PrescError):
-        load_config(tmp_path / "xyz.yaml")
-
-    default_config = load_config()
-    assert isinstance(default_config, dict)
-
-
 def test_update_jb_configs(config_report):
-    jb_config_str = _updated_jb_config(config_report)
+    jb_config_str = _updated_jb_config(config_report["report"])
     jb_config = yaml.load(jb_config_str, Loader=yaml.FullLoader)
     assert jb_config["title"] == "abc"
     assert jb_config["author"] == "xyz"
-
-    jb_toc_str = _updated_jb_toc(config_report)
-    assert "landing" in jb_toc_str
-    assert "conditional_metric" not in jb_toc_str
-    assert "conditional_distribution" in jb_toc_str
-    # Check the result is valid YAML
-    yaml.load(jb_toc_str, Loader=yaml.FullLoader)
+    jb_toc_exclude = jb_config["exclude_patterns"]
+    assert "landing.ipynb" not in jb_toc_exclude
+    assert "conditional_metric.ipynb" in jb_toc_exclude
+    assert "conditional_distribution.ipynb" not in jb_toc_exclude
 
 
 def test_report_runner(tmp_path):
@@ -134,14 +96,13 @@ def test_report_runner(tmp_path):
     assert str(rr.output_path.parent.resolve()) == os.getcwd()
     assert rr.output_path.exists()
     assert rr.execution_path is None
-    assert isinstance(rr.config, dict)
+    assert rr.config.dump() == global_config.dump()
 
     out_path = tmp_path / "abc" / "out"
     exec_path = tmp_path / "exec"
     conf_path = tmp_path / "conf.yaml"
-    dummy_conf = {"a": 1}
     with open(conf_path, "w") as f:
-        yaml.dump(dummy_conf, f)
+        f.write(REPORT_CONFIG_YAML)
 
     rr = ReportRunner(
         output_path=out_path, execution_path=exec_path, config_filepath=conf_path
@@ -149,7 +110,7 @@ def test_report_runner(tmp_path):
     assert rr.output_path.parent == out_path
     assert rr.output_path.exists()
     assert rr.execution_path.parent == exec_path
-    assert rr.config == dummy_conf
+    assert rr.config["report"]["title"].get() == "abc"
 
 
 def test_run_report(
@@ -157,14 +118,18 @@ def test_run_report(
 ):
     out_path_run = tmp_path / "test_run"
     exec_path_run = tmp_path / "test_exec"
-    rr = ReportRunner(output_path=out_path_run, execution_path=exec_path_run)
+    rr = ReportRunner(
+        output_path=out_path_run,
+        execution_path=exec_path_run,
+        config_filepath=TEST_REPORT_CONFIG_PATH,
+    )
     # Run a report on the test data. This will take ~10 seconds
     # Use a custom config that reduces computation and is more appropriate for
     # the small test dataset.
+    #
     rr.run(
         model=classification_model,
         test_dataset=test_dataset,
-        config_filepath=TEST_REPORT_CONFIG_PATH,
     )
 
     # Check top-level output files exist and paths resolve
@@ -224,22 +189,29 @@ def test_run_report(
     assert "failed" not in clean_log.lower()
 
     # Test rerunning report with the same runner.
-    # Since the execution dir already exists, this tests that is get cleaned
+    # Since the execution dir already exists, this tests that it get cleaned
     # successfully prior to running.
-    rr.run(model=classification_model, test_dataset=test_dataset, clean=False)
+    # Only need to execute the landing page.
+    rr.run(
+        model=classification_model,
+        test_dataset=test_dataset,
+        settings={"report.evaluations_exclude": "*"},
+        clean=False,
+    )
     assert rr.report_main_page.parent.exists()
     assert rr._jb_build_result.returncode == 0
 
 
 def test_run_report_tmp_exec_dir(tmp_path, classification_model, test_dataset):
     out_path_run = tmp_path / "test_run"
-    rr = ReportRunner(output_path=out_path_run)
-    # Run a report using the using default temp execution dir.
-    # This will take ~10 seconds
+    rr = ReportRunner(output_path=out_path_run, config_filepath=TEST_REPORT_CONFIG_PATH)
+    # Run using the using default temp execution dir.
     rr.run(
         model=classification_model,
         test_dataset=test_dataset,
-        config_filepath=TEST_REPORT_CONFIG_PATH,
+        # Exclude evaluation notebooks for efficiency.
+        # Only run the landing page notebook.
+        settings={"report.evaluations_exclude": "*"},
     )
 
     # Just check that it worked.
@@ -251,12 +223,15 @@ def test_run_report_error_notebook(tmp_path, pipeline_classifier, test_dataset):
     # Error encountered while running the notebooks
     out_path_run = tmp_path / "test_run"
     exec_path_run = tmp_path / "test_exec"
-    rr = ReportRunner(output_path=out_path_run, execution_path=exec_path_run)
+    rr = ReportRunner(
+        output_path=out_path_run,
+        execution_path=exec_path_run,
+        config_filepath=TEST_REPORT_CONFIG_PATH,
+    )
     # pipeline_classifier is not a valid ClassificationModel instance
     rr.run(
         model=pipeline_classifier,
         test_dataset=test_dataset,
-        config_filepath=TEST_REPORT_CONFIG_PATH,
     )
 
     # jupyter-book build job succeeded even though notebooks didn't
@@ -292,18 +267,17 @@ def test_run_report_error_build(
 
     mock_report_source = tmp_path / "mock_report_source"
     shutil.copytree(runner.REPORT_SOURCE_PATH, mock_report_source)
-    with open(mock_report_source / "_toc.yml", "a") as f:
+    with open(mock_report_source / runner.JB_TOC_FILENAME, "a") as f:
         f.write("- file: missing_notebook\n")
     monkeypatch.setattr(runner, "REPORT_SOURCE_PATH", mock_report_source)
 
     out_path_run = tmp_path / "test_run"
-    rr = ReportRunner(output_path=out_path_run)
+    rr = ReportRunner(output_path=out_path_run, config_filepath=TEST_REPORT_CONFIG_PATH)
     # run() function generates warnings
     with pytest.warns(UserWarning) as warning_records:
         rr.run(
             model=classification_model,
             test_dataset=test_dataset,
-            config_filepath=TEST_REPORT_CONFIG_PATH,
         )
     assert len(warning_records) == 2
     # Warning from build function
@@ -335,58 +309,26 @@ def test_run_report_error_build(
         rr.open()
 
 
-def test_run_report_error_config(
-    tmp_path, classification_model, test_dataset, config_error
-):
-    # Passing in config file to run() overrides default config.
-    # Fake config causes error.
-    out_path_run = tmp_path / "test_run"
-    exec_path_run = tmp_path / "test_exec"
-    fake_config_file = tmp_path / "fake_config.yaml"
-    with open(fake_config_file, "w") as f:
-        yaml.dump(config_error, f)
-
-    rr = ReportRunner(output_path=out_path_run, execution_path=exec_path_run)
-    rr.run(
-        model=classification_model,
-        test_dataset=test_dataset,
-        config_filepath=fake_config_file,
-    )
-
-    # jupyter-book build job succeeded even though notebooks didn't
-    assert rr._jb_build_result.returncode == 0
-    with open(rr.jb_build_log) as f:
-        build_log = f.read()
-    assert build_log.startswith("Running Jupyter-Book")
-    assert "Finished generating HTML" in build_log
-    # Log file mentions failure
-    assert "failed" in build_log.lower()
-
-    # Report was created
-    assert rr.report_main_page.exists()
-    # Execution dir and output dir contains relevant files.
-    assert len(list(rr.execution_path.glob("_context_store*"))) > 0
-    with open(rr.execution_path / "_toc.yml") as f:
-        toc = [x.strip() for x in f.readlines()]
-        notebooks = [x[8:] for x in toc if x.startswith("- file: ")]
-    for nb in notebooks:
-        assert (rr.execution_path / f"{nb}.ipynb").exists()
-        assert (rr.report_main_page.parent / f"{nb}.html").exists()
-    # Error message shows in notebooks
-    with open(rr.report_main_page.parent / "conditional_metric.html") as f:
-        eval_html = f.read()
-    assert "Error" in eval_html
-    assert "Traceback" in eval_html
-
-
 def test_run_report_override_config(
-    tmp_path, classification_model, test_dataset, config_override_report
+    tmp_path, classification_model, test_dataset, monkeypatch
 ):
+    # Patch the JupyterBook config to disable computation for efficiency
+    from presc.report import runner
+
+    mock_report_source = tmp_path / "mock_report_source"
+    shutil.copytree(runner.REPORT_SOURCE_PATH, mock_report_source)
+    with open(mock_report_source / runner.JB_CONFIG_FILENAME) as f:
+        jb_config = yaml.load(f, Loader=yaml.FullLoader)
+    jb_config["execute"]["execute_notebooks"] = "off"
+    with open(mock_report_source / runner.JB_CONFIG_FILENAME, "w") as f:
+        jb_config = yaml.dump(jb_config, f)
+    monkeypatch.setattr(runner, "REPORT_SOURCE_PATH", mock_report_source)
+
     out_path_run = tmp_path / "test_run"
     exec_path_run = tmp_path / "test_exec"
     config_path = tmp_path / "custom_config.yaml"
     with open(config_path, "w") as f:
-        yaml.dump(config_override_report, f)
+        f.write(REPORT_CONFIG_YAML)
 
     rr = ReportRunner(
         output_path=out_path_run,
@@ -418,4 +360,38 @@ def test_run_report_override_config(
     with open(rr.report_main_page.with_name("landing.html")) as f:
         landing_html = f.read()
     assert "abc</title>" in landing_html
+    assert "By xyz" in landing_html
+
+    # Rerun with further override.
+    rr = ReportRunner(
+        output_path=out_path_run,
+        execution_path=exec_path_run,
+        config_filepath=config_path,
+    )
+    rr.run(
+        model=classification_model,
+        test_dataset=test_dataset,
+        settings={"report.title": "pqr"},
+    )
+
+    # Report ran successfully.
+    assert rr._jb_build_result.returncode == 0
+    with open(rr.jb_build_log) as f:
+        build_log = f.read()
+    assert build_log.startswith("Running Jupyter-Book")
+    assert "Finished generating HTML" in build_log
+    assert "error" not in build_log.lower()
+    assert "failed" not in build_log.lower()
+
+    # Excluded page was not rendered.
+    assert rr.report_main_page.exists()
+    output_files = os.listdir(rr.report_main_page.parent)
+    assert "landing.html" in output_files
+    assert "conditional_metric.html" not in output_files
+    assert "conditional_distribution.html" in output_files
+
+    # Overridden attributes got picked up in the report pages.
+    with open(rr.report_main_page.with_name("landing.html")) as f:
+        landing_html = f.read()
+    assert "pqr</title>" in landing_html
     assert "By xyz" in landing_html

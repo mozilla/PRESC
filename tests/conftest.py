@@ -10,7 +10,7 @@ from numpy import arange
 
 from presc.model import ClassificationModel
 from presc.dataset import Dataset
-from presc.report.runner import load_config
+from presc import global_config
 
 DATASET_DF_PATH = Path(__file__).parent / "fixtures" / "dataset.pkl"
 
@@ -59,6 +59,7 @@ def classification_model(pipeline_classifier, train_dataset):
     return ClassificationModel(pipeline_classifier, train_dataset, retrain_now=True)
 
 
-@pytest.fixture
-def config_default():
-    return load_config()
+@pytest.fixture(autouse=True)
+def reset_config():
+    # Reset config to default for each test
+    global_config.reset_defaults()
