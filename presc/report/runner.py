@@ -40,20 +40,9 @@ def _updated_jb_config(report_config):
 
     jb_config["title"] = report_config["title"].get()
     jb_config["author"] = report_config["author"].get()
-    return yaml.dump(jb_config)
 
-
-def _updated_jb_toc(report_config):
-    """Override default report TOC.
-
-    This does not change the sections or the order of the pages but only which
-    pages are included.
-
-    report_config: PRESC config options for the report
-
-    Returns the updated JB TOC file as a YAML-formatted string that can be
-    written to a _toc.yml.
-    """
+    # Add any page exclusions
+    # First compile the overall list of report pages from the TOC.
     with open(REPORT_SOURCE_PATH / JB_TOC_FILENAME) as f:
         toc_str = f.read()
 
@@ -67,27 +56,11 @@ def _updated_jb_toc(report_config):
     if "landing" not in incl_pages:
         incl_pages.append("landing")
 
-    def drop_file_entries(toc_part, incl_list):
-        if isinstance(toc_part, list):
-            filtered = [drop_file_entries(x, incl_list) for x in toc_part]
-            return [x for x in filtered if x]
-        if isinstance(toc_part, dict):
-            if "file" in toc_part.keys() and toc_part["file"] not in incl_list:
-                return None
-            else:
-                filtered = {
-                    k: drop_file_entries(v, incl_list) for k, v in toc_part.items()
-                }
-                return {k: v for k, v in filtered.items() if v}
-        else:
-            return toc_part
+    to_exclude = [f"{p}.ipynb" for p in all_pages if p not in incl_pages]
+    if to_exclude:
+        jb_config["exclude_patterns"] = to_exclude
 
-    toc = yaml.load(toc_str, Loader=yaml.FullLoader)
-    # Drop excluded file entries from the TOC and any subsections that are left empty.
-    filtered_toc = drop_file_entries(toc, incl_pages)
-    # Drop any top-level entries that don't have files in their hierarchy
-    filtered_toc = [x for x in filtered_toc if "file" in str(x)]
-    return yaml.dump(filtered_toc)
+    return yaml.dump(jb_config)
 
 
 class ReportRunner:
@@ -199,8 +172,6 @@ class ReportRunner:
         # Update the default JB config files based on the PRESC config options.
         with open(exec_path / JB_CONFIG_FILENAME, "w") as f:
             f.write(_updated_jb_config(run_config["report"]))
-        with open(exec_path / JB_TOC_FILENAME, "w") as f:
-            f.write(_updated_jb_toc(run_config["report"]))
 
         # Write the inputs to the data store.
         ctx = Context(store_dir=exec_path)

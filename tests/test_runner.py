@@ -12,7 +12,6 @@ from presc.report.runner import (
     Context,
     ReportRunner,
     _updated_jb_config,
-    _updated_jb_toc,
 )
 from presc.utils import PrescError
 from presc import global_config
@@ -24,20 +23,9 @@ REPORT_CONFIG_YAML = """
 report:
   title: abc
   author: xyz
-"""
-
-TOC_CONFIG_YAML = """
-report:
   evaluations_exclude:
     - landing
     - conditional_metric
-"""
-
-OVERRIDE_CONFIG_YAML = """
-report:
-  title: abc
-  author: xyz
-  evaluations_exclude: "*"
 """
 
 
@@ -45,14 +33,6 @@ report:
 def config_report():
     conf = PrescConfig(global_config)
     extra = yaml.load(REPORT_CONFIG_YAML, Loader=yaml.FullLoader)
-    conf.set(extra)
-    return conf
-
-
-@pytest.fixture
-def config_toc():
-    conf = PrescConfig(global_config)
-    extra = yaml.load(TOC_CONFIG_YAML, Loader=yaml.FullLoader)
     conf.set(extra)
     return conf
 
@@ -98,18 +78,15 @@ def test_context(tmp_path, test_dataset, classification_model):
     assert_frame_equal(ctx.test_dataset.df, test_dataset.df)
 
 
-def test_update_jb_configs(config_report, config_toc):
+def test_update_jb_configs(config_report):
     jb_config_str = _updated_jb_config(config_report["report"])
     jb_config = yaml.load(jb_config_str, Loader=yaml.FullLoader)
     assert jb_config["title"] == "abc"
     assert jb_config["author"] == "xyz"
-
-    jb_toc_str = _updated_jb_toc(config_toc["report"])
-    assert "landing" in jb_toc_str
-    assert "conditional_metric" not in jb_toc_str
-    assert "conditional_distribution" in jb_toc_str
-    # Check the result is valid YAML
-    yaml.load(jb_toc_str, Loader=yaml.FullLoader)
+    jb_toc_exclude = jb_config["exclude_patterns"]
+    assert "landing.ipynb" not in jb_toc_exclude
+    assert "conditional_metric.ipynb" in jb_toc_exclude
+    assert "conditional_distribution.ipynb" not in jb_toc_exclude
 
 
 def test_report_runner(tmp_path):
@@ -228,11 +205,13 @@ def test_run_report(
 def test_run_report_tmp_exec_dir(tmp_path, classification_model, test_dataset):
     out_path_run = tmp_path / "test_run"
     rr = ReportRunner(output_path=out_path_run, config_filepath=TEST_REPORT_CONFIG_PATH)
-    # Run a report using the using default temp execution dir.
-    # This will take ~10 seconds
+    # Run using the using default temp execution dir.
     rr.run(
         model=classification_model,
         test_dataset=test_dataset,
+        # Exclude evaluation notebooks for efficiency.
+        # Only run the landing page notebook.
+        settings={"report.evaluations_exclude": "*"},
     )
 
     # Just check that it worked.
@@ -288,7 +267,7 @@ def test_run_report_error_build(
 
     mock_report_source = tmp_path / "mock_report_source"
     shutil.copytree(runner.REPORT_SOURCE_PATH, mock_report_source)
-    with open(mock_report_source / "_toc.yml", "a") as f:
+    with open(mock_report_source / runner.JB_TOC_FILENAME, "a") as f:
         f.write("- file: missing_notebook\n")
     monkeypatch.setattr(runner, "REPORT_SOURCE_PATH", mock_report_source)
 
@@ -330,12 +309,26 @@ def test_run_report_error_build(
         rr.open()
 
 
-def test_run_report_override_config(tmp_path, classification_model, test_dataset):
+def test_run_report_override_config(
+    tmp_path, classification_model, test_dataset, monkeypatch
+):
+    # Patch the JupyterBook config to disable computation for efficiency
+    from presc.report import runner
+
+    mock_report_source = tmp_path / "mock_report_source"
+    shutil.copytree(runner.REPORT_SOURCE_PATH, mock_report_source)
+    with open(mock_report_source / runner.JB_CONFIG_FILENAME) as f:
+        jb_config = yaml.load(f, Loader=yaml.FullLoader)
+    jb_config["execute"]["execute_notebooks"] = "off"
+    with open(mock_report_source / runner.JB_CONFIG_FILENAME, "w") as f:
+        jb_config = yaml.dump(jb_config, f)
+    monkeypatch.setattr(runner, "REPORT_SOURCE_PATH", mock_report_source)
+
     out_path_run = tmp_path / "test_run"
     exec_path_run = tmp_path / "test_exec"
     config_path = tmp_path / "custom_config.yaml"
     with open(config_path, "w") as f:
-        f.write(OVERRIDE_CONFIG_YAML)
+        f.write(REPORT_CONFIG_YAML)
 
     rr = ReportRunner(
         output_path=out_path_run,
@@ -361,7 +354,7 @@ def test_run_report_override_config(tmp_path, classification_model, test_dataset
     output_files = os.listdir(rr.report_main_page.parent)
     assert "landing.html" in output_files
     assert "conditional_metric.html" not in output_files
-    assert "conditional_distribution.html" not in output_files
+    assert "conditional_distribution.html" in output_files
 
     # Overridden attributes got picked up in the report pages.
     with open(rr.report_main_page.with_name("landing.html")) as f:
@@ -395,7 +388,7 @@ def test_run_report_override_config(tmp_path, classification_model, test_dataset
     output_files = os.listdir(rr.report_main_page.parent)
     assert "landing.html" in output_files
     assert "conditional_metric.html" not in output_files
-    assert "conditional_distribution.html" not in output_files
+    assert "conditional_distribution.html" in output_files
 
     # Overridden attributes got picked up in the report pages.
     with open(rr.report_main_page.with_name("landing.html")) as f:
