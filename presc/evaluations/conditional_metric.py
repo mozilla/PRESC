@@ -4,12 +4,9 @@ from presc.configuration import PrescConfig
 from presc import global_config
 
 from pandas import DataFrame, Series
-from sklearn.metrics import accuracy_score
+import sklearn.metrics as sk
 import matplotlib.pyplot as plt
-from confuse import ConfigError
-
-# Set here temporarily
-METRIC = accuracy_score
+from confuse import ConfigError, NotFoundError, ConfigTypeError
 
 
 def compute_conditional_metric(
@@ -60,6 +57,34 @@ def compute_conditional_metric(
         num_bins=num_bins,
         quantile=quantile,
     )
+
+
+def get_metrics_for_column(colname, eval_config):
+    default_metrics = eval_config["metrics"].get()
+    metrics_to_use = default_metrics
+    try:
+        col_metrics = eval_config["computation"]["columns"][colname]["metrics"].get()
+        metrics_to_use = col_metrics
+    except NotFoundError:
+        pass
+    except ConfigTypeError:
+        pass
+
+    metrics = []
+    for metric_to_use in metrics_to_use:
+        function_name = metric_to_use.get("function")
+        display_name = metric_to_use.get("display_name", function_name)
+        try:
+            # TODO expand to non sklearn functions.
+            metric_function = getattr(sk, function_name)
+            metrics.append({"function": metric_function, "display_name": display_name})
+        except AttributeError:
+            print(
+                f"Column: `{colname}` Function: `{function_name}` is not a valid sklearn metric. "
+                f"\nVerify evaluations.conditional_metric.metrics configuration and/or "
+                f"\nevaluations.conditional_metric.computation.columns.{colname} (if provided)."
+            )
+    return metrics
 
 
 class ConditionalMetricResult:
@@ -171,18 +196,18 @@ class ConditionalMetric:
             quantile=comp_config["quantile"].get(bool),
         )
 
-    def display(self, colnames=None, metric_name="Metric value"):
+    def display(self, colnames=None):
         """Computes and displays the conditional metric result for each specified column.
 
         colnames: a list of column names to run the evaluation over, creating a plot
             for each. If not supplied, defaults to columns specifed in the config.
         metric_name: display name identifying the metric to show on the plot
         """
+        eval_config = self._config["evaluations"]["conditional_metric"]
         if colnames:
             incl = colnames
             excl = None
         else:
-            eval_config = self._config["evaluations"]["conditional_metric"]
             incl = eval_config["columns_include"].get()
             excl = eval_config["columns_exclude"].get()
         cols = include_exclude_list(
@@ -190,6 +215,9 @@ class ConditionalMetric:
         )
 
         for colname in cols:
-            # TODO: don't hardcode the metric
-            eval_result = self.compute_for_column(colname, metric=METRIC)
-            eval_result.display_result(xlab=colname, ylab=metric_name)
+            metrics = get_metrics_for_column(colname=colname, eval_config=eval_config)
+            for metric in metrics:
+                function = metric.get("function")
+                display_name = metric.get("display_name")
+                eval_result = self.compute_for_column(colname, metric=function)
+                eval_result.display_result(xlab=colname, ylab=display_name)
