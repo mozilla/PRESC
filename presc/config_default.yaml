@@ -24,8 +24,6 @@ evaluations:
     metrics:
       - function: accuracy_score
         display_name: Accuracy
-      - function: jaccard_score
-        display_name: Jaccard Score
     computation:
       # Number of bins for partitioning a numeric column
       num_bins: 10
