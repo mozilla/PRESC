@@ -34,9 +34,7 @@ def explore_cross_validation_kfolds(
         List of the k-fold values for which to compute the cross-validation scores.
     repetitions : int
         - Number of times to repeat the cross-validation for each k-fold number (if "minimum_kfolds" is set to False)
-        - Or minimum number of k-folds that must be computed (if "minimum_kfolds" is set to True).
-        In the latter case, the "repetitions" value must be larger than the largest k-folds value.
-        By default it carries out the cross-validation ten times for each requested k-fold value.
+        - Or minimum number of k-folds that must be computed (if "minimum_kfolds" is set to True). In the latter case, the "repetitions" value must be larger than the largest k-folds value. By default it carries out the cross-validation ten times for each requested k-fold value.
     minimum_kfolds : bool
         If "minimum_kfolds" is set to True, "repetitions" becomes the minimum number of k-folds.
         The number of needed cross-validation runs for each k-fold value are computed so that

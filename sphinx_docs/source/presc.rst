@@ -11,7 +11,7 @@ Subpackages
 Submodules
 ----------
 presc.configuration module
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: presc.configuration
    :members:
