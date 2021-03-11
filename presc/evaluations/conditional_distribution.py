@@ -47,7 +47,7 @@ def compute_conditional_distribution(
 
     Returns
     -------
-     ConditionalDistributionResult
+    ConditionalDistributionResult
     """
 
     grouping = [true_labs, pred_labs]
