@@ -4,7 +4,7 @@ from sklearn.metrics import accuracy_score, jaccard_score, f1_score
 from presc.evaluations.conditional_metric import (
     ConditionalMetric,
     ConditionalMetricResult,
-    get_metrics_for_column,
+    _get_metrics_for_column,
 )
 from presc import global_config
 from presc.configuration import PrescConfig
@@ -51,7 +51,7 @@ def test_get_metrics_for_column():
 
     # get default metrics
     eval_config = config["evaluations"]["conditional_metric"]
-    result = get_metrics_for_column("b", eval_config)
+    result = _get_metrics_for_column("b", eval_config)
     assert len(result) == 1
     assert result[0].get("display_name") == "Accuracy"
     assert result[0].get("function") == accuracy_score
@@ -68,7 +68,7 @@ def test_get_metrics_for_column():
         }
     )
     eval_config = config["evaluations"]["conditional_metric"]
-    result = get_metrics_for_column("a", eval_config)
+    result = _get_metrics_for_column("a", eval_config)
     assert len(result) == 3
     assert result[0].get("display_name") == "Accuracy"
     assert result[0].get("function") == accuracy_score
@@ -89,7 +89,7 @@ def test_get_metrics_for_column():
         }
     )
     eval_config = config["evaluations"]["conditional_metric"]
-    result = get_metrics_for_column("a", eval_config)
+    result = _get_metrics_for_column("a", eval_config)
     assert len(result) == 2
     assert result[0].get("display_name") == "jaccard_score"
     assert result[0].get("function") == jaccard_score
@@ -105,10 +105,10 @@ def test_get_metrics_for_column():
         }
     )
     eval_config = config["evaluations"]["conditional_metric"]
-    result = get_metrics_for_column("a", eval_config)
+    result = _get_metrics_for_column("a", eval_config)
     assert len(result) == 0
     # all defaults still valid for column b
-    result = get_metrics_for_column("b", eval_config)
+    result = _get_metrics_for_column("b", eval_config)
     assert len(result) == 2
     assert result[0].get("display_name") == "jaccard_score"
     assert result[0].get("function") == jaccard_score
@@ -122,7 +122,7 @@ def test_eval_compute_for_column(
     # Get the default metric function from the config
     config = PrescConfig(global_config)
     eval_config = config["evaluations"]["conditional_metric"]
-    metric_function = get_metrics_for_column("b", eval_config)[0].get("function")
+    metric_function = _get_metrics_for_column("b", eval_config)[0].get("function")
 
     # Defaults
     cme = ConditionalMetric(classification_model, test_dataset)

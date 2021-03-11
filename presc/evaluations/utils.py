@@ -5,14 +5,21 @@ from pandas.api.types import is_bool_dtype, is_numeric_dtype
 def get_bins(s, num_bins, quantile=False):
     """Split a Series into discrete bins.
 
-    s: pandas Series
-    num_bins: the number of bins to split the range of `s` into
-    quantile: if True, bin edges will correspond to quantiles for
+    Parameters
+    ----------
+    s : pandas Series
+    num_bins : int
+        The number of bins to split the range of `s` into.
+    quantile : bool
+        If True, bin edges will correspond to quantiles for
         equally-spaced probabilities. Otherwise, bins are equally spaced on the
         original scale.
 
-    Returns a Series of the same length as `s` indicating the bin for each
-    value, as well as an array of bin edges of length `num_bins+1`.
+    Returns
+    -------
+    Series
+        Series of the same length as `s` indicating the bin for each value,
+        as well as an array of bin edges of length `num_bins+1`.
     """
     if quantile:
         # TODO this will fail if a lot of data values are repeated
@@ -25,5 +32,9 @@ def get_bins(s, num_bins, quantile=False):
 
 
 def is_discrete(s):
-    """Returns True if the given Series should be considered discrete/categorical."""
+    """
+    Returns
+    -------
+    bool
+        True if the given Series should be considered discrete/categorical."""
     return is_bool_dtype(s) or not is_numeric_dtype(s)

@@ -13,7 +13,8 @@ def explore_cross_validation_kfolds(
     repetitions=10,
     minimum_kfolds=False,
 ):
-    """Explore the cross-validation k-fold number with the specified pipeline.
+    """
+    Explore the cross-validation k-fold number with the specified pipeline.
 
     This function allows to explore the k-fold space to determine the optimal
     number of k-folds for a particular problem. An arbitrary list of different
@@ -21,38 +22,35 @@ def explore_cross_validation_kfolds(
     same number of times for each k-fold value or, alternatively, adjusted for
     each value so that a minimum count of folds will have been computed.
 
-    Parameters:
-        dataset (DataFrame): Pandas dataset.
-        pipeline (Pipeline): Can be a scaler and a classifier or only the
-            classifier.
-        metrics (list of str): So far only "accuracy" is possible, although the
-            fit and scoring times are also computed.
-        kfolds_list (list): List of the k-fold values for which to compute the
-            cross-validation scores.
-        repetitions (int): Number of times to repeat the cross-validation for
-            each k-fold number (if "minimum_kfolds" is set to False) or
-            minimum number of k-folds that must be computed (if
-            "minimum_kfolds" is set to True). In the latter case, the
-            "repetitions" value must be larger than the largest k-folds value.
-            By default it carries out the cross-validation ten times for each
-            requested k-fold value.
-        minimum_kfolds (bool): If "minimum_kfolds" is set to True, "repetitions"
-            becomes the minimum number of k-folds. The number of needed
-            cross-validation runs for each k-fold value are computed so that
-            the total number of k-folds after all computations reach that
-            minimum. For example, the cross validation for five k-folds
-            yields five performance values so, if the minimum number of
-            repetitions is set to ten, the cross validation will be repeated
-            twice.
-    Returns:
-        kfolds_list (list): List of the number of k-folds for which to compute
-            the cross-validation scores.
-        scores_summary (dict of list): Dictionary with the different computed
-            scores. Each score has a list with the list of average values for
-            each k-fold value, and the list of standard deaviations for each
-            k-fold value. If "repetitions" is set to one, the standard deviation
-            values correspond to those computed for each individual
-            cross-validation.
+    Parameters
+    ----------
+    dataset : DataFrame
+        Pandas dataset.
+    pipeline : Pipeline
+        Can be a scaler and a classifier or only the classifier.
+    metrics : list of str
+        So far only "accuracy" is possible, although the fit and scoring times are also computed.
+    kfolds_list : list
+        List of the k-fold values for which to compute the cross-validation scores.
+    repetitions : int
+        - Number of times to repeat the cross-validation for each k-fold number (if "minimum_kfolds" is set to False)
+        - Or minimum number of k-folds that must be computed (if "minimum_kfolds" is set to True). In the latter case, the "repetitions" value must be larger than the largest k-folds value. By default it carries out the cross-validation ten times for each requested k-fold value.
+    minimum_kfolds : bool
+        If "minimum_kfolds" is set to True, "repetitions" becomes the minimum number of k-folds.
+        The number of needed cross-validation runs for each k-fold value are computed so that
+        the total number of k-folds after all computations reach that minimum. For example,
+        the cross validation for five k-folds yields five performance values so, if the
+        minimum number of repetitions is set to ten, the cross validation will be repeated twice.
+
+    Returns
+    -------
+    kfolds_list :list
+        List of the number of k-folds for which to compute the cross-validation scores.
+    scores_summary : dict of list
+        Dictionary with the different computed scores. Each score has a list with the list
+        of average values for each k-fold value, and the list of standard deviations for each
+        k-fold value. If "repetitions" is set to one, the standard deviation values correspond
+        to those computed for each individual cross-validation.
     """
 
     X = dataset.iloc[:, :-1]

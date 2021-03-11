@@ -23,19 +23,30 @@ def compute_conditional_metric(
     The metric is computed within unique values of the grouping column
     (categorical) or within bins partitioning its range (continuous).
 
-    grouping_col: Series defining a grouping for the metric computation
-    true_labs: Series of true labels for a test dataset
-    pred_labs: Series of labels predicted by a model for a test dataset
-    metric: the evaluation metric to compute across the groupings. This should be
+    Parameters
+    ----------
+    grouping_col : Series
+        Series defining a grouping for the metric computation.
+    true_labs : Series
+        Series of true labels for a test dataset.
+    pred_labs : Series
+        Series of labels predicted by a model for a test dataset.
+    metric : function
+        The evaluation metric to compute across the groupings. This should be
         a function f(y_true, y_pred) which accepts Series of true and
         predicted labels.
-    as_categorical: should the grouping column be treated as categorical, ie. binned
+    as_categorical : bool
+        Should the grouping column be treated as categorical, ie. binned
         on its unique values? If it is not numeric, this param is ignored.
-    num_bins: number of bins to use for grouping a numeric column
-    quantile: should the bin widths correpond to quantiles of a numerical column's
-        distribution (`True`) or be equally-spaced over its range (`False`)
+    num_bins : int
+        Number of bins to use for grouping a numeric column.
+    quantile : bool
+        Should the bin widths correspond to quantiles of a numerical column's
+        distribution (`True`) or be equally-spaced over its range (`False`).
 
-    Returns a `ConditionalMetricResult` instance.
+    Returns
+    -------
+    ConditionalMetricResult
     """
 
     y_vals = DataFrame({"y_true": true_labs, "y_pred": pred_labs})
@@ -59,7 +70,7 @@ def compute_conditional_metric(
     )
 
 
-def get_metrics_for_column(colname, eval_config):
+def _get_metrics_for_column(colname, eval_config):
     default_metrics = eval_config["metrics"].get()
     metrics_to_use = default_metrics
     try:
@@ -90,12 +101,19 @@ def get_metrics_for_column(colname, eval_config):
 class ConditionalMetricResult:
     """Result of the conditional metric evaluation for a single grouping.
 
-    vals: a Series listing the computation result for each bin
-    bins: a Series listing the bin endpoints. If the feature was treated as
+    Attributes
+    ----------
+    vals : Series
+        A Series listing the computation result for each bin.
+    bins: Series
+        A Series listing the bin endpoints. If the feature was treated as
         numeric, this will have length `len(vals)+1`, otherwise `len(vals)`.
-    categorical: was the feature treated as categorical?
-    num_bins: number of bins used for grouping
-    quantile: was grouping quantile-based?
+    categorical : bool
+        Aas the feature treated as categorical?
+    num_bins : int
+        Number of bins used for grouping.
+    quantile: bool
+        Was grouping quantile-based?
     """
 
     def __init__(self, vals, bins, categorical, num_bins, quantile):
@@ -108,8 +126,12 @@ class ConditionalMetricResult:
     def display_result(self, xlab, ylab):
         """Display the evaluation result for the given grouping and metric.
 
-        xlab: label to display on the x-axis
-        ylab: label to display on the y-axis
+        Parameters
+        ----------
+        xlab : str
+            Label to display on the x-axis.
+        ylab: str
+            Label to display on the y-axis.
 
         """
 
@@ -141,12 +163,18 @@ class ConditionalMetricResult:
 class ConditionalMetric:
     """Computation of confusion-based metrics across subsets of a test dataset.
 
-    model: the ClassificationModel to run the evaluation for
-    test_dataset: a Dataset to use for evaluation.
-    settings: an optional dict specifying option values under
+    Attributes
+    ----------
+    model:
+        The ClassificationModel to run the evaluation for.
+    test_dataset :  presc.dataset.Dataset
+        A Dataset to use for evaluation.
+    settings: dict
+        An optional dict specifying option values under
         `evaluations.conditional_metric`, eg. `{"computation.num_bins": 5}`
         These are restricted to the class instance and do not change the global config.
-    config: an optional PrescConfig instance to read options from. This will be
+    config: presc.configuration.PrescConfig
+        An optional PrescConfig instance to read options from. This will be
         overridden by `settings` values.
     """
 
@@ -166,13 +194,18 @@ class ConditionalMetric:
         The metric is computed within unique values of the specified column
         (if categorical) or within bins partitioning its range (if continuous).
 
-        colname: a column in the dataset to partition on
-        metric: the evaluation metric to compute across the partitions. This should be
+        colname : str
+            A column in the dataset to partition on.
+        metric : function
+            The evaluation metric to compute across the partitions. This should be
             a function f(y_true, y_pred) which accepts Series of true and
             predicted labels.
-        kwargs: on-the-fly overrides to the config option values for the computation.
+        kwargs :
+            On-the-fly overrides to the config option values for the computation.
 
-        Returns a `ConditionalMetricResult` instance.
+        Returns
+        ------
+        ConditionalMetricResult
         """
         comp_config = PrescConfig(self._config)
         comp_config = comp_config["evaluations"]["conditional_metric"]["computation"]
@@ -199,9 +232,13 @@ class ConditionalMetric:
     def display(self, colnames=None):
         """Computes and displays the conditional metric result for each specified column.
 
-        colnames: a list of column names to run the evaluation over, creating a plot
+        Parameters
+        ----------
+        colnames : list of str
+            A list of column names to run the evaluation over, creating a plot
             for each. If not supplied, defaults to columns specifed in the config.
-        metric_name: display name identifying the metric to show on the plot
+        metric_name : str
+            Display name identifying the metric to show on the plot
         """
         eval_config = self._config["evaluations"]["conditional_metric"]
         if colnames:
@@ -215,7 +252,7 @@ class ConditionalMetric:
         )
 
         for colname in cols:
-            metrics = get_metrics_for_column(colname=colname, eval_config=eval_config)
+            metrics = _get_metrics_for_column(colname=colname, eval_config=eval_config)
             for metric in metrics:
                 function = metric.get("function")
                 display_name = metric.get("display_name")

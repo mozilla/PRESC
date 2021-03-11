@@ -10,22 +10,26 @@ def show_averages_and_variations(
     x_name="test subset fraction",
     metric_name="accuracy",
 ):
-    """Displays averages and their standard deviations.
+    """
+    Displays averages and their standard deviations.
 
     This function allows in general to visualize data corresponding to many
     repetitions, by showing the averages as a function of a variable and their
     corresponding standard deviations.
 
-    Parameters:
-        x (list or numpy array): Values of the x-axis variable.
-        averages (list or numpy array): Values of the metric averages (y axis).
-        standard_deviations (list or numpy array): Standard deviations from the
-            metric average values (y axis).
-        x_name (str): Variable name that will be used to label the x axis
-            of the graph.
-        metric_name (srt): Name of the metric or score that has been
-            repeatedly computed, and that will be used in the labeling of
-            the y axis.
+    Parameters
+    ----------
+    x : list or numpy array
+        Values of the x-axis variable.
+    averages : list or numpy array
+        Values of the metric averages (y axis).
+    standard_deviations : list or numpy array
+        Standard deviations from the metric average values (y axis).
+    x_name : str
+        Variable name that will be used to label the x axis of the graph.
+    metric_name : str
+        Name of the metric or score that has been repeatedly computed,
+        and that will be used in the labeling of the y axis.
     """
     averages = np.asarray(averages)
     standard_deviations = np.asarray(standard_deviations)
