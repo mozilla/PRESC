@@ -22,7 +22,8 @@ def explore_test_split_ratio(
     num_test_fractions=10,
     random_tries=10,
 ):
-    """Explore test-train split ratios with the specified scaler and model.
+    """
+    Explore test-train split ratios with the specified scaler and model.
 
     This function trains the specified model with the given dataset,
     rescaling the variables and compensating during training with
@@ -30,40 +31,45 @@ def explore_test_split_ratio(
     the model dividing the data into the training and test subsets in
     different proportions.
 
-    Parameters:
-        dataset (DataFrame): Pandas dataset.
-        classifier (classifier): Any sci-kit learn classifier.
-        scaler (scaler): Any sci-kit learn scaler. The default value is not
-            using any scaler at all.
-        metric (str): Choose among any of the following metrics for binary
-            classifications:
-            * "accuracy" (default)
-            * "balanced_accuracy"
-            * "average_precision"
-            * "f1"
-            * "precision"
-            * "recall"
-            * "true_positives"
-            * "false_positives"
-            * "true_negatives"
-            * "false_negatives"
-            * "true_positives_fraction"
-            * "false_positives_fraction"
-            * "true_negatives_fraction"
-            * "false_negatives_fraction"
+    Parameters
+    ----------
+    dataset : DataFrame
+        Pandas dataset.
+    classifier : classifier
+        Any sci-kit learn classifier.
+    scaler : scaler
+        Any sci-kit learn scaler. The default value is not using any scaler at all.
+    metric : str
+        Choose among any of the following classification metrics for binary
+            - "accuracy" (default)
+            - "balanced_accuracy"
+            - "average_precision"
+            - "f1"
+            - "precision"
+            - "recall"
+            - "true_positives"
+            - "false_positives"
+            - "true_negatives"
+            - "false_negatives"
+            - "true_positives_fraction"
+            - "false_positives_fraction"
+            - "true_negatives_fraction"
+            - "false_negatives_fraction"
             For multiclass problems only "accuracy" and "balance accuracy" are
             available.
-        num_test_fractions (int): Number of different test data
-            fractions to explore (fractions between 0 and 1). Default is 10.
-        random_tries (int): Number of randomised trainings to carry out
-            for each test data fraction. Default is 10.
+    num_test_fractions : int
+        Number of different test data fractions to explore (fractions between 0 and 1). Default is 10.
+    random_tries : int
+        Number of randomised trainings to carry out for each test data fraction. Default is 10.
 
-    Returns:
-        test_sizes (numpy array): List of explored test data fractions.
-        averages (numpy array): Average score of the randomised
-            trainings for each test fraction.
-        standard_deviations (numpy array): Standard deviation of the
-            score of the randomised trainings for each test fraction.
+    Returns
+    -------
+    test_sizes : numpy array
+        List of explored test data fractions.
+    averages : numpy array
+        Average score of the randomised trainings for each test fraction.
+    standard_deviations : numpy array
+        Standard deviation of the score of the randomised trainings for each test fraction.
     """
     # Load sample dataset
     X = dataset.iloc[:, :-1]
@@ -71,7 +77,10 @@ def explore_test_split_ratio(
 
     # Generate a list with the requested number of test data fractions
     test_sizes = np.linspace(
-        1.0 / (num_test_fractions + 1), 1.0, num=num_test_fractions, endpoint=False,
+        1.0 / (num_test_fractions + 1),
+        1.0,
+        num=num_test_fractions,
+        endpoint=False,
     )
 
     counter = 0

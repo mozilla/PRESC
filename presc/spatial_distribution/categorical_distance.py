@@ -17,15 +17,22 @@ from tqdm import tqdm
 
 
 class SpatialDistribution:
-    """Creates a SpatialDistribution class through which we will
-    information on the spatial distribution of the data at hand
 
-    Args:
-            data(Pandas dataframe):The data to be analyzed
-            label_predicted(List or Pandas Series):The label predicted by the model
-            label_true(List or pandas series):That holds the true labels
-            type(str): To be implemente will be used to determine if we are dealing with
-                       numeric, categorical or mixed data
+    """
+    Creates a SpatialDistribution class through which we will
+    information on the spatial distribution of the data at hand.
+
+    Attributes
+    ----------
+    data : Pandas dataframe
+        The data to be analyzed.
+    label_predicted : List or Pandas Series
+        The label predicted by the model.
+    label_true : List or Pandas series
+        That holds the true labels.
+    type : str
+        To be implemented - will be used to determine if we are dealing with numeric,
+        categorical or mixed data.
     """
 
     def __init__(self, data, label_predicted, label_true, type=None):
@@ -74,7 +81,8 @@ class SpatialDistribution:
         )
 
     def __buildcounts(self):
-        """Builds a dictionary with the attributes as key that hold the counts of the occurrances
+        """
+        Builds a dictionary with the attributes as key that hold the counts of the occurrances
         of different values in the data
         """
         counts_dict = {}
@@ -95,7 +103,9 @@ class SpatialDistribution:
             return num_scaled_data_df
 
     def get_available_metrics(self):
-        """Prints the available metrics """
+        """
+        Prints the available metrics
+        """
         cat_metrics = list(self._categoric_metrics_dict.keys())
         numeric_metrics = list(self._numeric_metrics_dict.keys())
         print("Categorical Metrics")
@@ -106,11 +116,16 @@ class SpatialDistribution:
             print(metric)
 
     def get_metric(self, metric):
-        """Given the string representation of a metric returns the callable method
+        """
+        Given the string representation of a metric returns the callable method
         and the type of the metric (either numerical or categorical) if the metric is not found
-        because it's not implemente it raises value a error
-        Args:
-            metric(str): the name of the metric"""
+        because it's not implemented it raises value a error.
+
+        Parameters
+        ----------
+        metric : str
+            The name of the metric.
+        """
 
         categorical_metric = self._categoric_metrics_dict.get(metric, None)
 
@@ -124,9 +139,14 @@ class SpatialDistribution:
         return categorical_metric, "categorical"
 
     def get_datapoint(self, index):
-        """Returns a data point
-        Args:
-            index(int): index of the datapoint to be returned"""
+        """
+        Returns a data point.
+
+        Parameters
+        ----------
+            index : int
+                Index of the datapoint to be returned.
+        """
         return self._data.iloc[index]
 
     def get_data_len(self):
@@ -143,11 +163,16 @@ class SpatialDistribution:
         return np.linalg.norm(dpoint1 - dpoint2, ord=1)
 
     def goodall2(self, dpoint1, dpoint2):
-        """Computes the goodall2 similary measurement for categorical data, see paper by
-        Varun, Shyam and Vipin in the bibliography carpet for reference
-        Args:
-            dpoint1(Pandas Series): Data point to compare
-            dpoin2(Pandas Series): Data point to compare
+        """
+        Computes the goodall2 similary measurement for categorical data, see paper by
+        Varun, Shyam and Vipin in the bibliography carpet for reference.
+
+        Parameters
+        ----------
+        dpoint1 : Pandas Series
+            Data point to compare.
+        dpoin2 : Pandas Series
+            Data point to compare.
         """
         dpoint1 = dpoint1[self._cat_col_names]
         dpoint2 = dpoint2[self._cat_col_names]
@@ -184,11 +209,16 @@ class SpatialDistribution:
         return goodall2_score / len(dpoint1)
 
     def goodall3(self, dpoint1, dpoint2):
-        """Computes the goodall3 similarity measurment for categorical data, see paper by
-        Varun, Shyam, Vipin in the bibliography reference for reference
-        Args:
-            dpoint1(Pandas Series): Data point to compare
-            dpoin2(Pandas Series): Data point to compare
+        """
+        Computes the goodall3 similarity measurment for categorical data, see paper by
+        Varun, Shyam, Vipin in the bibliography reference for reference.
+
+        Parameters
+        ----------
+        dpoint1 : Pandas Series
+            Data point to compare.
+        dpoin2 : Pandas Series
+            Data point to compare.
         """
         dpoint1 = dpoint1[self._cat_col_names]
         dpoint2 = dpoint2[self._cat_col_names]
@@ -213,10 +243,15 @@ class SpatialDistribution:
         return goodall3_score / len(d1_attributes)
 
     def overlap(self, dpoint1, dpoint2):
-        """Computes the overlap similarity measure for categorical data
-        Args:
-            dpoint1(Pandas Series): Data point to compare
-            dpoin2(Pandas Series): Data point to compare
+        """
+        Computes the overlap similarity measure for categorical data.
+
+        Parameters
+        ----------
+        dpoint1 : Pandas Series
+            Data point to compare.
+        dpoin2 : Pandas Series
+            Data point to compare.
         """
         dpoint1 = dpoint1[self._cat_col_names]
         dpoint2 = dpoint2[self._cat_col_names]
@@ -228,11 +263,16 @@ class SpatialDistribution:
             raise ValueError("The Panda Series have different columns ")
 
     def lin(self, dpoint1, dpoint2):
-        """Computes the Lin similarity measurment for categorical data, see paper by
-        Varun, Shyam, Vipin in the bibliography reference for reference
-        Args:
-            dpoint1(Pandas Series): Data point to compare
-            dpoin2(Pandas Series): Data point to compare
+        """
+        Computes the Lin similarity measurment for categorical data, see paper by
+        Varun, Shyam, Vipin in the bibliography reference for reference.
+
+        Parameters
+        ----------
+        dpoint1 : Pandas Series
+            Data point to compare.
+        dpoin2 : Pandas Series
+            Data point to compare.
         """
         dpoint1 = dpoint1[self._cat_col_names]
         dpoint2 = dpoint2[self._cat_col_names]
@@ -249,8 +289,10 @@ class SpatialDistribution:
         return weight * lin
 
     def lin_weight(self, dpoint1, dpoint2):
-        """Computes the lin weight as describe in the paper of Varun, Shyam and Vipin in the
-        bibliography"""
+        """
+        Computes the lin weight as describe in the paper of Varun, Shyam and Vipin in the
+        bibliography.
+        """
 
         d1_attributes = list(dpoint1.index)
         weight_denominator = 0
@@ -270,25 +312,37 @@ class SpatialDistribution:
         return counts / self._data_len
 
     def goodall_frequency(self, counts):
-        """Computes a probability estimate of an attribute required to compute
-        goodall similarity measures"""
+        """
+        Computes a probability estimate of an attribute required to compute
+        goodall similarity measures.
+        """
         estimated_freq = (counts * (counts - 1)) / (
             (self._data_len) * (self._data_len - 1)
         )
         return estimated_freq
 
     def distance_to_data(self, dpoint, metric, distance_sample=0.013):
-        """Computes an estimate of the average distance of a data point to every
+        """
+        Computes an estimate of the average distance of a data point to every
         other data point by taking a random sample of a given size and avereging
-        the result
-        Args:
-             dpoint(Pandas Series): Pandas Series data point to work with
-             metric (str): similarity metric used to compute the distance
-             distance_sample(numeric): Number that if from 0 to 1  indicates the percentage
-                              from the total data that should be used to
-                              estimate the average distance and if greater indicates the precise number
-                              of samples to be take
-        Returns(float): Estimate of average distance from a point to the data"""
+        the result.
+
+        Parameters
+        ----------
+        dpoint : Pandas Series
+            Pandas Series data point to work with.
+        metric : str
+            Similarity metric used to compute the distance.
+        distance_sample : numeric
+            Number that if from 0 to 1  indicates the percentage from the total data that
+            should be used to estimate the average distance and if greater indicates the
+            precise number of samples to be taken.
+
+        Returns
+        -------
+        float
+            Estimate of average distance from a point to the data.
+        """
 
         metric, type = self.get_metric(metric)
         if type == "categorical":
@@ -318,19 +372,28 @@ class SpatialDistribution:
     def array_of_distance(
         self, dpoint, metric, misclass_only=False, correct_only=False
     ):
-        """Creates a list of tuples (distance,index) that holds the distances of all
+        """
+        Creates a list of tuples (distance,index) that holds the distances of all
         the points to the specified dpoint in a given metric and their position (index) in the dataset.
         The list of tuples is soarted based on the distance in increasing order of distance.
 
-        Args:
-            dpoint(Pandas Series): Data point from which we'll get the distances to the other points
-            metric(str): The metric to use
-            missclass_only(bool):Default to False, that if True the list only contains the tuples of
-                                 (distance,index) to misclasfied points
-            correct_only(bool): Default to False, that if True the list only contains the tuples of
-                                (distance,index) to misclasfied points
-        Returns(list): List of tuples
+        Parameters
+        ----------
+        dpoint : Pandas Series
+            Data point from which we'll get the distances to the other points.
+        metric : str
+            The metric to use.
+        missclass_only : bool
+            Default to False, that if True the list only contains the tuples of (distance,index)
+            to misclassified points.
+        correct_only : bool
+            Default to False, that if True the list only contains the tuples of
+            (distance,index) to misclasfied points.
 
+        Returns
+        -------
+        list
+            List of tuples
         """
         metric, type = self.get_metric(metric)
 
@@ -377,17 +440,26 @@ class SpatialDistribution:
     def plot_distance_to_point_histogram(
         self, dpoint, metric, other_metrics=None, bar_width=0.01, show=True
     ):
-        """Function that given a metric and a dpoint plots a graphs of the histograms of the distribution of the distance
-        from dpoint to every point that has been correctly classified and the distance from dpoint to every point that has been
+        """
+        Function that given a metric and a dpoint plots a graphs of the histograms
+        of the distribution of the distance from dpoint to every point that has been
+        correctly classified and the distance from dpoint to every point that has been
         misclassified
 
-        Args:
-            metric(str): Name of the similarity metric to be used
-            dpoint(Pandas Series): data point that will be used as reference to compute the histogram of relative distances
-            other_metrics(list of strings): In case the user wants to use more than one metric to compute the distance the other metrics that will be added up
-                                            are to be specified here.
-            bar_width(numeric):bar width for the histogram
-            show(bool):boolean that controls if the graph is shown"""
+        Parameters
+        ----------
+        metric : str
+            Name of the similarity metric to be used.
+        dpoint : Pandas Series
+            Data point that will be used as reference to compute the histogram of relative distances.
+        other_metrics : list of strings
+            In case the user wants to use more than one metric to compute the distance the other
+            metrics that will be added up are to be specified here.
+        bar_width: numeric
+            Bar width for the histogram.
+        show : bool
+            Controls if the graph is shown.
+        """
 
         distance_to_correctly_clasified = np.array(
             [
@@ -500,20 +572,30 @@ class SpatialDistribution:
         bar_width=0.01,
         ax=None,
     ):
-        """Plots an histogram that approximates the distribution of the average distance of point  relative to every
-        other, it does so by taking random samples from the data of size defined by the user
-        Args:
-            metric (str): distance metric used to compute the distance
-            histo_sample(int): number of points that are going to be used to create the histogram
-            distance_sample(float/int): Percentage of the correctly classified  data that should be used for each point sampled for
-                                        the histogram to compute it's approximate distance to every other point. if less or equal to 1 it
-                                        represents a percentage if greater than 1 it represents the exact number of sampled points
+        """
+        Plots an histogram that approximates the distribution of the average distance of point
+        relative to every other, it does so by taking random samples from the data of size
+        defined by the user.
 
-            mdistance_sample(float/int): Percentage of the  misclassified  data that should be used for each point sampled for
-                                        the histogram to compute it's approximate distance to every other point. if less or equal to 1 it
-                                        represents a percentage if greater than 1 it represents the exact number of sampled points
-            bar_width(float): Width of the histogram bars
-            ax (Matplotlib Axis object): Defaults to None, allows the user to specify a particular axis to plot the graph instead of creating a new one
+        Parameters
+        ----------
+        metric : str
+            Distance metric used to compute the distance.
+        histo_sample : int
+            Number of points that are going to be used to create the histogram.
+        distance_sample : float/int
+            Percentage of the correctly classified  data that should be used for each point sampled for
+            the histogram to compute it's approximate distance to every other point. if less or equal to 1 it
+            represents a percentage if greater than 1 it represents the exact number of sampled points.
+        mdistance_sample : float/int
+            Percentage of the  misclassified  data that should be used for each point sampled for
+            the histogram to compute it's approximate distance to every other point. if less or equal to 1 it
+            represents a percentage if greater than 1 it represents the exact number of sampled points.
+        bar_width : float
+            Width of the histogram bars.
+        ax : Matplotlib Axis object
+            Defaults to None, allows the user to specify a particular axis to plot the graph
+            instead of creating a new one.
         """
 
         show = False
@@ -617,19 +699,26 @@ class SpatialDistribution:
         mdistance_sample=0.05,
         bar_width=0.01,
     ):
-        """Plots the histograms and the kernel density estimation for the
+        """
+        Plots the histograms and the kernel density estimation for the
         distribution in all the available metrics of the average distance that a point
-        has to every other point
-        Args:
-             dpoint (Pandas Series): Pandas Series data point to work with
-             metric (str): similarity metric used to compute the distance
-             distance_sample (numeric): number that if between 0 to 1 that indicates the percentage
-                              from the total data that should be used to
-                              estimate the average distance for correctly classified
-                              points if greater indicates the number of samples used to computed
-                              the average distance of a given point to every other
-             mdistance_sample (numeric): The same as above but for points that were misclasfied
-             bar_width (float): The width of the histograms bar
+        has to every other point.
+
+        Parameters
+        ----------
+        dpoint : Pandas Series
+            Pandas Series data point to work with.
+        metric : str
+            Similarity metric used to compute the distance.
+        distance_sample : numeric
+            Number that if between 0 to 1 that indicates the percentage from the total data that
+            should be used to estimate the average distance for correctly classified
+            points if greater indicates the number of samples used to computed
+            the average distance of a given point to every other.
+        mdistance_sample : numeric
+            The same as above but for points that were misclassified.
+        bar_width : float
+            The width of the histograms bar.
         """
 
         col_number = 2
@@ -655,19 +744,24 @@ class SpatialDistribution:
     def plot_distance_misclassified(
         self, metric1, metric2, distance_sample=0.01, scatter_sample=1
     ):
-        """Plots a scatterplot of the average distance of the misclasfied points to every
-        other point
-        in 2 metrics using the x and y axis correspondingly
-        Args:
-            metric1 (str): similarity metric used in the x axis
-            metric2 (str): similarity metric used in the y axis
-            distance_sample (numeric): Number that if from 0 to 1  indicates the percentage
-                             from the total data that should be used to
-                             estimate the average distance and if greater indicates the precise number
-                             of samples to be take
-            scatter_sample(numeric): Number that if from 0 to 1 indicates the percentage from the total
-                                     misclassified points that should be sample to plot if greater indicates
-                                     the exact size of the sample rather than the percentage
+        """
+        Plots a scatterplot of the average distance of the misclassified points to every
+        other point in 2 metrics using the x and y axis correspondingly
+
+        Parameters
+        ----------
+        metric1 : str
+            Similarity metric used in the x axis.
+        metric2 : str
+            Similarity metric used in the y axis.
+        distance_sample : numeric
+            Number that if from 0 to 1  indicates the percentage from the total data that
+            should be used to estimate the average distance and if greater indicates the
+            precise number of samples to be take.
+        scatter_sample : numeric
+            Number that if from 0 to 1 indicates the percentage from the total  misclassified
+            points that should be sample to plot if greater indicates the exact size of the
+            sample rather than the percentage.
         """
         data = self._data
         data_indexes = self.data_w_predlabel.index
@@ -709,16 +803,24 @@ class SpatialDistribution:
         scatter_sample=0.1,
         distance_sample=0.001,
     ):
-        """Produces a scatter plot of the distance of every point to every other
-        using to different metrics as axises
-        Args:
-                metric1(str): metric to be used in the x axis
-                metric2(str): metric to be used in the y axis
-                scatter_sample(numeric): If less than  or equal 1 it represents the
-                percentage of the data to be plotted if greater than 1 it represents the exact number of sampled_indexes
-                distance_sample(numeric):  If less than  or equal 1 it represents the
-                percentage of the data to be used in the estimation of the distance of the average distance of the points
-                to every other point. If greater than 1 it represents the exact size of the sample"""
+        """
+        Produces a scatter plot of the distance of every point to every other
+        using to different metrics as axis.
+
+        Parameters
+        ----------
+        metric1 : str
+            Metric to be used in the x axis.
+        metric2 : str
+            Metric to be used in the y axis.
+        scatter_sample : numeric
+            If less than  or equal 1 it represents the percentage of the data to be
+            plotted if greater than 1 it represents the exact number of sampled_indexes.
+        distance_sample : numeric
+            If less than  or equal 1 it represents the percentage of the data to be
+            used in the estimation of the distance of the average distance of the points
+            to every other point. If greater than 1 it represents the exact size of the sample.
+        """
 
         data = self._data
 
