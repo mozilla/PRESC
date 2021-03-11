@@ -3,19 +3,28 @@ class PrescError(ValueError, AttributeError):
 
 
 def include_exclude_list(all_vals, included="*", excluded=None):
-    """Find values remaining after inclusions and exclusions are applied.
+    """
+    Find values remaining after inclusions and exclusions are applied.
 
     Values are first restricted to explicit inclusions, and then exclusions are
     applied.
 
-    all_vals: the full list of possible values
-    included: the list of values to include. Those not listed here are dropped.
-    excluded: the list of values to drop (after restricting to included).
-
     The special values "*" and None are interpreted as "all" and "none"
     respectively for `included` and `excluded`.
 
-    Returns the list of values out of `all_vals` that should be included.
+    Parameters
+    ----------
+    all_vals : list
+        The full list of possible values
+    included : list
+        The list of values to include. Those not listed here are dropped.
+    excluded : list
+        The list of values to drop (after restricting to included).
+
+    Returns
+    -------
+    list
+        The list of values out of `all_vals` that should be included.
     """
     if not included or excluded == "*":
         return []

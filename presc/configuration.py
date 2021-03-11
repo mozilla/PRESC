@@ -10,7 +10,8 @@ DEFAULT_CONFIG_PATH = Path(__file__).with_name("config_default.yaml")
 
 
 class LocalConfig(Configuration):
-    """Confuse config view that overrides but doesn't modify another view.
+    """
+    Confuse config view that overrides but doesn't modify another view.
 
     This is useful for temporarily overriding options, eg. with feature-specific
     settings, while still taking advantage of the confuse resolution and
@@ -51,7 +52,8 @@ class LocalConfig(Configuration):
 
 
 class PrescConfig:
-    """Wrapper around a confuse Configuration object.
+    """
+    Wrapper around a confuse Configuration object.
 
     This is used for managing config options in PRESC, including the global config.
 
@@ -84,11 +86,11 @@ class PrescConfig:
         structure of the configuration file, or as flat key-value pairs using
         dots to indicate nested namespaces.
 
-        Eg.
-        ```
-        config.set({"report": {"title": "My Report", "author": "Me"}})
-        config.set({"report.title": "My Report", "report.author": "Me"})
-        ```
+        Examples
+        --------
+        ``config.set({"report": {"title": "My Report", "author": "Me"}})``
+        ``config.set({"report.title": "My Report", "report.author": "Me"})``
+
         """
         if not isinstance(settings, dict):
             raise PrescError("Config settings must be specified in a dict")

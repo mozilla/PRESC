@@ -1,15 +1,19 @@
 class Dataset:
-    """Convenience API for a dataset used with classification model.
+    """
+    Convenience API for a dataset used with classification model.
 
     Wraps a pandas DataFrame and provides shortcuts to access feature and label
     columns. It also allows for other columns, eg. computed columns, to be
     included or added later.
 
-    df: a pandas DataFrame
-    label_col: the name of the column containing the labels
-    feature_cols: an array-like of column names corresponding to model features.
-        If not specified, all columns aside from the label column will be
-        assumed to be features.
+    Attributes
+    ----------
+    df : Pandas DataFrame
+    label_col : str
+        The name of the column containing the labels
+    feature_cols : Array of str
+        An array-like of column names corresponding to model features. If not specified,
+        all columns aside from the label column will be assumed to be features.
     """
 
     def __init__(self, df, label_col, feature_cols=None):
@@ -60,12 +64,16 @@ class Dataset:
         return self._df
 
     def subset(self, subset_rows, by_position=False):
-        """Returns a Dataset corresponding to a subset of this one.
+        """
+        Returns a Dataset corresponding to a subset of this one.
 
-        subset_rows: selector for the rows to include in the subset (that can be
-            passed to `.loc` or `.iloc`).
-        by_position: if `True`, `subset_rows` is interpeted as row numbers (used
-        with `.iloc`). Otherwise, `subset_rows` is used with `.loc`.
+        Parameters
+        ----------
+        subset_rows :
+            Selector for the rows to include in the subset (that can be passed to `.loc` or `.iloc`).
+        by_position : bool
+            If `True`, `subset_rows` is interpeted as row numbers (used with `.iloc`).
+            Otherwise, `subset_rows` is used with `.loc`.
         """
         indexer = "iloc" if by_position else "loc"
         subset_df = getattr(self._df, indexer)[subset_rows]
