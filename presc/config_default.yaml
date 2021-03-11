@@ -21,6 +21,9 @@ evaluations:
     # Results will be ordered according to `columns_include`.
     columns_include: "*"
     columns_exclude: null
+    metrics:
+      - function: accuracy_score
+        display_name: Accuracy
     computation:
       # Number of bins for partitioning a numeric column
       num_bins: 10
