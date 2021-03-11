@@ -10,6 +10,13 @@ Subpackages
 
 Submodules
 ----------
+presc.configuration module
+~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: presc.configuration
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 presc.dataset module
 ~~~~~~~~~~~~~~~~~~~~

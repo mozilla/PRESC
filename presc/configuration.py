@@ -55,8 +55,10 @@ class PrescConfig:
 
     This is used for managing config options in PRESC, including the global config.
 
-    from_config: a PrescConfig instance to override. If None, the config is
-        initialized to the default settings.
+    Attributes
+    ----------
+    from_config : PrescConfig
+        A PrescConfig instance to override. If None, the config is initialized to the default settings.
     """
 
     def __init__(self, from_config=None):

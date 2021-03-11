@@ -27,17 +27,27 @@ def compute_conditional_distribution(
     The metric is computed within unique values of the grouping column
     (categorical) or within bins partitioning its range (continuous).
 
-    data_col: a column of data from a test dataset
-    true_labs: Series of true labels for the test dataset
-    pred_labs: Series of labels predicted by a model for the test dataset
-    as_categorical: should the data column be treated as categorical, ie. binned
+    Parameters
+    ----------
+    data_col :
+        A column of data from a test dataset.
+    true_labs : Series
+        A series of true labels for the test dataset.
+    pred_labs : Series
+        A series of labels predicted by a model for the test dataset.
+    as_categorical : bool
+        Should the data column be treated as categorical, ie. binned
         on its unique values? If it is not numeric, this param is ignored.
-    binning: binning scheme to use for a numerical column, passed to `numpy.histogram`.
+    binning : str
+        Binning scheme to use for a numerical column, passed to `numpy.histogram`.
         Can be a fixed number of bins or a string indicating a binning scheme
-    common_bins: should the bins be computed over the entire column and shared
+    common_bins : bool
+        Should the bins be computed over the entire column and shared
         across groups (`True`) or computed within each group (`False`)
 
-    Returns a `ConditionalDistributionResult` instance.
+    Returns
+    -------
+     ConditionalDistributionResult
     """
 
     grouping = [true_labs, pred_labs]
@@ -94,16 +104,23 @@ def compute_conditional_distribution(
 class ConditionalDistributionResult:
     """Result of the conditional distribution computation for a single column of data.
 
-    vals: a Series listing the bin counts for each group, indexed by
-        (<true_label>, <predicted_label>, <bin_label>).
-    bins: a Series listing the bin endpoints. If `common_bins` is `False`,
+    Attributes
+    ----------
+    vals : Series
+        A Series listing the bin counts for each group, indexed by (<true_label>,
+        <predicted_label>, <bin_label>).
+    bins: Series
+        A Series listing the bin endpoints. If `common_bins` is `False`,
         this should be indexed by (<true_label>, <predicted_label>) and list
         the endpoints for each group. If the data was treated as numeric, this
         will have length `len(vals)+1` (within each group), otherwise
         `len(vals)`.
-    categorical: was the feature treated as categorical?
-    binning: the binning scheme used
-    common_bins: were common bins used across all groups?
+    categorical : bool
+        Was the feature treated as categorical?
+    binning : str
+        The binning scheme used
+    common_bins : bool
+        Were common bins used across all groups?
     """
 
     def __init__(self, vals, bins, categorical, binning, common_bins):
@@ -116,8 +133,10 @@ class ConditionalDistributionResult:
     def display_result(self, xlab):
         """Display the distributions for the given data column.
 
-        xlab: label to display on the x-axis
-        ylab: label to display on the y-axis
+        Parameters
+        ----------
+        xlab : str
+            Label to display on the x-axis.
         """
 
         for y_true, y_pred in self.vals.index.droplevel(-1).unique():
@@ -149,13 +168,17 @@ class ConditionalDistributionResult:
 class ConditionalDistribution:
     """Computation of data distributions conditional on prediction results.
 
-    model: the ClassificationModel to run the evaluation for
-    test_dataset: a Dataset to use for evaluation.
-    settings: an optional dict specifying option values under
-        `evaluations.conditional_distribution`, eg. `{"computation.binning": 5}`
-        These are restricted to the class instance and do not change the global config.
-    config: an optional PrescConfig instance to read options from. This will be
-        overridden by `settings` values.
+    Attributes
+    ----------
+    model :
+        The ClassificationModel to run the evaluation for.
+    test_dataset : presc.dataset.Dataset
+        A Dataset to use for evaluation.
+    settings : dict
+        An optional dict specifying option values under `evaluations.conditional_distribution`,
+        eg. `{"computation.binning": 5}`, These are restricted to the class instance and do not change the global config.
+    config : presc.configuration.PrescConfig
+        An optional PrescConfig instance to read options from. This will be overridden by `settings` values.
     """
 
     def __init__(self, model, test_dataset, settings=None, config=None):
@@ -171,10 +194,16 @@ class ConditionalDistribution:
     def compute_for_column(self, colname, **kwargs):
         """Compute the evaluation for the given dataset column.
 
-        colname: a column in the dataset to compute distributions for
-        kwargs: on-the-fly overrides to the config option values for the computation.
+        Parameters
+        ----------
+        colname : str
+            A column in the dataset to compute distributions for.
+        kwargs:
+            On-the-fly overrides to the config option values for the computation.
 
-        Returns a `ConditionalDistributionResult` instance.
+        Returns
+        -------
+        ConditionalDistributionResult
         """
         comp_config = PrescConfig(self._config)
         comp_config = comp_config["evaluations"]["conditional_distribution"][
@@ -203,7 +232,10 @@ class ConditionalDistribution:
         """Computes and displays the conditional distribution result for each
         specified column.
 
-        colnames: a list of column names to run the evaluation over, creating a plot
+        Parameters
+        ----------
+        colnames : list of str
+            A list of column names to run the evaluation over, creating a plot
             for each. If not supplied, defaults to columns specifed in the config.
         """
         if colnames:
