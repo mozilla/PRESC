@@ -2,6 +2,7 @@
 
 - part: Misclassifications
   chapters:
-    #    - file: misclass_rate
     - file: conditional_distribution
     - file: conditional_metric
+    - file: spatial_distribution
+

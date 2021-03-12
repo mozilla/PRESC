@@ -120,7 +120,7 @@ class ReportRunner:
         """List of paths to remove from the top-level output dir on clean."""
         return [self._linked_main_page, self.jb_clean_log, self.jb_build_log]
 
-    def run(self, model, test_dataset, settings=None, clean=True):
+    def run(self, model, test_dataset, train_dataset=None, settings=None, clean=True):
         """Runs the PRESC report for the given modeling inputs.
 
         The report is written to <output_path>/presc_report. If this dir already
@@ -128,6 +128,8 @@ class ReportRunner:
 
         model: a pre-trained ClassificationModel instance to evaluate
         test_dataset: a test Dataset instance used to evaluate model performance
+        train_dataset: the Dataset instance used to train the model. This is not
+            required for every evaluation.
         settings: a dict specifying option values to override report settings,
             eg. `{"report.title": "My Report"}`.
         clean: should previous outputs be cleaned? Default: True
@@ -175,7 +177,12 @@ class ReportRunner:
 
         # Write the inputs to the data store.
         ctx = Context(store_dir=exec_path)
-        ctx.store_inputs(model=model, test_dataset=test_dataset, config=run_config)
+        ctx.store_inputs(
+            model=model,
+            test_dataset=test_dataset,
+            train_dataset=train_dataset,
+            config=run_config,
+        )
 
         # Build the report.
         self._run_jb_build(exec_path)
@@ -282,13 +289,16 @@ class Context:
         store_path = Path(store_dir) / CONTEXT_STORE_BASENAME
         self._store_path = str(store_path.resolve())
 
-    def store_inputs(self, model=None, test_dataset=None, config=None):
+    def store_inputs(
+        self, model=None, test_dataset=None, train_dataset=None, config=None
+    ):
         """Write the report inputs to the data store.
 
         Any existing values will be overwritten.
 
         model: a ClassificationModel instance
         test_dataset: a Dataset instance
+        train_dataset: a Dataset instance
         config: a dict of config options
         """
         with shelve.open(self._store_path) as ctx:
@@ -296,6 +306,8 @@ class Context:
                 ctx["model"] = model
             if test_dataset:
                 ctx["test_dataset"] = test_dataset
+            if train_dataset:
+                ctx["train_dataset"] = train_dataset
             if config:
                 ctx["config"] = config
 
@@ -314,6 +326,10 @@ class Context:
     @property
     def test_dataset(self):
         return self._get("test_dataset")
+
+    @property
+    def train_dataset(self):
+        return self._get("train_dataset")
 
     @property
     def config(self):
