@@ -6,3 +6,6 @@
     - file: conditional_metric
     - file: spatial_distribution
 
+- part: Stability
+  chapters:
+    - file: train_test_splits

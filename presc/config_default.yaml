@@ -76,3 +76,17 @@ evaluations:
     # Entries should have a column name as their key and settings for the
     # options above as their value.
     columns: null
+
+  train_test_splits:
+    # Scoring function used to evaluate test performance.
+    # Should be a string recognized by `sklearn.model_selection.cross_val_score`
+    metrics:
+      - function: accuracy
+        display_name: Accuracy
+    computation:
+      # Increment between train-test split ratios
+      split_size_increment: 0.05
+      # Number of random replicates to run for each split
+      num_replicates: 20
+      # Set the random state for reproducibility
+      random_state: 543

@@ -43,7 +43,11 @@ def dataset_transform():
     return ColumnTransformer(
         [
             ("scaler", StandardScaler(), make_column_selector(dtype_include="number")),
-            ("encoder", OneHotEncoder(), make_column_selector(dtype_include=object)),
+            (
+                "encoder",
+                OneHotEncoder(handle_unknown="ignore"),
+                make_column_selector(dtype_include=object),
+            ),
         ],
         remainder="passthrough",
     )
