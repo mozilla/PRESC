@@ -114,7 +114,12 @@ def test_report_runner(tmp_path):
 
 
 def test_run_report(
-    tmp_path, classification_model, test_dataset, webbrowser_patched, capsys
+    tmp_path,
+    classification_model,
+    test_dataset,
+    train_dataset,
+    webbrowser_patched,
+    capsys,
 ):
     out_path_run = tmp_path / "test_run"
     exec_path_run = tmp_path / "test_exec"
@@ -130,6 +135,7 @@ def test_run_report(
     rr.run(
         model=classification_model,
         test_dataset=test_dataset,
+        train_dataset=train_dataset,
     )
 
     # Check top-level output files exist and paths resolve
@@ -195,6 +201,7 @@ def test_run_report(
     rr.run(
         model=classification_model,
         test_dataset=test_dataset,
+        train_dataset=train_dataset,
         settings={"report.evaluations_exclude": "*"},
         clean=False,
     )

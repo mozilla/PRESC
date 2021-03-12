@@ -59,4 +59,20 @@ evaluations:
       # options above as their value.
       columns: null
 
-
+  spatial_distribution:
+    # Dataset columns to run the evaluation for.
+    # Follows the same logic as for report evaluations.
+    # "*" means 'all feature columns'.
+    features_include: "*"
+    features_exclude: null
+    # The default pairwise distance metric to use for numerical features.
+    distance_metric_numerical: "euclidean"
+    # The default pairwise distance metric to use for categorical features.
+    distance_metric_categorical: "hamming"
+    # The aggregation function to use to summarize distances within each
+    # class.
+    summary_agg: "mean"
+    # A dictionary of per-column overrides.
+    # Entries should have a column name as their key and settings for the
+    # options above as their value.
+    columns: null

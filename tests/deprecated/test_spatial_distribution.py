@@ -2,7 +2,7 @@ import random as rd
 import pandas as pd
 import numpy as np
 import string
-import presc.spatial_distribution.categorical_distance as catd
+import presc.deprecated.spatial_distribution.categorical_distance as catd
 import pytest
 
 
