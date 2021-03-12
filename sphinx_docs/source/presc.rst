@@ -5,6 +5,7 @@ Subpackages
    :maxdepth: 4
 
    presc.evaluations
+   presc.report
 
 Submodules
 ----------

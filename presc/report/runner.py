@@ -66,7 +66,7 @@ def _updated_jb_config(report_config):
 class ReportRunner:
     """Main entrypoint to run the PRESC report for the given modeling inputs.
 
-    The report is written to <output_path>/presc_report. If this dir already
+    The report is written to `<output_path>/presc_report`. If this dir already
     exists, it will be overwritten.
 
     To generate the report:
@@ -78,12 +78,15 @@ class ReportRunner:
     The path to the report is accessible as `pr.report_html` and will open in
     the default browser by calling `pr.open()`
 
-    output_path: path to the dir where the report will be written. If not
-        specified, defaults to the current working dir.
-    execution_path: path from which the report is built. If not specified, a
-        temporary dir is used.
-    config_filepath: path to a YAML file listing overrides to the default config
-        options.
+    Attributes
+    ----------
+    output_path : str
+        Path to the dir where the report will be written. If not specified,
+        defaults to the current working dir.
+    execution_path : str
+        Path from which the report is built. If not specified, a temporary dir is used.
+    config_filepath : str
+        Path to a YAML file listing overrides to the default config options.
     """
 
     def __init__(self, output_path=".", execution_path=None, config_filepath=None):
@@ -123,16 +126,22 @@ class ReportRunner:
     def run(self, model, test_dataset, train_dataset=None, settings=None, clean=True):
         """Runs the PRESC report for the given modeling inputs.
 
-        The report is written to <output_path>/presc_report. If this dir already
+        The report is written to `<output_path>/presc_report`. If this dir already
         exists, it will be overwritten.
 
-        model: a pre-trained ClassificationModel instance to evaluate
-        test_dataset: a test Dataset instance used to evaluate model performance
-        train_dataset: the Dataset instance used to train the model. This is not
-            required for every evaluation.
-        settings: a dict specifying option values to override report settings,
+        Parameters
+        ----------
+        model: presc.model.ClassificationModel
+            A pre-trained ClassificationModel instance to evaluate
+        test_dataset : presc.dataset.Dataset
+            A test Dataset instance used to evaluate model performance
+        train_dataset: presc.dataset.Dataset
+            The Dataset instance used to train the model. This is not required for every evaluation.
+        settings : dict
+            A dict specifying option values to override report settings,
             eg. `{"report.title": "My Report"}`.
-        clean: should previous outputs be cleaned? Default: True
+        clean : book
+            Should previous outputs be cleaned? Default: True
         """
         if settings:
             run_config = PrescConfig(self.config)
@@ -281,7 +290,10 @@ class Context:
     up to the caller to ensure that multiple instances each have a unique store
     location.
 
-    store_dir: the dir to contain the data store, implemented as one or more
+    Attributes
+    ----------
+    store_dir : str
+        The dir to contain the data store, implemented as one or more
         database files. If not specified, defaults to the current working dir.
     """
 
@@ -296,10 +308,16 @@ class Context:
 
         Any existing values will be overwritten.
 
-        model: a ClassificationModel instance
-        test_dataset: a Dataset instance
-        train_dataset: a Dataset instance
-        config: a dict of config options
+        Parameters
+        ----------
+        model: presc.model.ClassificationModel
+            A ClassificationModel instance
+        test_dataset:  presc.dataset.Dataset
+            A Dataset instance
+        train_dataset: presc.dataset.Dataset
+            A Dataset instance
+        config: dict
+            A dict of config options
         """
         with shelve.open(self._store_path) as ctx:
             if model:
