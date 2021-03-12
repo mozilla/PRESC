@@ -1,18 +1,12 @@
-# from presc.evaluations.utils import is_discrete
-# from presc.utils import include_exclude_list
 from presc.configuration import PrescConfig
 from presc import global_config
 
 from numpy import arange
 from sklearn.model_selection import ShuffleSplit, cross_val_score
-
-# from numpy import histogram, histogram_bin_edges
 from pandas import Series, DataFrame
 
 import matplotlib.pyplot as plt
 from matplotlib import rc as mpl_rc
-
-# from confuse import ConfigError
 
 
 def compute_train_test_splits(
