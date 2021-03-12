@@ -15,6 +15,8 @@ from presc import global_config
 def _pairwise_dist(df1, df2, metrics):
     """Compute pairwise distances between the rows of two DFs with common columns.
 
+    Parameters
+    ----------
     df1 : DataFrame
         A DF with dimensions n x p.
     df2 : DataFrame
