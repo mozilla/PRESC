@@ -5,8 +5,6 @@ Subpackages
    :maxdepth: 4
 
    presc.evaluations
-   presc.spatial_distribution
-   presc.training_stability
 
 Submodules
 ----------
