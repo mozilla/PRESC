@@ -1,16 +1,12 @@
 from collections import defaultdict
 
-# from numpy import histogram, histogram_bin_edges
 from pandas import DataFrame, Series, MultiIndex
 from sklearn.metrics import pairwise_distances
 from sklearn.preprocessing import StandardScaler, OrdinalEncoder
 import seaborn as sns
-
-# import matplotlib.pyplot as plt
 from confuse import ConfigError
 
 from presc.evaluations.utils import is_discrete
-
 from presc.utils import include_exclude_list
 from presc.configuration import PrescConfig
 from presc import global_config
@@ -19,15 +15,21 @@ from presc import global_config
 def _pairwise_dist(df1, df2, metrics):
     """Compute pairwise distances between the rows of two DFs with common columns.
 
-    df1: a DF with dimensions n x p
-    df2: a DF with dimensions m x p
-    metrics: a dict mapping column names to strings identifying the distance
-        metric to use for entries in that column. Strings must be valid values accepted
-        by `sklearn.metrics.pairwise_distances`.
+    df1 : DataFrame
+        A DF with dimensions n x p.
+    df2 : DataFrame
+        A DF with dimensions m x p.
+    metrics : dict
+        Mapping of column names to strings identifying the distance metric to
+        use for entries in that column. Strings must be valid values accepted by
+        `sklearn.metrics.pairwise_distances`.
 
-    Returns an array with dimensions n x m listing the distance between df1[i] and
-    df2[j]. If different metrics are used for different subsets of columns, they are
-    combined by adding.
+    Returns
+    -------
+    numpy.array
+        Array with dimensions n x m listing the distance between df1[i] and
+        df2[j]. If different metrics are used for different subsets of columns,
+        they are combined by adding.
     """
     cols_for_metric = defaultdict(list)
     for c, m in metrics.items():
@@ -41,7 +43,6 @@ def _pairwise_dist(df1, df2, metrics):
         else:
             pairwise_dist += pwd
 
-    # return DataFrame(pairwise_dist, index=df1.index, columns=df2.index)
     return pairwise_dist
 
 
@@ -62,25 +63,37 @@ def compute_spatial_distribution(
     returns a summary of the distance for each test point relative to each base
     class.
 
-    test_features: DataFrame of feature values for the test dataset
-    test_labs_true: Series of true labels for the test dataset
-    test_labs_pred: Series of labels predicted by a model for the test dataset
-    base_features: DataFrame of feature values for the base dataset
-    base_labs: Series of true labels for the base dataset
-    numerical_dist_metric: the metrics to use to measure distance between
-        numerical (continuous)-valued columns. This should be a dict mapping
-        column names to strings, each a named metric as accepted by
+    Parameters
+    ----------
+    test_features : DataFrame
+        Feature values for the test dataset.
+    test_labs_true : Series
+        True labels for the test dataset.
+    test_labs_pred : Series
+        Labels predicted by a model for the test dataset.
+    base_features:  DataFrame
+        Feature values for the base dataset.
+    base_labs : Series
+        True labels for the base dataset.
+    numerical_dist_metric : dict
+        The metrics to use to measure distance between numerical
+        (continuous)-valued columns. This should be a dict mapping column names
+        to strings, each a named metric as accepted by
         `sklearn.metrics.pairwise_distances` appropriate for continuous data
-    categorical_dist_metric: the metrics to use to measure distance between
-        categorical (discrete)-valued columns. This should be a dict mapping
-        column names to strings, each a named metric as accepted by
+    categorical_dist_metric : dict
+        The metrics to use to measure distance between categorical
+        (discrete)-valued columns. This should be a dict mapping column names to
+        strings, each a named metric as accepted by
         `sklearn.metrics.pairwise_distances` appropriate for discrete data
-    summary: an aggregation function to apply to a Pandas Grouped object.
+    summary : str
+        An aggregation function to apply to a Pandas Grouped object.
 
     Only columns listed in the distance metric dists will be included in the
     distance computation.
 
-    Returns a `SpatialDistributionResult` object.
+    Returns
+    -------
+    SpatialDistributionResult
     """
     # Compute a DF of pairwise distances between base datapoints (rows)
     # and test datapoints (cols).
@@ -139,13 +152,17 @@ def compute_spatial_distribution(
 class SpatialDistributionResult:
     """Result of the spatial distribution computation.
 
-    vals: a DataFrame listing the summary values for each test datapoint,
-        indexed by (<true_label>, <predicted_label>, <datapoint_index>).
-    dist_metrics_num: a dict mapping numerical column names to the metric that was
-        used.
-    dist_metrics_categ: a dict mapping categorical column names to the metric that was
-        used.
-    summary: the summary used to aggregate distances for each class
+    Attributes
+    ----------
+    vals : DataFrame
+        A  DataFrame listing the summary values for each test datapoint, indexed
+        by (<true_label>, <predicted_label>, <datapoint_index>).
+    dist_metrics_num : dict
+        Mapping of numerical column names to the metric that was used.
+    dist_metrics_categ : dict
+        Mapping of categorical column names to the metric that was used.
+    summary : str
+        The summary used to aggregate distances for each class
     """
 
     def __init__(self, vals, dist_metrics_num, dist_metrics_categ, summary):
@@ -155,11 +172,7 @@ class SpatialDistributionResult:
         self.summary = summary
 
     def display_result(self):
-        """Display the distributions for the given data column.
-
-        xlab: label to display on the x-axis
-        ylab: label to display on the y-axis
-        """
+        """Display the distances summaries as scatterplots."""
         ind = self.vals.index
         is_misclassified = Series(
             ind.get_level_values(0) != ind.get_level_values(1), index=ind
@@ -190,19 +203,25 @@ class SpatialDistributionResult:
             )
 
 
-def get_distance_metrics_by_column(features_num, features_categ, eval_config):
+def _get_distance_metrics_by_column(features_num, features_categ, eval_config):
     """Determine the distance metric to use for each dataset feature.
 
-    features_num: list of numerical feature names to include in the distance
-        computation
-    features_categ: list of categorical feature names to include in the distance
-        computation
-    eval_config: the config subview corresponding to this evaluation
+    Parameters
+    ----------
+    features_num : list
+        Numerical feature names to include in the distance computation.
+    features_categ : list
+        Categorical feature names to include in the distance computation.
+    eval_config : presc.configuration.PrescConfig
+        The config subview corresponding to this evaluation.
 
-    Returns dicts mapping feature names to metrics, either a column-specifc
-    metric, if any, or the default metric for the feature type. Two dicts are
-    returned, the first listing numerical features and the second listing
-    categorical features. Only features listed in the input lists will be included.
+    Returns
+    -------
+    dict, dict
+        Two dicts mapping feature names to metrics, either a column-specifc
+        metric, if any, or the default metric for the feature type. The first
+        lists metrics for numerical features and the second for categorical
+        features. Only features listed in the input lists will be included.
     """
     def_dist_num = eval_config["distance_metric_numerical"].get()
     def_dist_categ = eval_config["distance_metric_categorical"].get()
@@ -241,14 +260,22 @@ def get_distance_metrics_by_column(features_num, features_categ, eval_config):
 class SpatialDistribution:
     """Computation of distributions of data in feature space.
 
-    model: the ClassificationModel to run the evaluation for
-    test_dataset: a Dataset to use for evaluation.
-    train_dataset: a Dataset to use as the baseline for distance measures (eg.
-    the training data)
-    settings: an optional dict specifying option values under
-        `evaluations.spatial_distribution`, eg. TODO`{"computation.binning": 5}`
-        These are restricted to the class instance and do not change the global config.
-    config: an optional PrescConfig instance to read options from. This will be
+    Attributes
+    ----------
+    model: presc.model.ClassificationModel
+        The ClassificationModel to run the evaluation for.
+    test_dataset :  presc.dataset.Dataset
+        A Dataset to use for evaluation.
+    train_dataset :  presc.dataset.Dataset
+        A Dataset to use as the baseline for distance measures (eg. the training
+        data).
+    settings: dict
+        An optional dict specifying option values under
+        `evaluations.spatial_distribution`, eg. `{"summary_agg": "median"}`
+        These are restricted to the class instance and do not change the global
+        config.
+    config: presc.configuration.PrescConfig
+        An optional PrescConfig instance to read options from. This will be
         overridden by `settings` values.
     """
 
@@ -266,9 +293,14 @@ class SpatialDistribution:
     def compute(self, **kwargs):
         """Compute the evaluation for the given datasets.
 
-        kwargs: on-the-fly overrides to the config option values for the computation.
+        Parameters
+        ----------
+        kwargs:
+            On-the-fly overrides to the config option values for the computation.
 
-        Returns a `SpatialDistributionResult` instance.
+        Returns
+        -------
+        SpatialDistributionResult
         """
         eval_config = PrescConfig(self._config)
         eval_config = eval_config["evaluations"]["spatial_distribution"]
@@ -290,7 +322,7 @@ class SpatialDistribution:
                 num_feats.append(col)
 
         # Figure the metric to use for each feature.
-        dist_metrics_num, dist_metrics_categ = get_distance_metrics_by_column(
+        dist_metrics_num, dist_metrics_categ = _get_distance_metrics_by_column(
             num_feats, categ_feats, eval_config
         )
 
