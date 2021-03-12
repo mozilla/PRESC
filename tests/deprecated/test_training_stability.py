@@ -7,9 +7,13 @@ from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from sklearn.datasets import make_classification
 
-from presc.training_stability.train_test_split import explore_test_split_ratio
-from presc.training_stability.cross_validation import explore_cross_validation_kfolds
-from presc.training_stability.training_stability_common import (
+from presc.deprecated.training_stability.train_test_split import (
+    explore_test_split_ratio,
+)
+from presc.deprecated.training_stability.cross_validation import (
+    explore_cross_validation_kfolds,
+)
+from presc.deprecated.training_stability.training_stability_common import (
     show_averages_and_variations,
 )
 
