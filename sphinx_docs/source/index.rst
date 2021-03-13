@@ -13,9 +13,12 @@ Welcome to PRESC's documentation!
    :maxdepth: 2
    :caption: Documentation
 
-   readme_toplevel
-   readme_report
-   readme_roadmap
+   overview
+   installation
+   getting_started
+   configuration
+   evaluations
+   roadmap
 
 .. toctree::
    :caption: API Reference

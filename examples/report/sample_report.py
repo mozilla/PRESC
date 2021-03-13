@@ -11,7 +11,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.model_selection import ShuffleSplit
 
-import sys
 from pathlib import Path
 
 THIS_DIR = Path(__file__).parent
@@ -31,14 +30,11 @@ test_dataset = dataset.subset(test_ind, by_position=True)
 # Set up the model
 
 model = Pipeline([("scaler", StandardScaler()), ("clf", SVC(class_weight="balanced"))])
-cm = ClassificationModel(model, train_dataset, retrain_now=True)
+cm = ClassificationModel(model)
+cm.train(train_dataset)
 
-config_filename = None
-if len(sys.argv) == 2:
-    config_filename = sys.argv[1]
-
-presc_report = ReportRunner(config_filepath=config_filename)
-presc_report.run(model=cm, test_dataset=test_dataset)
+presc_report = ReportRunner()
+presc_report.run(model=cm, test_dataset=test_dataset, train_dataset=train_dataset)
 
 print(f"The report is available at {presc_report.report_html}")
 presc_report.open()

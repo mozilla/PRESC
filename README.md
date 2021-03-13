@@ -7,7 +7,7 @@ PRESC is a toolkit for the evaluation of machine learning classification
 models.
 Its goal is to provide insights into model performance which extend beyond
 standard scalar accuracy-based measures and into areas which tend to be
-overlooked in application, including:
+underexplored in application, including:
 
 - Generalizability of the model to unseen data for which the training set may
   not be representative
@@ -25,24 +25,20 @@ needs, and are important prerequisites towards building
 
 As a tool, PRESC is intended for use by ML engineers to assist in the
 development and updating of models.
-It will be usable in the following ways:
+It is usable in the following ways:
 
 - As a standalone tool which produces a graphical report evaluating a given
   model and dataset
 - As a Python package/API which can be integrated into an existing pipeline
+
+A further goal is to use PRESC:
+
 - As a step in a Continuous Integration workflow: evaluations run as a part of
   CI, for example, on regular model updates, and fail if metrics produce
   unacceptable values.
 
-We are using the standard Python scientific stack (numpy/pandas/jupyter).
-In order to streamline development while the project is still in its early
-stages, we are restricting focus to
-[scikit-learn](https://scikit-learn.org/stable/index.html)
-supervised classification models, and we are prototyping report visualizations
-in [Jupyter notebooks](./examples).
 For the time being, the following are considered __out of scope__:
 
-- Models built in machine learning frameworks other than scikit-learn
 - User-facing evaluations, eg. explanations
 - Evaluations which depend explicitly on domain context or value judgements of
   features, eg. protected demographic attributes. A domain expert could use
@@ -56,11 +52,31 @@ topics, as well as a number of open-source projects solving related problems.
 Where possible, we plan to offer integration with existing tools which align
 with our vision and goals.
 
-This project was the subject of an [Outreachy](https://www.outreachy.org/)
-internship during Summer 2020.
-Submissions from the Spring 2020 application period have been archived in this
-[this repo](https://github.com/mozilla/PRESC-Outreachy-archive) in their
-original state, and will be integrated here as needed.
+## Documentation
+
+Project documentation is available
+[here](https://mozilla.github.io/PRESC/index.html)
+and provides much more detail, including:
+
+- Getting set up
+- Running a report
+- Computing evaluations
+- Configuration
+- Package API
+
+### Examples
+
+An example script demonstrating how to run a report is available
+[here](./examples/report/sample_report.py).
+
+There are a number of notebooks and explorations in the
+[`examples/`](./examples/)
+dir, but they are not guaranteed to run or be up-to-date as the package has
+undergone major changes recently and we have not yet finished updating these.
+
+Some well-known datasets are provided in CSV format in the
+[`datasets/`](./datasets/)
+dir for exploration purposes.
 
 
 ## Notes for contributors
@@ -73,15 +89,12 @@ You can also reach out on [Gitter](https://gitter.im/PRESC-outreachy/community).
 
 We recommend that submissions for new feature implementations include a Juypter
 notebook demonstrating their application to a real-world dataset and model.
-The repo includes a few well-known [datasets](./datasets) for testing.
-If you wish to propose another, please make sure to clearly indicate its source
-and license (if applicable).
 
 This repo adheres to [Python black](https://pypi.org/project/black/)
 formatting, which is enforced by a pre-commit hook (see below).
 
 
-## Getting started
+## Setting up a dev environment
 
 Make sure you have conda (eg. [Miniconda](https://docs.conda.io/en/latest/miniconda.html))
 installed. `conda init` should be run during installation to set the PATH
@@ -104,14 +117,47 @@ To run tests:
 $ pytest
 ```
 
+## MozFest 2021: AI IRL Hackathon
 
-## Updating PyPI
+Welcome MozFest participants!
 
-Use `twine` to upload a new version to PyPI.
+Please log into the MozFest Slack instance and join the `#presc` channel, as
+this will be our main medium of communication. We will also be chatting over
+Spatial Chat and Zoom.
 
-```shell
-$ python setup.py sdist
-$ twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
-```
+Please see the
+[documentation](https://mozilla.github.io/PRESC/index.html)
+for help on getting started.
+As described there, you can either install the package using `pip` for
+immediate use, or clone this repository and set up the environment for
+development work.
 
-The Makefile target `make upload` will invoke `twine` for you.
+The main tasks we would ask you to work on are the following:
+
+- Test out the package functionality. Try running the report on a
+  classification model and dataset. You can also try running individual
+  evaluations in a Jupyter notebook.
+    * If you don't have a dataset or classification model to work with, you can
+      use one of the datasets in the repo, and create a classifier using
+      `scikit-learn`. Some examples are given in the [`examples/`](./examples)
+      dir. Feel free to share your results in the Slack channel.
+    * If you can apply PRESC to a classification problem you have already been
+      working on, we'd be very excited to hear your feedback. If your data &
+      model can be considered public, you are welcome to submit any artifacts to
+      our `examples/` dir.
+- Please open issues for any bugs you encounter (including things that don't
+  work as you expect or aren't well explained).
+    * If you want to offer a PR for a fix, that is welcome too.
+- We would welcome any feedback on the general approach, the evaluations
+  described in the roadmap, the results you get from running PRESC, etc,
+  including similar projects you're familiar with. We can discuss in Slack, and
+  you can also open an issue to post specifics and to open the discussion to the
+  broader community.
+- There are a few issues listed in the repo, and more will likely be opened
+  during the day. Because the project is still relatively young, they are more
+  related to implementing major features and exploring methodologies than fixing
+  specific bugs. If you are interested to work on one of these you are welcome
+  to, and it's fine if you are not able to fully complete the task during the
+  limited timespan of the hackathon.
+
+

@@ -1,3 +1,0 @@
-==========
-
-.. mdinclude:: ../../docs/REPORT.md

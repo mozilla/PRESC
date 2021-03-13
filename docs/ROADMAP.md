@@ -1,13 +1,13 @@
-PRESC Project Roadmap
-=====================
+Roadmap
+=======
 
-This is an overview of the features planned for integration into PRESC.
+This is an overview of the evaluations planned for integration into PRESC.
 It is intended to give a high-level description of how these will work and
 sample use cases.
 Prioritization and implementation details are maintained in the repo
 [issues](https://github.com/mozilla/PRESC/issues).
 
-At the core of PRESC is a collection of analyses that can be run on a given
+At the core of PRESC is a collection of evaluations that can be run on a given
 statistical model and dataset pair to inform the developer on different
 aspects of the model's performance and behaviour.
 The two main intended uses are a graphical presentation in a report and the
@@ -18,7 +18,7 @@ context of the problem domain, and it will be up to the user to decide on a
 course of action to correct deficiencies in the model surfaced by these
 evaluations.
 
-Planned analyses are described below, grouped by theme.
+Planned evaluations are described below, grouped by theme.
 Some of these will lend themselves to multiple possible visualizations or
 summaries, while others will be applicable in a single clear way.
 The first step in developing many of these will be to build a prototype and test
@@ -64,6 +64,10 @@ selection on a validation set.
 
 ### Conditional metrics
 
+This is implemented in the
+[conditional_metric](https://github.com/mozilla/PRESC/blob/master/presc/evaluations/conditional_metric.py)
+module.
+
 Standard performance metrics such as accuracy, precision and recall are
 computed by summmarizing overall differences between predicted and true labels.
 PRESC will additionally compute these differences restricted to subsets of the
@@ -95,6 +99,10 @@ __Applications:__
 __Type__: Model performance metric
 
 ### Conditional feature distributions
+
+This is implemented in the
+[conditional_distribution](https://github.com/mozilla/PRESC/blob/master/presc/evaluations/conditional_distribution.py)
+module.
 
 In a sense this reverses the conditioning of the conditional confusion matrix. 
 We compute the distribution of a feature over the test set restricted to each
@@ -190,6 +198,10 @@ __Applications:__
 __Type__: Per-sample metric applied to misclassifications
 
 ### Spatial distributions
+
+This is partially implemented in the
+[spatial_distribution](https://github.com/mozilla/PRESC/blob/master/presc/evaluations/spatial_distribution.py)
+module.
 
 In some cases, it will be helpful to understand where a misclassified point lies
 in the feature space in relation to other training points.
@@ -380,6 +392,10 @@ results) or prior to training (to help select methodology, using an assumed
 prior model choice).
 
 ### Train-test splitting
+
+This is implemented in the
+[train_test_splits](https://github.com/mozilla/PRESC/blob/master/presc/evaluations/train_test_splits.py)
+module.
 
 When training a model, a test set is typically held out at the beginning so as
 to provide an unbiased estimate of model performance on unseen data.
