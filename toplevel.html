@@ -1,0 +1,365 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>PRESC: Performance and Robustness Evaluation for Statistical Classifiers &mdash; PRESC 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PRESC
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluations.html">Evaluations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">presc</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PRESC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>PRESC: Performance and Robustness Evaluation for Statistical Classifiers</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/toplevel.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <hr class="docutils" />
+<div class="section" id="presc-performance-and-robustness-evaluation-for-statistical-classifiers">
+<h1>PRESC: Performance and Robustness Evaluation for Statistical Classifiers<a class="headerlink" href="#presc-performance-and-robustness-evaluation-for-statistical-classifiers" title="Permalink to this headline">¶</a></h1>
+<a class="reference external image-reference" href="https://circleci.com/gh/mozilla/PRESC"><img alt="CircleCI" src="https://circleci.com/gh/mozilla/PRESC.svg?style=svg" /></a>
+<a class="reference external image-reference" href="https://gitter.im/PRESC-outreachy/community?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img alt="Join the chat at https://gitter.im/PRESC-outreachy/community" src="https://badges.gitter.im/PRESC-outreachy/community.svg" /></a>
+<p>PRESC is a toolkit for the evaluation of machine learning classification
+models.
+Its goal is to provide insights into model performance which extend beyond
+standard scalar accuracy-based measures and into areas which tend to be
+underexplored in application, including:</p>
+<ul class="simple">
+<li><p>Generalizability of the model to unseen data for which the training set may
+not be representative</p></li>
+<li><p>Sensitivity to statistical error and methodological choices</p></li>
+<li><p>Performance evaluation localized to meaningful subsets of the feature space</p></li>
+<li><p>In-depth analysis of misclassifications and their distribution in the feature
+space</p></li>
+</ul>
+<p>More details about the specific features we are considering are presented in the
+<a class="reference external" href="./docs/ROADMAP.md">project roadmap</a>.
+We believe that these evaluations are essential for developing confidence in
+the selection and tuning of machine learning models intended to address user
+needs, and are important prerequisites towards building
+<a class="reference external" href="https://foundation.mozilla.org/en/internet-health/trustworthy-artificial-intelligence/">trustworthy AI</a>.</p>
+<p>As a tool, PRESC is intended for use by ML engineers to assist in the
+development and updating of models.
+It is usable in the following ways:</p>
+<ul class="simple">
+<li><p>As a standalone tool which produces a graphical report evaluating a given
+model and dataset</p></li>
+<li><p>As a Python package/API which can be integrated into an existing pipeline</p></li>
+</ul>
+<p>A further goal is to use PRESC:</p>
+<ul class="simple">
+<li><p>As a step in a Continuous Integration workflow: evaluations run as a part of
+CI, for example, on regular model updates, and fail if metrics produce
+unacceptable values.</p></li>
+</ul>
+<p>For the time being, the following are considered <strong>out of scope</strong>:</p>
+<ul class="simple">
+<li><p>User-facing evaluations, eg. explanations</p></li>
+<li><p>Evaluations which depend explicitly on domain context or value judgements of
+features, eg. protected demographic attributes. A domain expert could use
+PRESC to study misclassifications across such protected groups, say, but the
+PRESC evaluations themselves should be agnostic to such determinations.</p></li>
+<li><p>Analyses which do not involve the model, eg. class imbalance in the training
+data</p></li>
+</ul>
+<p>There is a considerable body of recent academic research addressing these
+topics, as well as a number of open-source projects solving related problems.
+Where possible, we plan to offer integration with existing tools which align
+with our vision and goals.</p>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>Project documentation is available
+<a class="reference external" href="https://mozilla.github.io/PRESC/index.html">here</a>
+and provides much more detail, including:</p>
+<ul class="simple">
+<li><p>Getting set up</p></li>
+<li><p>Running a report</p></li>
+<li><p>Computing evaluations</p></li>
+<li><p>Configuration</p></li>
+<li><p>Package API</p></li>
+</ul>
+<div class="section" id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
+<p>An example script demonstrating how to run a report is available
+<a class="reference external" href="./examples/report/sample_report.py">here</a>.</p>
+<p>There are a number of notebooks and explorations in the
+<cite>``examples/`</cite> &lt;./examples/&gt;`_
+dir, but they are not guaranteed to run or be up-to-date as the package has
+undergone major changes recently and we have not yet finished updating these.</p>
+<p>Some well-known datasets are provided in CSV format in the
+<cite>``datasets/`</cite> &lt;./datasets/&gt;`_
+dir for exploration purposes.</p>
+</div>
+</div>
+<div class="section" id="notes-for-contributors">
+<h2>Notes for contributors<a class="headerlink" href="#notes-for-contributors" title="Permalink to this headline">¶</a></h2>
+<p>Contributions are welcome.
+We are using the repo <a class="reference external" href="https://github.com/mozilla/PRESC/issues">issues</a> to
+manage project tasks in alignment with the <a class="reference external" href="./docs/ROADMAP.md">roadmap</a>, as well
+as hosting discussions.
+You can also reach out on <a class="reference external" href="https://gitter.im/PRESC-outreachy/community">Gitter</a>.</p>
+<p>We recommend that submissions for new feature implementations include a Juypter
+notebook demonstrating their application to a real-world dataset and model.</p>
+<p>This repo adheres to <a class="reference external" href="https://pypi.org/project/black/">Python black</a>
+formatting, which is enforced by a pre-commit hook (see below).</p>
+</div>
+<div class="section" id="setting-up-a-dev-environment">
+<h2>Setting up a dev environment<a class="headerlink" href="#setting-up-a-dev-environment" title="Permalink to this headline">¶</a></h2>
+<p>Make sure you have conda (eg. <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">Miniconda</a>)
+installed. <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">init</span></code> should be run during installation to set the PATH
+properly.</p>
+<p>Set up and activate the environment. This will also enable a pre-commit hook to
+verify that code conforms to flake8 and black formatting rules.
+On Windows, these commands should be run from the Anaconda command prompt.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ conda env create -f environment.yml
+$ conda activate presc
+$ python setup.py develop
+$ pre-commit install
+</pre></div>
+</div>
+<p>To run tests:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ pytest
+</pre></div>
+</div>
+</div>
+<div class="section" id="mozfest-2021-ai-irl-hackathon">
+<h2>MozFest 2021: AI IRL Hackathon<a class="headerlink" href="#mozfest-2021-ai-irl-hackathon" title="Permalink to this headline">¶</a></h2>
+<p>Welcome MozFest participants!</p>
+<p>Please log into the MozFest Slack instance and join the <code class="docutils literal notranslate"><span class="pre">#presc</span></code> channel, as
+this will be our main medium of communication. We will also be chatting over
+Spatial Chat and Zoom.</p>
+<p>Please see the
+<a class="reference external" href="https://mozilla.github.io/PRESC/index.html">documentation</a>
+for help on getting started.
+As described there, you can either install the package using <code class="docutils literal notranslate"><span class="pre">pip</span></code> for
+immediate use, or clone this repository and set up the environment for
+development work.</p>
+<p>The main tasks we would ask you to work on are the following:</p>
+<ul class="simple">
+<li><p>Test out the package functionality. Try running the report on a
+classification model and dataset. You can also try running individual
+evaluations in a Jupyter notebook.</p>
+<ul>
+<li><p>If you don’t have a dataset or classification model to work with, you can
+use one of the datasets in the repo, and create a classifier using
+<code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code>. Some examples are given in the <cite>``examples/`</cite> &lt;./examples&gt;`_
+dir. Feel free to share your results in the Slack channel.</p></li>
+<li><p>If you can apply PRESC to a classification problem you have already been
+working on, we’d be very excited to hear your feedback. If your data &amp;
+model can be considered public, you are welcome to submit any artifacts to
+our <code class="docutils literal notranslate"><span class="pre">examples/</span></code> dir.</p></li>
+</ul>
+</li>
+<li><p>Please open issues for any bugs you encounter (including things that don’t
+work as you expect or aren’t well explained).</p>
+<ul>
+<li><p>If you want to offer a PR for a fix, that is welcome too.</p></li>
+</ul>
+</li>
+<li><p>We would welcome any feedback on the general approach, the evaluations
+described in the roadmap, the results you get from running PRESC, etc,
+including similar projects you’re familiar with. We can discuss in Slack, and
+you can also open an issue to post specifics and to open the discussion to the
+broader community.</p></li>
+<li><p>There are a few issues listed in the repo, and more will likely be opened
+during the day. Because the project is still relatively young, they are more
+related to implementing major features and exploring methodologies than fixing
+specific bugs. If you are interested to work on one of these you are welcome
+to, and it’s fine if you are not able to fully complete the task during the
+limited timespan of the hackathon.</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Mozilla Foundation.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
