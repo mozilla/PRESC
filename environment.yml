@@ -10,7 +10,9 @@ dependencies:
   - scikit-learn=0.23.1
   - scipy=1.4.1
   - jupyter=1.0.0
+  - jupyter-book=0.10.1
   - matplotlib=3.3.2
+  - m2r2=0.2.7
   - seaborn=0.11.0
   - pip=20.0.2
   - plotnine=0.6.0
@@ -18,12 +20,9 @@ dependencies:
   - pytest=5.4.3
   - pytest-cov=2.10.0
   - pyyaml=5.4.1
+  - sphinx=3.5.3
   - twine=3.2.0
   - imbalanced-learn=0.7.0
   - pandas-profiling=2.8.0
   - pip:
-    - jupyter-book==0.9.1
     - sphinx-rtd-theme==0.5.1
-    - m2r2==0.2.7
-
-
