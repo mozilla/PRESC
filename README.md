@@ -93,6 +93,26 @@ notebook demonstrating their application to a real-world dataset and model.
 This repo adheres to [Python black](https://pypi.org/project/black/)
 formatting, which is enforced by a pre-commit hook (see below).
 
+Along with code contributions, we welcome general feedback:
+
+- Testing out the package functionality. Try running the report on a
+  classification model and dataset. You can also try running individual
+  evaluations in a Jupyter notebook.
+    * If you don't have a dataset or classification model to work with, you can
+      use one of the datasets in the repo, and create a classifier using
+      `scikit-learn`. Some examples are given in the [`examples/`](./examples)
+      dir.
+    * If you can apply PRESC to a classification problem you have already been
+      working on, we'd be very excited to hear your feedback. If your data &
+      model can be considered public, you are welcome to submit any artifacts to
+      our `examples/` dir.
+- Please open issues for any bugs you encounter (including things that don't
+  work as you expect or aren't well explained).
+    * If you want to offer a PR for a fix, that is welcome too.
+- We would welcome any feedback on the general approach, the evaluations
+  described in the roadmap, the results you get from running PRESC, etc,
+  including similar projects you're familiar with. You can start a discussion by
+  opening an issue.
 
 ## Setting up a dev environment
 
@@ -117,47 +137,14 @@ To run tests:
 $ pytest
 ```
 
-## MozFest 2021: AI IRL Hackathon
+## Acknowledgements
 
-Welcome MozFest participants!
+This project is maintained by [Mozilla](https://www.mozilla.org/)'s Data Science
+team.
+We have also received code contributions by participants in the following programs, and
+we are grateful for their support:
 
-Please log into the MozFest Slack instance and join the `#presc` channel, as
-this will be our main medium of communication. We will also be chatting over
-Spatial Chat and Zoom.
-
-Please see the
-[documentation](https://mozilla.github.io/PRESC/index.html)
-for help on getting started.
-As described there, you can either install the package using `pip` for
-immediate use, or clone this repository and set up the environment for
-development work.
-
-The main tasks we would ask you to work on are the following:
-
-- Test out the package functionality. Try running the report on a
-  classification model and dataset. You can also try running individual
-  evaluations in a Jupyter notebook.
-    * If you don't have a dataset or classification model to work with, you can
-      use one of the datasets in the repo, and create a classifier using
-      `scikit-learn`. Some examples are given in the [`examples/`](./examples)
-      dir. Feel free to share your results in the Slack channel.
-    * If you can apply PRESC to a classification problem you have already been
-      working on, we'd be very excited to hear your feedback. If your data &
-      model can be considered public, you are welcome to submit any artifacts to
-      our `examples/` dir.
-- Please open issues for any bugs you encounter (including things that don't
-  work as you expect or aren't well explained).
-    * If you want to offer a PR for a fix, that is welcome too.
-- We would welcome any feedback on the general approach, the evaluations
-  described in the roadmap, the results you get from running PRESC, etc,
-  including similar projects you're familiar with. We can discuss in Slack, and
-  you can also open an issue to post specifics and to open the discussion to the
-  broader community.
-- There are a few issues listed in the repo, and more will likely be opened
-  during the day. Because the project is still relatively young, they are more
-  related to implementing major features and exploring methodologies than fixing
-  specific bugs. If you are interested to work on one of these you are welcome
-  to, and it's fine if you are not able to fully complete the task during the
-  limited timespan of the hackathon.
-
-
+- [Outreachy](https://www.outreachy.org/)
+- [CANOSP](https://canosp.ca/)
+- [NLnet](https://nlnet.nl/)
+- [Universitat de Barcelona Master in Fundamental Principles of Data Science](https://mat.ub.edu/sciencedata/)
