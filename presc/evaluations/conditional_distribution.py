@@ -3,8 +3,9 @@ from presc.utils import include_exclude_list
 from presc.configuration import PrescConfig
 from presc import global_config
 
-from numpy import histogram, histogram_bin_edges
+from numpy import histogram, histogram_bin_edges, array
 from pandas import Series, MultiIndex
+from pandas.api.types import is_list_like
 import matplotlib.pyplot as plt
 from confuse import ConfigError
 
@@ -141,17 +142,22 @@ class ConditionalDistributionResult:
 
         for y_true, y_pred in self.vals.index.droplevel(-1).unique():
             counts = self.vals.loc[(y_true, y_pred)]
+            # Extract the bins for this group as a numpy array
             if isinstance(self.bins.index, MultiIndex):
+                # Binning is not common: each group has its own set of bins
                 bins = self.bins.loc[(y_true, y_pred)]
+                if not is_list_like(bins):
+                    # There was only 1 bin and `loc` downcast to a scalar.
+                    bins = array(bins)
             else:
-                bins = self.bins
+                # Bins are common: a flat series.
+                bins = self.bins.values
             if self.categorical:
                 plt.bar(
                     bins.astype("str"),
                     counts,
                 )
             else:
-                bins = bins.values
                 plt.hist(
                     (bins[:-1] + bins[1:]) / 2,
                     bins=len(counts),
