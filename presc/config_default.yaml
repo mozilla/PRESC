@@ -11,6 +11,8 @@ report:
   # "*" means 'all available evaluations'.
   evaluations_include: "*"
   evaluations_exclude: null
+  # Save results and compare the current results to the previous results.
+  delta_include: True
 
 # Computation options for individual evaluations
 evaluations:

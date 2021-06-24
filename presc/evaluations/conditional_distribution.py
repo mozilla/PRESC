@@ -7,6 +7,7 @@ from numpy import histogram, histogram_bin_edges
 from pandas import Series, MultiIndex
 import matplotlib.pyplot as plt
 from confuse import ConfigError
+import yaml
 
 
 def _histogram_bin_labels(bin_edges):
@@ -130,6 +131,32 @@ class ConditionalDistributionResult:
         self.binning = binning
         self.common_bins = common_bins
 
+    def save_result(self, label):
+        # TODO GLE This path needs to be under the same dir as the presc generated report
+        results_filename = (
+            "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_results_"
+            + label
+            + ".csv"
+        )
+        self.vals.to_csv(results_filename)
+
+        bin_filename = (
+            "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_bins_"
+            + label
+            + ".csv"
+        )
+        self.bins.to_csv(bin_filename, header=False)
+
+        # TODO GLE may not need to include label in the filename
+        config_of_interest = [{"common_bins": self.common_bins}]
+        config_filename = (
+            "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_config_"
+            + label
+            + ".yaml"
+        )
+        with open(config_filename, "w") as file:
+            yaml.dump(config_of_interest, file)
+
     def display_result(self, xlab):
         """Display the distributions for the given data column.
 
@@ -249,6 +276,10 @@ class ConditionalDistribution:
             self._test_dataset.column_names, included=incl, excluded=excl
         )
 
+        generate_delta_report = self._config["report"]["delta_include"].get(bool)
+
         for colname in cols:
             eval_result = self.compute_for_column(colname)
             eval_result.display_result(xlab=colname)
+            if generate_delta_report:
+                eval_result.save_result(label=colname)
