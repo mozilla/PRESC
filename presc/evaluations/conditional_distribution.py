@@ -8,6 +8,7 @@ from pandas import Series, MultiIndex
 import matplotlib.pyplot as plt
 from confuse import ConfigError
 import yaml
+import pickle
 
 
 def _histogram_bin_labels(bin_edges):
@@ -134,22 +135,25 @@ class ConditionalDistributionResult:
     def save_result(self, label):
         # TODO GLE This path needs to be under the same dir as the presc generated report
         results_filename = (
+            # "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_results_10_"
             "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_results_"
             + label
-            + ".csv"
+            + ".pkl"
         )
-        self.vals.to_csv(results_filename)
+        pickle.dump(self.vals, open(results_filename, "wb"))
 
         bin_filename = (
+            # "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_bins_10_"
             "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_bins_"
             + label
-            + ".csv"
+            + ".pkl"
         )
-        self.bins.to_csv(bin_filename, header=False)
+        pickle.dump(self.bins, open(bin_filename, "wb"))
 
         # TODO GLE may not need to include label in the filename
-        config_of_interest = [{"common_bins": self.common_bins}]
+        config_of_interest = {"common_bins": self.common_bins}
         config_filename = (
+            # "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_config_10_"
             "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_config_"
             + label
             + ".yaml"
@@ -178,7 +182,10 @@ class ConditionalDistributionResult:
                     counts,
                 )
             else:
-                bins = bins.values
+                # TODO GLE This might be a bug here, had to add the if clause.
+                if self.common_bins:
+                    bins = bins.values
+
                 plt.hist(
                     (bins[:-1] + bins[1:]) / 2,
                     bins=len(counts),
