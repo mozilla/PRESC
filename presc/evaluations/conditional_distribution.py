@@ -135,7 +135,6 @@ class ConditionalDistributionResult:
     def save_result(self, label):
         # TODO GLE This path needs to be under the same dir as the presc generated report
         results_filename = (
-            # "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_results_10_"
             "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_results_"
             + label
             + ".pkl"
@@ -143,23 +142,95 @@ class ConditionalDistributionResult:
         pickle.dump(self.vals, open(results_filename, "wb"))
 
         bin_filename = (
-            # "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_bins_10_"
             "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_bins_"
             + label
             + ".pkl"
         )
         pickle.dump(self.bins, open(bin_filename, "wb"))
 
-        # TODO GLE may not need to include label in the filename
-        config_of_interest = {"common_bins": self.common_bins}
-        config_filename = (
-            # "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_config_10_"
-            "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_config_"
-            + label
-            + ".yaml"
+    def display_delta(self, xlab):
+        # Load previous data
+        previous_file = (
+            "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_results_"
+            + xlab
+            + ".pkl"
         )
-        with open(config_filename, "w") as file:
-            yaml.dump(config_of_interest, file)
+
+        try:
+            with open(previous_file, "rb") as handle:
+                previous = pickle.load(handle)
+        except FileNotFoundError:
+            # No previous data found, do not run delta.
+            print(
+                f"Unable to determine evaluation delta, {previous_file} does not exist"
+            )
+            return
+
+        # Load previous bins
+        bin_file = (
+            "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_bins_"
+            + xlab
+            + ".pkl"
+        )
+        try:
+            with open(bin_file, "rb") as handle:
+                previous_bins = pickle.load(handle)
+        except FileNotFoundError:
+            print(f"Unable to determine evaluation delta, {bin_file} does not exist")
+            return
+
+        # Load previous config
+        config_file = "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_config.yaml"
+
+        try:
+            with open(config_file, "r") as file:
+                try:
+                    config = yaml.safe_load(file)
+                    prev_common_bins = config["common_bins"]
+                except yaml.YAMLError as exc:
+                    print(exc)
+        except FileNotFoundError:
+            print(f"Unable to determine evaluation delta, {config_file} does not exist")
+            return
+
+        for y_true, y_pred in self.vals.index.droplevel(-1).unique():
+            new_counts = self.vals.loc[(y_true, y_pred)]
+            prev_counts = previous.loc[(y_true, y_pred)]
+
+            if self.common_bins:
+                new_b = self.bins.values
+            else:
+                new_b = self.bins.loc[(y_true, y_pred)]
+
+            if prev_common_bins:
+                previous_b = previous_bins.values
+            else:
+                previous_b = previous_bins.loc[(y_true, y_pred)]
+
+            plt.hist(
+                (new_b[:-1] + new_b[1:]) / 2,
+                bins=len(new_counts.values),
+                weights=new_counts.values,
+                range=(new_b.min(), new_b.max()),
+                alpha=0.5,
+                label="new",
+            )
+
+            plt.hist(
+                (previous_b[:-1] + previous_b[1:]) / 2,
+                bins=len(prev_counts.values),
+                weights=prev_counts.values,
+                range=(previous_b.min(), previous_b.max()),
+                alpha=0.5,
+                label="previous",
+            )
+
+            plt.xlabel(xlab)
+            plt.ylabel("Frequency")
+            plt.title(f"Delta: Group: {y_true}_predicted_as_{y_pred}")
+            plt.legend(loc="upper right")
+
+            plt.show(block=False)
 
     def display_result(self, xlab):
         """Display the distributions for the given data column.
@@ -225,6 +296,17 @@ class ConditionalDistribution:
         self._test_dataset = test_dataset
         self._test_pred = self._model.predict_labels(test_dataset).rename("predicted")
 
+    def save_config(self):
+        comp_config = PrescConfig(self._config)
+        common_bins = comp_config["evaluations"]["conditional_distribution"][
+            "computation"
+        ]["common_bins"].get(bool)
+        config_of_interest = {"common_bins": common_bins}
+        config_filename = "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_config.yaml"
+
+        with open(config_filename, "w") as file:
+            yaml.dump(config_of_interest, file)
+
     def compute_for_column(self, colname, **kwargs):
         """Compute the evaluation for the given dataset column.
 
@@ -289,4 +371,7 @@ class ConditionalDistribution:
             eval_result = self.compute_for_column(colname)
             eval_result.display_result(xlab=colname)
             if generate_delta_report:
+                eval_result.display_delta(xlab=colname)
                 eval_result.save_result(label=colname)
+        if generate_delta_report:
+            self.save_config()
