@@ -103,50 +103,13 @@ def compute_conditional_distribution(
     )
 
 
-class ConditionalDistributionResult:
-    """Result of the conditional distribution computation for a single column of data.
-
-    Attributes
-    ----------
-    vals : Series
-        A Series listing the bin counts for each group, indexed by (<true_label>,
-        <predicted_label>, <bin_label>).
-    bins: Series
-        A Series listing the bin endpoints. If `common_bins` is `False`,
-        this should be indexed by (<true_label>, <predicted_label>) and list
-        the endpoints for each group. If the data was treated as numeric, this
-        will have length `len(vals)+1` (within each group), otherwise
-        `len(vals)`.
-    categorical : bool
-        Was the feature treated as categorical?
-    binning : str
-        The binning scheme used
-    common_bins : bool
-        Were common bins used across all groups?
-    """
-
-    def __init__(self, vals, bins, categorical, binning, common_bins):
-        self.vals = vals
-        self.bins = bins
-        self.categorical = categorical
-        self.binning = binning
-        self.common_bins = common_bins
-
-    def save_result(self, label):
-        # TODO GLE This path needs to be under the same dir as the presc generated report
-        results_filename = (
-            "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_results_"
-            + label
-            + ".pkl"
-        )
-        pickle.dump(self.vals, open(results_filename, "wb"))
-
-        bin_filename = (
-            "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_bins_"
-            + label
-            + ".pkl"
-        )
-        pickle.dump(self.bins, open(bin_filename, "wb"))
+class ConditionalDistributionResultDelta:
+    def __init__(self, result, config):
+        self.result = result
+        self.common_bins = result.common_bins
+        self.vals = result.vals
+        self.bins = result.bins
+        self.config = config
 
     def display_delta(self, xlab):
         # Load previous data
@@ -232,6 +195,67 @@ class ConditionalDistributionResult:
 
             plt.show(block=False)
 
+            self.save_result(label=xlab)
+
+    def save_result(self, label):
+        # TODO GLE This path needs to be under the same dir as the presc generated report
+        results_filename = (
+            "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_results_"
+            + label
+            + ".pkl"
+        )
+        pickle.dump(self.vals, open(results_filename, "wb"))
+
+        bin_filename = (
+            "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_bins_"
+            + label
+            + ".pkl"
+        )
+        pickle.dump(self.bins, open(bin_filename, "wb"))
+        # TODO currently will be called on every column, maybe move elsewhere to call only once?
+        self.save_config()
+
+    def save_config(self):
+        comp_config = PrescConfig(self.config)
+        common_bins = comp_config["evaluations"]["conditional_distribution"][
+            "computation"
+        ]["common_bins"].get(bool)
+        config_of_interest = {"common_bins": common_bins}
+        config_filename = "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_config.yaml"
+
+        with open(config_filename, "w") as file:
+            yaml.dump(config_of_interest, file)
+
+
+class ConditionalDistributionResult:
+    """Result of the conditional distribution computation for a single column of data.
+
+    Attributes
+    ----------
+    vals : Series
+        A Series listing the bin counts for each group, indexed by (<true_label>,
+        <predicted_label>, <bin_label>).
+    bins: Series
+        A Series listing the bin endpoints. If `common_bins` is `False`,
+        this should be indexed by (<true_label>, <predicted_label>) and list
+        the endpoints for each group. If the data was treated as numeric, this
+        will have length `len(vals)+1` (within each group), otherwise
+        `len(vals)`.
+    categorical : bool
+        Was the feature treated as categorical?
+    binning : str
+        The binning scheme used
+    common_bins : bool
+        Were common bins used across all groups?
+    """
+
+    def __init__(self, vals, bins, categorical, binning, common_bins):
+        self.vals = vals
+        self.bins = bins
+        self.categorical = categorical
+        self.binning = binning
+        self.common_bins = common_bins
+
     def display_result(self, xlab):
         """Display the distributions for the given data column.
 
@@ -295,17 +319,6 @@ class ConditionalDistribution:
         self._model = model
         self._test_dataset = test_dataset
         self._test_pred = self._model.predict_labels(test_dataset).rename("predicted")
-
-    def save_config(self):
-        comp_config = PrescConfig(self._config)
-        common_bins = comp_config["evaluations"]["conditional_distribution"][
-            "computation"
-        ]["common_bins"].get(bool)
-        config_of_interest = {"common_bins": common_bins}
-        config_filename = "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_config.yaml"
-
-        with open(config_filename, "w") as file:
-            yaml.dump(config_of_interest, file)
 
     def compute_for_column(self, colname, **kwargs):
         """Compute the evaluation for the given dataset column.
@@ -371,7 +384,5 @@ class ConditionalDistribution:
             eval_result = self.compute_for_column(colname)
             eval_result.display_result(xlab=colname)
             if generate_delta_report:
-                eval_result.display_delta(xlab=colname)
-                eval_result.save_result(label=colname)
-        if generate_delta_report:
-            self.save_config()
+                delta = ConditionalDistributionResultDelta(eval_result, self._config)
+                delta.display_delta(xlab=colname)
