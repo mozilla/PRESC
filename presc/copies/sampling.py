@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from itertools import product
 from presc.dataset import Dataset
 
 
@@ -23,9 +22,10 @@ def grid_sampling(
         )
         feature_names.append(key)
 
-    X_generated = pd.DataFrame.from_records(
-        list(i for i in product(*feature_list)), columns=feature_names
-    )
+    X_generated = pd.DataFrame()
+    for index, item in enumerate(np.meshgrid(*feature_list)):
+        X_generated[index] = item.ravel()
+    X_generated.columns = feature_names
 
     return X_generated
 
