@@ -3,9 +3,23 @@ import pandas as pd
 from presc.dataset import Dataset
 
 
+def dynamical_range(df):
+    range_dict = {}
+    for feature in df:
+        range_dict[feature] = {"min": df[feature].min(), "max": df[feature].max()}
+
+        print(
+            f"{feature} min: {range_dict[feature]['min']:.4f}    "
+            f"{feature} max: {range_dict[feature]['max']:.4f}    "
+            f"Interval: {range_dict[feature]['max']-range_dict[feature]['min']:.4f}   "
+        )
+
+    return range_dict
+
+
 def grid_sampling(
     nsamples=500,
-    feature_parameters={"x0": (-1, 1), "x1": (-1, 1)},
+    feature_parameters={"x0": {"min": -1, "max": 1}, "x1": {"min": -1, "max": 1}},
 ):
     """Sample the classifier with a grid-like sampling."""
     # Compute number of points per feature (assuming same number of points)
@@ -18,7 +32,9 @@ def grid_sampling(
     feature_names = []
     for key in feature_parameters:
         feature_list.append(
-            np.linspace(feature_parameters[key][0], feature_parameters[key][1], npoints)
+            np.linspace(
+                feature_parameters[key]["min"], feature_parameters[key]["max"], npoints
+            )
         )
         feature_names.append(key)
 
@@ -30,13 +46,18 @@ def grid_sampling(
     return X_generated
 
 
-def uniform_sampling(nsamples=500, feature_parameters={"x0": (-1, 1), "x1": (-1, 1)}):
+def uniform_sampling(
+    nsamples=500,
+    feature_parameters={"x0": {"min": -1, "max": 1}, "x1": {"min": -1, "max": 1}},
+):
     """Sample the classifier with a random uniform sampling."""
     # Generate random uniform data
     X_generated = pd.DataFrame()
     for key in feature_parameters:
         X_generated[key] = np.random.uniform(
-            feature_parameters[key][0], feature_parameters[key][1], size=nsamples
+            feature_parameters[key]["min"],
+            feature_parameters[key]["max"],
+            size=nsamples,
         )
 
     return X_generated
@@ -44,7 +65,8 @@ def uniform_sampling(nsamples=500, feature_parameters={"x0": (-1, 1), "x1": (-1,
 
 def normal_sampling(
     nsamples=500,
-    feature_parameters={"x0": (0, 1), "x1": (0, 1)},
+    feature_parameters={"x0": {"min": -1, "max": 1}, "x1": {"min": -1, "max": 1}},
+    feature_sigmas={"x0": 2, "x1": 2},
     label_col="y",
 ):
     """Sample the classifier with a normal distribution sampling (with independent features)."""
@@ -57,8 +79,11 @@ def normal_sampling(
     sigmas = []
     for key in feature_parameters:
         feature_names.append(key)
-        mus.append(feature_parameters[key][0])
-        sigmas.append(feature_parameters[key][1])
+        mus.append(
+            feature_parameters[key]["min"]
+            + ((feature_parameters[key]["max"] - feature_parameters[key]["min"]) / 2)
+        )
+        sigmas.append(feature_sigmas[key])
 
     mus = np.array(mus)
     covariate_matrix = np.eye(nfeatures, nfeatures) * (np.array(sigmas)) ** 2
