@@ -19,6 +19,7 @@ def dynamical_range(df):
 
 def grid_sampling(
     nsamples=500,
+    random_state=None,
     feature_parameters={"x0": {"min": -1, "max": 1}, "x1": {"min": -1, "max": 1}},
 ):
     """Sample the classifier with a grid-like sampling."""
@@ -48,9 +49,13 @@ def grid_sampling(
 
 def uniform_sampling(
     nsamples=500,
+    random_state=None,
     feature_parameters={"x0": {"min": -1, "max": 1}, "x1": {"min": -1, "max": 1}},
 ):
     """Sample the classifier with a random uniform sampling."""
+    if random_state is not None:
+        np.random.seed(seed=random_state)
+
     # Generate random uniform data
     X_generated = pd.DataFrame()
     for key in feature_parameters:
@@ -65,11 +70,15 @@ def uniform_sampling(
 
 def normal_sampling(
     nsamples=500,
+    random_state=None,
     feature_parameters={"x0": {"min": -1, "max": 1}, "x1": {"min": -1, "max": 1}},
     feature_sigmas={"x0": 2, "x1": 2},
     label_col="y",
 ):
     """Sample the classifier with a normal distribution sampling (with independent features)."""
+    if random_state is not None:
+        np.random.seed(seed=random_state)
+
     # Compute number of features
     nfeatures = len(feature_parameters)
 
