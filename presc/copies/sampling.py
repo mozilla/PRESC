@@ -71,7 +71,6 @@ def normal_sampling(
     nsamples=500,
     random_state=None,
     feature_parameters=None,
-    label_col="y",
 ):
     """Sample the classifier with a normal distribution sampling (with independent features)."""
     if random_state is not None:
@@ -103,7 +102,7 @@ def normal_sampling(
     return X_generated
 
 
-def labeling(X, original_classifier, label_col="y"):
+def labeling(X, original_classifier, label_col="class"):
 
     df_labeled = X.copy()
 
