@@ -17,11 +17,7 @@ def dynamical_range(df):
     return range_dict
 
 
-def grid_sampling(
-    nsamples=500,
-    random_state=None,
-    feature_parameters={"x0": {"min": -1, "max": 1}, "x1": {"min": -1, "max": 1}},
-):
+def grid_sampling(nsamples=500, random_state=None, feature_parameters=None):
     """Sample the classifier with a grid-like sampling."""
     # Compute number of points per feature (assuming same number of points)
     nfeatures = len(feature_parameters)
@@ -47,11 +43,7 @@ def grid_sampling(
     return X_generated
 
 
-def uniform_sampling(
-    nsamples=500,
-    random_state=None,
-    feature_parameters={"x0": {"min": -1, "max": 1}, "x1": {"min": -1, "max": 1}},
-):
+def uniform_sampling(nsamples=500, random_state=None, feature_parameters=None):
     """Sample the classifier with a random uniform sampling."""
     if random_state is not None:
         np.random.seed(seed=random_state)
@@ -71,8 +63,8 @@ def uniform_sampling(
 def normal_sampling(
     nsamples=500,
     random_state=None,
-    feature_parameters={"x0": {"min": -1, "max": 1}, "x1": {"min": -1, "max": 1}},
-    feature_sigmas={"x0": 2, "x1": 2},
+    feature_parameters=None,
+    feature_sigmas=None,
     label_col="y",
 ):
     """Sample the classifier with a normal distribution sampling (with independent features)."""
