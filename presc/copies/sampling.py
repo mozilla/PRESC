@@ -6,11 +6,18 @@ from presc.dataset import Dataset
 def dynamical_range(df):
     range_dict = {}
     for feature in df:
-        range_dict[feature] = {"min": df[feature].min(), "max": df[feature].max()}
+        range_dict[feature] = {
+            "min": df[feature].min(),
+            "max": df[feature].max(),
+            "mean": df[feature].mean(),
+            "sigma": df[feature].std(),
+        }
 
         print(
             f"{feature} min: {range_dict[feature]['min']:.4f}    "
             f"{feature} max: {range_dict[feature]['max']:.4f}    "
+            f"{feature} mean: {range_dict[feature]['mean']:.4f}    "
+            f"{feature} sigma: {range_dict[feature]['sigma']:.4f}    "
             f"Interval: {range_dict[feature]['max']-range_dict[feature]['min']:.4f}   "
         )
 
@@ -64,7 +71,6 @@ def normal_sampling(
     nsamples=500,
     random_state=None,
     feature_parameters=None,
-    feature_sigmas=None,
     label_col="y",
 ):
     """Sample the classifier with a normal distribution sampling (with independent features)."""
@@ -80,11 +86,8 @@ def normal_sampling(
     sigmas = []
     for key in feature_parameters:
         feature_names.append(key)
-        mus.append(
-            feature_parameters[key]["min"]
-            + ((feature_parameters[key]["max"] - feature_parameters[key]["min"]) / 2)
-        )
-        sigmas.append(feature_sigmas[key])
+        mus.append(feature_parameters[key]["mean"])
+        sigmas.append(feature_parameters[key]["sigma"])
 
     mus = np.array(mus)
     covariate_matrix = np.eye(nfeatures, nfeatures) * (np.array(sigmas)) ** 2
