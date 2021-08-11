@@ -9,7 +9,7 @@ class ClassifierCopy:
         self.sampling_function = sampling_function
         self.k_sampling_parameters = k_sampling_parameters
 
-    def copy_classifier(self):
+    def copy_classifier(self, get_training_data=False):
         # Generate synthetic data
         X_generated = self.sampling_function(**self.k_sampling_parameters)
         df_generated = labeling(X_generated, self.original)
@@ -17,15 +17,13 @@ class ClassifierCopy:
         # Copy the classifier
         self.copy.fit(df_generated.features, df_generated.labels)
 
-    def get_training_data(self, label_col="y"):
-        # Random state needs to be fixed to obtain the same training data
-        X_generated = self.sampling_function(**self.k_sampling_parameters)
-        df_generated = labeling(X_generated, self.original, label_col=label_col)
-        return df_generated
+        if get_training_data:
+            return df_generated
 
     def generate_synthetic_data(
         self, generated_nsamples=100, random_state=None, label_col="y"
     ):
+        # Random state needs to be fixed to obtain the same training data
         k_sampling_parameters_gen = self.k_sampling_parameters
         k_sampling_parameters_gen["random_state"] = random_state
         k_sampling_parameters_gen["nsamples"] = generated_nsamples
