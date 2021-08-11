@@ -28,7 +28,7 @@ class ClassifierCopy:
 
     def generate_synthetic_data(self, **k_mod_sampling_parameters):
         # Random state needs to be fixed to obtain the same training data
-        k_sampling_parameters_gen = self.k_sampling_parameters
+        k_sampling_parameters_gen = self.k_sampling_parameters.copy()
 
         if "nsamples" in k_mod_sampling_parameters.keys():
             k_sampling_parameters_gen["nsamples"] = k_mod_sampling_parameters[
