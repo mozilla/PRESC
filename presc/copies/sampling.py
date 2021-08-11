@@ -3,10 +3,28 @@ import pandas as pd
 from presc.dataset import Dataset
 
 
-def grid_sampling(
-    nsamples=500,
-    feature_parameters={"x0": (-1, 1), "x1": (-1, 1)},
-):
+def dynamical_range(df):
+    range_dict = {}
+    for feature in df:
+        range_dict[feature] = {
+            "min": df[feature].min(),
+            "max": df[feature].max(),
+            "mean": df[feature].mean(),
+            "sigma": df[feature].std(),
+        }
+
+        print(
+            f"{feature} min: {range_dict[feature]['min']:.4f}    "
+            f"{feature} max: {range_dict[feature]['max']:.4f}    "
+            f"{feature} mean: {range_dict[feature]['mean']:.4f}    "
+            f"{feature} sigma: {range_dict[feature]['sigma']:.4f}    "
+            f"Interval: {range_dict[feature]['max']-range_dict[feature]['min']:.4f}   "
+        )
+
+    return range_dict
+
+
+def grid_sampling(nsamples=500, random_state=None, feature_parameters=None):
     """Sample the classifier with a grid-like sampling."""
     # Compute number of points per feature (assuming same number of points)
     nfeatures = len(feature_parameters)
@@ -18,7 +36,9 @@ def grid_sampling(
     feature_names = []
     for key in feature_parameters:
         feature_list.append(
-            np.linspace(feature_parameters[key][0], feature_parameters[key][1], npoints)
+            np.linspace(
+                feature_parameters[key]["min"], feature_parameters[key]["max"], npoints
+            )
         )
         feature_names.append(key)
 
@@ -30,13 +50,18 @@ def grid_sampling(
     return X_generated
 
 
-def uniform_sampling(nsamples=500, feature_parameters={"x0": (-1, 1), "x1": (-1, 1)}):
+def uniform_sampling(nsamples=500, random_state=None, feature_parameters=None):
     """Sample the classifier with a random uniform sampling."""
+    if random_state is not None:
+        np.random.seed(seed=random_state)
+
     # Generate random uniform data
     X_generated = pd.DataFrame()
     for key in feature_parameters:
         X_generated[key] = np.random.uniform(
-            feature_parameters[key][0], feature_parameters[key][1], size=nsamples
+            feature_parameters[key]["min"],
+            feature_parameters[key]["max"],
+            size=nsamples,
         )
 
     return X_generated
@@ -44,10 +69,13 @@ def uniform_sampling(nsamples=500, feature_parameters={"x0": (-1, 1), "x1": (-1,
 
 def normal_sampling(
     nsamples=500,
-    feature_parameters={"x0": (0, 1), "x1": (0, 1)},
-    label_col="y",
+    random_state=None,
+    feature_parameters=None,
 ):
     """Sample the classifier with a normal distribution sampling (with independent features)."""
+    if random_state is not None:
+        np.random.seed(seed=random_state)
+
     # Compute number of features
     nfeatures = len(feature_parameters)
 
@@ -57,8 +85,8 @@ def normal_sampling(
     sigmas = []
     for key in feature_parameters:
         feature_names.append(key)
-        mus.append(feature_parameters[key][0])
-        sigmas.append(feature_parameters[key][1])
+        mus.append(feature_parameters[key]["mean"])
+        sigmas.append(feature_parameters[key]["sigma"])
 
     mus = np.array(mus)
     covariate_matrix = np.eye(nfeatures, nfeatures) * (np.array(sigmas)) ** 2
@@ -74,7 +102,7 @@ def normal_sampling(
     return X_generated
 
 
-def labeling(X, original_classifier, label_col="y"):
+def labeling(X, original_classifier, label_col="class"):
 
     df_labeled = X.copy()
 
