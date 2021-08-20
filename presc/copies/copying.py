@@ -3,6 +3,29 @@ from presc.copies.evaluations import empirical_fidelity_error
 
 
 class ClassifierCopy:
+    """Represents a classifier copy and its associated sampling method of choice.
+
+    Each instance wraps the original ML classifier with a ML classifier copy and
+    the sampling method to carry out the copy. Class methods allow to carry out
+    the copy the original classifier, evaluate the quality of the copy, and to
+    generate additional data using the original classifier with the sampling
+    method specified on instatiation.
+
+    Attributes
+    ----------
+        original : sklearn-type classifier
+            Original ML classifier to be copied.
+        copy : sklearn-type classifier
+            ML classifier that will be used for the copy.
+        sampling_function : function
+            Any of the sampling functions defined in PRESC: `grid_sampling`,
+            `uniform_sampling`, `normal_sampling`...
+        label_col : str
+            Name of the label column.
+        **k_sampling_parameters :
+            Parameters needed for the `sampling_function`.
+    """
+
     def __init__(
         self,
         original,
@@ -18,6 +41,29 @@ class ClassifierCopy:
         self.k_sampling_parameters = k_sampling_parameters
 
     def copy_classifier(self, get_training_data=False, **k_mod_sampling_parameters):
+        """Copies the classifier using data generated with the original model.
+
+        Generates synthetic data using only basic information of the features
+        (dynamic range, mean and sigma), labels it using the original model,
+        and trains the copy model with this synthetic data. It can also return
+        the generated synthetic data used for training.
+
+        Parameters
+        ----------
+        get_training_data : bool
+            If `True` this method returns the synthetic data generated from the
+            original classifier that was used to train the copy.
+        **k_mod_sampling_parameters :
+            If the "nsamples" and/or "random_state" parameters of the sampling
+            function have to be changed in order to obtain a different set of
+            synthetic data, they can be specified here.
+
+        Returns
+        -------
+        presc.dataset.Dataset
+            Outputs a PRESC Dataset with the training samples and their labels
+            (if `get_training_data` set to `True`).
+        """
         # Generate synthetic data
         df_generated = self.generate_synthetic_data(**k_mod_sampling_parameters)
         # Copy the classifier
@@ -27,6 +73,24 @@ class ClassifierCopy:
             return df_generated
 
     def generate_synthetic_data(self, **k_mod_sampling_parameters):
+        """Generates synthetic data using the original model.
+
+        Generates samples following the sampling strategy specified on
+        instantiation and then labels them using the original model. If the same
+        data needs to be generated then simply use a specific random seed.
+
+        Parameters
+        ----------
+        **k_mod_sampling_parameters :
+            If the "nsamples" and/or "random_state" parameters of the sampling
+            function have to be changed in order to obtain a different set of
+            synthetic data, they can be specified here.
+
+        Returns
+        -------
+        presc.dataset.Dataset
+            Outputs a PRESC Dataset with the generated samples and their labels.
+        """
         # Random state needs to be fixed to obtain the same training data
         k_sampling_parameters_gen = self.k_sampling_parameters.copy()
 
@@ -45,6 +109,24 @@ class ClassifierCopy:
         return df_generated
 
     def compute_fidelity_error(self, test_data):
+        """Computes the empirical fidelity error of the classifier copy.
+
+        Quantifies the resemblance of the copy to the original classifier. This
+        value is zero when the copy makes exactly the same predictions than the
+        original classifier (including misclassifications).
+
+        Parameters
+        ----------
+        test_data : array-like
+            Dataset with the unlabeled samples to evaluate the resemblance of
+            the copy to the original classifier.
+
+        Returns
+        -------
+        float
+            The numerical value of the empirical fidelity error of the copy with
+            this dataset.
+        """
         y_pred_original = self.original.predict(test_data)
         y_pred_copy = self.copy.predict(test_data)
 
