@@ -58,13 +58,13 @@ def test_grid_sampling():
     )
 
     assert len(df_test_1) == 324
-    assert (
-        len(df_test_1["feat_1"].unique()) == len(df_test_1["feat_2"].unique()) is True
-    )
+    assert len(df_test_1["feat_1"].unique()) == len(
+        df_test_1["feat_2"].unique()
+    )  # is True
     assert df_test_1.equals(df_test_2) is True
     assert df_test_1.equals(df_test_3) is True
-    assert df_test_1["feat_1"].max() < feature_parameters["feat_1"]["max"]
-    assert df_test_1["feat_2"].min() < feature_parameters["feat_1"]["min"]
+    assert df_test_1["feat_1"].max() <= feature_parameters["feat_1"]["max"]
+    assert df_test_1["feat_2"].min() >= feature_parameters["feat_2"]["min"]
 
 
 def test_uniform_sampling():
@@ -85,8 +85,8 @@ def test_uniform_sampling():
     assert len(df_test_1) == 342
     assert df_test_1.equals(df_test_2) is True
     assert df_test_1.equals(df_test_3) is False
-    assert df_test_1["feat_1"].max() < feature_parameters["feat_1"]["max"]
-    assert df_test_1["feat_2"].min() < feature_parameters["feat_1"]["min"]
+    assert df_test_1["feat_1"].max() <= feature_parameters["feat_1"]["max"]
+    assert df_test_1["feat_2"].min() >= feature_parameters["feat_2"]["min"]
 
 
 def test_normal_sampling():
@@ -134,11 +134,11 @@ def test_labeling():
 def test_empirical_fidelity_error():
     y_pred_original = [1, 0, 1, 0]
     y_pred_copy1 = [1, 1, 0, 0]
-    y_pred_copy2 = [1, 0, 0, 1]
+    y_pred_copy2 = [1, 0, 0, 0]
     efe1 = empirical_fidelity_error(y_pred_original, y_pred_copy1)
     efe2 = empirical_fidelity_error(y_pred_original, y_pred_copy2)
     assert efe1 == 0.5
-    assert efe2 == 0.75
+    assert efe2 == 0.25
 
 
 def test_ClassifierCopy_copy_classifier():
@@ -152,7 +152,7 @@ def test_ClassifierCopy_copy_classifier():
 
     # Copy classifier
     feature_parameters = {"x": {"min": 0, "max": 2}, "y": {"min": 0, "max": 2}}
-    classifier_copy = DecisionTreeClassifier(max_depth=1, random_state=42)
+    classifier_copy = DecisionTreeClassifier(max_depth=2, random_state=42)
     copy_grid = ClassifierCopy(
         original_classifier,
         classifier_copy,
@@ -173,4 +173,4 @@ def test_ClassifierCopy_copy_classifier():
     )
     efe = copy_grid.compute_fidelity_error(test_data=test_data)
 
-    assert efe == 1
+    assert efe == 0
