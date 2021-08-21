@@ -26,7 +26,7 @@ def multiclass_gaussians(
     Parameters
     ----------
     nsamples : int
-        Number of samples to generate.
+        Number of samples to generate per class.
     nfeatures : int
         Number of features of the generated samples.
     nclasses : int
@@ -79,7 +79,7 @@ def multiclass_gaussians(
             df["class"] = i
 
             # Add class data to the dataset
-            df_c = pd.concat([df, df_pred])
+            df_c = pd.concat([df_pred, df], ignore_index=True)
             df_pred = df_c
 
     # Convert into PRESC Dataset
