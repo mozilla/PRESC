@@ -128,17 +128,6 @@ def test_eval_compute_for_column(
     assert cde._config.dump() == conf_cde
 
 
-def test_saving_results(test_dataset, classification_model, config_col_override):
-    # Defaults
-    cde = ConditionalDistribution(
-        classification_model, test_dataset, settings={"computation.common_bins": True}
-    )
-    cdr = cde.compute_for_column("a")
-    cdr.save_result(label="unit-test")
-
-    assert cdr.binning == "fd"
-
-
 def test_eval_display(
     test_dataset,
     classification_model,
