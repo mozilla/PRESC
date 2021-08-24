@@ -8,6 +8,7 @@ from pandas import Series, MultiIndex
 import matplotlib.pyplot as plt
 from confuse import ConfigError
 import yaml
+import os
 import pickle
 
 
@@ -103,6 +104,37 @@ def compute_conditional_distribution(
     )
 
 
+def create_filename_and_location(prefix, label, extension):
+    result_root_path = os.environ["DELTA_STORAGE_DIR"]
+    file_directory = os.path.join(result_root_path, "report_results_test")
+    if not os.path.exists(file_directory):
+        os.makedirs(file_directory)
+    # TODO GLE handle dir create error and RESULT_ROOT_PATH not set
+    filename = os.path.join(file_directory, prefix + label + extension)
+    return filename
+
+
+def get_previous_data_filename(label):
+    previous_file = create_filename_and_location(
+        "ConditionalDistributionResult_results_", label, ".pkl"
+    )
+    return previous_file
+
+
+def get_previous_bins_filename(label):
+    bin_file = create_filename_and_location(
+        "ConditionalDistributionResult_bins_", label, ".pkl"
+    )
+    return bin_file
+
+
+def get_previous_config_filename():
+    config_file = create_filename_and_location(
+        "ConditionalDistributionResult_config", "", ".yaml"
+    )
+    return config_file
+
+
 class ConditionalDistributionResultDelta:
     def __init__(self, result, config):
         self.result = result
@@ -113,12 +145,7 @@ class ConditionalDistributionResultDelta:
 
     def display_delta(self, xlab):
         # Load previous data
-        previous_file = (
-            "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_results_"
-            + xlab
-            + ".pkl"
-        )
-
+        previous_file = get_previous_data_filename(label=xlab)
         try:
             with open(previous_file, "rb") as handle:
                 previous = pickle.load(handle)
@@ -130,11 +157,7 @@ class ConditionalDistributionResultDelta:
             return
 
         # Load previous bins
-        bin_file = (
-            "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_bins_"
-            + xlab
-            + ".pkl"
-        )
+        bin_file = get_previous_bins_filename(label=xlab)
         try:
             with open(bin_file, "rb") as handle:
                 previous_bins = pickle.load(handle)
@@ -143,7 +166,7 @@ class ConditionalDistributionResultDelta:
             return
 
         # Load previous config
-        config_file = "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_config.yaml"
+        config_file = get_previous_config_filename()
 
         try:
             with open(config_file, "r") as file:
@@ -195,25 +218,12 @@ class ConditionalDistributionResultDelta:
 
             plt.show(block=False)
 
-            self.save_result(label=xlab)
-
     def save_result(self, label):
-        # TODO GLE This path needs to be under the same dir as the presc generated report
-        results_filename = (
-            "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_results_"
-            + label
-            + ".pkl"
-        )
+        results_filename = get_previous_data_filename(label=label)
         pickle.dump(self.vals, open(results_filename, "wb"))
 
-        bin_filename = (
-            "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_bins_"
-            + label
-            + ".pkl"
-        )
+        bin_filename = get_previous_bins_filename(label=label)
         pickle.dump(self.bins, open(bin_filename, "wb"))
-        # TODO currently will be called on every column, maybe move elsewhere to call only once?
-        self.save_config()
 
     def save_config(self):
         comp_config = PrescConfig(self.config)
@@ -221,7 +231,7 @@ class ConditionalDistributionResultDelta:
             "computation"
         ]["common_bins"].get(bool)
         config_of_interest = {"common_bins": common_bins}
-        config_filename = "/Users/gleonard/dev/PRESC/presc_report/ConditionalDistributionResult_config.yaml"
+        config_filename = get_previous_config_filename()
 
         with open(config_filename, "w") as file:
             yaml.dump(config_of_interest, file)
@@ -379,10 +389,16 @@ class ConditionalDistribution:
         )
 
         generate_delta_report = self._config["report"]["delta_include"].get(bool)
-
+        delta = None
         for colname in cols:
             eval_result = self.compute_for_column(colname)
             eval_result.display_result(xlab=colname)
             if generate_delta_report:
                 delta = ConditionalDistributionResultDelta(eval_result, self._config)
                 delta.display_delta(xlab=colname)
+                delta.save_result(label=colname)
+                # can only save config once processing is complete.
+
+        #  Need to save the config outside the loop so that it isn't overwritten mid process.
+        if delta is not None:
+            delta.save_config()
