@@ -12,7 +12,7 @@ report:
   evaluations_include: "*"
   evaluations_exclude: null
   # Save results and compare the current results to the previous results.
-  delta_include: True
+  delta_include: False
 
 # Computation options for individual evaluations
 evaluations:
