@@ -6,7 +6,7 @@ class ClassifierCopy:
     """Represents a classifier copy and its associated sampling method of choice.
 
     Each instance wraps the original ML classifier with a ML classifier copy and
-    the sampling method to carry out the copy. Class methods allow to carry out
+    the sampling method to carry out the copy. Methods allow to carry out
     the copy the original classifier, evaluate the quality of the copy, and to
     generate additional data using the original classifier with the sampling
     method specified on instatiation.
