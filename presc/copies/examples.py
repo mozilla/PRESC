@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
 
-# import math
-
 from presc.dataset import Dataset
 
 
