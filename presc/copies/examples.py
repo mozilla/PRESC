@@ -52,8 +52,10 @@ def multiclass_gaussians(
     class_samples = int(nsamples / nclasses)
 
     # Create class zero drawing samples from a `nfeatures`-dimensional normal
-    # distribution centered at the origin and with standard deviation one.
-    t_pred = np.random.normal(0, 1, (class_samples, nfeatures))
+    # distribution centered at the origin and with a standard deviation between
+    # `scale_low` and `scale_high`.
+    scale = np.random.uniform(low=scale_low, high=scale_high)
+    t_pred = scale * np.random.normal(0, 1, (class_samples, nfeatures))
     df_pred = pd.DataFrame(t_pred)
     df_pred["class"] = 0
 
