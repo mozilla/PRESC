@@ -16,6 +16,7 @@ from presc.copies.sampling import (
 )
 from presc.copies.evaluations import empirical_fidelity_error
 from presc.copies.copying import ClassifierCopy
+from presc.copies.examples import multiclass_gaussians
 
 
 def test_dynamical_range():
@@ -174,3 +175,30 @@ def test_ClassifierCopy_copy_classifier():
     efe = copy_grid.compute_fidelity_error(test_data=test_data)
 
     assert efe == 0
+
+
+def test_multiclass_gaussians():
+    nsamples = 1500
+    nclasses = 15
+    nfeatures = 30
+    df_2feat_2class = multiclass_gaussians(
+        nsamples=nsamples,
+        nfeatures=nfeatures,
+        nclasses=nclasses,
+        center_low=100,
+        center_high=120,
+        scale_low=2,
+        scale_high=3,
+    ).df
+
+    assert len(df_2feat_2class) == nsamples - (nsamples % nclasses)
+    assert len(df_2feat_2class["class"].unique()) == nclasses
+
+    for class_number in range(nclasses):
+        class_df = df_2feat_2class[df_2feat_2class["class"] == class_number]
+        for feature in range(nfeatures):
+            if class_number == 0:
+                assert class_df[feature].mean() >= -1
+                assert class_df[feature].mean() <= 1
+            assert class_df[feature].std() >= 1.5
+            assert class_df[feature].std() <= 4.0
