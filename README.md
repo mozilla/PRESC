@@ -23,6 +23,8 @@ the selection and tuning of machine learning models intended to address user
 needs, and are important prerequisites towards building
 [trustworthy AI](https://foundation.mozilla.org/en/internet-health/trustworthy-artificial-intelligence/).
 
+It also includes a package to carry out copies of machine learning classifiers.
+
 As a tool, PRESC is intended for use by ML engineers to assist in the
 development and updating of models.
 It is usable in the following ways:
@@ -113,6 +115,10 @@ Along with code contributions, we welcome general feedback:
   described in the roadmap, the results you get from running PRESC, etc,
   including similar projects you're familiar with. You can start a discussion by
   opening an issue.
+  
+The development of the ML Classifier Copies package is being carried out in the branch [`model-copying`](
+https://github.com/mozilla/PRESC/tree/model-copying
+).
 
 ## Setting up a dev environment
 
@@ -148,3 +154,5 @@ we are grateful for their support:
 - [CANOSP](https://canosp.ca/)
 - [NLnet](https://nlnet.nl/)
 - [Universitat de Barcelona Master in Fundamental Principles of Data Science](https://mat.ub.edu/sciencedata/)
+
+The ML Classifier Copying package is being funded through the [NGI0 Discovery Fund](https://nlnet.nl/project/PRESC/), a fund established by NLnet with financial support from the European Commission's Next Generation Internet programme, under the aegis of DG Communications Networks, Content and Technology under grant agreement No 825322.
