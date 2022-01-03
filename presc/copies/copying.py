@@ -1,3 +1,4 @@
+from presc.dataset import Dataset
 from presc.copies.sampling import labeling
 from presc.copies.evaluations import empirical_fidelity_error
 
@@ -20,6 +21,8 @@ class ClassifierCopy:
         sampling_function : function
             Any of the sampling functions defined in PRESC: `grid_sampling`,
             `uniform_sampling`, `normal_sampling`...
+        balancing_sampler: bool
+            Whether the chosen sampling function does class balancing or not.
         label_col : str
             Name of the label column.
         **k_sampling_parameters :
@@ -31,12 +34,14 @@ class ClassifierCopy:
         original,
         copy,
         sampling_function,
+        balancing_sampler=False,
         label_col="class",
         **k_sampling_parameters
     ):
         self.original = original
         self.copy = copy
         self.sampling_function = sampling_function
+        self.balancing_sampler = balancing_sampler
         self.label_col = label_col
         self.k_sampling_parameters = k_sampling_parameters
 
@@ -104,7 +109,16 @@ class ClassifierCopy:
             ]
 
         X_generated = self.sampling_function(**k_sampling_parameters_gen)
-        df_generated = labeling(X_generated, self.original, label_col=self.label_col)
+
+        # If the type of sampling function attempts to balance the synthetic
+        # dataset, it returns the features AND the labels. Otherwise, it returns
+        # only the features, and the labeling function must be called.
+        if self.balancing_sampler:
+            df_generated = Dataset(X_generated, label_col=self.label_col)
+        else:
+            df_generated = labeling(
+                X_generated, self.original, label_col=self.label_col
+            )
 
         return df_generated
 
