@@ -6,6 +6,7 @@ Subpackages
 
    presc.evaluations
    presc.report
+   presc.copies
 
 Submodules
 ----------
@@ -40,4 +41,3 @@ presc.utils module
    :members:
    :undoc-members:
    :show-inheritance:
-
