@@ -19,6 +19,7 @@ Welcome to PRESC's documentation!
    configuration
    evaluations
    roadmap
+   Classifier Copies <ml_copies>
 
 .. toctree::
    :caption: API Reference
