@@ -23,6 +23,5 @@ dependencies:
   - sphinx=3.5.3
   - twine=3.2.0
   - imbalanced-learn=0.7.0
-  - pandas-profiling=2.8.0
   - pip:
     - sphinx-rtd-theme==0.5.1
