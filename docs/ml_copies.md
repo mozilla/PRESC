@@ -24,7 +24,7 @@ used as a diagnostic measure of the original model characteristics.
 
 ## Copying pipeline
 
-[![Scheme](../../docs/ML-classifier-copying-package-diagram_v2.svg)](../../../docs/ML-classifier-copying-package-diagram_v2.svg)
+![Scheme](_images/ML-classifier-copying-package-diagram_v2.svg)
 
 To carry out the copy, the `presc.copies.copying.ClassifierCopy` class needs two inputs: the original classifier to copy and, depending on the sampler, a dictionary with basic descriptors of the features. Right now the package assumes that we have the classifier saved as a sklearn-type model. The original data is not necessary to perform the copy but, if available, the `presc.copies.sampling.dynamical_range` function can conveniently extract the basic descriptors of its features into a dictionary. In this case, the data should be available as a pandas DataFrame. Otherwise, the dictionary with the basic feature descriptors can always be built manually. Even if we don't have access to the original data or detailed information of the features, we need at least to be able to make a guess or some assumptions about them.
 
