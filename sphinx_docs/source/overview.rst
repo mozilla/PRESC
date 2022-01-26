@@ -1,3 +1,1 @@
-==========
-
 .. mdinclude:: ../../docs/overview.md

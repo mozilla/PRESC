@@ -30,9 +30,9 @@ Welcome to PRESC's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Data Sets
+   :caption: Datasets
 
-   readme_datasets
+   datasets
 
 Reference
 =========
