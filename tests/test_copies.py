@@ -14,7 +14,11 @@ from presc.copies.sampling import (
     normal_sampling,
     labeling,
 )
-from presc.copies.evaluations import empirical_fidelity_error
+from presc.copies.evaluations import (
+    empirical_fidelity_error,
+    replacement_capability,
+    summary_metrics,
+)
 from presc.copies.copying import ClassifierCopy
 from presc.copies.examples import multiclass_gaussians
 
@@ -140,6 +144,76 @@ def test_empirical_fidelity_error():
     efe2 = empirical_fidelity_error(y_pred_original, y_pred_copy2)
     assert efe1 == 0.5
     assert efe2 == 0.25
+
+
+def test_replacement_capability():
+    y_true = [1, 0, 1, 0, 1]
+    y_pred_original = [1, 0, 1, 1, 0]  # 3 right predictions
+    y_pred_copy1 = [1, 1, 0, 0, 0]  # 2 right predictions
+    y_pred_copy2 = [1, 0, 1, 0, 0]  # 4 right predictions
+    rc1 = replacement_capability(y_true, y_pred_original, y_pred_copy1)
+    rc2 = replacement_capability(y_true, y_pred_original, y_pred_copy2)
+    assert rc1 == 2.0 / 3.0
+    assert rc2 == 4.0 / 3.0
+
+
+def test_summary_metrics():
+    random_seed = 42
+    # Original data
+    train_data = pd.DataFrame(
+        {"x": [0, 1, 0, 2, 1], "y": [1, 0, 2, 0, 1], "label": [0, 0, 1, 1, 1]},
+        columns=["x", "y", "label"],
+    )
+    test_data = Dataset(
+        pd.DataFrame(
+            {"x": [2, 0, 0, 1, 2], "y": [1, 0, 2, 0, 2], "label": [0, 0, 1, 0, 1]},
+            columns=["x", "y", "label"],
+        ),
+        label_col="label",
+    )
+
+    # Original classifier
+    original_classifier = SVC(kernel="linear", random_state=random_seed)
+    original_classifier.fit(train_data[["x", "y"]], train_data["label"])
+
+    # Copy classifier
+    feature_parameters = {"x": {"min": 0, "max": 2}, "y": {"min": 0, "max": 2}}
+    classifier_copy = DecisionTreeClassifier(max_depth=2, random_state=random_seed)
+    copy_grid = ClassifierCopy(
+        original_classifier,
+        classifier_copy,
+        grid_sampling,
+        nsamples=20,
+        label_col="label",
+        feature_parameters=feature_parameters,
+    )
+    copy_grid.copy_classifier()
+
+    # Generated data
+    synthetic_test_data = copy_grid.generate_synthetic_data(
+        generated_nsamples=5, random_state=random_seed, label_col="label"
+    )
+
+    metrics = summary_metrics(
+        original_model=original_classifier,
+        copy_model=copy_grid,
+        test_data=test_data,
+        synthetic_data=synthetic_test_data,
+        show_results=True,
+    )
+
+    expected_results = {
+        "Original Model Accuracy (test)": 0.6,
+        "Copy Model Accuracy (test)": 0.8,
+        "Empirical Fidelity Error (synthetic)": 0.0625,
+        "Empirical Fidelity Error (test)": 0.2,
+        "Replacement Capability (synthetic)": 0.9375,
+        "Replacement Capability (test)": 1.33333333,
+    }
+
+    metric_names = metrics.keys()
+    for name in metric_names:
+        np.testing.assert_almost_equal(metrics[name], expected_results[name], decimal=6)
 
 
 def test_ClassifierCopy_copy_classifier():
