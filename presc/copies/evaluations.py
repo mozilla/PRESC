@@ -81,7 +81,7 @@ def summary_metrics(
     synthetic_data : presc.dataset.Dataset
         Synthetic data generated using the original model.
     show_results : bool
-        Predicted labels, as returned by the classifier copy.
+        If `True` the metrics are also printed.
 
     Returns
     -------
@@ -140,6 +140,7 @@ def summary_metrics(
 
     if show_results:
         for name, value in results.items():
-            print(f"{name:<37}   {value:.4f}")
+            if value is not None:
+                print(f"{name:<37}   {value:.4f}")
 
     return results
