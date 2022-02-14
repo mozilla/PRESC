@@ -1,6 +1,10 @@
 from presc.dataset import Dataset
 from presc.copies.sampling import labeling
-from presc.copies.evaluations import empirical_fidelity_error, summary_metrics
+from presc.copies.evaluations import (
+    empirical_fidelity_error,
+    replacement_capability,
+    summary_metrics,
+)
 
 
 class ClassifierCopy:
@@ -146,6 +150,33 @@ class ClassifierCopy:
         y_pred_copy = self.copy.predict(test_data)
 
         return empirical_fidelity_error(y_pred_original, y_pred_copy)
+
+    def replacement_capability(self, test_data):
+        """Computes the replacement capability of a classifier copy.
+
+        Quantifies the ability of the copy model to substitute the original
+        model, i.e. maintaining the same accuracy in its predictions. This value
+        is one when the accuracy of the copy model is the same as the original
+        model, although the individual predictions may be different, approaching
+        zero if the accuracy of the copy is much smaller than the original, and
+        it can even take values larger than one if the copy model is better than
+        the original.
+
+        Parameters
+        ----------
+        test_data : presc.dataset.Dataset
+            Subset of the original data reserved to evaluate the resemblance of
+            the copy to the original classifier. Or synthetic data generated
+            from the original model with the same purpose.
+
+        Returns
+        -------
+        float
+            The numerical value of the replacement capability.
+        """
+        y_pred_original = self.original.predict(test_data.features)
+        y_pred_copy = self.copy.predict(test_data.features)
+        return replacement_capability(test_data.labels, y_pred_original, y_pred_copy)
 
     def evaluation_summary(self, test_data=None, synthetic_data=None):
         """Computes several metrics to evaluate the classifier copy.
