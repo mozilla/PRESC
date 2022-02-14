@@ -1,6 +1,6 @@
 from presc.dataset import Dataset
 from presc.copies.sampling import labeling
-from presc.copies.evaluations import empirical_fidelity_error
+from presc.copies.evaluations import empirical_fidelity_error, summary_metrics
 
 
 class ClassifierCopy:
@@ -146,3 +146,42 @@ class ClassifierCopy:
         y_pred_copy = self.copy.predict(test_data)
 
         return empirical_fidelity_error(y_pred_original, y_pred_copy)
+
+    def evaluation_summary(self, test_data=None, synthetic_data=None):
+        """Computes several metrics to evaluate the classifier copy.
+
+        Summary of metrics that evaluate the quality of a classifier copy, not
+        only to assess its performance as classifier but to quantify its
+        resemblance to the original classifier. Accuracy of the original and the
+        copy models (using the original test data), and the empirical fidelity
+        error and replacement capability of the copy (using the original test
+        data and/or the generated synthetic data). This is a wrapper of the
+        `summary_metrics` function applied to the copy and original models in
+        this instance.
+
+        Parameters
+        ----------
+        original_model : sklearn-type classifier
+            Original ML classifier to be copied.
+        copy_model : presc.copies.copying.ClassifierCopy
+            ML classifier copy from the original ML classifier.
+        test_data : presc.dataset.Dataset
+            Subset of the original data reserved for testing.
+        synthetic_data : presc.dataset.Dataset
+            Synthetic data generated using the original model.
+        show_results : bool
+            If `True` the metrics are also printed.
+
+        Returns
+        -------
+        dict
+            The values of all metrics.
+        """
+        results = summary_metrics(
+            original_model=self.original,
+            copy_model=self,
+            test_data=test_data,
+            synthetic_data=synthetic_data,
+            show_results=True,
+        )
+        return results
