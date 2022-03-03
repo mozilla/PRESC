@@ -123,7 +123,6 @@ class ClassifierCopy:
             df_generated = labeling(
                 X_generated, self.original, label_col=self.label_col
             )
-        df_generated = labeling(X_generated, self.original, label_col=self.label_col)
 
         return df_generated
 
