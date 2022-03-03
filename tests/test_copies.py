@@ -153,8 +153,9 @@ def test_replacement_capability():
     y_pred_copy2 = [1, 0, 1, 0, 0]  # 4 right predictions
     rc1 = replacement_capability(y_true, y_pred_original, y_pred_copy1)
     rc2 = replacement_capability(y_true, y_pred_original, y_pred_copy2)
-    assert rc1 == 2.0 / 3.0
-    assert rc2 == 4.0 / 3.0
+
+    np.testing.assert_almost_equal(rc1, 2.0 / 3.0, decimal=14)
+    np.testing.assert_almost_equal(rc2, 4.0 / 3.0, decimal=14)
 
 
 def test_summary_metrics():
