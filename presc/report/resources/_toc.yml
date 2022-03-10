@@ -1,11 +1,11 @@
-- file: landing
-
-- part: Misclassifications
+format: jb-book
+root: landing
+parts:
+- caption: Misclassifications
   chapters:
-    - file: conditional_distribution
-    - file: conditional_metric
-    - file: spatial_distribution
-
-- part: Stability
+  - file: conditional_distribution
+  - file: conditional_metric
+  - file: spatial_distribution
+- caption: Stability
   chapters:
-    - file: train_test_splits
+  - file: train_test_splits
