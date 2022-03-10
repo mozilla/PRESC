@@ -2,6 +2,7 @@ import os
 from subprocess import CompletedProcess
 from pathlib import Path
 import shutil
+import re
 
 from pandas.testing import assert_frame_equal
 import pytest
@@ -269,51 +270,31 @@ def test_run_report_error_notebook(tmp_path, pipeline_classifier, test_dataset):
 def test_run_report_error_build(
     tmp_path, classification_model, test_dataset, monkeypatch
 ):
-    # Missing report page: jupyter-book build job fails
+    # Missing report page: jupyter-book build job warns but succeeds
     from presc.report import runner
 
     mock_report_source = tmp_path / "mock_report_source"
     shutil.copytree(runner.REPORT_SOURCE_PATH, mock_report_source)
     with open(mock_report_source / runner.JB_TOC_FILENAME, "a") as f:
-        f.write("- file: missing_notebook\n")
+        f.write("  - file: missing_notebook\n")
     monkeypatch.setattr(runner, "REPORT_SOURCE_PATH", mock_report_source)
 
     out_path_run = tmp_path / "test_run"
     rr = ReportRunner(output_path=out_path_run, config_filepath=TEST_REPORT_CONFIG_PATH)
-    # run() function generates warnings
-    with pytest.warns(UserWarning) as warning_records:
-        rr.run(
-            model=classification_model,
-            test_dataset=test_dataset,
-        )
-    assert len(warning_records) == 2
-    # Warning from build function
-    first_warning = warning_records[0].message.args[0]
-    assert "jupyter-book build" in first_warning
-    assert "did not succeed" in first_warning
-    assert str(rr.jb_build_log) in first_warning
-    # Warning from run function
-    second_warning = warning_records[1].message.args[0]
-    assert "expected report main page" in second_warning
-    assert "error generating" in second_warning
-    assert str(rr.jb_build_log) in second_warning
+    rr.run(
+        model=classification_model,
+        test_dataset=test_dataset,
+    )
 
-    # Build artifacts mention error
-    assert rr._jb_build_result.returncode > 0
+    # Build succeeded
+    assert rr.report_main_page.exists()
+    assert rr._jb_build_result.returncode == 0
+
+    # Build log includes warning about missing notebook
     with open(rr.jb_build_log) as f:
         build_log = f.read()
     assert build_log.startswith("Running Jupyter-Book")
-    assert "Finished generating HTML" not in build_log
-    assert "error in building" in build_log.lower()
-    assert "RuntimeError" in build_log
-
-    # Report was not produced
-    assert not rr.report_main_page.exists()
-    assert not rr._linked_main_page.exists()
-    with pytest.raises(AttributeError):
-        rr.report_html
-    with pytest.raises(AttributeError):
-        rr.open()
+    assert re.search("warning:.*missing_notebook", build_log.lower())
 
 
 def test_run_report_override_config(
