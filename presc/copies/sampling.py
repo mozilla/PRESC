@@ -349,6 +349,27 @@ def spherical_balancer_sampling(
     return df_generated
 
 
+def categorical_sampling(nsamples=500, random_state=None, feature_parameters=None):
+    """."""
+    if random_state is not None:
+        np.random.seed(seed=random_state)
+
+    # Generate random data with the probabilities specified on the "categories"
+    # entry of the feature_parameters
+    X_generated = pd.DataFrame()
+    for feature in feature_parameters:
+        categories = list(feature_parameters[feature]["categories"].keys())
+        category_probabilities = [
+            feature_parameters[feature]["categories"][category]
+            for category in categories
+        ]
+        X_generated[feature] = pd.Series(
+            np.random.choice(categories, p=category_probabilities, size=nsamples)
+        ).astype("category")
+
+    return X_generated
+
+
 def labeling(X, original_classifier, label_col="class"):
     """Labels the samples from a dataset according to a classifier.
 
