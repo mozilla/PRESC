@@ -91,6 +91,23 @@ def find_categories(df, add_NaNs=False):
 
 
 def build_equal_category_dict(feature_categories):
+    """Assigns equal probability to all categories of each feature.
+
+    Parameters
+    ----------
+    feature_categories : dict of lists
+        A dictionary with an entry per feature, with the list of categories
+        that each feature has.
+
+    Returns
+    -------
+    dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys are the
+        column names), where each feature entry contains a nested dictionary
+        with its categories and the identical fraction for all categories from
+        the same feature (the nested dictionary key for this information is
+        "categories", which is also a dictionary with one entry per category).
+    """
     categories_dict = {}
     for feature, categories in feature_categories.items():
         categories_dict[feature] = {
