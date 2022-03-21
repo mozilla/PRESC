@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from presc.dataset import Dataset
+from presc.evaluations.utils import is_discrete
 
 
 def dynamical_range(df):
@@ -38,6 +39,36 @@ def dynamical_range(df):
         )
 
     return range_dict
+
+
+def find_categories(df, add_NaNs=False):
+    categories_dict = {}
+    for feature in df:
+        if is_discrete(df[feature]):
+            # Remove NaN values from selection
+            df_no_nans = df[df[feature].notnull()]
+
+            # Log fraction of NaN values if required
+            if add_NaNs:
+                nan_fraction = df[feature].isnull().sum() / len(df)
+                total_length = len(df)
+            else:
+                nan_fraction = 0
+                total_length = len(df_no_nans)
+
+            categories_dict[feature] = {
+                "categories": {
+                    key: None for key in df_no_nans[feature].unique().tolist()
+                }
+            }
+            for category in categories_dict[feature]["categories"].keys():
+                categories_dict[feature]["categories"][category] = (
+                    df_no_nans[feature].value_counts()[category] / total_length
+                )
+            if add_NaNs and nan_fraction != 0:
+                categories_dict[feature]["categories"]["NaNs"] = nan_fraction
+
+    return categories_dict
 
 
 def grid_sampling(nsamples=500, random_state=None, feature_parameters=None):
