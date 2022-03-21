@@ -370,6 +370,53 @@ def categorical_sampling(nsamples=500, random_state=None, feature_parameters=Non
     return X_generated
 
 
+def mixed_data_sampling(
+    numerical_sampling, nsamples=500, random_state=None, feature_parameters=None
+):
+    """."""
+    if random_state is not None:
+        np.random.seed(seed=random_state)
+
+    # Generate the lists of numerical and categorical data
+    features_numerical = []
+    features_categorical = []
+    for feature in feature_parameters:
+        if "categories" in feature_parameters[feature]:
+            features_categorical.append(feature)
+        else:
+            features_numerical.append(feature)
+
+    feature_parameters_numerical = {
+        feature: feature_parameters[feature] for feature in features_numerical
+    }
+    feature_parameters_categorical = {
+        feature: feature_parameters[feature] for feature in features_categorical
+    }
+
+    X_generated_numerical = numerical_sampling(
+        nsamples=nsamples,
+        random_state=random_state,
+        feature_parameters=feature_parameters_numerical,
+    )
+    X_generated_categorical = categorical_sampling(
+        nsamples=nsamples,
+        random_state=random_state,
+        feature_parameters=feature_parameters_categorical,
+    )
+    X_generated = pd.DataFrame()
+    for feature in feature_parameters:
+        if "categories" in feature_parameters[feature]:
+            X_generated = X_generated.join(
+                X_generated_categorical[[feature]], how="outer"
+            )
+        else:
+            X_generated = X_generated.join(
+                X_generated_numerical[[feature]], how="outer"
+            )
+
+    return X_generated
+
+
 def labeling(X, original_classifier, label_col="class"):
     """Labels the samples from a dataset according to a classifier.
 
