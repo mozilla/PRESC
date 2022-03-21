@@ -10,7 +10,7 @@ def dynamical_range(df):
     Parameters
     ----------
     df : pandas DataFrame
-        The dataset with all the features to analyze.
+        The dataset with all the numerical features to analyze.
 
     Returns
     -------
@@ -42,6 +42,25 @@ def dynamical_range(df):
 
 
 def find_categories(df, add_NaNs=False):
+    """Returns the categories of the dataset features.
+
+    Parameters
+    ----------
+    df : pandas DataFrame
+        The dataset with all the categorical features to analyze.
+    add_NaNs : bool
+        If True the sampler adds a "NaNs" category for the features that have
+        any null values and assigns it the appropriate fraction.
+
+    Returns
+    -------
+    dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys are the
+        column names), where each feature entry contains a nested dictionary
+        with its categories and the fraction of each category present in the
+        analyzed dataset (the nested dictionary key for this information is
+        "categories", which is also a dictionary with one entry per category).
+    """
     categories_dict = {}
     for feature in df:
         if is_discrete(df[feature]):
