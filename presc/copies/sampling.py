@@ -438,6 +438,7 @@ def labeling(X, original_classifier, label_col="class"):
 
     # Label synthetic data with original classifier
     df_labeled[label_col] = original_classifier.predict(df_labeled)
+    df_labeled[label_col] = df_labeled[label_col].astype("category")
 
     # Instantiate dataset wrapper
     df_labeled = Dataset(df_labeled, label_col=label_col)
