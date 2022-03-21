@@ -117,6 +117,30 @@ def build_equal_category_dict(feature_categories):
 
 
 def mixed_data_features(df, add_NaNs=False):
+    """Extracts the numerical/categorical feature parameters from a dataset.
+
+    Parameters
+    ----------
+    df : pandas DataFrame
+        The dataset with all the features to analyze (both numerical and
+        categorical).
+    add_NaNs : bool
+        If True the sampler adds a "NaNs" category for the categorical features
+        that have any null values and assigns it the appropriate fraction.
+
+    Returns
+    -------
+    dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys are the
+        column names), where each numerical feature entry contains a nested
+        dictionary with the values of the minimum and maximum values of the
+        dynamic range of the dataset, as well as the mean and sigma of the
+        distribution, and each categorical feature entry contains a nested
+        dictionary with its categories and the fraction of each category present
+        in the analyzed dataset (nested dictionary keys are "min", "max",
+        "mean", "sigma", and "categories", which is also a dictionary with one
+        entry per category).
+    """
     features_dict = {}
     for feature in df:
         df_feature = df[[feature]]
