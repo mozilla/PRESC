@@ -80,6 +80,19 @@ def build_equal_category_dict(feature_categories):
     return categories_dict
 
 
+def mixed_data_features(df, add_NaNs=False):
+    features_dict = {}
+    for feature in df:
+        df_feature = df[[feature]]
+        if is_discrete(df[feature]):
+            single_feature_parameters = find_categories(df_feature, add_NaNs=add_NaNs)
+        else:
+            single_feature_parameters = dynamical_range(df_feature)
+        features_dict[feature] = single_feature_parameters[feature]
+
+    return features_dict
+
+
 def grid_sampling(nsamples=500, random_state=None, feature_parameters=None):
     """Sample the classifier with a grid-like sampling.
 
