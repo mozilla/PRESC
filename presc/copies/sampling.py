@@ -500,6 +500,7 @@ def mixed_data_sampling(
         else:
             features_numerical.append(feature)
 
+    # Generate feature parameter dictionaries for the numerical/categorical samplers
     feature_parameters_numerical = {
         feature: feature_parameters[feature] for feature in features_numerical
     }
@@ -507,6 +508,7 @@ def mixed_data_sampling(
         feature: feature_parameters[feature] for feature in features_categorical
     }
 
+    # Generate the numerical/categorical features of each sample separately
     X_generated_numerical = numerical_sampling(
         nsamples=nsamples,
         random_state=random_state,
@@ -517,6 +519,9 @@ def mixed_data_sampling(
         random_state=random_state,
         feature_parameters=feature_parameters_categorical,
     )
+
+    # Combine the numerical/categorical features respecting the structure of the
+    # original dataset
     X_generated = pd.DataFrame()
     for feature in feature_parameters:
         if "categories" in feature_parameters[feature]:
