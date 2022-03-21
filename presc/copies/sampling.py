@@ -410,7 +410,7 @@ def spherical_balancer_sampling(
 
 
 def categorical_sampling(nsamples=500, random_state=None, feature_parameters=None):
-    """Sample de classifier with a discrete distribution sampling.
+    """Sample the classifier with a discrete distribution sampling.
 
     Generates synthetic samples with a discrete distribution according to the
     probabilities described by `feature_parameters`. Features are assumed to be
@@ -438,8 +438,7 @@ def categorical_sampling(nsamples=500, random_state=None, feature_parameters=Non
     if random_state is not None:
         np.random.seed(seed=random_state)
 
-    # Generate random data with the probabilities specified on the "categories"
-    # entry of the feature_parameters
+    # Generate random data with the specified probabilities
     X_generated = pd.DataFrame()
     for feature in feature_parameters:
         categories = list(feature_parameters[feature]["categories"].keys())
@@ -457,7 +456,38 @@ def categorical_sampling(nsamples=500, random_state=None, feature_parameters=Non
 def mixed_data_sampling(
     numerical_sampling, nsamples=500, random_state=None, feature_parameters=None
 ):
-    """."""
+    """Sample the classifier with a mix of a numerical and categorical sampler.
+
+    Generates synthetic samples with the specified distribution for the
+    numerical features and with a discrete distribution for the categorical
+    features. The parameters describing the feature space needed to compute the
+    distributions are described in the `feature_parameters` dictionary. Features
+    are assumed to be independent (not correlated).
+
+    Parameters
+    ----------
+    numerical_sampling : function
+        Any of the non balancing numerical sampling functions defined in PRESC:
+        `grid_sampling`, `uniform_sampling`, `normal_sampling`...
+    nsamples : int
+        Number of samples to generate.
+    random_state : int
+        Random seed used to generate the sampling data.
+    feature_parameters : dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys should
+        be the feature names), where each feature entry must contain a
+        nested dictionary with its categories and their probability. The key for
+        the nested dictionary of categories should be "categories", and the keys
+        for the probabilities should be the category name.
+
+    Returns
+    -------
+    pandas DataFrame
+        Dataset with a generated sampling following the specified numerical
+        sampling distribution for the numerical features and the discrete
+        distribution for the categorical features, following the feature space
+        characterized by the `feature_parameters`.
+    """
     if random_state is not None:
         np.random.seed(seed=random_state)
 
