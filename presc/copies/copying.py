@@ -24,7 +24,9 @@ class ClassifierCopy:
             ML classifier that will be used for the copy.
         sampling_function : function
             Any of the sampling functions defined in PRESC: `grid_sampling`,
-            `uniform_sampling`, `normal_sampling`...
+            `uniform_sampling`, `normal_sampling`... The `balancing sampler` can
+            only be used if the feature space does not contain any categorical
+            variable.
         balancing_sampler: bool
             Whether the chosen sampling function does class balancing or not.
         label_col : str
@@ -85,8 +87,10 @@ class ClassifierCopy:
         """Generates synthetic data using the original model.
 
         Generates samples following the sampling strategy specified on
-        instantiation and then labels them using the original model. If the same
-        data needs to be generated then simply use a specific random seed.
+        instantiation for the numerical features and a discrete distribution for
+        the categorical features, and then labels them using the original model.
+        If the same data needs to be generated then simply use a specific
+        random seed.
 
         Parameters
         ----------
