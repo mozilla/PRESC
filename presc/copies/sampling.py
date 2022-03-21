@@ -410,7 +410,31 @@ def spherical_balancer_sampling(
 
 
 def categorical_sampling(nsamples=500, random_state=None, feature_parameters=None):
-    """."""
+    """Sample de classifier with a discrete distribution sampling.
+
+    Generates synthetic samples with a discrete distribution according to the
+    probabilities described by `feature_parameters`. Features are assumed to be
+    independent (not correlated).
+
+    Parameters
+    ----------
+    nsamples : int
+        Number of samples to generate.
+    random_state : int
+        Random seed used to generate the sampling data.
+    feature_parameters : dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys should
+        be the feature names), where each feature entry must contain a
+        nested dictionary with its categories and their fraction. The key for
+        the nested dictionary of categories should be "categories", and the keys
+        for the fractions should be the category name.
+
+    Returns
+    -------
+    pandas DataFrame
+        Dataset with a generated sampling following the discrete distribution of
+        the feature space characterized by the `feature_parameters`.
+    """
     if random_state is not None:
         np.random.seed(seed=random_state)
 
