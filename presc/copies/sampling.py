@@ -71,6 +71,15 @@ def find_categories(df, add_NaNs=False):
     return categories_dict
 
 
+def build_equal_category_dict(feature_categories):
+    categories_dict = {}
+    for feature, categories in feature_categories.items():
+        categories_dict[feature] = {
+            "categories": {key: 1 / len(categories) for key in categories}
+        }
+    return categories_dict
+
+
 def grid_sampling(nsamples=500, random_state=None, feature_parameters=None):
     """Sample the classifier with a grid-like sampling.
 
