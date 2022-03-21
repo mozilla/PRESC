@@ -1,5 +1,5 @@
 from presc.dataset import Dataset
-from presc.copies.sampling import labeling
+from presc.copies.sampling import mixed_data_sampling, labeling
 from presc.copies.evaluations import (
     empirical_fidelity_error,
     replacement_capability,
@@ -112,7 +112,9 @@ class ClassifierCopy:
                 "random_state"
             ]
 
-        X_generated = self.sampling_function(**k_sampling_parameters_gen)
+        X_generated = mixed_data_sampling(
+            self.sampling_function, **k_sampling_parameters_gen
+        )
 
         # If the type of sampling function attempts to balance the synthetic
         # dataset, it returns the features AND the labels. Otherwise, it returns
