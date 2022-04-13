@@ -61,7 +61,7 @@ def test_find_categories():
     }
     df = pd.DataFrame(data, columns=["color", "height", "siblings"])
     df[["color", "siblings"]] = df[["color", "siblings"]].astype("category")
-    category_dict = find_categories(df, add_NaNs=True)
+    category_dict = find_categories(df, add_nans=True)
     expected_category_dict = {
         "color": {"categories": {"red": 0.4, "blue": 0.6}},
         "siblings": {"categories": {1.0: 0.6, 2.0: 0.2, "NaNs": 0.2}},
@@ -109,7 +109,7 @@ def test_mixed_data_features():
     }
     df = pd.DataFrame(data, columns=["color", "height", "siblings"])
     df[["color", "siblings"]] = df[["color", "siblings"]].astype("category")
-    feature_dict = mixed_data_features(df, add_NaNs=True)
+    feature_dict = mixed_data_features(df, add_nans=True)
     expected_feature_dict = {
         "color": {"categories": {"red": 0.4, "blue": 0.6}},
         "height": {"min": 55.8, "max": 80.3, "mean": 67.42, "sigma": 8.94242696},
