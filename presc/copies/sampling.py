@@ -41,14 +41,14 @@ def dynamical_range(df):
     return range_dict
 
 
-def find_categories(df, add_NaNs=False):
+def find_categories(df, add_nans=False):
     """Returns the categories of the dataset features.
 
     Parameters
     ----------
     df : pandas DataFrame
         The dataset with all the categorical features to analyze.
-    add_NaNs : bool
+    add_nans : bool
         If True the sampler adds a "NaNs" category for the features that have
         any null values and assigns it the appropriate fraction.
 
@@ -68,7 +68,7 @@ def find_categories(df, add_NaNs=False):
             df_no_nans = df[df[feature].notnull()]
 
             # Log fraction of NaN values if required
-            if add_NaNs:
+            if add_nans:
                 nan_fraction = df[feature].isnull().sum() / len(df)
                 total_length = len(df)
             else:
@@ -84,7 +84,7 @@ def find_categories(df, add_NaNs=False):
                 categories_dict[feature]["categories"][category] = (
                     df_no_nans[feature].value_counts()[category] / total_length
                 )
-            if add_NaNs and nan_fraction != 0:
+            if add_nans and nan_fraction != 0:
                 categories_dict[feature]["categories"]["NaNs"] = nan_fraction
 
     return categories_dict
@@ -116,7 +116,7 @@ def build_equal_category_dict(feature_categories):
     return categories_dict
 
 
-def mixed_data_features(df, add_NaNs=False):
+def mixed_data_features(df, add_nans=False):
     """Extracts the numerical/categorical feature parameters from a dataset.
 
     Parameters
@@ -124,7 +124,7 @@ def mixed_data_features(df, add_NaNs=False):
     df : pandas DataFrame
         The dataset with all the features to analyze (both numerical and
         categorical).
-    add_NaNs : bool
+    add_nans : bool
         If True the sampler adds a "NaNs" category for the categorical features
         that have any null values and assigns it the appropriate fraction.
 
@@ -145,7 +145,7 @@ def mixed_data_features(df, add_NaNs=False):
     for feature in df:
         df_feature = df[[feature]]
         if is_discrete(df[feature]):
-            single_feature_parameters = find_categories(df_feature, add_NaNs=add_NaNs)
+            single_feature_parameters = find_categories(df_feature, add_nans=add_nans)
         else:
             single_feature_parameters = dynamical_range(df_feature)
         features_dict[feature] = single_feature_parameters[feature]
