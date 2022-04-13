@@ -153,7 +153,7 @@ def mixed_data_features(df, add_nans=False):
     return features_dict
 
 
-def grid_sampling(nsamples=500, random_state=None, feature_parameters=None):
+def grid_sampling(feature_parameters, nsamples=500, random_state=None):
     """Sample the classifier with a grid-like sampling.
 
     Generates synthetic samples with a regular grid-like distribution within the
@@ -162,17 +162,17 @@ def grid_sampling(nsamples=500, random_state=None, feature_parameters=None):
 
     Parameters
     ----------
-    nsamples : int
-        Maximum number of samples to generate. The exact number will depend on
-        the parameter space.
-    random_state : int
-        Parameter not used in `grid_sampling`.
     feature_parameters : dict of dicts
         A dictionary with an entry per dataset feature (dictionary keys should
         be the feature names), and where each feature entry must contain a
         nested dictionary with at least the entries corresponding to the minimum
         and maximum values of the dynamic range. Dictionary keys for these
         values should be "min" and "max", respectively.
+    nsamples : int
+        Maximum number of samples to generate. The exact number will depend on
+        the parameter space.
+    random_state : int
+        Parameter not used in `grid_sampling`.
 
     Returns
     -------
@@ -203,7 +203,7 @@ def grid_sampling(nsamples=500, random_state=None, feature_parameters=None):
     return X_generated
 
 
-def uniform_sampling(nsamples=500, random_state=None, feature_parameters=None):
+def uniform_sampling(feature_parameters, nsamples=500, random_state=None):
     """Sample the classifier with a random uniform sampling.
 
     Generates synthetic samples with a random uniform distribution within the
@@ -211,16 +211,16 @@ def uniform_sampling(nsamples=500, random_state=None, feature_parameters=None):
 
     Parameters
     ----------
-    nsamples : int
-        Number of samples to generate.
-    random_state : int
-        Random seed used to generate the sampling data.
     feature_parameters : dict of dicts
         A dictionary with an entry per dataset feature (dictionary keys should
         be the feature names), and where each feature entry must contain a
         nested dictionary with at least the entries corresponding to the minimum
         and maximum values of the dynamic range. Dictionary keys for these
         values should be "min" and "max", respectively.
+    nsamples : int
+        Number of samples to generate.
+    random_state : int
+        Random seed used to generate the sampling data.
 
     Returns
     -------
@@ -244,9 +244,9 @@ def uniform_sampling(nsamples=500, random_state=None, feature_parameters=None):
 
 
 def normal_sampling(
+    feature_parameters,
     nsamples=500,
     random_state=None,
-    feature_parameters=None,
 ):
     """Sample the classifier with a normal distribution sampling.
 
@@ -256,16 +256,16 @@ def normal_sampling(
 
     Parameters
     ----------
-    nsamples : int
-        Number of samples to generate.
-    random_state : int
-        Random seed used to generate the sampling data.
     feature_parameters : dict of dicts
         A dictionary with an entry per dataset feature (dictionary keys should
         be the feature names), and where each feature entry must contain a
         nested dictionary with at least the entries corresponding to the mean
         and standard deviation values of the dataset. Dictionary keys for these
         values should be "mean" and "sigma", respectively.
+    nsamples : int
+        Number of samples to generate.
+    random_state : int
+        Random seed used to generate the sampling data.
 
     Returns
     -------
@@ -409,7 +409,7 @@ def spherical_balancer_sampling(
     return df_generated
 
 
-def categorical_sampling(nsamples=500, random_state=None, feature_parameters=None):
+def categorical_sampling(feature_parameters, nsamples=500, random_state=None):
     """Sample the classifier with a discrete distribution sampling.
 
     Generates synthetic samples with a discrete distribution according to the
@@ -418,16 +418,16 @@ def categorical_sampling(nsamples=500, random_state=None, feature_parameters=Non
 
     Parameters
     ----------
-    nsamples : int
-        Number of samples to generate.
-    random_state : int
-        Random seed used to generate the sampling data.
     feature_parameters : dict of dicts
         A dictionary with an entry per dataset feature (dictionary keys should
         be the feature names), where each feature entry must contain a
         nested dictionary with its categories and their fraction. The key for
         the nested dictionary of categories should be "categories", and the keys
         for the fractions should be the category name.
+    nsamples : int
+        Number of samples to generate.
+    random_state : int
+        Random seed used to generate the sampling data.
 
     Returns
     -------
@@ -454,7 +454,7 @@ def categorical_sampling(nsamples=500, random_state=None, feature_parameters=Non
 
 
 def mixed_data_sampling(
-    numerical_sampling, nsamples=500, random_state=None, feature_parameters=None
+    feature_parameters, numerical_sampling, nsamples=500, random_state=None
 ):
     """Sample the classifier with a mix of a numerical and categorical sampler.
 
@@ -466,6 +466,12 @@ def mixed_data_sampling(
 
     Parameters
     ----------
+    feature_parameters : dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys should
+        be the feature names), where each feature entry must contain a
+        nested dictionary with its categories and their probability. The key for
+        the nested dictionary of categories should be "categories", and the keys
+        for the probabilities should be the category name.
     numerical_sampling : function
         Any of the non balancing numerical sampling functions defined in PRESC:
         `grid_sampling`, `uniform_sampling`, `normal_sampling`...
@@ -473,12 +479,6 @@ def mixed_data_sampling(
         Number of samples to generate.
     random_state : int
         Random seed used to generate the sampling data.
-    feature_parameters : dict of dicts
-        A dictionary with an entry per dataset feature (dictionary keys should
-        be the feature names), where each feature entry must contain a
-        nested dictionary with its categories and their probability. The key for
-        the nested dictionary of categories should be "categories", and the keys
-        for the probabilities should be the category name.
 
     Returns
     -------
