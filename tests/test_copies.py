@@ -142,15 +142,9 @@ def test_grid_sampling():
         "feat_1": {"min": 0, "max": 2},
         "feat_2": {"min": 20, "max": 40},
     }
-    df_test_1 = grid_sampling(
-        nsamples=342, random_state=2, feature_parameters=feature_parameters
-    )
-    df_test_2 = grid_sampling(
-        nsamples=342, random_state=2, feature_parameters=feature_parameters
-    )
-    df_test_3 = grid_sampling(
-        nsamples=342, random_state=6, feature_parameters=feature_parameters
-    )
+    df_test_1 = grid_sampling(feature_parameters, nsamples=342, random_state=2)
+    df_test_2 = grid_sampling(feature_parameters, nsamples=342, random_state=2)
+    df_test_3 = grid_sampling(feature_parameters, nsamples=342, random_state=6)
 
     assert len(df_test_1) == 324
     assert len(df_test_1["feat_1"].unique()) == len(
@@ -167,15 +161,9 @@ def test_uniform_sampling():
         "feat_1": {"min": 0, "max": 2},
         "feat_2": {"min": 20, "max": 40},
     }
-    df_test_1 = uniform_sampling(
-        nsamples=342, random_state=2, feature_parameters=feature_parameters
-    )
-    df_test_2 = uniform_sampling(
-        nsamples=342, random_state=2, feature_parameters=feature_parameters
-    )
-    df_test_3 = uniform_sampling(
-        nsamples=342, random_state=6, feature_parameters=feature_parameters
-    )
+    df_test_1 = uniform_sampling(feature_parameters, nsamples=342, random_state=2)
+    df_test_2 = uniform_sampling(feature_parameters, nsamples=342, random_state=2)
+    df_test_3 = uniform_sampling(feature_parameters, nsamples=342, random_state=6)
 
     assert len(df_test_1) == 342
     assert df_test_1.equals(df_test_2) is True
@@ -189,15 +177,9 @@ def test_normal_sampling():
         "feat_1": {"mean": 0, "sigma": 2},
         "feat_2": {"mean": 20, "sigma": 40},
     }
-    df_test_1 = normal_sampling(
-        nsamples=342, random_state=2, feature_parameters=feature_parameters
-    )
-    df_test_2 = normal_sampling(
-        nsamples=342, random_state=2, feature_parameters=feature_parameters
-    )
-    df_test_3 = normal_sampling(
-        nsamples=342, random_state=6, feature_parameters=feature_parameters
-    )
+    df_test_1 = normal_sampling(feature_parameters, nsamples=342, random_state=2)
+    df_test_2 = normal_sampling(feature_parameters, nsamples=342, random_state=2)
+    df_test_3 = normal_sampling(feature_parameters, nsamples=342, random_state=6)
 
     assert len(df_test_1) == 342
     assert df_test_1.equals(df_test_2) is True
@@ -208,13 +190,13 @@ def test_normal_sampling():
     np.testing.assert_almost_equal(df_test_1["feat_2"].std(), 40, decimal=0)
 
 
-def test_categorical_sampling(nsamples=500, random_state=2, feature_parameters=None):
+def test_categorical_sampling():
     feature_parameters = {
         "feat_1": {"categories": {"red": 0.5, "blue": 0.5}},
         "feat_2": {"categories": {1: 0.3, 3: 0.6, 69: 0.1}},
     }
     data_generated = categorical_sampling(
-        nsamples=10000, random_state=2, feature_parameters=feature_parameters
+        feature_parameters, nsamples=10000, random_state=2
     )
     for key in feature_parameters:
         assert key in data_generated.columns
@@ -233,10 +215,10 @@ def test_mixed_data_sampling():
         "feat_2": {"mean": 20, "sigma": 40},
     }
     data_generated = mixed_data_sampling(
+        feature_parameters,
         normal_sampling,
         nsamples=10000,
         random_state=2,
-        feature_parameters=feature_parameters,
     )
     for key in feature_parameters:
         assert key in data_generated.columns
