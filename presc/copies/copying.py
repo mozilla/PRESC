@@ -117,7 +117,7 @@ class ClassifierCopy:
             ]
 
         X_generated = mixed_data_sampling(
-            self.sampling_function, **k_sampling_parameters_gen
+            numerical_sampling=self.sampling_function, **k_sampling_parameters_gen
         )
 
         # If the type of sampling function attempts to balance the synthetic
