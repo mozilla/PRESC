@@ -522,16 +522,10 @@ def mixed_data_sampling(
 
     # Combine the numerical/categorical features respecting the structure of the
     # original dataset
-    X_generated = pd.DataFrame()
-    for feature in feature_parameters:
-        if "categories" in feature_parameters[feature]:
-            X_generated = X_generated.join(
-                X_generated_categorical[[feature]], how="outer"
-            )
-        else:
-            X_generated = X_generated.join(
-                X_generated_numerical[[feature]], how="outer"
-            )
+    X_generated = pd.concat(
+        [X_generated_numerical, X_generated_categorical], axis="columns"
+    )
+    X_generated = X_generated[feature_parameters.keys()]
 
     return X_generated
 
