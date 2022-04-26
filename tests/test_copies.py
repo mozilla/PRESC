@@ -220,8 +220,8 @@ def test_mixed_data_sampling():
         nsamples=10000,
         random_state=2,
     )
+    assert list(feature_parameters.keys()) == list(data_generated.columns)
     for key in feature_parameters:
-        assert key in data_generated.columns
         if "categories" in feature_parameters[key]:
             for category in feature_parameters[key]["categories"]:
                 obtained_fraction = (
