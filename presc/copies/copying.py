@@ -1,5 +1,5 @@
 from presc.dataset import Dataset
-from presc.copies.sampling import labeling
+from presc.copies.sampling import mixed_data_sampling, labeling
 from presc.copies.evaluations import (
     empirical_fidelity_error,
     replacement_capability,
@@ -24,7 +24,9 @@ class ClassifierCopy:
             ML classifier that will be used for the copy.
         sampling_function : function
             Any of the sampling functions defined in PRESC: `grid_sampling`,
-            `uniform_sampling`, `normal_sampling`...
+            `uniform_sampling`, `normal_sampling`... The `balancing sampler` can
+            only be used if the feature space does not contain any categorical
+            variable.
         balancing_sampler: bool
             Whether the chosen sampling function does class balancing or not.
         label_col : str
@@ -85,8 +87,10 @@ class ClassifierCopy:
         """Generates synthetic data using the original model.
 
         Generates samples following the sampling strategy specified on
-        instantiation and then labels them using the original model. If the same
-        data needs to be generated then simply use a specific random seed.
+        instantiation for the numerical features and a discrete distribution for
+        the categorical features, and then labels them using the original model.
+        If the same data needs to be generated then simply use a specific
+        random seed.
 
         Parameters
         ----------
@@ -112,7 +116,9 @@ class ClassifierCopy:
                 "random_state"
             ]
 
-        X_generated = self.sampling_function(**k_sampling_parameters_gen)
+        X_generated = mixed_data_sampling(
+            numerical_sampling=self.sampling_function, **k_sampling_parameters_gen
+        )
 
         # If the type of sampling function attempts to balance the synthetic
         # dataset, it returns the features AND the labels. Otherwise, it returns

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from presc.dataset import Dataset
+from presc.evaluations.utils import is_discrete
 
 
 def dynamical_range(df):
@@ -9,7 +10,7 @@ def dynamical_range(df):
     Parameters
     ----------
     df : pandas DataFrame
-        The dataset with all the features to analyze.
+        The dataset with all the numerical features to analyze.
 
     Returns
     -------
@@ -40,7 +41,119 @@ def dynamical_range(df):
     return range_dict
 
 
-def grid_sampling(nsamples=500, random_state=None, feature_parameters=None):
+def find_categories(df, add_nans=False):
+    """Returns the categories of the dataset features.
+
+    Parameters
+    ----------
+    df : pandas DataFrame
+        The dataset with all the categorical features to analyze.
+    add_nans : bool
+        If True the sampler adds a "NaNs" category for the features that have
+        any null values and assigns it the appropriate fraction.
+
+    Returns
+    -------
+    dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys are the
+        column names), where each feature entry contains a nested dictionary
+        with its categories and the fraction of each category present in the
+        analyzed dataset (the nested dictionary key for this information is
+        "categories", which is also a dictionary with one entry per category).
+    """
+    categories_dict = {}
+    for feature in df:
+        if is_discrete(df[feature]):
+            # Remove NaN values from selection
+            df_no_nans = df[df[feature].notnull()]
+
+            # Log fraction of NaN values if required
+            if add_nans:
+                nan_fraction = df[feature].isnull().sum() / len(df)
+                total_length = len(df)
+            else:
+                nan_fraction = 0
+                total_length = len(df_no_nans)
+
+            categories_dict[feature] = {
+                "categories": {
+                    key: None for key in df_no_nans[feature].unique().tolist()
+                }
+            }
+            for category in categories_dict[feature]["categories"].keys():
+                categories_dict[feature]["categories"][category] = (
+                    df_no_nans[feature].value_counts()[category] / total_length
+                )
+            if add_nans and nan_fraction != 0:
+                categories_dict[feature]["categories"]["NaNs"] = nan_fraction
+
+    return categories_dict
+
+
+def build_equal_category_dict(feature_categories):
+    """Assigns equal probability to all categories of each feature.
+
+    Parameters
+    ----------
+    feature_categories : dict of lists
+        A dictionary with an entry per feature, with the list of categories
+        that each feature has.
+
+    Returns
+    -------
+    dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys are the
+        column names), where each feature entry contains a nested dictionary
+        with its categories and the identical fraction for all categories from
+        the same feature (the nested dictionary key for this information is
+        "categories", which is also a dictionary with one entry per category).
+    """
+    categories_dict = {}
+    for feature, categories in feature_categories.items():
+        categories_dict[feature] = {
+            "categories": {key: 1 / len(categories) for key in categories}
+        }
+    return categories_dict
+
+
+def mixed_data_features(df, add_nans=False):
+    """Extracts the numerical/categorical feature parameters from a dataset.
+
+    Parameters
+    ----------
+    df : pandas DataFrame
+        The dataset with all the features to analyze (both numerical and
+        categorical).
+    add_nans : bool
+        If True the sampler adds a "NaNs" category for the categorical features
+        that have any null values and assigns it the appropriate fraction.
+
+    Returns
+    -------
+    dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys are the
+        column names), where each numerical feature entry contains a nested
+        dictionary with the values of the minimum and maximum values of the
+        dynamic range of the dataset, as well as the mean and sigma of the
+        distribution, and each categorical feature entry contains a nested
+        dictionary with its categories and the fraction of each category present
+        in the analyzed dataset (nested dictionary keys are "min", "max",
+        "mean", "sigma", and "categories", which is also a dictionary with one
+        entry per category).
+    """
+    features_dict = {}
+    for feature in df:
+        df_feature = df[[feature]]
+        if is_discrete(df[feature]):
+            single_feature_parameters = find_categories(df_feature, add_nans=add_nans)
+        else:
+            single_feature_parameters = dynamical_range(df_feature)
+        features_dict[feature] = single_feature_parameters[feature]
+
+    return features_dict
+
+
+def grid_sampling(feature_parameters, nsamples=500, random_state=None):
     """Sample the classifier with a grid-like sampling.
 
     Generates synthetic samples with a regular grid-like distribution within the
@@ -49,17 +162,17 @@ def grid_sampling(nsamples=500, random_state=None, feature_parameters=None):
 
     Parameters
     ----------
-    nsamples : int
-        Maximum number of samples to generate. The exact number will depend on
-        the parameter space.
-    random_state : int
-        Parameter not used in `grid_sampling`.
     feature_parameters : dict of dicts
         A dictionary with an entry per dataset feature (dictionary keys should
         be the feature names), and where each feature entry must contain a
         nested dictionary with at least the entries corresponding to the minimum
         and maximum values of the dynamic range. Dictionary keys for these
         values should be "min" and "max", respectively.
+    nsamples : int
+        Maximum number of samples to generate. The exact number will depend on
+        the parameter space.
+    random_state : int
+        Parameter not used in `grid_sampling`.
 
     Returns
     -------
@@ -90,7 +203,7 @@ def grid_sampling(nsamples=500, random_state=None, feature_parameters=None):
     return X_generated
 
 
-def uniform_sampling(nsamples=500, random_state=None, feature_parameters=None):
+def uniform_sampling(feature_parameters, nsamples=500, random_state=None):
     """Sample the classifier with a random uniform sampling.
 
     Generates synthetic samples with a random uniform distribution within the
@@ -98,16 +211,16 @@ def uniform_sampling(nsamples=500, random_state=None, feature_parameters=None):
 
     Parameters
     ----------
-    nsamples : int
-        Number of samples to generate.
-    random_state : int
-        Random seed used to generate the sampling data.
     feature_parameters : dict of dicts
         A dictionary with an entry per dataset feature (dictionary keys should
         be the feature names), and where each feature entry must contain a
         nested dictionary with at least the entries corresponding to the minimum
         and maximum values of the dynamic range. Dictionary keys for these
         values should be "min" and "max", respectively.
+    nsamples : int
+        Number of samples to generate.
+    random_state : int
+        Random seed used to generate the sampling data.
 
     Returns
     -------
@@ -131,9 +244,9 @@ def uniform_sampling(nsamples=500, random_state=None, feature_parameters=None):
 
 
 def normal_sampling(
+    feature_parameters,
     nsamples=500,
     random_state=None,
-    feature_parameters=None,
 ):
     """Sample the classifier with a normal distribution sampling.
 
@@ -143,16 +256,16 @@ def normal_sampling(
 
     Parameters
     ----------
-    nsamples : int
-        Number of samples to generate.
-    random_state : int
-        Random seed used to generate the sampling data.
     feature_parameters : dict of dicts
         A dictionary with an entry per dataset feature (dictionary keys should
         be the feature names), and where each feature entry must contain a
         nested dictionary with at least the entries corresponding to the mean
         and standard deviation values of the dataset. Dictionary keys for these
         values should be "mean" and "sigma", respectively.
+    nsamples : int
+        Number of samples to generate.
+    random_state : int
+        Random seed used to generate the sampling data.
 
     Returns
     -------
@@ -296,6 +409,127 @@ def spherical_balancer_sampling(
     return df_generated
 
 
+def categorical_sampling(feature_parameters, nsamples=500, random_state=None):
+    """Sample the classifier with a discrete distribution sampling.
+
+    Generates synthetic samples with a discrete distribution according to the
+    probabilities described by `feature_parameters`. Features are assumed to be
+    independent (not correlated).
+
+    Parameters
+    ----------
+    feature_parameters : dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys should
+        be the feature names), where each feature entry must contain a
+        nested dictionary with its categories and their fraction. The key for
+        the nested dictionary of categories should be "categories", and the keys
+        for the fractions should be the category name.
+    nsamples : int
+        Number of samples to generate.
+    random_state : int
+        Random seed used to generate the sampling data.
+
+    Returns
+    -------
+    pandas DataFrame
+        Dataset with a generated sampling following the discrete distribution of
+        the feature space characterized by the `feature_parameters`.
+    """
+    if random_state is not None:
+        np.random.seed(seed=random_state)
+
+    # Generate random data with the specified probabilities
+    X_generated = pd.DataFrame()
+    for feature in feature_parameters:
+        categories = list(feature_parameters[feature]["categories"].keys())
+        category_probabilities = [
+            feature_parameters[feature]["categories"][category]
+            for category in categories
+        ]
+        X_generated[feature] = pd.Series(
+            np.random.choice(categories, p=category_probabilities, size=nsamples)
+        ).astype("category")
+
+    return X_generated
+
+
+def mixed_data_sampling(
+    feature_parameters, numerical_sampling, nsamples=500, random_state=None
+):
+    """Sample the classifier with a mix of a numerical and categorical sampler.
+
+    Generates synthetic samples with the specified distribution for the
+    numerical features and with a discrete distribution for the categorical
+    features. The parameters describing the feature space needed to compute the
+    distributions are described in the `feature_parameters` dictionary. Features
+    are assumed to be independent (not correlated).
+
+    Parameters
+    ----------
+    feature_parameters : dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys should
+        be the feature names), where each feature entry must contain a
+        nested dictionary with its categories and their probability. The key for
+        the nested dictionary of categories should be "categories", and the keys
+        for the probabilities should be the category name.
+    numerical_sampling : function
+        Any of the non balancing numerical sampling functions defined in PRESC:
+        `grid_sampling`, `uniform_sampling`, `normal_sampling`...
+    nsamples : int
+        Number of samples to generate.
+    random_state : int
+        Random seed used to generate the sampling data.
+
+    Returns
+    -------
+    pandas DataFrame
+        Dataset with a generated sampling following the specified numerical
+        sampling distribution for the numerical features and the discrete
+        distribution for the categorical features, following the feature space
+        characterized by the `feature_parameters`.
+    """
+    if random_state is not None:
+        np.random.seed(seed=random_state)
+
+    # Generate the lists of numerical and categorical data
+    features_numerical = []
+    features_categorical = []
+    for feature in feature_parameters:
+        if "categories" in feature_parameters[feature]:
+            features_categorical.append(feature)
+        else:
+            features_numerical.append(feature)
+
+    # Generate feature parameter dictionaries for the numerical/categorical samplers
+    feature_parameters_numerical = {
+        feature: feature_parameters[feature] for feature in features_numerical
+    }
+    feature_parameters_categorical = {
+        feature: feature_parameters[feature] for feature in features_categorical
+    }
+
+    # Generate the numerical/categorical features of each sample separately
+    X_generated_numerical = numerical_sampling(
+        nsamples=nsamples,
+        random_state=random_state,
+        feature_parameters=feature_parameters_numerical,
+    )
+    X_generated_categorical = categorical_sampling(
+        nsamples=nsamples,
+        random_state=random_state,
+        feature_parameters=feature_parameters_categorical,
+    )
+
+    # Combine the numerical/categorical features respecting the structure of the
+    # original dataset
+    X_generated = pd.concat(
+        [X_generated_numerical, X_generated_categorical], axis="columns"
+    )
+    X_generated = X_generated[feature_parameters.keys()]
+
+    return X_generated
+
+
 def labeling(X, original_classifier, label_col="class"):
     """Labels the samples from a dataset according to a classifier.
 
@@ -317,6 +551,7 @@ def labeling(X, original_classifier, label_col="class"):
 
     # Label synthetic data with original classifier
     df_labeled[label_col] = original_classifier.predict(df_labeled)
+    df_labeled[label_col] = df_labeled[label_col].astype("category")
 
     # Instantiate dataset wrapper
     df_labeled = Dataset(df_labeled, label_col=label_col)

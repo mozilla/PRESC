@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import pytest
 
 from sklearn.dummy import DummyClassifier
 from sklearn.svm import SVC
@@ -9,9 +10,14 @@ from presc.dataset import Dataset
 
 from presc.copies.sampling import (
     dynamical_range,
+    find_categories,
+    build_equal_category_dict,
+    mixed_data_features,
     grid_sampling,
     uniform_sampling,
     normal_sampling,
+    categorical_sampling,
+    mixed_data_sampling,
     labeling,
 )
 from presc.copies.evaluations import (
@@ -47,20 +53,98 @@ def test_dynamical_range():
             )
 
 
+def test_find_categories():
+    data = {
+        "color": ["red", "blue", "red", "blue", "blue"],
+        "height": [70.5, 80.3, 55.8, 65.1, 65.4],
+        "siblings": [1, 1, 1, 2, np.nan],
+    }
+    df = pd.DataFrame(data, columns=["color", "height", "siblings"])
+    df[["color", "siblings"]] = df[["color", "siblings"]].astype("category")
+    category_dict = find_categories(df, add_nans=True)
+    expected_category_dict = {
+        "color": {"categories": {"red": 0.4, "blue": 0.6}},
+        "siblings": {"categories": {1.0: 0.6, 2.0: 0.2, "NaNs": 0.2}},
+    }
+    assert category_dict.keys() == expected_category_dict.keys()
+    for key in category_dict:
+        assert (
+            category_dict[key]["categories"].keys()
+            == expected_category_dict[key]["categories"].keys()
+        )
+        for descriptor in category_dict[key]["categories"]:
+            np.testing.assert_approx_equal(
+                category_dict[key]["categories"][descriptor],
+                expected_category_dict[key]["categories"][descriptor],
+                significant=3,
+            )
+
+
+def test_build_equal_category_dict():
+    category_lists = {"color": ["red", "blue"], "siblings": [0, 1, 2, 5, 9]}
+    category_dict = build_equal_category_dict(category_lists)
+    expected_category_dict = {
+        "color": {"categories": {"red": 0.5, "blue": 0.5}},
+        "siblings": {"categories": {0: 0.2, 1: 0.2, 2: 0.2, 5: 0.2, 9: 0.2}},
+    }
+    assert category_dict.keys() == expected_category_dict.keys()
+    for key in category_dict:
+        assert (
+            category_dict[key]["categories"].keys()
+            == expected_category_dict[key]["categories"].keys()
+        )
+        for descriptor in category_dict[key]["categories"]:
+            np.testing.assert_approx_equal(
+                category_dict[key]["categories"][descriptor],
+                expected_category_dict[key]["categories"][descriptor],
+                significant=3,
+            )
+
+
+def test_mixed_data_features():
+    data = {
+        "color": ["red", "blue", "red", "blue", "blue"],
+        "height": [70.5, 80.3, 55.8, 65.1, 65.4],
+        "siblings": [1, 1, 1, 2, np.nan],
+    }
+    df = pd.DataFrame(data, columns=["color", "height", "siblings"])
+    df[["color", "siblings"]] = df[["color", "siblings"]].astype("category")
+    feature_dict = mixed_data_features(df, add_nans=True)
+    expected_feature_dict = {
+        "color": {"categories": {"red": 0.4, "blue": 0.6}},
+        "height": {"min": 55.8, "max": 80.3, "mean": 67.42, "sigma": 8.94242696},
+        "siblings": {"categories": {1.0: 0.6, 2.0: 0.2, "NaNs": 0.2}},
+    }
+    assert feature_dict.keys() == expected_feature_dict.keys()
+    for key in feature_dict:
+        if "categories" in key:
+            assert (
+                feature_dict[key]["categories"].keys()
+                == expected_feature_dict[key]["categories"].keys()
+            )
+            for descriptor in feature_dict[key]["categories"]:
+                np.testing.assert_approx_equal(
+                    feature_dict[key]["categories"][descriptor],
+                    expected_feature_dict[key]["categories"][descriptor],
+                    significant=3,
+                )
+        for descriptor in feature_dict[key]:
+            if descriptor != "categories":
+                np.testing.assert_approx_equal(
+                    feature_dict[key][descriptor],
+                    expected_feature_dict[key][descriptor],
+                    significant=3,
+                )
+
+
 def test_grid_sampling():
     feature_parameters = {
         "feat_1": {"min": 0, "max": 2},
         "feat_2": {"min": 20, "max": 40},
     }
-    df_test_1 = grid_sampling(
-        nsamples=342, random_state=2, feature_parameters=feature_parameters
-    )
-    df_test_2 = grid_sampling(
-        nsamples=342, random_state=2, feature_parameters=feature_parameters
-    )
-    df_test_3 = grid_sampling(
-        nsamples=342, random_state=6, feature_parameters=feature_parameters
-    )
+    df_test_1 = grid_sampling(feature_parameters, nsamples=342, random_state=2)
+    df_test_2 = grid_sampling(feature_parameters, nsamples=342, random_state=2)
+    df_test_3 = grid_sampling(feature_parameters, nsamples=342, random_state=6)
 
     assert len(df_test_1) == 324
     assert len(df_test_1["feat_1"].unique()) == len(
@@ -77,15 +161,9 @@ def test_uniform_sampling():
         "feat_1": {"min": 0, "max": 2},
         "feat_2": {"min": 20, "max": 40},
     }
-    df_test_1 = uniform_sampling(
-        nsamples=342, random_state=2, feature_parameters=feature_parameters
-    )
-    df_test_2 = uniform_sampling(
-        nsamples=342, random_state=2, feature_parameters=feature_parameters
-    )
-    df_test_3 = uniform_sampling(
-        nsamples=342, random_state=6, feature_parameters=feature_parameters
-    )
+    df_test_1 = uniform_sampling(feature_parameters, nsamples=342, random_state=2)
+    df_test_2 = uniform_sampling(feature_parameters, nsamples=342, random_state=2)
+    df_test_3 = uniform_sampling(feature_parameters, nsamples=342, random_state=6)
 
     assert len(df_test_1) == 342
     assert df_test_1.equals(df_test_2) is True
@@ -99,15 +177,9 @@ def test_normal_sampling():
         "feat_1": {"mean": 0, "sigma": 2},
         "feat_2": {"mean": 20, "sigma": 40},
     }
-    df_test_1 = normal_sampling(
-        nsamples=342, random_state=2, feature_parameters=feature_parameters
-    )
-    df_test_2 = normal_sampling(
-        nsamples=342, random_state=2, feature_parameters=feature_parameters
-    )
-    df_test_3 = normal_sampling(
-        nsamples=342, random_state=6, feature_parameters=feature_parameters
-    )
+    df_test_1 = normal_sampling(feature_parameters, nsamples=342, random_state=2)
+    df_test_2 = normal_sampling(feature_parameters, nsamples=342, random_state=2)
+    df_test_3 = normal_sampling(feature_parameters, nsamples=342, random_state=6)
 
     assert len(df_test_1) == 342
     assert df_test_1.equals(df_test_2) is True
@@ -116,6 +188,55 @@ def test_normal_sampling():
     np.testing.assert_almost_equal(df_test_1["feat_2"].mean(), 20, decimal=0)
     np.testing.assert_almost_equal(df_test_1["feat_1"].std(), 2, decimal=0)
     np.testing.assert_almost_equal(df_test_1["feat_2"].std(), 40, decimal=0)
+
+
+def test_categorical_sampling():
+    feature_parameters = {
+        "feat_1": {"categories": {"red": 0.5, "blue": 0.5}},
+        "feat_2": {"categories": {1: 0.3, 3: 0.6, 69: 0.1}},
+    }
+    data_generated = categorical_sampling(
+        feature_parameters, nsamples=10000, random_state=2
+    )
+    for key in feature_parameters:
+        assert key in data_generated.columns
+        for category in feature_parameters[key]["categories"]:
+            obtained_fraction = (
+                data_generated[key].value_counts().loc[[category]].iloc[0] / 10000
+            )
+            expected_probability = feature_parameters[key]["categories"][category]
+            assert obtained_fraction == pytest.approx(expected_probability, 0.05)
+    assert len(data_generated) == 10000
+
+
+def test_mixed_data_sampling():
+    feature_parameters = {
+        "feat_1": {"categories": {1: 0.3, 3: 0.6, 69: 0.1}},
+        "feat_2": {"mean": 20, "sigma": 40},
+    }
+    data_generated = mixed_data_sampling(
+        feature_parameters,
+        normal_sampling,
+        nsamples=10000,
+        random_state=2,
+    )
+    assert list(feature_parameters.keys()) == list(data_generated.columns)
+    for key in feature_parameters:
+        if "categories" in feature_parameters[key]:
+            for category in feature_parameters[key]["categories"]:
+                obtained_fraction = (
+                    data_generated[key].value_counts().loc[[category]].iloc[0] / 10000
+                )
+                expected_probability = feature_parameters[key]["categories"][category]
+                assert obtained_fraction == pytest.approx(expected_probability, 0.05)
+        else:
+            np.testing.assert_almost_equal(
+                data_generated[key].mean(), feature_parameters[key]["mean"], decimal=0
+            )
+            np.testing.assert_almost_equal(
+                data_generated[key].std(), feature_parameters[key]["sigma"], decimal=0
+            )
+    assert len(data_generated) == 10000
 
 
 def test_labeling():
