@@ -136,7 +136,7 @@ class ClassifierCopy:
         # If the type of sampling function attempts to balance the synthetic
         # dataset, it returns the features AND the labels. Otherwise, it returns
         # only the features, and the labeling function must be called.
-        if self.balancing_sampler:
+        if self.balancing_sampler or self.enforce_balance:
             df_generated = Dataset(X_generated, label_col=self.label_col)
         else:
             df_generated = labeling(
