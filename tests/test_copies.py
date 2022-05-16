@@ -313,7 +313,8 @@ def test_summary_metrics():
 
     # Generated data
     synthetic_test_data = copy_grid.generate_synthetic_data(
-        generated_nsamples=5, random_state=random_seed, label_col="label"
+        nsamples=100,
+        random_state=random_seed,
     )
 
     metrics = summary_metrics(
