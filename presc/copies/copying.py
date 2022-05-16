@@ -1,5 +1,5 @@
 from presc.dataset import Dataset
-from presc.copies.sampling import mixed_data_sampling, labeling
+from presc.copies.sampling import mixed_data_sampling, labeling, sampling_balancer
 from presc.copies.evaluations import (
     empirical_fidelity_error,
     replacement_capability,
@@ -29,6 +29,9 @@ class ClassifierCopy:
             variable.
         balancing_sampler: bool
             Whether the chosen sampling function does class balancing or not.
+        enforce_balance : bool
+            Force class balancing for sampling functions that do not normally
+            carry it out intrinsically.
         label_col : str
             Name of the label column.
         **k_sampling_parameters :
@@ -50,6 +53,11 @@ class ClassifierCopy:
         self.balancing_sampler = balancing_sampler
         self.label_col = label_col
         self.k_sampling_parameters = k_sampling_parameters
+
+        if "enforce_balance" in k_sampling_parameters.keys():
+            self.enforce_balance = k_sampling_parameters["enforce_balance"]
+        else:
+            self.enforce_balance = False
 
     def copy_classifier(self, get_training_data=False, **k_mod_sampling_parameters):
         """Copies the classifier using data generated with the original model.
@@ -107,18 +115,23 @@ class ClassifierCopy:
         # Random state needs to be fixed to obtain the same training data
         k_sampling_parameters_gen = self.k_sampling_parameters.copy()
 
-        if "nsamples" in k_mod_sampling_parameters.keys():
-            k_sampling_parameters_gen["nsamples"] = k_mod_sampling_parameters[
-                "nsamples"
-            ]
-        if "random_state" in k_mod_sampling_parameters.keys():
-            k_sampling_parameters_gen["random_state"] = k_mod_sampling_parameters[
-                "random_state"
-            ]
+        # Update sampling parameters which have been specified on calling the method
+        for name in k_mod_sampling_parameters.keys():
+            k_sampling_parameters_gen[name] = k_mod_sampling_parameters[name]
 
-        X_generated = mixed_data_sampling(
-            numerical_sampling=self.sampling_function, **k_sampling_parameters_gen
-        )
+        if self.enforce_balance:
+            # Call balancer generating function with sampling parameters
+            X_generated = sampling_balancer(
+                numerical_sampling=self.sampling_function,
+                original_classifier=self.original,
+                **k_sampling_parameters_gen
+            )
+            df_generated = Dataset(X_generated, label_col=self.label_col)
+        else:
+            # Call generating function with sampling parameters
+            X_generated = mixed_data_sampling(
+                numerical_sampling=self.sampling_function, **k_sampling_parameters_gen
+            )
 
         # If the type of sampling function attempts to balance the synthetic
         # dataset, it returns the features AND the labels. Otherwise, it returns
