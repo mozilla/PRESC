@@ -19,6 +19,7 @@ from presc.copies.sampling import (
     categorical_sampling,
     mixed_data_sampling,
     labeling,
+    sampling_balancer,
 )
 from presc.copies.evaluations import (
     empirical_fidelity_error,
@@ -255,6 +256,32 @@ def test_labeling():
     assert isinstance(df_labeled, Dataset) is True
     assert len(df_labeled.df["potato"]) == 4
     assert df_labeled.df["potato"].unique() == "dummy_class"
+
+
+def test_sampling_balancer():
+    # Build an 'original' model that can label the samples
+    # This dummy model will only yield 10% of the predictions as class 0
+    x = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    y = np.array([0, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+    original_classifier = DummyClassifier(strategy="stratified")
+    original_classifier.fit(x, y)
+
+    feature_parameters = {"feature": {"mean": 0, "sigma": 10}}
+    generated_data = sampling_balancer(
+        feature_parameters,
+        normal_sampling,
+        original_classifier,
+        nsamples=100,
+        max_iter=12,
+        nbatch=100,
+        label_col="class",
+        random_state=42,
+    )
+
+    assert (
+        generated_data["class"].value_counts()[0]
+        == generated_data["class"].value_counts()[1]
+    )
 
 
 def test_empirical_fidelity_error():
