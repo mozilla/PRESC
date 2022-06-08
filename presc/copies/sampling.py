@@ -585,6 +585,17 @@ def sampling_balancer(
     within the ClassifierCopy class, the `enforce_balance` must be set
     to True.
 
+    Note that the algorithm needs to find at least one sample of a different
+    class in order detect that class and keep iterating through the batch
+    generation of samples to try to get them all. Therefore, it is not
+    guaranteed that it will find all the classes and successfully balance the
+    synthetic dataset in extreme cases of imbalance. However, the batch size
+    `nbatch` can be set to a larger number if we suspect that is the case, and
+    this will increase the probability to find at least a sample of a different
+    class in the first round. Thereafter, if the algorithm is already iterating
+    to find a minoritary class, it is more likely that other classes that occupy
+    a very small hypervolume will show up as well.
+
     Parameters
     ----------
     feature_parameters : dict of dicts
