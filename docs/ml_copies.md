@@ -31,8 +31,17 @@ To carry out the copy, the `presc.copies.copying.ClassifierCopy` class needs two
 
 When instantiating the `presc.copies.copying.ClassifierCopy` class, an instance of a sklearn-type model to build the copy must also be specified, as well as the choice of sampling function and its options. The necessary feature descriptors for the sampler can be the maximum and minimum values that the features can take, like in the case of `presc.copies.sampling.grid_sampling` and `presc.copies.sampling.uniform_sampling`, the mean and standard deviation of each feature, such as in the `presc.copies.sampling.normal_sampling`, or an overall minimum and maximum single value common to all features, as in the case of `presc.copies.sampling.spherical_balancer_sampling`. 
 
+In the case of samplers for categorical data, such as `presc.copies.sampling.categorical_sampling` and `presc.copies.sampling.mixed_data_sampling`, the data descriptor for each categorical feature must be a dictionary of categories that specifies their frequency.
 
 The `presc.copies.copying.ClassifierCopy.copy_classifier` method will generate synthetic data in the feature space using the sampling function and options specified on instantiation, will label it using the original classifier, and then will use it to train the desired copy model. The generated synthetic training data can be saved in this step if needed but it can also be recovered later using the `presc.copies.copying.ClassifierCopy.generate_synthetic_data` method simply using the same random seed.
+
+## Imbalanced problems
+
+When we talk about imbalance in ML Classifier Copies we are not referring to the balance between classes provided by the original dataset, which is in principle not accessible and thus it does not have any effect in the copy. We are referring to the intrinsic properties of the original classifier.
+
+The copy classifier is normally build using generated data randomly sampled from the whole space, hence, this process will normally tend to generate many more samples for classes that are described by the classifier as occupying a much larger hypervolume. Therefore, it will be the generated data used to train the copy classifier which becomes imbalaced.
+
+To tackle this problem, a mechanism has been introduced to force the balance between classes when generating the synthetic data. Such option can be used with any of the sampling functions by setting the `enforce_balance` as `True` in the `balance_parameters`.
 
 
 ## Evaluation of the copy
