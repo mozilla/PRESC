@@ -303,7 +303,7 @@ def normal_sampling(
 
 
 def spherical_balancer_sampling(
-    nsamplesxclass=1000,
+    nsamples=1000,
     nfeatures=30,
     original_classifier=None,
     max_iter=10,
@@ -325,8 +325,8 @@ def spherical_balancer_sampling(
 
     Parameters
     ----------
-    nsamplesxclass : int
-        Number of samples to generate per class.
+    nsamples : int
+        Number of samples to generate.
     nfeatures : int
         Number of features of the generated samples.
     original_classifier : sklearn-type classifier
@@ -356,6 +356,8 @@ def spherical_balancer_sampling(
     """
     if random_state is not None:
         np.random.seed(seed=random_state)
+
+    nsamplesxclass = int(nsamples / nfeatures)
 
     if verbose:
         print(
@@ -454,7 +456,11 @@ def categorical_sampling(feature_parameters, nsamples=500, random_state=None):
 
 
 def mixed_data_sampling(
-    feature_parameters, numerical_sampling, nsamples=500, random_state=None
+    feature_parameters,
+    numerical_sampling,
+    nsamples=500,
+    random_state=None,
+    **remaining_parameters,
 ):
     """Sample the classifier with a mix of a numerical and categorical sampler.
 
@@ -563,7 +569,7 @@ def sampling_balancer(
     feature_parameters,
     numerical_sampling,
     original_classifier,
-    nsamplesxclass=1000,
+    nsamples=1000,
     max_iter=10,
     nbatch=1000,
     label_col="class",
@@ -592,8 +598,8 @@ def sampling_balancer(
         `grid_sampling`, `uniform_sampling`, `normal_sampling`...
     original_classifier : sklearn-type classifier
         Original ML classifier used to generate the synthetic data.
-    nsamplesxclass : int
-        Number of samples to generate per class.
+    nsamples : int
+        Number of samples to generate.
     max_iter : int
         The maximum number of iterations generating batches to attempt to obtain
         the samples per class specified in `nsamplesxclass`.
@@ -618,6 +624,7 @@ def sampling_balancer(
     if random_state is not None:
         np.random.seed(seed=random_state)
 
+    nsamplesxclass = int(nsamples / len(feature_parameters))
     df_generated = pd.DataFrame()
 
     for iteration in range(max_iter):
