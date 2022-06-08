@@ -581,9 +581,9 @@ def sampling_balancer(
 
     This function will attempt to obtain a balanced dataset with non
     balancing samplers by generating the same number of samples for all
-    classes (`nsamplesxclass`), unless it reaches the maximum number
-    of iterations. To use within the ClassifierCopy class, the
-    `enforce_balance` must be set to True.
+    classes, unless it reaches the maximum number of iterations. To use
+    within the ClassifierCopy class, the `enforce_balance` must be set
+    to True.
 
     Parameters
     ----------
