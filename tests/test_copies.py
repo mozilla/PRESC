@@ -281,6 +281,8 @@ def test_replacement_capability():
 
 def test_summary_metrics():
     random_seed = 42
+    np.random.seed(random_seed)
+
     # Original data
     train_data = pd.DataFrame(
         {"x": [0, 1, 0, 2, 1], "y": [1, 0, 2, 0, 1], "label": [0, 0, 1, 1, 1]},
@@ -328,9 +330,9 @@ def test_summary_metrics():
     expected_results = {
         "Original Model Accuracy (test)": 0.6,
         "Copy Model Accuracy (test)": 0.8,
-        "Empirical Fidelity Error (synthetic)": 0.0625,
+        "Empirical Fidelity Error (synthetic)": 0.1,
         "Empirical Fidelity Error (test)": 0.2,
-        "Replacement Capability (synthetic)": 0.9375,
+        "Replacement Capability (synthetic)": 0.9,
         "Replacement Capability (test)": 1.33333333,
     }
 
