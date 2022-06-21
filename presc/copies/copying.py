@@ -116,8 +116,7 @@ class ClassifierCopy:
         k_sampling_parameters_gen = self.k_sampling_parameters.copy()
 
         # Update sampling parameters which have been specified on calling the method
-        for name in k_mod_sampling_parameters.keys():
-            k_sampling_parameters_gen[name] = k_mod_sampling_parameters[name]
+        k_sampling_parameters_gen.update(k_mod_sampling_parameters)
 
         if self.enforce_balance:
             # Call balancer generating function with sampling parameters
