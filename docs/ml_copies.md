@@ -37,7 +37,9 @@ The `presc.copies.copying.ClassifierCopy.copy_classifier` method will generate s
 
 ## Imbalanced problems
 
-When we talk about imbalance in ML Classifier Copies we are not referring to the balance between classes provided by the original dataset, which is in principle not accessible and thus it does not have any effect in the copy. We are referring to the intrinsic properties of the original classifier.
+When we talk about imbalance in ML Classifier Copies we are not referring to the balance between classes provided by the original dataset, which is in principle not accessible and thus it does not have any effect in the copy. We are referring to the imbalance of the synthetic dataset used to generate the copy.
+
+Such an imbalance arises from a combination of the particular topology of the class boundaries learned by the original classifier and the sampling strategy to perform the copy. For instance, when using samplers that probe the space uniformly, the probability of having a class in the synthetic dataset is proportional to the volume of the space defined by its boundaries. Or when using a spherical sampler that assumes a gaussian distribution of the features, the probability of having a class in the synthetic dataset might increase for those classes that are located closer to the origin with respect to those in the outskirts, even if they occupy a similar volume. 
 
 The copy classifier is normally built using generated data randomly sampled from the whole space, hence, this process will normally tend to generate many more samples for classes that are described by the classifier as occupying a much larger hypervolume. Therefore, it will be the generated data used to train the copy classifier which becomes imbalanced.
 
