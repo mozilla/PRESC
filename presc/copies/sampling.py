@@ -635,7 +635,6 @@ def sampling_balancer(
     if random_state is not None:
         np.random.seed(seed=random_state)
 
-    nsamplesxclass = int(nsamples / len(feature_parameters))
     df_generated = pd.DataFrame()
 
     for iteration in range(max_iter):
@@ -654,6 +653,7 @@ def sampling_balancer(
 
         # Keep a maximum of `nclass_samples` samples from each class
         detected_classes = df_temp[label_col].value_counts()
+        nsamplesxclass = int(nsamples / len(detected_classes))
 
         df_generated = pd.DataFrame()
         for class_name in detected_classes.index.tolist():
