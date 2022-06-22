@@ -651,7 +651,7 @@ def sampling_balancer(
         # Temporarily, add samples from the new batch to the old dataframe
         df_temp = pd.concat([df_generated, df_batch])
 
-        # Keep a maximum of `nclass_samples` samples from each class
+        # Keep a maximum of `nsamplesxclass` samples from each class
         detected_classes = df_temp[label_col].value_counts()
         nsamplesxclass = int(nsamples / len(detected_classes))
 
