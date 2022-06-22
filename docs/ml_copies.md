@@ -41,7 +41,7 @@ When we talk about imbalance in ML Classifier Copies we are not referring to the
 
 The copy classifier is normally built using generated data randomly sampled from the whole space, hence, this process will normally tend to generate many more samples for classes that are described by the classifier as occupying a much larger hypervolume. Therefore, it will be the generated data used to train the copy classifier which becomes imbalanced.
 
-To tackle this problem, a mechanism has been introduced to force the balance between classes when generating the synthetic data. Such option can be used with any of the sampling functions by setting the `enforce_balance` as `True` in the `balance_parameters`.
+To tackle this problem, a mechanism has been introduced to force the balance between classes when generating the synthetic data. Such option can be used with any of the sampling functions by setting the `enforce_balance` as `True`.
 
 
 ## Evaluation of the copy
