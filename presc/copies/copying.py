@@ -27,8 +27,12 @@ class ClassifierCopy:
             `uniform_sampling`, `normal_sampling`... The `balancing sampler` can
             only be used if the feature space does not contain any categorical
             variable.
-        balancing_sampler: bool
-            Whether the chosen sampling function does class balancing or not.
+        post_sampling_labeling: bool
+            Whether generated data must be labeled after the sampling or not.
+            If the chosen sampling function already does class labeling (such as
+            balancing samplers) then it should be set to False. If the parameter
+            enforce_balance is set to True then this parameter does not have any
+            effect.
         enforce_balance : bool
             Force class balancing for sampling functions that do not normally
             carry it out intrinsically.
@@ -43,7 +47,7 @@ class ClassifierCopy:
         original,
         copy,
         sampling_function,
-        balancing_sampler=False,
+        post_sampling_labeling=True,
         enforce_balance=False,
         label_col="class",
         **k_sampling_parameters
@@ -51,7 +55,9 @@ class ClassifierCopy:
         self.original = original
         self.copy = copy
         self.sampling_function = sampling_function
-        self.balancing_sampler = balancing_sampler
+        self.post_sampling_labeling = post_sampling_labeling
+        if enforce_balance:
+            self.post_sampling_labeling = False
         self.enforce_balance = enforce_balance
         self.label_col = label_col
         self.k_sampling_parameters = k_sampling_parameters
@@ -117,14 +123,15 @@ class ClassifierCopy:
 
         if self.enforce_balance:
             # Call balancer generating function with sampling parameters
+            # (sampling_balancer returns a pandas dataframe)
             X_generated = sampling_balancer(
                 numerical_sampling=self.sampling_function,
                 original_classifier=self.original,
                 **k_sampling_parameters_gen
             )
-            df_generated = Dataset(X_generated, label_col=self.label_col)
         else:
             # Call generating function with sampling parameters
+            # (mixed_data_sampling returns a pandas dataframe)
             X_generated = mixed_data_sampling(
                 numerical_sampling=self.sampling_function, **k_sampling_parameters_gen
             )
@@ -132,12 +139,12 @@ class ClassifierCopy:
         # If the type of sampling function attempts to balance the synthetic
         # dataset, it returns the features AND the labels. Otherwise, it returns
         # only the features, and the labeling function must be called.
-        if self.balancing_sampler or self.enforce_balance:
-            df_generated = Dataset(X_generated, label_col=self.label_col)
-        else:
+        if self.post_sampling_labeling:
             df_generated = labeling(
                 X_generated, self.original, label_col=self.label_col
             )
+        else:
+            df_generated = Dataset(X_generated, label_col=self.label_col)
 
         return df_generated
 
