@@ -44,6 +44,7 @@ class ClassifierCopy:
         copy,
         sampling_function,
         balancing_sampler=False,
+        enforce_balance=False,
         label_col="class",
         **k_sampling_parameters
     ):
@@ -51,13 +52,9 @@ class ClassifierCopy:
         self.copy = copy
         self.sampling_function = sampling_function
         self.balancing_sampler = balancing_sampler
+        self.enforce_balance = enforce_balance
         self.label_col = label_col
         self.k_sampling_parameters = k_sampling_parameters
-
-        if "enforce_balance" in k_sampling_parameters.keys():
-            self.enforce_balance = k_sampling_parameters["enforce_balance"]
-        else:
-            self.enforce_balance = False
 
     def copy_classifier(self, get_training_data=False, **k_mod_sampling_parameters):
         """Copies the classifier using data generated with the original model.
