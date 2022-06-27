@@ -19,6 +19,7 @@ from presc.copies.sampling import (
     categorical_sampling,
     mixed_data_sampling,
     labeling,
+    sampling_balancer,
 )
 from presc.copies.evaluations import (
     empirical_fidelity_error,
@@ -257,6 +258,32 @@ def test_labeling():
     assert df_labeled.df["potato"].unique() == "dummy_class"
 
 
+def test_sampling_balancer():
+    # Build an 'original' model that can label the samples
+    # This dummy model will only yield 10% of the predictions as class 0
+    x = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    y = np.array([0, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+    original_classifier = DummyClassifier(strategy="stratified")
+    original_classifier.fit(x, y)
+
+    feature_parameters = {"feature": {"mean": 0, "sigma": 10}}
+    generated_data = sampling_balancer(
+        feature_parameters,
+        normal_sampling,
+        original_classifier,
+        nsamples=100,
+        max_iter=12,
+        nbatch=100,
+        label_col="class",
+        random_state=42,
+    )
+
+    assert (
+        generated_data["class"].value_counts()[0]
+        == generated_data["class"].value_counts()[1]
+    )
+
+
 def test_empirical_fidelity_error():
     y_pred_original = [1, 0, 1, 0]
     y_pred_copy1 = [1, 1, 0, 0]
@@ -281,6 +308,8 @@ def test_replacement_capability():
 
 def test_summary_metrics():
     random_seed = 42
+    np.random.seed(random_seed)
+
     # Original data
     train_data = pd.DataFrame(
         {"x": [0, 1, 0, 2, 1], "y": [1, 0, 2, 0, 1], "label": [0, 0, 1, 1, 1]},
@@ -313,7 +342,8 @@ def test_summary_metrics():
 
     # Generated data
     synthetic_test_data = copy_grid.generate_synthetic_data(
-        generated_nsamples=5, random_state=random_seed, label_col="label"
+        nsamples=100,
+        random_state=random_seed,
     )
 
     metrics = summary_metrics(
@@ -327,9 +357,9 @@ def test_summary_metrics():
     expected_results = {
         "Original Model Accuracy (test)": 0.6,
         "Copy Model Accuracy (test)": 0.8,
-        "Empirical Fidelity Error (synthetic)": 0.0625,
+        "Empirical Fidelity Error (synthetic)": 0.1,
         "Empirical Fidelity Error (test)": 0.2,
-        "Replacement Capability (synthetic)": 0.9375,
+        "Replacement Capability (synthetic)": 0.9,
         "Replacement Capability (test)": 1.33333333,
     }
 

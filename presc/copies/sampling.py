@@ -303,7 +303,7 @@ def normal_sampling(
 
 
 def spherical_balancer_sampling(
-    nsamplesxclass=1000,
+    nsamples=1000,
     nfeatures=30,
     original_classifier=None,
     max_iter=10,
@@ -325,8 +325,8 @@ def spherical_balancer_sampling(
 
     Parameters
     ----------
-    nsamplesxclass : int
-        Number of samples to generate per class.
+    nsamples : int
+        Number of samples to generate.
     nfeatures : int
         Number of features of the generated samples.
     original_classifier : sklearn-type classifier
@@ -356,6 +356,8 @@ def spherical_balancer_sampling(
     """
     if random_state is not None:
         np.random.seed(seed=random_state)
+
+    nsamplesxclass = int(nsamples / nfeatures)
 
     if verbose:
         print(
@@ -454,7 +456,11 @@ def categorical_sampling(feature_parameters, nsamples=500, random_state=None):
 
 
 def mixed_data_sampling(
-    feature_parameters, numerical_sampling, nsamples=500, random_state=None
+    feature_parameters,
+    numerical_sampling,
+    nsamples=500,
+    random_state=None,
+    **remaining_parameters,
 ):
     """Sample the classifier with a mix of a numerical and categorical sampler.
 
@@ -557,3 +563,115 @@ def labeling(X, original_classifier, label_col="class"):
     df_labeled = Dataset(df_labeled, label_col=label_col)
 
     return df_labeled
+
+
+def sampling_balancer(
+    feature_parameters,
+    numerical_sampling,
+    original_classifier,
+    nsamples=1000,
+    max_iter=10,
+    nbatch=1000,
+    label_col="class",
+    random_state=None,
+    verbose=False,
+    **remaining_parameters,
+):
+    """Generate balanced synthetic data using any sampling function.
+
+    This function will attempt to obtain a balanced dataset with non
+    balancing samplers by generating the same number of samples for all
+    classes, unless it reaches the maximum number of iterations. To use
+    within the ClassifierCopy class, the `enforce_balance` must be set
+    to True.
+
+    Note that the algorithm needs to find at least one sample of a different
+    class in order detect that class and keep iterating through the batch
+    generation of samples to try to get them all. Therefore, it is not
+    guaranteed that it will find all the classes and successfully balance the
+    synthetic dataset in extreme cases of imbalance. However, the batch size
+    `nbatch` can be set to a larger number if we suspect that is the case, and
+    this will increase the probability to find at least a sample of a different
+    class in the first round. Thereafter, if the algorithm is already iterating
+    to find a minoritary class, it is more likely that other classes that occupy
+    a very small hypervolume will show up as well.
+
+    Parameters
+    ----------
+    feature_parameters : dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys should
+        be the feature names), where each feature entry must contain a
+        nested dictionary with its categories and their fraction. The key for
+        the nested dictionary of categories should be "categories", and the keys
+        for the fractions should be the category name.
+    numerical_sampling : function
+        Any of the non balancing numerical sampling functions defined in PRESC:
+        `grid_sampling`, `uniform_sampling`, `normal_sampling`...
+    original_classifier : sklearn-type classifier
+        Original ML classifier used to generate the synthetic data.
+    nsamples : int
+        Number of samples to generate.
+    max_iter : int
+        The maximum number of iterations generating batches to attempt to obtain
+        the samples per class specified in `nsamplesxclass`.
+    nbatch: int
+        Number of tentative samples to generate in each batch.
+    label_col : str
+        Name of the label column.
+    random_state : int
+        Random seed used to generate the sampling data.
+    verbose : bool
+        If True the sampler prints information about each batch.
+
+    Returns
+    -------
+    pandas DataFrame
+        Dataset with a generated sampling following the specified numerical
+        sampling distribution for the numerical features and the discrete
+        distribution for the categorical features, following the feature space
+        characterized by the `feature_parameters`, where the function has
+        tried to balance the samples for each class.
+    """
+    if random_state is not None:
+        np.random.seed(seed=random_state)
+
+    df_generated = pd.DataFrame()
+
+    for iteration in range(max_iter):
+        if verbose:
+            print("Generating batch", iteration + 1)
+
+        # Generate `nbatch` samples
+        df_batch = mixed_data_sampling(
+            feature_parameters, numerical_sampling, nsamples=nbatch, random_state=None
+        )
+        # Label synthetic data with original classifier
+        df_batch[label_col] = original_classifier.predict(df_batch)
+
+        # Temporarily, add samples from the new batch to the old dataframe
+        df_temp = pd.concat([df_generated, df_batch])
+
+        # Keep a maximum of `nsamplesxclass` samples from each class
+        detected_classes = df_temp[label_col].value_counts()
+        nsamplesxclass = int(nsamples / len(detected_classes))
+
+        df_generated = pd.DataFrame()
+        for class_name in detected_classes.index.tolist():
+            df_generated = pd.concat(
+                [
+                    df_generated,
+                    df_temp[df_temp[label_col] == class_name].iloc[:nsamplesxclass],
+                ]
+            )
+
+        # If there are no incomplete classes finish iteration, otherwise show classes
+        incomplete_classes = detected_classes[
+            detected_classes < nsamplesxclass
+        ].sort_index()
+        if len(incomplete_classes) == 0:
+            return df_generated
+        elif verbose:
+            print("\nClasses generated:", incomplete_classes.index.tolist())
+            print("Samples per class:", incomplete_classes.tolist(), "\n")
+
+    return df_generated
