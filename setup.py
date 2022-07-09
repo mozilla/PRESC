@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-VERSION = "0.3.1"
+VERSION = "0.4.0"
 
 with open("README.md", "r") as fh:
     # Keep only the top part until the first section break.
