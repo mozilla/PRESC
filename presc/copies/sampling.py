@@ -4,7 +4,7 @@ from presc.dataset import Dataset
 from presc.evaluations.utils import is_discrete
 
 
-def dynamical_range(df):
+def dynamical_range(df, verbose=True):
     """Returns the dynamic range, mean, and sigma of the dataset features.
 
     Parameters
@@ -30,13 +30,16 @@ def dynamical_range(df):
             "sigma": df[feature].std(),
         }
 
-        print(
-            f"{feature} min: {range_dict[feature]['min']:.4f}    "
-            f"{feature} max: {range_dict[feature]['max']:.4f}    "
-            f"{feature} mean: {range_dict[feature]['mean']:.4f}    "
-            f"{feature} sigma: {range_dict[feature]['sigma']:.4f}    "
-            f"Interval: {range_dict[feature]['max']-range_dict[feature]['min']:.4f}   "
-        )
+        if verbose:
+            print(
+                f"\n{feature}"
+                f"\n  min: {range_dict[feature]['min']:.4f}"
+                f"\n  max: {range_dict[feature]['max']:.4f}"
+                f"\n    (interval: "
+                f"{range_dict[feature]['max'] - range_dict[feature]['min']:.4f}"
+                f"\n  mean: {range_dict[feature]['mean']:.4f}"
+                f"\n  sigma: {range_dict[feature]['sigma']:.4f}"
+            )
 
     return range_dict
 
