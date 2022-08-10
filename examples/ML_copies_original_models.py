@@ -22,8 +22,8 @@ class WinesModel:
             "wine-quality/winequality-white.csv"
         )
         dataset = pd.read_csv(url, sep=";")
-        dataset["recommend"] = False
-        dataset.loc[dataset["quality"] > 6, "recommend"] = True
+        dataset["recommend"] = 0
+        dataset.loc[dataset["quality"] > 6, "recommend"] = 1
         dataset = dataset.drop("quality", axis=1)
         self.dataset = Dataset(dataset, label_col="recommend")
 
