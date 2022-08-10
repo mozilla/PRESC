@@ -36,7 +36,7 @@ def dynamical_range(df, verbose=True):
                 f"\n  min: {range_dict[feature]['min']:.4f}"
                 f"\n  max: {range_dict[feature]['max']:.4f}"
                 f"\n    (interval: "
-                f"{range_dict[feature]['max'] - range_dict[feature]['min']:.4f}"
+                f"{range_dict[feature]['max'] - range_dict[feature]['min']:.4f})"
                 f"\n  mean: {range_dict[feature]['mean']:.4f}"
                 f"\n  sigma: {range_dict[feature]['sigma']:.4f}"
             )
