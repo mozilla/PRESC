@@ -5,7 +5,7 @@ from presc.dataset import Dataset
 from presc.evaluations.utils import is_discrete
 
 
-def dynamical_range(df, verbose=False):
+def dynamical_range(df, verbose=True):
     """Returns the dynamic range, mean, and sigma of the dataset features.
 
     Parameters
