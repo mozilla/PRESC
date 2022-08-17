@@ -4,13 +4,15 @@ from presc.dataset import Dataset
 from presc.evaluations.utils import is_discrete
 
 
-def dynamical_range(df, verbose=True):
+def dynamical_range(df, verbose=False):
     """Returns the dynamic range, mean, and sigma of the dataset features.
 
     Parameters
     ----------
     df : pandas DataFrame
         The dataset with all the numerical features to analyze.
+    verbose : bool
+        If set to True the feature parameters are printed.
 
     Returns
     -------
@@ -325,6 +327,8 @@ def spherical_balancer_sampling(
     generating the same number of samples for all classes (`nsamplesxclass`),
     unless it reaches the maximum number of iterations. When used within the
     ClassifierCopy class, the `balancing_sampler` must be set to True.
+
+    This sampler works better when features have standardized values.
 
     Parameters
     ----------
