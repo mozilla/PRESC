@@ -6,6 +6,7 @@ from zipfile import ZipFile
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import Pipeline
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 
@@ -14,7 +15,7 @@ from presc.copies.sampling import dynamical_range
 
 
 class WinesModel:
-    """Classifier model for the wine quality dataset."""
+    """Classifier model for the Wine Quality dataset."""
 
     def __init__(self):
         url = (
@@ -35,17 +36,22 @@ class WinesModel:
             X, y, test_size=0.6, random_state=0, stratify=y
         )
 
-        self.scaler = StandardScaler().fit(self.X_train)
-
-        X_train_scaled = self.scaler.transform(self.X_train)
+        self.model = Pipeline(
+            [
+                ("scaler", StandardScaler()),
+                (
+                    "KKN_classifier",
+                    KNeighborsClassifier(n_neighbors=30, weights="distance"),
+                ),
+            ]
+        )
 
         # KNN Model
-        self.model = KNeighborsClassifier(n_neighbors=30, weights="distance")
-        self.model = self.model.fit(X_train_scaled, self.y_train)
+        self.model = self.model.fit(self.X_train, self.y_train)
 
 
 class OccupancyModel:
-    """Classifier model for the room occupancy dataset."""
+    """Classifier model for the Room Occupancy Detection dataset."""
 
     def __init__(self):
         url = (
@@ -65,16 +71,22 @@ class OccupancyModel:
 
         self.feature_description = dynamical_range(self.dataset.features, verbose=False)
 
-        self.scaler = StandardScaler().fit(self.X_train)
-        X_train_scaled = self.scaler.transform(self.X_train)
+        self.model = Pipeline(
+            [
+                ("scaler", StandardScaler()),
+                (
+                    "tree_classifier",
+                    DecisionTreeClassifier(max_depth=5, min_samples_split=15),
+                ),
+            ]
+        )
 
         # Decision Tree Model
-        self.model = DecisionTreeClassifier(max_depth=5, min_samples_split=15)
-        self.model = self.model.fit(X_train_scaled, self.y_train)
+        self.model = self.model.fit(self.X_train, self.y_train)
 
 
 class SegmentationModel:
-    """Classifier model for the image segmentation dataset."""
+    """Classifier model for the Image Segmentation dataset."""
 
     def __init__(self):
         url = (
@@ -117,11 +129,20 @@ class SegmentationModel:
             X, y, test_size=0.4, random_state=0, stratify=y
         )
 
-        self.scaler = StandardScaler().fit(self.X_train)
-        X_train_scaled = self.scaler.transform(self.X_train)
+        self.model = Pipeline(
+            [
+                ("scaler", StandardScaler()),
+                (
+                    "SVC_classifier",
+                    SVC(
+                        kernel="rbf",
+                        decision_function_shape="ovr",
+                        class_weight="balanced",
+                        C=5,
+                    ),
+                ),
+            ]
+        )
 
         # SVC Model
-        self.model = SVC(
-            kernel="rbf", decision_function_shape="ovr", class_weight="balanced", C=5
-        )
-        self.model.fit(X_train_scaled, self.y_train)
+        self.model = self.model.fit(self.X_train, self.y_train)
