@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.metrics import accuracy_score
 
 
@@ -144,3 +146,75 @@ def summary_metrics(
                 print(f"{name:<37}   {value:.4f}")
 
     return results
+
+
+def multivariable_density_comparison(
+    datasets=[None],
+    feature1=None,
+    feature2=None,
+    label_col="class",
+    titles=None,
+    other_kwargs=None,
+):
+    """Visualization to compare class density projections in detail.
+
+    Allows to compare the different topologies of a number of ML classifiers in
+    a multivariable feature space by choosing a feature pair and "squashing" the
+    rest of the features into a projected density distribution for each class.
+
+    It is important that the classifier datasets are obtained through a
+    homogeneous sampling throughout the feature space to avoid introducing
+    spurious shapes in the projected density distributions. `uniform_sampling`
+    is a good option for that.
+
+    `normal_sampling` and any other non-uniform samplers should be avoided
+    because the intrinsic class distributions become convoluted with its
+    gaussian shape obscuring them. Note that `grid_sampling` is also not
+    recommended because it samples very specific interval points and thus yields
+    density peaks.
+
+    Parameters
+    ----------
+    datasets : list of pandas DataFrames
+        List of the datasets with the sampled and labeled points for each classifier included in the comparison.
+    feature1 :
+        Name of feature to display in the x-axis.
+    feature2 :
+        Name of feature to display in the y-axis.
+    label_col : str
+        Name of the label column.
+    titles : list of str
+        List of names to identify each classifier and label their subplot.
+    **other_kwargs : dict
+        Any other parameters needed for the plotting function.
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Figure with the detailed classifier comparison.
+    matplotlib.axes.Axes or array of Axes
+        Contains most of the figure elements of the classifier comparison and sets the coordinate system.
+    """
+    num_comparisons = len(datasets)
+    num_classes = datasets[0][label_col].nunique()
+    fig, axs = plt.subplots(
+        num_classes, len(datasets), figsize=(16, 7), sharex=True, sharey=True
+    )
+    for index_vertical in range(num_comparisons):
+        for index_horizontal in range(num_classes):
+            axs[index_horizontal, index_vertical] = sns.kdeplot(
+                x=datasets[index_vertical][
+                    datasets[index_vertical][label_col] == index_horizontal
+                ][feature1],
+                y=datasets[index_vertical][
+                    datasets[index_vertical][label_col] == index_horizontal
+                ][feature2],
+                hue=datasets[index_vertical][label_col],
+                ax=axs[index_horizontal, index_vertical],
+                **other_kwargs,
+            )
+        if titles is not None:
+            axs[0, index_vertical].set_title(titles[index_vertical])
+    plt.show()
+
+    return fig, axs
