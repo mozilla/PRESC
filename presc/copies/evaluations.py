@@ -184,7 +184,8 @@ def multivariable_density_comparison(
     Parameters
     ----------
     datasets : list of pandas DataFrames
-        List of the datasets with the sampled and labeled points for each classifier included in the comparison.
+        List of the datasets with the sampled and labeled points for each
+        classifier included in the comparison.
     feature1 :
         Name of feature to display in the x-axis.
     feature2 :
@@ -205,7 +206,8 @@ def multivariable_density_comparison(
     matplotlib.figure.Figure
         Figure with the detailed classifier comparison.
     matplotlib.axes.Axes or array of Axes
-        Contains most of the figure elements of the classifier comparison and sets the coordinate system.
+        Contains most of the figure elements of the classifier comparison and
+        sets the coordinate system.
     """
     kdeplot_kwargs = {
         "alpha": 0.3,
