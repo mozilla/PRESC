@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import accuracy_score
 
+from presc.dataset import Dataset
+
 
 def empirical_fidelity_error(y_pred_original, y_pred_copy):
     """Computes the empirical fidelity error of a classifier copy.
@@ -230,3 +232,42 @@ def multivariable_density_comparison(
     plt.show()
 
     return fig, axs
+
+
+def keep_top_classes(dataset, min_num_samples=2, classes_to_keep=None):
+    """Function to remove rows from minoritary classes from PRESC Datasets.
+
+    Only classes that have more than the specified minimum number of samples
+    will be kept. If a list of the classes of interest is indicated, then this
+    requirement is overrided.
+
+    Parameters
+    ----------
+    dataset : presc.dataset.Dataset
+        PRESC dataset from which we want to remove the minoritary classes.
+    min_num_samples : int
+        Minimum number of samples that the classes should have in order to keep
+        them.
+    classes_to_keep : list
+        Name of the classes to keep. If a list of classes is specified here,
+        then the parameter `min_num_samples` is overriden, and the specified
+        classes will have any number of samples.
+
+    Returns
+    -------
+    presc.dataset.Dataset
+        PRESC Dataset without the samples from the minoritary classes.
+    """
+    label_col = dataset.labels.name
+    if classes_to_keep is None:
+        classes_to_keep = (
+            dataset.df[label_col]
+            .value_counts()[dataset.df[label_col].value_counts() >= min_num_samples]
+            .index.to_list()
+        )
+    new_dataframe = dataset.df[dataset.df[label_col].isin(classes_to_keep)].copy()
+    new_dataframe[label_col] = new_dataframe.loc[:, label_col].cat.set_categories(
+        classes_to_keep
+    )
+
+    return Dataset(new_dataframe, label_col=label_col)
