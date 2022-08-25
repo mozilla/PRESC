@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import pandas as pd
 from presc.dataset import Dataset
@@ -44,6 +45,56 @@ def dynamical_range(df, verbose=False):
             )
 
     return range_dict
+
+
+def reduce_feature_space(feature_parameters, sigmas=1):
+    """Force feature minimum/maximum values to x times the standard deviation.
+
+    This function will adjust the minimum and maximum values of each feature to
+    the range determined by taking the feature's mean value and substracting and
+    adding to it the specified number of standard deviations. But only for the
+    features that have the mean and standard deviation specified.
+
+    Normally this will reduce the feature space by leaving out the range of most
+    extreme values and will facilitate that any sampling based on the feature
+    minimum and maximum values becomes more efficient. This is a more notorious
+    problem when the dictionary describing the features has ben extracted
+    automatically from an original dataset which contains outliers.
+
+    Parameters
+    ----------
+    feature_parameters: dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys are the
+        column names), where each feature entry contains a nested dictionary
+        with the values of the minimum and maximum values of the dynamic range
+        of the dataset, as well as the mean and sigma of the distribution
+        (nested dictionary keys are "min", "max", "mean" and "sigma").
+    sigmas : float
+        The factor by which the standard deviation will be multiplied in order
+        to define the symmetric interval around the mean.
+
+    Returns
+    -------
+    dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys are the
+        column names), where each feature entry contains a nested dictionary
+        with the values of the minimum and maximum values of the dynamic range
+        of the dataset, as well as the mean and sigma of the distribution
+        (nested dictionary keys are "min", "max", "mean" and "sigma").
+    """
+
+    modified_feature_space = copy.deepcopy(feature_parameters)
+    for feature in feature_parameters:
+        if feature_parameters[feature]["mean"] and feature_parameters[feature]["sigma"]:
+            modified_feature_space[feature]["min"] = (
+                feature_parameters[feature]["mean"]
+                - sigmas * feature_parameters[feature]["sigma"]
+            )
+            modified_feature_space[feature]["max"] = (
+                feature_parameters[feature]["mean"]
+                + sigmas * feature_parameters[feature]["sigma"]
+            )
+    return modified_feature_space
 
 
 def find_categories(df, add_nans=False):
