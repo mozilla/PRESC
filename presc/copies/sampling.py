@@ -329,8 +329,8 @@ def normal_sampling(
     Returns
     -------
     pandas DataFrame
-        Dataset with a generated sampling following a normal distribution of
-        the feature space characterized by the `feature_parameters`.
+        Dataset with a generated sampling following a normal distribution of the
+        feature space characterized by the `feature_parameters`.
     """
     if random_state is not None:
         np.random.seed(seed=random_state)
