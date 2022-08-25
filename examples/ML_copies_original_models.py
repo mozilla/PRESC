@@ -119,6 +119,7 @@ class SegmentationModel:
             url, skiprows=4, names=feature_names, dtype={"class": str}
         )
         dataset = dataset[feature_names[1:] + ["class"]]
+        dataset.drop("region_pixel_count", axis=1, inplace=True)
         self.dataset = Dataset(dataset, label_col="class")
 
         self.feature_description = dynamical_range(self.dataset.features, verbose=False)
