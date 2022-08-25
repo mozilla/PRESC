@@ -198,25 +198,37 @@ def multivariable_density_comparison(
         Contains most of the figure elements of the classifier comparison and sets the coordinate system.
     """
     num_comparisons = len(datasets)
-    num_classes = datasets[0][label_col].nunique()
+    class_names = set()
+    for index_models in range(num_comparisons):
+        class_names = class_names | set(datasets[index_models][label_col].unique())
+    class_names = sorted(list(class_names))
+    max_num_classes = len(class_names)
+
     fig, axs = plt.subplots(
-        num_classes, len(datasets), figsize=(16, 7), sharex=True, sharey=True
+        max_num_classes,
+        num_comparisons,
+        figsize=(3.5 * num_comparisons, 3.5 * max_num_classes),
+        sharex=True,
+        sharey=True,
     )
-    for index_vertical in range(num_comparisons):
-        for index_horizontal in range(num_classes):
-            axs[index_horizontal, index_vertical] = sns.kdeplot(
-                x=datasets[index_vertical][
-                    datasets[index_vertical][label_col] == index_horizontal
+    for index_models in range(num_comparisons):
+        for index_classes, class_name in enumerate(class_names):
+            axs[index_classes, index_models] = sns.kdeplot(
+                x=datasets[index_models][
+                    datasets[index_models][label_col] == class_name
                 ][feature1],
-                y=datasets[index_vertical][
-                    datasets[index_vertical][label_col] == index_horizontal
+                y=datasets[index_models][
+                    datasets[index_models][label_col] == class_name
                 ][feature2],
-                hue=datasets[index_vertical][label_col],
-                ax=axs[index_horizontal, index_vertical],
+                hue=datasets[index_models][label_col],
+                ax=axs[index_classes, index_models],
                 **other_kwargs,
             )
+            axs[index_classes, 0].set_ylabel(
+                label_col + " = " + str(class_name) + "\n\n" + feature2
+            )
         if titles is not None:
-            axs[0, index_vertical].set_title(titles[index_vertical])
+            axs[0, index_models].set_title(titles[index_models])
     plt.show()
 
     return fig, axs
