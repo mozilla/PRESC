@@ -253,6 +253,7 @@ def multivariable_density_comparison(
             axs[0, index_models].set_title(titles[index_models])
     plt.show(block=False)
 
+
     return fig, axs
 
 
