@@ -159,8 +159,7 @@ def multivariable_density_comparison(
     other_kwargs={
         "alpha": 0.3,
         "common_norm": False,
-        #        "palette": colors,
-        "shade": True,
+        "fill": True,
         "n_levels": 4,
         "legend": False,
     },
@@ -236,7 +235,7 @@ def multivariable_density_comparison(
             )
         if titles is not None:
             axs[0, index_models].set_title(titles[index_models])
-    plt.show()
+    plt.show(block=False)
 
     return fig, axs
 
