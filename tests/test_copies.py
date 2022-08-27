@@ -32,13 +32,7 @@ from presc.copies.evaluations import (
     empirical_fidelity_error,
     replacement_capability,
     summary_metrics,
-    multivariable_density_comparison,
     keep_top_classes,
-)
-from presc.copies.continuous import (
-    SyntheticDataStreamer,
-    ContinuousCopy,
-    check_partial_fit,
 )
 from presc.copies.copying import ClassifierCopy
 from presc.copies.examples import multiclass_gaussians
@@ -46,74 +40,21 @@ from presc.copies.examples import multiclass_gaussians
 
 @pytest.fixture
 def example_presc_datasets():
-    data_points = [
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        [0, 10, 1, 9, 2, 8, 3, 7, 4, 6, 5],
-    ]
+    data_points = [[1, 2, 3, 4, 5, 1, 2, 3, 4, 1, 2], [5, 4, 3, 2, 1, 4, 3, 2, 1, 2, 1]]
     labels1 = [["a", "a", "a", "a", "a", "b", "b", "b", "b", "c", "c"]]
     labels2 = [["b", "b", "b", "b", "b", "a", "a", "a", "a", "c", "c"]]
 
     test_dataframe_1 = pd.DataFrame(
         np.array(data_points + labels1).T, columns=["feature1", "feature2", "letter"]
     )
-    test_dataframe_1[["feature1", "feature2"]] = test_dataframe_1[
-        ["feature1", "feature2"]
-    ].astype(float)
     test_dataframe_2 = pd.DataFrame(
         np.array(data_points + labels2).T, columns=["feature1", "feature2", "letter"]
     )
-    test_dataframe_2[["feature1", "feature2"]] = test_dataframe_2[
-        ["feature1", "feature2"]
-    ].astype(float)
 
     test_presc_dataset_1 = Dataset(test_dataframe_1, label_col="letter")
     test_presc_dataset_2 = Dataset(test_dataframe_2, label_col="letter")
     test_presc_datasets = [test_presc_dataset_1, test_presc_dataset_2]
     return test_presc_datasets
-
-
-@pytest.fixture
-def train_data():
-    train_data = pd.DataFrame(
-        {"x": [0, 1, 0, 2, 1], "y": [1, 0, 2, 0, 1], "label": [0, 0, 1, 1, 1]},
-        columns=["x", "y", "label"],
-    )
-    return train_data
-
-
-@pytest.fixture
-def trained_original_classifier(train_data):
-    original_classifier = SVC(kernel="linear", random_state=42)
-    original_classifier.fit(train_data[["x", "y"]], train_data["label"])
-    return original_classifier
-
-
-@pytest.fixture
-def instantiated_classifier_copies(trained_original_classifier):
-    # Feature space description
-    feature_parameters = {"x": {"min": 0, "max": 2}, "y": {"min": 0, "max": 2}}
-
-    # Instantiate ClassifierCopy with two sampling options and parameters
-    classifier_copy_grid = DecisionTreeClassifier(max_depth=2, random_state=42)
-    copy_grid = ClassifierCopy(
-        trained_original_classifier,
-        classifier_copy_grid,
-        grid_sampling,
-        nsamples=900,
-        label_col="label",
-        feature_parameters=feature_parameters,
-    )
-
-    classifier_copy_uniform = DecisionTreeClassifier()
-    copy_uniform = ClassifierCopy(
-        trained_original_classifier,
-        classifier_copy_uniform,
-        uniform_sampling,
-        nsamples=10,
-        label_col="label",
-        feature_parameters=feature_parameters,
-    )
-    return {"grid_copy": copy_grid, "uniform_copy": copy_uniform}
 
 
 def test_dynamical_range():
@@ -471,14 +412,28 @@ def test_summary_metrics():
         np.testing.assert_almost_equal(metrics[name], expected_results[name], decimal=6)
 
 
-def test_multivariable_density_comparison(example_presc_datasets):
-    num_figures_before = plt.gcf().number
-    multivariable_density_comparison(
-        [example_presc_datasets[0].df[:-2], example_presc_datasets[1].df[:-2]],
-        feature1="feature1",
-        feature2="feature2",
-        label_col="letter",
-        titles=["Classifier 1", "Classifier 2"],
+def test_keep_top_classes(example_presc_datasets):
+    min_num_samples = 3
+    classes_to_keep = ["b", "c"]
+
+    dataset_majority_classes = keep_top_classes(
+        example_presc_datasets[0], min_num_samples=min_num_samples
+    )
+    dataset_specified_classes = keep_top_classes(
+        example_presc_datasets[0],
+        min_num_samples=min_num_samples,
+        classes_to_keep=classes_to_keep,
+    )
+
+    assert dataset_majority_classes.labels.isin(["a", "b"]).all()
+    assert dataset_specified_classes.labels.isin(["b", "c"]).all()
+
+
+def test_ClassifierCopy_copy_classifier():
+    # Original classifier
+    train_data = pd.DataFrame(
+        {"x": [0, 1, 0, 2, 1], "y": [1, 0, 2, 0, 1], "label": [0, 0, 1, 1, 1]},
+        columns=["x", "y", "label"],
     )
     num_figures_after = plt.gcf().number
     # Checks that the figure was plotted
