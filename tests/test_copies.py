@@ -10,6 +10,7 @@ from presc.dataset import Dataset
 
 from presc.copies.sampling import (
     dynamical_range,
+    reduce_feature_space,
     find_categories,
     build_equal_category_dict,
     mixed_data_features,
@@ -52,6 +53,23 @@ def test_dynamical_range():
                 expected_range_dict[key][descriptor],
                 significant=3,
             )
+
+
+def test_reduce_feature_space():
+    feature_parameters = {
+        "feature1": {"min": 0, "max": 1000, "mean": 50, "sigma": None},
+        "feature2": {"categories": {"red": 0.4, "blue": 0.6}},
+        "feature3": {"min": -100, "max": 20, "mean": -0.001, "sigma": 0.0005},
+        "feature4": {"min": 10, "max": 20},
+    }
+    reduced_feature_space_2 = reduce_feature_space(feature_parameters, sigmas=2)
+    expected_reduced_feature_space_2 = {
+        "feature1": {"min": 0, "max": 1000, "mean": 50, "sigma": None},
+        "feature2": {"categories": {"red": 0.4, "blue": 0.6}},
+        "feature3": {"min": -0.002, "max": 0, "mean": -0.001, "sigma": 0.0005},
+        "feature4": {"min": 10, "max": 20},
+    }
+    assert reduced_feature_space_2 == expected_reduced_feature_space_2
 
 
 def test_find_categories():
