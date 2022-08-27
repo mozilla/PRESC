@@ -32,6 +32,7 @@ from presc.copies.evaluations import (
     empirical_fidelity_error,
     replacement_capability,
     summary_metrics,
+    multivariable_density_comparison,
     keep_top_classes,
 )
 from presc.copies.copying import ClassifierCopy
@@ -40,16 +41,25 @@ from presc.copies.examples import multiclass_gaussians
 
 @pytest.fixture
 def example_presc_datasets():
-    data_points = [[1, 2, 3, 4, 5, 1, 2, 3, 4, 1, 2], [5, 4, 3, 2, 1, 4, 3, 2, 1, 2, 1]]
+    data_points = [
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        [0, 10, 1, 9, 2, 8, 3, 7, 4, 6, 5],
+    ]
     labels1 = [["a", "a", "a", "a", "a", "b", "b", "b", "b", "c", "c"]]
     labels2 = [["b", "b", "b", "b", "b", "a", "a", "a", "a", "c", "c"]]
 
     test_dataframe_1 = pd.DataFrame(
         np.array(data_points + labels1).T, columns=["feature1", "feature2", "letter"]
     )
+    test_dataframe_1[["feature1", "feature2"]] = test_dataframe_1[
+        ["feature1", "feature2"]
+    ].astype(float)
     test_dataframe_2 = pd.DataFrame(
         np.array(data_points + labels2).T, columns=["feature1", "feature2", "letter"]
     )
+    test_dataframe_2[["feature1", "feature2"]] = test_dataframe_2[
+        ["feature1", "feature2"]
+    ].astype(float)
 
     test_presc_dataset_1 = Dataset(test_dataframe_1, label_col="letter")
     test_presc_dataset_2 = Dataset(test_dataframe_2, label_col="letter")
@@ -410,6 +420,20 @@ def test_summary_metrics():
     metric_names = metrics.keys()
     for name in metric_names:
         np.testing.assert_almost_equal(metrics[name], expected_results[name], decimal=6)
+
+
+def test_multivariable_density_comparison(example_presc_datasets):
+    num_figures_before = plt.gcf().number
+    multivariable_density_comparison(
+        [example_presc_datasets[0].df[:-2], example_presc_datasets[1].df[:-2]],
+        feature1="feature1",
+        feature2="feature2",
+        label_col="letter",
+        titles=["Classifier 1", "Classifier 2"],
+    )
+    num_figures_after = plt.gcf().number
+    # Checks that the figure was plotted
+    assert num_figures_after == num_figures_before + 1
 
 
 def test_keep_top_classes(example_presc_datasets):
