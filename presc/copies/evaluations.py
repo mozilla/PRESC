@@ -198,8 +198,8 @@ def multivariable_density_comparison(
         Any other seaborn.kdeplot parameters needed to adjust the visualization.
         Default parameters are {"alpha": 0.3, "common_norm": False, "fill": True,
         "n_levels": 4, "legend": False}. The value of any parameter specified
-        within the other_kwargs dictionary will be overwritten, including any of
-        these.
+        within the other_kwargs dictionary will be overwritten, including any
+        of these.
 
     Returns
     -------
