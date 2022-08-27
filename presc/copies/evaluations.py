@@ -156,7 +156,14 @@ def multivariable_density_comparison(
     feature2=None,
     label_col="class",
     titles=None,
-    other_kwargs=None,
+    other_kwargs={
+        "alpha": 0.3,
+        "common_norm": False,
+        #        "palette": colors,
+        "shade": True,
+        "n_levels": 4,
+        "legend": False,
+    },
 ):
     """Visualization to compare class density projections in detail.
 
@@ -188,7 +195,7 @@ def multivariable_density_comparison(
     titles : list of str
         List of names to identify each classifier and label their subplot.
     **other_kwargs : dict
-        Any other parameters needed for the plotting function.
+        Any other seaborn.kdeplot parameters needed to adjust the visualization.
 
     Returns
     -------
@@ -266,8 +273,10 @@ def keep_top_classes(dataset, min_num_samples=2, classes_to_keep=None):
             .index.to_list()
         )
     new_dataframe = dataset.df[dataset.df[label_col].isin(classes_to_keep)].copy()
-    new_dataframe[label_col] = new_dataframe.loc[:, label_col].cat.set_categories(
-        classes_to_keep
-    )
+    if new_dataframe[label_col].dtype.name == "categorical":
+        print(str(label_col), " is categorical")
+        new_dataframe[label_col] = new_dataframe.loc[:, label_col].cat.set_categories(
+            classes_to_keep
+        )
 
     return Dataset(new_dataframe, label_col=label_col)
