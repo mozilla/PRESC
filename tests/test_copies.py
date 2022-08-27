@@ -26,9 +26,29 @@ from presc.copies.evaluations import (
     empirical_fidelity_error,
     replacement_capability,
     summary_metrics,
+    keep_top_classes,
 )
 from presc.copies.copying import ClassifierCopy
 from presc.copies.examples import multiclass_gaussians
+
+
+@pytest.fixture
+def example_presc_datasets():
+    data_points = [[1, 2, 3, 4, 5, 1, 2, 3, 4, 1, 2], [5, 4, 3, 2, 1, 4, 3, 2, 1, 2, 1]]
+    labels1 = [["a", "a", "a", "a", "a", "b", "b", "b", "b", "c", "c"]]
+    labels2 = [["b", "b", "b", "b", "b", "a", "a", "a", "a", "c", "c"]]
+
+    test_dataframe_1 = pd.DataFrame(
+        np.array(data_points + labels1).T, columns=["feature1", "feature2", "letter"]
+    )
+    test_dataframe_2 = pd.DataFrame(
+        np.array(data_points + labels2).T, columns=["feature1", "feature2", "letter"]
+    )
+
+    test_presc_dataset_1 = Dataset(test_dataframe_1, label_col="letter")
+    test_presc_dataset_2 = Dataset(test_dataframe_2, label_col="letter")
+    test_presc_datasets = [test_presc_dataset_1, test_presc_dataset_2]
+    return test_presc_datasets
 
 
 def test_dynamical_range():
@@ -384,6 +404,23 @@ def test_summary_metrics():
     metric_names = metrics.keys()
     for name in metric_names:
         np.testing.assert_almost_equal(metrics[name], expected_results[name], decimal=6)
+
+
+def test_keep_top_classes(example_presc_datasets):
+    min_num_samples = 3
+    classes_to_keep = ["b", "c"]
+
+    dataset_majority_classes = keep_top_classes(
+        example_presc_datasets[0], min_num_samples=min_num_samples
+    )
+    dataset_specified_classes = keep_top_classes(
+        example_presc_datasets[0],
+        min_num_samples=min_num_samples,
+        classes_to_keep=classes_to_keep,
+    )
+
+    assert dataset_majority_classes.labels.isin(["a", "b"]).all()
+    assert dataset_specified_classes.labels.isin(["b", "c"]).all()
 
 
 def test_ClassifierCopy_copy_classifier():
