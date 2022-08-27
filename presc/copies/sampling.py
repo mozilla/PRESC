@@ -82,10 +82,13 @@ def reduce_feature_space(feature_parameters, sigmas=1):
         of the dataset, as well as the mean and sigma of the distribution
         (nested dictionary keys are "min", "max", "mean" and "sigma").
     """
-
     modified_feature_space = copy.deepcopy(feature_parameters)
     for feature in feature_parameters:
-        if feature_parameters[feature]["mean"] and feature_parameters[feature]["sigma"]:
+        if (
+            {"mean", "sigma"}.issubset(set(feature_parameters[feature].keys()))
+            and feature_parameters[feature]["mean"]
+            and feature_parameters[feature]["sigma"]
+        ):
             modified_feature_space[feature]["min"] = (
                 feature_parameters[feature]["mean"]
                 - sigmas * feature_parameters[feature]["sigma"]
