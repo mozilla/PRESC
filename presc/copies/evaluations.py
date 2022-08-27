@@ -195,6 +195,10 @@ def multivariable_density_comparison(
         List of names to identify each classifier and label their subplot.
     **other_kwargs : dict
         Any other seaborn.kdeplot parameters needed to adjust the visualization.
+        Default parameters are {"alpha": 0.3, "common_norm": False, "fill": True,
+        "n_levels": 4, "legend": False}. The value of any parameter specified
+        within the other_kwargs dictionary will be overwritten, including any
+        of these.
 
     Returns
     -------
@@ -203,6 +207,16 @@ def multivariable_density_comparison(
     matplotlib.axes.Axes or array of Axes
         Contains most of the figure elements of the classifier comparison and sets the coordinate system.
     """
+    kdeplot_kwargs = {
+        "alpha": 0.3,
+        "common_norm": False,
+        "fill": True,
+        "n_levels": 4,
+        "legend": False,
+    }
+    for key, value in other_kwargs.items():
+        kdeplot_kwargs[key] = value
+
     num_comparisons = len(datasets)
     class_names = set()
     for index_models in range(num_comparisons):
@@ -228,7 +242,7 @@ def multivariable_density_comparison(
                 ][feature2],
                 hue=datasets[index_models][label_col],
                 ax=axs[index_classes, index_models],
-                **other_kwargs,
+                **kdeplot_kwargs,
             )
             axs[index_classes, 0].set_ylabel(
                 label_col + " = " + str(class_name) + "\n\n" + feature2
