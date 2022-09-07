@@ -1,4 +1,31 @@
+from threading import Thread
 from sklearn.pipeline import Pipeline
+
+
+class SyntheticDataStreamer(Thread):
+    """Generate a stream of synthetic data continuously sampling batches."""
+
+    def __init__(self, classifier_copy, data_stream, verbose=False):
+        Thread.__init__(self)
+        self.classifier_copy = classifier_copy
+        self.data_stream = data_stream
+        self.verbose = verbose
+        self.random_state = classifier_copy.random_state
+
+    def run(self):
+        self.data_streamer_run = True
+
+        while self.data_streamer_run:
+            data_block = self.classifier_copy.generate_synthetic_data(
+                random_state=self.random_state
+            )
+            self.random_state = self.random_state + 1
+            self.data_stream.put(data_block)
+
+    def stop(self):
+        self.data_streamer_run = False
+        if self.verbose:
+            print("Stopping data streamer...\n")
 
 
 def check_partial_fit(estimator_pipeline):
