@@ -61,6 +61,10 @@ class ClassifierCopy:
         self.enforce_balance = enforce_balance
         self.label_col = label_col
         self.k_sampling_parameters = k_sampling_parameters
+        if "random_state" in self.k_sampling_parameters.keys():
+            self.random_state = self.k_sampling_parameters["random_state"]
+        else:
+            self.random_state = None
 
     def copy_classifier(self, get_training_data=False, **k_mod_sampling_parameters):
         """Copies the classifier using data generated with the original model.
