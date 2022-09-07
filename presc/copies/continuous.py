@@ -55,7 +55,6 @@ class SyntheticDataStreamer(Thread):
 class ContinuousCopy(Thread):
     """Continuous classifier copy for online classifiers.
 
-<<<<<<< HEAD
     This class allows to instantiate online classifiers to perform sequential
     incremental training of the classifier copy, which can be carried out
     continuously non-stop. It keeps taking the necessary data batches from the
@@ -83,10 +82,6 @@ class ContinuousCopy(Thread):
         test_data : presc.dataset.Dataset
             Dataset with the test data that will be used to evaluate the copy
             after each training iteration.
-=======
-    With this class for online classifiers partial fits of the copy can be
-    carried out sequentially.
->>>>>>> Add print comment in ContinuousCopy class.
     """
 
     def __init__(
@@ -108,10 +103,7 @@ class ContinuousCopy(Thread):
             self.is_pipeline = False
 
     def run(self):
-<<<<<<< HEAD
         """Function to start the copying of the continuous online classifier."""
-=======
->>>>>>> Add print comment in ContinuousCopy class.
         self.continuous_copy_run = True
 
         self.partial_fit_ok = check_partial_fit(self.classifier_copy.copy)
@@ -153,10 +145,7 @@ class ContinuousCopy(Thread):
                 )
 
     def stop(self):
-<<<<<<< HEAD
         """Function to stop the continuous copying of the online classifier."""
-=======
->>>>>>> Add print comment in ContinuousCopy class.
         self.continuous_copy_run = False
         if self.verbose:
             print("Stopping online classifier copier...\n")
