@@ -68,8 +68,8 @@ class ContinuousCopy(Thread):
             classifier, its associated sampling method of choice, and the online
             copy classifier, which needs to be capable of incremental training.
         data_stream : queue.Queue
-            The queue where the batches of data for the incremental training of
-            the online copy can be found.
+            The queue where the batches of data for the incremental training
+            of the online copy can be found.
         fit_kwargs : dict or dict of dicts
             A dictionary with the fit parameters needed for the online copy
             classifier, or for each element of the online copy pipeline. In the
