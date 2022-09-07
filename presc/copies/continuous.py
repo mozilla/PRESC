@@ -28,6 +28,7 @@ class SyntheticDataStreamer(Thread):
             print("Stopping data streamer...\n")
 
 
+
 class ContinuousCopy(Thread):
     """Continuous classifier copy for online classifiers.
 
