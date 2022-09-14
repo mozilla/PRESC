@@ -3,7 +3,27 @@ from sklearn.pipeline import Pipeline
 
 
 class SyntheticDataStreamer(Thread):
-    """Generate a stream of synthetic data continuously sampling batches."""
+    """Generate a stream of synthetic data sampling batches continuously.
+
+    This function generates batches of synthetic data using the sampler and
+    parameters specified in a ClassifierCopy instance, and continuously adds
+    them to the specified queue as soon as there are any slots available. The
+    batches of data can then be consumed by several concurrent threads or any
+    process that requires them. In particular, they can also be used by
+    ContinuousCopy instances.
+
+    Attributes
+    ----------
+        classifier_copy : presc.copies.copying.ClassifierCopy
+            An instance of the ClassifierCopy class with the original,
+            classifier, the copy classifier, and its associated sampling method
+            of choice including the sampling parameters.
+        data_stream : queue.Queue
+            The queue where the continuous synthetic data generator will store
+            the synthetic data batches to share them with the main thread.
+        verbose : bool
+            If set to True a note when stopping the streamer is printed.
+    """
 
     def __init__(self, classifier_copy, data_stream, verbose=False):
         Thread.__init__(self)
