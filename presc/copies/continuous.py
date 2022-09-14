@@ -124,7 +124,24 @@ class ContinuousCopy(Thread):
 
 
 def check_partial_fit(estimator_pipeline):
-    """Function to check if estimator or pipeline have partial_fit."""
+    """Function to check if estimator or pipeline have partial_fit.
+
+    This function checks if an estimator or classifier have a partial_fit
+    function implemented and thus can be used for incremental fits and
+    ContinuousCopy instances. In the case of sklearn pipelines, it checks wether
+    each and every one of the elements of the pipeline has the same function.
+
+    Parameters
+    ----------
+    estimator_pipeline : sklearn-type classifier or sklearn.pipeline.Pipeline
+        The estimator or pipeline that we want to check.
+
+    Returns
+    -------
+    bool
+        Returns True if the classifier or the pipeline can be fitted
+        incrementally.
+    """
     partial_fit_ok = True
     if isinstance(estimator_pipeline, Pipeline):
         # Check that all pipeline elements have "partial_fit"
