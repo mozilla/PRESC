@@ -35,6 +35,9 @@ from presc.copies.evaluations import (
     multivariable_density_comparison,
     keep_top_classes,
 )
+from presc.copies.continuous import (
+    check_partial_fit,
+)
 from presc.copies.copying import ClassifierCopy
 from presc.copies.examples import multiclass_gaussians
 
@@ -451,6 +454,25 @@ def test_keep_top_classes(example_presc_datasets):
 
     assert dataset_majority_classes.labels.isin(["a", "b"]).all()
     assert dataset_specified_classes.labels.isin(["b", "c"]).all()
+
+
+def test_check_partial_fit():
+    # Instantiate classifier with and without incremental training
+    classifier_without = DummyClassifier()
+    classifier_with = SGDClassifier()
+    # Instantiate pipeline with and without incremental training
+    pipeline_without = Pipeline(
+        [("scaler", StandardScaler()), ("tree_classifier", DummyClassifier())]
+    )
+    pipeline_with = Pipeline(
+        [("scaler", StandardScaler()), ("sdg_classifier", SGDClassifier())]
+    )
+
+    # Check expected return
+    assert not check_partial_fit(classifier_without)
+    assert check_partial_fit(classifier_with)
+    assert not check_partial_fit(pipeline_without)
+    assert check_partial_fit(pipeline_with)
 
 
 def test_ClassifierCopy_copy_classifier():
