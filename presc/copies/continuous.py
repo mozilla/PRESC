@@ -176,6 +176,6 @@ def check_partial_fit(estimator_pipeline):
                 partial_fit_ok = False
                 return partial_fit_ok
     else:
-        if "partial_fit" not in dir(estimator_pipeline.copy):
+        if "partial_fit" not in dir(estimator_pipeline):
             partial_fit_ok = False
     return partial_fit_ok
