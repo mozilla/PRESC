@@ -522,7 +522,7 @@ def test_SyntheticDataStreamer(
     assert data_stream.full()
     assert data_stream.qsize() == 4
 
-    # Assert that elements in the queue are the expected datasets
+    # Assert that elements in queue are the expected datasets
     data_batch = data_stream.get()
     assert isinstance(data_batch, Dataset)
     assert len(data_batch.df) == 10
