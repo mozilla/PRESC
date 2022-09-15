@@ -37,6 +37,7 @@ from presc.copies.evaluations import (
 )
 from presc.copies.continuous import (
     SyntheticDataStreamer,
+    ContinuousCopy,
     check_partial_fit,
 )
 from presc.copies.copying import ClassifierCopy
@@ -72,14 +73,47 @@ def example_presc_datasets():
 
 
 @pytest.fixture
-def trained_original_classifier():
+def train_data():
     train_data = pd.DataFrame(
         {"x": [0, 1, 0, 2, 1], "y": [1, 0, 2, 0, 1], "label": [0, 0, 1, 1, 1]},
         columns=["x", "y", "label"],
     )
+    return train_data
+
+
+@pytest.fixture
+def trained_original_classifier(train_data):
     original_classifier = SVC(kernel="linear", random_state=42)
     original_classifier.fit(train_data[["x", "y"]], train_data["label"])
     return original_classifier
+
+
+@pytest.fixture
+def instantiated_classifier_copies(trained_original_classifier):
+    # Feature space description
+    feature_parameters = {"x": {"min": 0, "max": 2}, "y": {"min": 0, "max": 2}}
+
+    # Instantiate ClassifierCopy with two sampling options and parameters
+    classifier_copy_grid = DecisionTreeClassifier(max_depth=2, random_state=42)
+    copy_grid = ClassifierCopy(
+        trained_original_classifier,
+        classifier_copy_grid,
+        grid_sampling,
+        nsamples=900,
+        label_col="label",
+        feature_parameters=feature_parameters,
+    )
+
+    classifier_copy_uniform = DecisionTreeClassifier()
+    copy_uniform = ClassifierCopy(
+        trained_original_classifier,
+        classifier_copy_uniform,
+        uniform_sampling,
+        nsamples=10,
+        label_col="label",
+        feature_parameters=feature_parameters,
+    )
+    return {"grid_copy": copy_grid, "uniform_copy": copy_uniform}
 
 
 def test_dynamical_range():
@@ -468,24 +502,15 @@ def test_keep_top_classes(example_presc_datasets):
     assert dataset_specified_classes.labels.isin(["b", "c"]).all()
 
 
-def test_SyntheticDataStreamer(trained_original_classifier):
+def test_SyntheticDataStreamer(
+    trained_original_classifier, instantiated_classifier_copies
+):
     # Define queue
     data_stream = Queue(maxsize=4)
 
-    # Instantiate ClassifierCopy with the sampling options and parameters
-    feature_parameters = {"x": {"min": 0, "max": 2}, "y": {"min": 0, "max": 2}}
-    classifier_copy = DecisionTreeClassifier()
-    copy_grid = ClassifierCopy(
-        trained_original_classifier,
-        classifier_copy,
-        uniform_sampling,
-        nsamples=10,
-        label_col="label",
-        feature_parameters=feature_parameters,
-    )
-
     # Instantiate and start data streamer
-    data_streamer = SyntheticDataStreamer(copy_grid, data_stream, verbose=True)
+    classifier_copy = instantiated_classifier_copies["uniform_copy"]
+    data_streamer = SyntheticDataStreamer(classifier_copy, data_stream, verbose=True)
     data_streamer.deamon = True
     data_streamer.start()
 
@@ -510,35 +535,32 @@ def test_SyntheticDataStreamer(trained_original_classifier):
     assert not data_streamer.is_alive()
 
 
-def test_check_partial_fit():
-    # Instantiate classifier with and without incremental training
-    classifier_without = DummyClassifier()
-    classifier_with = SGDClassifier()
-    # Instantiate pipeline with and without incremental training
-    pipeline_without = Pipeline(
-        [("scaler", StandardScaler()), ("tree_classifier", DummyClassifier())]
-    )
-    pipeline_with = Pipeline(
+def test_ContinuousCopy(
+    train_data, trained_original_classifier, instantiated_classifier_copies
+):
+    # Define queue
+    data_stream = Queue(maxsize=3)
+
+    # Add some data blocks to queue manually
+    data_block_1 = Dataset(train_data[0:2], label_col="label")
+    data_block_2 = Dataset(train_data[2:3], label_col="label")
+    data_block_3 = Dataset(train_data[3:5], label_col="label")
+    data_stream.put(data_block_1)
+    data_stream.put(data_block_2)
+    data_stream.put(data_block_3)
+
+    # Instantiate the copy pipepline
+    sdg_normal_classifier = Pipeline(
         [("scaler", StandardScaler()), ("sdg_classifier", SGDClassifier())]
     )
 
-    # Check expected return
-    assert not check_partial_fit(classifier_without)
-    assert check_partial_fit(classifier_with)
-    assert not check_partial_fit(pipeline_without)
-    assert check_partial_fit(pipeline_with)
-
-
-def test_ClassifierCopy_copy_classifier(trained_original_classifier):
-    # Copy classifier
+    # Instantiate the copier class
     feature_parameters = {"x": {"min": 0, "max": 2}, "y": {"min": 0, "max": 2}}
-    classifier_copy = DecisionTreeClassifier(max_depth=2, random_state=42)
-    copy_grid = ClassifierCopy(
+    sdg_normal_copy = ClassifierCopy(
         trained_original_classifier,
-        classifier_copy,
-        grid_sampling,
-        nsamples=900,
-        label_col="label",
+        sdg_normal_classifier,
+        uniform_sampling,
+        random_state=42,
         feature_parameters=feature_parameters,
         label_col="label",
     )
