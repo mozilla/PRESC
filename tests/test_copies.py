@@ -70,6 +70,17 @@ def example_presc_datasets():
     return test_presc_datasets
 
 
+@pytest.fixture
+def trained_original_classifier():
+    train_data = pd.DataFrame(
+        {"x": [0, 1, 0, 2, 1], "y": [1, 0, 2, 0, 1], "label": [0, 0, 1, 1, 1]},
+        columns=["x", "y", "label"],
+    )
+    original_classifier = SVC(kernel="linear", random_state=42)
+    original_classifier.fit(train_data[["x", "y"]], train_data["label"])
+    return original_classifier
+
+
 def test_dynamical_range():
     data = {
         "age": [33, 21, 42, 80],
@@ -475,93 +486,16 @@ def test_check_partial_fit():
     assert check_partial_fit(pipeline_with)
 
 
-def test_ClassifierCopy_copy_classifier():
-    # Original classifier
-    train_data = pd.DataFrame(
-        {"x": [0, 1, 0, 2, 1], "y": [1, 0, 2, 0, 1], "label": [0, 0, 1, 1, 1]},
-        columns=["x", "y", "label"],
-    )
-    num_figures_after = plt.gcf().number
-    # Checks that the figure was plotted
-    assert num_figures_after == num_figures_before + 1
-
-
-def test_keep_top_classes(example_presc_datasets):
-    min_num_samples = 3
-    classes_to_keep = ["b", "c"]
-
-    dataset_majority_classes = keep_top_classes(
-        example_presc_datasets[0], min_num_samples=min_num_samples
-    )
-    dataset_specified_classes = keep_top_classes(
-        example_presc_datasets[0],
-        min_num_samples=min_num_samples,
-        classes_to_keep=classes_to_keep,
-    )
-
-    assert dataset_majority_classes.labels.isin(["a", "b"]).all()
-    assert dataset_specified_classes.labels.isin(["b", "c"]).all()
-
-
-def test_SyntheticDataStreamer(
-    trained_original_classifier, instantiated_classifier_copies
-):
-    # Define queue
-    data_stream = Queue(maxsize=4)
-
-    # Instantiate and start data streamer
-    classifier_copy = instantiated_classifier_copies["uniform_copy"]
-    data_streamer = SyntheticDataStreamer(classifier_copy, data_stream, verbose=True)
-    data_streamer.deamon = True
-    data_streamer.start()
-
-    # Assert data_streamer is running
-    assert data_streamer.is_alive()
-
-    # Assert that queue is full and it has the proper length
-    time.sleep(1)
-    assert data_stream.full()
-    assert data_stream.qsize() == 4
-
-    # Assert that elements in queue are the expected datasets
-    data_batch = data_stream.get()
-    assert isinstance(data_batch, Dataset)
-    assert len(data_batch.df) == 10
-
-    # Stop data streamer thread
-    data_streamer.stop()
-    _ = data_stream.get()
-
-    # Assert that data streamer really stopped
-    assert not data_streamer.is_alive()
-
-
-def test_ContinuousCopy(
-    train_data, trained_original_classifier, instantiated_classifier_copies
-):
-    # Define queue
-    data_stream = Queue(maxsize=3)
-
-    # Add some data blocks to queue manually
-    data_block_1 = Dataset(train_data[0:2], label_col="label")
-    data_block_2 = Dataset(train_data[2:3], label_col="label")
-    data_block_3 = Dataset(train_data[3:5], label_col="label")
-    data_stream.put(data_block_1)
-    data_stream.put(data_block_2)
-    data_stream.put(data_block_3)
-
-    # Instantiate the copy pipepline
-    sdg_normal_classifier = Pipeline(
-        [("scaler", StandardScaler()), ("sdg_classifier", SGDClassifier())]
-    )
-
-    # Instantiate the copier class
+def test_ClassifierCopy_copy_classifier(trained_original_classifier):
+    # Copy classifier
     feature_parameters = {"x": {"min": 0, "max": 2}, "y": {"min": 0, "max": 2}}
-    sdg_normal_copy = ClassifierCopy(
+    classifier_copy = DecisionTreeClassifier(max_depth=2, random_state=42)
+    copy_grid = ClassifierCopy(
         trained_original_classifier,
-        sdg_normal_classifier,
-        uniform_sampling,
-        random_state=42,
+        classifier_copy,
+        grid_sampling,
+        nsamples=900,
+        label_col="label",
         feature_parameters=feature_parameters,
         label_col="label",
     )
