@@ -1,3 +1,4 @@
+import random
 from threading import Thread
 from sklearn.pipeline import Pipeline
 
@@ -30,7 +31,10 @@ class SyntheticDataStreamer(Thread):
         self.classifier_copy = classifier_copy
         self.data_stream = data_stream
         self.verbose = verbose
-        self.random_state = classifier_copy.random_state
+        if classifier_copy.random_state is None:
+            self.random_state = random.randint(0, 1000000)
+        else:
+            self.random_state = classifier_copy.random_state
 
     def run(self):
         self.data_streamer_run = True
