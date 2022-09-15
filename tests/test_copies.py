@@ -68,6 +68,17 @@ def example_presc_datasets():
     return test_presc_datasets
 
 
+@pytest.fixture
+def trained_original_classifier():
+    train_data = pd.DataFrame(
+        {"x": [0, 1, 0, 2, 1], "y": [1, 0, 2, 0, 1], "label": [0, 0, 1, 1, 1]},
+        columns=["x", "y", "label"],
+    )
+    original_classifier = SVC(kernel="linear", random_state=42)
+    original_classifier.fit(train_data[["x", "y"]], train_data["label"])
+    return original_classifier
+
+
 def test_dynamical_range():
     data = {
         "age": [33, 21, 42, 80],
@@ -473,20 +484,12 @@ def test_check_partial_fit():
     assert check_partial_fit(pipeline_with)
 
 
-def test_ClassifierCopy_copy_classifier():
-    # Original classifier
-    train_data = pd.DataFrame(
-        {"x": [0, 1, 0, 2, 1], "y": [1, 0, 2, 0, 1], "label": [0, 0, 1, 1, 1]},
-        columns=["x", "y", "label"],
-    )
-    original_classifier = SVC(kernel="linear", random_state=42)
-    original_classifier.fit(train_data[["x", "y"]], train_data["label"])
-
+def test_ClassifierCopy_copy_classifier(trained_original_classifier):
     # Copy classifier
     feature_parameters = {"x": {"min": 0, "max": 2}, "y": {"min": 0, "max": 2}}
     classifier_copy = DecisionTreeClassifier(max_depth=2, random_state=42)
     copy_grid = ClassifierCopy(
-        original_classifier,
+        trained_original_classifier,
         classifier_copy,
         grid_sampling,
         nsamples=900,
