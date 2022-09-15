@@ -36,6 +36,7 @@ from presc.copies.evaluations import (
     keep_top_classes,
 )
 from presc.copies.continuous import (
+    SyntheticDataStreamer,
     check_partial_fit,
 )
 from presc.copies.copying import ClassifierCopy
@@ -465,6 +466,48 @@ def test_keep_top_classes(example_presc_datasets):
 
     assert dataset_majority_classes.labels.isin(["a", "b"]).all()
     assert dataset_specified_classes.labels.isin(["b", "c"]).all()
+
+
+def test_SyntheticDataStreamer(trained_original_classifier):
+    # Define queue
+    data_stream = Queue(maxsize=4)
+
+    # Instantiate ClassifierCopy with the sampling options and parameters
+    feature_parameters = {"x": {"min": 0, "max": 2}, "y": {"min": 0, "max": 2}}
+    classifier_copy = DecisionTreeClassifier()
+    copy_grid = ClassifierCopy(
+        trained_original_classifier,
+        classifier_copy,
+        uniform_sampling,
+        nsamples=10,
+        label_col="label",
+        feature_parameters=feature_parameters,
+    )
+
+    # Instantiate and start data streamer
+    data_streamer = SyntheticDataStreamer(copy_grid, data_stream, verbose=True)
+    data_streamer.deamon = True
+    data_streamer.start()
+
+    # Assert data_streamer is running
+    assert data_streamer.is_alive()
+
+    # Assert that the queue is full and it has the proper length
+    time.sleep(1)
+    assert data_stream.full()
+    assert data_stream.qsize() == 4
+
+    # Assert that elements in queue are the expected datasets
+    data_batch = data_stream.get()
+    assert isinstance(data_batch, Dataset)
+    assert len(data_batch.df) == 10
+
+    # Stop data streamer thread
+    data_streamer.stop()
+    _ = data_stream.get()
+
+    # Assert that data streamer really stopped
+    assert not data_streamer.is_alive()
 
 
 def test_check_partial_fit():
