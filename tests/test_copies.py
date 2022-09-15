@@ -517,7 +517,7 @@ def test_SyntheticDataStreamer(
     # Assert data_streamer is running
     assert data_streamer.is_alive()
 
-    # Assert that the queue is full and it has the proper length
+    # Assert that queue is full and it has the proper length
     time.sleep(1)
     assert data_stream.full()
     assert data_stream.qsize() == 4
