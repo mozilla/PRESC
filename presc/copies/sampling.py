@@ -1,16 +1,19 @@
+import copy
 import numpy as np
 import pandas as pd
 from presc.dataset import Dataset
 from presc.evaluations.utils import is_discrete
 
 
-def dynamical_range(df):
+def dynamical_range(df, verbose=False):
     """Returns the dynamic range, mean, and sigma of the dataset features.
 
     Parameters
     ----------
     df : pandas DataFrame
         The dataset with all the numerical features to analyze.
+    verbose : bool
+        If set to True the feature parameters are printed.
 
     Returns
     -------
@@ -30,15 +33,71 @@ def dynamical_range(df):
             "sigma": df[feature].std(),
         }
 
-        print(
-            f"{feature} min: {range_dict[feature]['min']:.4f}    "
-            f"{feature} max: {range_dict[feature]['max']:.4f}    "
-            f"{feature} mean: {range_dict[feature]['mean']:.4f}    "
-            f"{feature} sigma: {range_dict[feature]['sigma']:.4f}    "
-            f"Interval: {range_dict[feature]['max']-range_dict[feature]['min']:.4f}   "
-        )
+        if verbose:
+            print(
+                f"\n{feature}"
+                f"\n  min: {range_dict[feature]['min']:.4f}"
+                f"\n  max: {range_dict[feature]['max']:.4f}"
+                f"\n    (interval: "
+                f"{range_dict[feature]['max'] - range_dict[feature]['min']:.4f})"
+                f"\n  mean: {range_dict[feature]['mean']:.4f}"
+                f"\n  sigma: {range_dict[feature]['sigma']:.4f}"
+            )
 
     return range_dict
+
+
+def reduce_feature_space(feature_parameters, sigmas=1):
+    """Force feature minimum/maximum values to x times the standard deviation.
+
+    This function will adjust the minimum and maximum values of each feature to
+    the range determined by taking the feature's mean value and substracting and
+    adding to it the specified number of standard deviations. But only for the
+    features that have the mean and standard deviation specified.
+
+    Normally this will reduce the feature space by leaving out the range of most
+    extreme values and will facilitate that any sampling based on the feature
+    minimum and maximum values becomes more efficient. This is a more notorious
+    problem when the dictionary describing the features has ben extracted
+    automatically from an original dataset which contains outliers.
+
+    Parameters
+    ----------
+    feature_parameters: dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys are the
+        column names), where each feature entry contains a nested dictionary
+        with the values of the minimum and maximum values of the dynamic range
+        of the dataset, as well as the mean and sigma of the distribution
+        (nested dictionary keys are "min", "max", "mean" and "sigma").
+    sigmas : float
+        The factor by which the standard deviation will be multiplied in order
+        to define the symmetric interval around the mean.
+
+    Returns
+    -------
+    dict of dicts
+        A dictionary with an entry per dataset feature (dictionary keys are the
+        column names), where each feature entry contains a nested dictionary
+        with the values of the minimum and maximum values of the dynamic range
+        of the dataset, as well as the mean and sigma of the distribution
+        (nested dictionary keys are "min", "max", "mean" and "sigma").
+    """
+    modified_feature_space = copy.deepcopy(feature_parameters)
+    for feature in feature_parameters:
+        if (
+            {"mean", "sigma"}.issubset(set(feature_parameters[feature].keys()))
+            and feature_parameters[feature]["mean"]
+            and feature_parameters[feature]["sigma"]
+        ):
+            modified_feature_space[feature]["min"] = (
+                feature_parameters[feature]["mean"]
+                - sigmas * feature_parameters[feature]["sigma"]
+            )
+            modified_feature_space[feature]["max"] = (
+                feature_parameters[feature]["mean"]
+                + sigmas * feature_parameters[feature]["sigma"]
+            )
+    return modified_feature_space
 
 
 def find_categories(df, add_nans=False):
@@ -322,6 +381,8 @@ def spherical_balancer_sampling(
     generating the same number of samples for all classes (`nsamplesxclass`),
     unless it reaches the maximum number of iterations. When used within the
     ClassifierCopy class, the `balancing_sampler` must be set to True.
+
+    This sampler works better when features have standardized values.
 
     Parameters
     ----------

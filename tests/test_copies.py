@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
@@ -10,6 +11,7 @@ from presc.dataset import Dataset
 
 from presc.copies.sampling import (
     dynamical_range,
+    reduce_feature_space,
     find_categories,
     build_equal_category_dict,
     mixed_data_features,
@@ -25,9 +27,39 @@ from presc.copies.evaluations import (
     empirical_fidelity_error,
     replacement_capability,
     summary_metrics,
+    multivariable_density_comparison,
+    keep_top_classes,
 )
 from presc.copies.copying import ClassifierCopy
 from presc.copies.examples import multiclass_gaussians
+
+
+@pytest.fixture
+def example_presc_datasets():
+    data_points = [
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        [0, 10, 1, 9, 2, 8, 3, 7, 4, 6, 5],
+    ]
+    labels1 = [["a", "a", "a", "a", "a", "b", "b", "b", "b", "c", "c"]]
+    labels2 = [["b", "b", "b", "b", "b", "a", "a", "a", "a", "c", "c"]]
+
+    test_dataframe_1 = pd.DataFrame(
+        np.array(data_points + labels1).T, columns=["feature1", "feature2", "letter"]
+    )
+    test_dataframe_1[["feature1", "feature2"]] = test_dataframe_1[
+        ["feature1", "feature2"]
+    ].astype(float)
+    test_dataframe_2 = pd.DataFrame(
+        np.array(data_points + labels2).T, columns=["feature1", "feature2", "letter"]
+    )
+    test_dataframe_2[["feature1", "feature2"]] = test_dataframe_2[
+        ["feature1", "feature2"]
+    ].astype(float)
+
+    test_presc_dataset_1 = Dataset(test_dataframe_1, label_col="letter")
+    test_presc_dataset_2 = Dataset(test_dataframe_2, label_col="letter")
+    test_presc_datasets = [test_presc_dataset_1, test_presc_dataset_2]
+    return test_presc_datasets
 
 
 def test_dynamical_range():
@@ -52,6 +84,23 @@ def test_dynamical_range():
                 expected_range_dict[key][descriptor],
                 significant=3,
             )
+
+
+def test_reduce_feature_space():
+    feature_parameters = {
+        "feature1": {"min": 0, "max": 1000, "mean": 50, "sigma": None},
+        "feature2": {"categories": {"red": 0.4, "blue": 0.6}},
+        "feature3": {"min": -100, "max": 20, "mean": -0.001, "sigma": 0.0005},
+        "feature4": {"min": 10, "max": 20},
+    }
+    reduced_feature_space_2 = reduce_feature_space(feature_parameters, sigmas=2)
+    expected_reduced_feature_space_2 = {
+        "feature1": {"min": 0, "max": 1000, "mean": 50, "sigma": None},
+        "feature2": {"categories": {"red": 0.4, "blue": 0.6}},
+        "feature3": {"min": -0.002, "max": 0, "mean": -0.001, "sigma": 0.0005},
+        "feature4": {"min": 10, "max": 20},
+    }
+    assert reduced_feature_space_2 == expected_reduced_feature_space_2
 
 
 def test_find_categories():
@@ -366,6 +415,37 @@ def test_summary_metrics():
     metric_names = metrics.keys()
     for name in metric_names:
         np.testing.assert_almost_equal(metrics[name], expected_results[name], decimal=6)
+
+
+def test_multivariable_density_comparison(example_presc_datasets):
+    num_figures_before = plt.gcf().number
+    multivariable_density_comparison(
+        [example_presc_datasets[0].df[:-2], example_presc_datasets[1].df[:-2]],
+        feature1="feature1",
+        feature2="feature2",
+        label_col="letter",
+        titles=["Classifier 1", "Classifier 2"],
+    )
+    num_figures_after = plt.gcf().number
+    # Checks that the figure was plotted
+    assert num_figures_after == num_figures_before + 1
+
+
+def test_keep_top_classes(example_presc_datasets):
+    min_num_samples = 3
+    classes_to_keep = ["b", "c"]
+
+    dataset_majority_classes = keep_top_classes(
+        example_presc_datasets[0], min_num_samples=min_num_samples
+    )
+    dataset_specified_classes = keep_top_classes(
+        example_presc_datasets[0],
+        min_num_samples=min_num_samples,
+        classes_to_keep=classes_to_keep,
+    )
+
+    assert dataset_majority_classes.labels.isin(["a", "b"]).all()
+    assert dataset_specified_classes.labels.isin(["b", "c"]).all()
 
 
 def test_ClassifierCopy_copy_classifier():
