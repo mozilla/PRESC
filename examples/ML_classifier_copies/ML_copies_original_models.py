@@ -2,12 +2,15 @@ import catboost
 import io
 import requests
 import pandas as pd
+from scipy.sparse import hstack
 from zipfile import ZipFile
 
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 
@@ -262,3 +265,45 @@ class AutismScreeningModel:
         # Gradient Boosting on Decision Trees Model
         self.model = catboost.CatBoostClassifier()
         self.model.fit(train_pool, verbose=False)
+
+
+class QuestionPairsModel:
+    """Classifier model for the Quora Question Pairs Dataset."""
+
+    def __init__(self, **fit_parameters):
+        url = "http://qim.fs.quoracdn.net/quora_duplicate_questions.tsv"
+        dataset = pd.read_csv(url, sep="\t")
+        dataset = dataset[["question1", "question2", "is_duplicate"]].dropna()
+        self.dataset = Dataset(dataset, label_col="is_duplicate")
+
+        X = self.dataset.features
+        y = self.dataset.labels
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+            X, y, test_size=0.2, random_state=0, stratify=y
+        )
+
+        # Instantiate transformer and classifier
+        self.count_vectorizer = CountVectorizer(ngram_range=(1, 1), min_df=0.000002)
+        self.classifier = LogisticRegression(solver="liblinear", random_state=0)
+
+        # Fit vectorizer
+        all_questions = pd.concat([X["question1"], X["question2"]])
+        self.count_vectorizer.fit(all_questions)
+
+        # Tranform training data
+        X_train_q1 = self.count_vectorizer.transform(X["question1"])
+        X_train_q2 = self.count_vectorizer.transform(X["question2"])
+        X_train_q1q2 = hstack([X_train_q1, X_train_q2])
+
+        # Fit classifier
+        self.classifier.fit(X_train_q1q2, y, **fit_parameters)
+
+    def predict(self, X):
+        # Transform query data
+        X_predict_q1 = self.count_vectorizer.transform(X.iloc[:, 0])
+        X_predict_q2 = self.count_vectorizer.transform(X.iloc[:, 1])
+        X_predict_q1q2 = hstack([X_predict_q1, X_predict_q2])
+
+        # Predict with classifier
+        y_predict = self.classifier.predict(X_predict_q1q2)
+        return y_predict
