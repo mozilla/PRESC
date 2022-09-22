@@ -89,8 +89,6 @@ The Replacement Capability can also yield in some cases values much larger than 
 ## Best practices
 
 
-### Goal 
-
  * **Determine goal of the copy**
 
 Do you want to ensure you get the exact same behavior as the original model? There are many use cases where it is imperative to maintain the consistency between the original and the copy models. If this is so, use the empirical fidelity error to evaluate your copy.
