@@ -96,7 +96,7 @@ Do you want to ensure you get the exact same behavior as the original model? The
 Do you only want to ensure you get a model with the performance as good or better as the original model but maintaining consistency is not important? In this case, use the copy replacement capability to evaluate your copy.
 
 
-### Datasets for the evaluation of copies
+### Model selection
 
  * **Test data**
  
@@ -104,7 +104,7 @@ If some labeled original test data is available, it is always more reliable to u
        
 If no original data is available, then a test synthetic dataset can be generated for evaluation of the copy. But be aware that, if this dataset is generated with the same sampler that was used to carry out the copy, the test will focus on the same regions where the copy has had more training. Hence, the fidelity or the performance of the copy will not be evaluated as rigorously on the outskirt decision boundary.
 
- * **Model selection**
+ * **Sampling in evaluation**
 
 What does it mean if the copy has a low empirical fidelity error with synthetic data, but at the same time has a high fidelity error with test data? 
 
