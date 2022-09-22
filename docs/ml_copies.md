@@ -137,7 +137,7 @@ Proper sampling of the feature space is one of the key issues to ensure a succes
 In ML classifier copies, imbalance between classes arises when they are sampled inequally, either because they occupy very disparate volumes of the feature space, as in the case of uniform samplers, or because the sampler does not explore the feature space homogeneously. Hence, it is also a good practice to ensure that a similar number of synthetic samples are generated for all classes. 
 
 
-### Copy model
+### Copy model characteristics
 
  * **Choice of copy model family**
 
