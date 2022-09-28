@@ -51,12 +51,11 @@ To tackle this problem, a mechanism has been introduced to force the balance bet
 
 Sometimes with complex feature spaces, with many dimensions, or with complex original classifiers, the volume of generated synthetic data needed to carry out the classifier copy is too large to fit in the computer memory at the same time. In order to tackle this problem we can resort to online copying. However, online copying can only be carried out with copy classifier models that have the ability of incremental training.
 
-
 The `presc.copies.continuous.ContinuousCopy` class is an online ML classifier copier that works with standalone sklearn classifiers as well as pipelines, as long as each transformer and estimator has a partial_fit function implemented. There is more than one way to train pipelines with incremental transformers and estimators, here we simply take each data batch and train the first element of the pipeline, then transform the incoming data with the first element, then train the second, then transform the data with the second, use this transformed data to train the third, etc.
 
 The online copier will continuously take data batches from the specified queue to perform the incremental training of the copy, as soon as any data batch is available, but it is agnostic as to how the data is added to the queue. Therefore, this queue can be populated using any desired source.
 
-The `presc.copies.continuous.SyntheticDataStreamer` class has also been implemented in order to generate a continuous stream of generated data that can populate the queue. Several online copies can use the same stream of synthetic data.
+The `presc.copies.continuous.SyntheticDataStreamer` class generates a continuous stream of generated data that can populate the queue. Several online copies can use the same stream of synthetic data.
 
 These classes can also be useful when the necessary amount of synthetic data to perform a good copy is unknown, because the copy can then simply be stopped when that goal is reached.
 
