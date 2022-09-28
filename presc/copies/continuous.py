@@ -127,7 +127,7 @@ class ContinuousCopy(Thread):
                 # and use transformed data to fit the next transformer or estimator
                 if self.is_pipeline:
                     n_estimators = len(self.classifier_copy.copy.named_steps)
-                    X = data_block.features.copy()
+                    X = data_block.features
                     for index, element in enumerate(
                         self.classifier_copy.copy.named_steps
                     ):
