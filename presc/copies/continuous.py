@@ -119,6 +119,7 @@ class ContinuousCopy(Thread):
             # Get data
             data_block = self.data_stream.get()
             if data_block is not None:
+
                 n_samples_block = len(data_block.df)
 
                 # If pipeline, train elements of pipeline sequentially,
@@ -161,7 +162,10 @@ class ContinuousCopy(Thread):
             print("Stopping online classifier copier...\n")
             print(f"The classifier copy trained for {self.iterations} iterations")
             print(f"with a total of {self.n_samples:,} samples.\n".replace(",", "."))
-        self.data_stream.put(None)
+        try:
+            self.data_stream.put_nowait(None)
+        except queue.Full:
+            pass
 
 
 def check_partial_fit(estimator_pipeline):
@@ -187,7 +191,7 @@ def check_partial_fit(estimator_pipeline):
     if isinstance(estimator_pipeline, Pipeline):
         # Check that all pipeline elements have "partial_fit"
         for element in estimator_pipeline.named_steps:
-            if "partial_fit" not in dir(estimator_pipeline.named_steps[element]):
+            if not hasattr(estimator_pipeline.named_steps[element], "partial_fit"):
                 partial_fit_ok = False
                 return partial_fit_ok
     else:
