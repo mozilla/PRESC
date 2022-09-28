@@ -118,36 +118,41 @@ class ContinuousCopy(Thread):
         while self.continuous_copy_run and self.partial_fit_ok:
             # Get data
             data_block = self.data_stream.get()
-            n_samples_block = len(data_block.df)
+            if data_block is not None:
+                n_samples_block = len(data_block.df)
 
-            # If pipeline, train elements of pipeline sequentially,
-            # and use transformed data to fit the next transformer or estimator
-            if self.is_pipeline:
-                n_estimators = len(self.classifier_copy.copy.named_steps)
-                X = data_block.features.copy()
-                for index, element in enumerate(self.classifier_copy.copy.named_steps):
-                    self.classifier_copy.copy[element].partial_fit(
-                        X, y=data_block.labels, **self.fit_kwargs[element]
+                # If pipeline, train elements of pipeline sequentially,
+                # and use transformed data to fit the next transformer or estimator
+                if self.is_pipeline:
+                    n_estimators = len(self.classifier_copy.copy.named_steps)
+                    X = data_block.features.copy()
+                    for index, element in enumerate(
+                        self.classifier_copy.copy.named_steps
+                    ):
+                        self.classifier_copy.copy[element].partial_fit(
+                            X, y=data_block.labels, **self.fit_kwargs[element]
+                        )
+                        # Transform data for next estimator except for the last one
+                        if index + 1 < n_estimators:
+                            X = self.classifier_copy.copy.named_steps[
+                                element
+                            ].transform(X)
+
+                # If single classifier, train model with this block
+                else:
+                    self.classifier_copy.copy.partial_fit(
+                        data_block.features, data_block.labels, **self.fit_kwargs
                     )
-                    # Transform data for next estimator except for the last one
-                    if index + 1 < n_estimators:
-                        X = self.classifier_copy.copy.named_steps[element].transform(X)
+                self.iterations += 1
+                self.n_samples += n_samples_block
 
-            # If single classifier, train model with this block
-            else:
-                self.classifier_copy.copy.partial_fit(
-                    data_block.features, data_block.labels, **self.fit_kwargs
-                )
-            self.iterations += 1
-            self.n_samples += n_samples_block
+                if self.verbose:
+                    print("\nIteration: ", self.iterations)
+                    print("Samples: ", self.n_samples, "\n")
 
-            if self.verbose:
-                print("\nIteration: ", self.iterations)
-                print("Samples: ", self.n_samples, "\n")
-
-                self.classifier_copy.evaluation_summary(
-                    test_data=self.test_data, synthetic_data=data_block
-                )
+                    self.classifier_copy.evaluation_summary(
+                        test_data=self.test_data, synthetic_data=data_block
+                    )
 
     def stop(self):
         """Function to stop the continuous copying of the online classifier."""
@@ -156,6 +161,7 @@ class ContinuousCopy(Thread):
             print("Stopping online classifier copier...\n")
             print(f"The classifier copy trained for {self.iterations} iterations")
             print(f"with a total of {self.n_samples:,} samples.\n".replace(",", "."))
+        self.data_stream.put(None)
 
 
 def check_partial_fit(estimator_pipeline):
