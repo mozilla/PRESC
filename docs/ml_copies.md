@@ -122,15 +122,17 @@ When a copy is better than another in the synthetic data, but is worse in the te
 Certain samplers, such as the spherical sampler in this package, may not handle well a large difference in the absolute magnitude of the different features, or that they are not centered in the origin. Therefore, it is advisable to standardize the input data in case of doubt. However, it is unavoidable with this sampler, that classes in more centric regions will be better sampled that more peripherical ones.
 
  * **Reduce the features space**
- 
-Although ML classifier copies can be carried out without any access to the original data, at least some assumptions about the relevant range of the features is necessary. The more precise the assumptions that can be made, the more efficient the sampling will be, which is specially relevant in problems with a large number of dimensions.
+
+Although ML classifier copies can be carried out without any access to the original data, at least some assumptions about the data types and relevant ranges of the features are necessary, because the original model will be have to be queried to carry out its prediction on the sampled data, so it must have a format that is accepted as input.
+
+The more precise the assumptions that can be made, the more efficient the sampling will be, which is specially relevant in problems with a large number of dimensions.
 
 If the feature space descriptors are extracted from original data, be careful with outliers because they can enormously and unnecessarily increase the feature space that will need to be sampled. It is a good practice to always review any feature space descriptors that were automatically extracted from the original data, in order to reduce excessively wide ranges and to correct obvious misalignments.
 
 
  * **Choice of sampler**
  
-Proper sampling of the feature space is one of the key issues to ensure a successful copy, but it quickly becomes very challenging as the number of features increase. If we have no information on the feature distributions it is a good idea to use a uniform sampler. but this may quickly become very unefficient as the number of features increase, where a normal or a spherical sampler may be more appropriate.
+Proper sampling of the feature space is one of the key issues to ensure a successful copy, but it quickly becomes very challenging as the number of features increase. If we have no information on the feature distributions, it is a good idea to use a uniform sampler, but this may quickly become very inefficient as the number of features increase, where a normal or a spherical sampler may be more appropriate.
  
  * **Handle imbalance**
  
@@ -141,7 +143,7 @@ In ML classifier copies, imbalance between classes arises when they are sampled 
 
  * **Choice of copy model family**
 
-Every model family is able to shape the decision boundary in a different manner. If the goal is to carry out an exact copy of the original model with the lowest empirical fidelity error, it must be ensured that the copy model family has the ability to mimic the shape of the decision boundary in the same manner as the original model. For instance, decision tree classifiers describe decision boundaries with horizontal and vertical edges, but have a harder time to perfectly mimic models with slanted edges and viceversa, other model families may have a hard time mimicking such abrupt angles.
+Every model family is able to shape the decision boundary in a different manner. If the goal is to carry out an exact copy of the original model with the lowest empirical fidelity error, it must be ensured that the copy model family has the ability to mimic the shape of the decision boundary in the same manner as the original model. For instance, decision tree classifiers describe decision boundaries with picewise constant boundaries, but have a harder time to perfectly mimic models with general linear boundaries and viceversa, other model families may have a hard time mimicking such abrupt angles.
        
 Conversely, if the goal of the copy is mainly to be able to replace the original model with a classifier of a similar or better performance, then the copy model family must have the ability to describe the inherent topology of the problem instead. In some cases, if the original model was not the best choice to describe the problem's inherent decision boundary, a good choice of the copy model family may even surpass the original in accuracy and yield a replacement capability larger than one.
 
