@@ -293,4 +293,3 @@ def keep_top_classes(dataset, min_num_samples=2, classes_to_keep=None):
         )
 
     return Dataset(new_dataframe, label_col=label_col)
-

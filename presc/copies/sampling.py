@@ -319,8 +319,8 @@ def normal_sampling(
         A dictionary with an entry per dataset feature (dictionary keys should
         be the feature names), and where each feature entry must contain a
         nested dictionary with at least the entries corresponding to the mean
-        and standard deviation values of the dataset. Dictionary keys for
-        these values should be "mean" and "sigma", respectively.
+        and standard deviation values of the dataset. Dictionary keys for these
+        values should be "mean" and "sigma", respectively.
     nsamples : int
         Number of samples to generate.
     random_state : int
@@ -329,8 +329,8 @@ def normal_sampling(
     Returns
     -------
     pandas DataFrame
-        Dataset with a generated sampling following a normal distribution of the
-        feature space characterized by the `feature_parameters`.
+        Dataset with a generated sampling following a normal distribution of
+        the feature space characterized by the `feature_parameters`.
     """
     if random_state is not None:
         np.random.seed(seed=random_state)
