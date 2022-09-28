@@ -115,7 +115,6 @@ def instantiated_classifier_copies(trained_original_classifier):
     )
     return {"grid_copy": copy_grid, "uniform_copy": copy_uniform}
 
-
 def test_dynamical_range():
     data = {
         "age": [33, 21, 42, 80],
