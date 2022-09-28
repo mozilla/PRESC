@@ -511,7 +511,7 @@ def test_SyntheticDataStreamer(
     # Instantiate and start data streamer
     classifier_copy = instantiated_classifier_copies["uniform_copy"]
     data_streamer = SyntheticDataStreamer(classifier_copy, data_stream, verbose=True)
-    data_streamer.deamon = True
+    data_streamer.daemon = True
     data_streamer.start()
 
     # Assert data_streamer is running
@@ -574,7 +574,7 @@ def test_ContinuousCopy(
         verbose=True,
         test_data=data_block_2,
     )
-    online_copy.deamon = True
+    online_copy.daemon = True
     online_copy.start()
 
     # Assert online copy is running
