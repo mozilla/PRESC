@@ -29,11 +29,12 @@ used as a diagnostic measure of the original model characteristics.
 To carry out the copy, the `presc.copies.copying.ClassifierCopy` class needs two inputs: the original classifier to copy and, depending on the sampler, a dictionary with basic descriptors of the features. Right now the package assumes that we have the classifier saved as a sklearn-type model. The original data is not necessary to perform the copy but, if available, the `presc.copies.sampling.dynamical_range` function can conveniently extract the basic descriptors of its features into a dictionary. In this case, the data should be available as a pandas DataFrame. Otherwise, the dictionary with the basic feature descriptors can always be built manually. Even if we don't have access to the original data or detailed information of the features, we need at least to be able to make a guess or some assumptions about them.
 
 
-When instantiating the `presc.copies.copying.ClassifierCopy` class, an instance of a sklearn-type model to build the copy must also be specified, as well as the choice of sampling function and its options. The necessary feature descriptors for the sampler can be the maximum and minimum values that the features can take, like in the case of `presc.copies.sampling.grid_sampling` and `presc.copies.sampling.uniform_sampling`, the mean and standard deviation of each feature, such as in the `presc.copies.sampling.normal_sampling`, or an overall minimum and maximum single value common to all features, as in the case of `presc.copies.sampling.spherical_balancer_sampling`. 
+When instantiating the `presc.copies.copying.ClassifierCopy` class, an instance of a sklearn-type model or pipeline to build the copy must also be specified, as well as the choice of sampling function and its options. The necessary feature descriptors for the sampler can be the maximum and minimum values that the features can take, like in the case of `presc.copies.sampling.grid_sampling` and `presc.copies.sampling.uniform_sampling`, the mean and standard deviation of each feature, such as in the `presc.copies.sampling.normal_sampling`, or an overall minimum and maximum single value common to all features, as in the case of `presc.copies.sampling.spherical_balancer_sampling`. 
 
 In the case of samplers for categorical data, such as `presc.copies.sampling.categorical_sampling` and `presc.copies.sampling.mixed_data_sampling`, the data descriptor for each categorical feature must be a dictionary of categories that specifies their frequency.
 
 The `presc.copies.copying.ClassifierCopy.copy_classifier` method will generate synthetic data in the feature space using the sampling function and options specified on instantiation, will label it using the original classifier, and then will use it to train the desired copy model. The generated synthetic training data can be saved in this step if needed but it can also be recovered later using the `presc.copies.copying.ClassifierCopy.generate_synthetic_data` method simply using the same random seed.
+
 
 ## Imbalanced problems
 
@@ -44,6 +45,19 @@ Such an imbalance arises from a combination of the particular topology of the cl
 The copy classifier is normally built using generated data randomly sampled from the whole space, hence, this process will normally tend to generate many more samples for classes that are described by the classifier as occupying a much larger hypervolume. Therefore, it will be the generated data used to train the copy classifier which becomes imbalanced.
 
 To tackle this problem, a mechanism has been introduced to force the balance between classes when generating the synthetic data. Such option can be used with any of the sampling functions by setting the `enforce_balance` as `True`.
+
+
+## Continuous copies
+
+Sometimes with complex feature spaces, with many dimensions, or with complex original classifiers, the volume of generated synthetic data needed to carry out the classifier copy is too large to fit in the computer memory at the same time. In order to tackle this problem we can resort to online copying. However, online copying can only be carried out with copy classifier models that have the ability of incremental training.
+
+The `presc.copies.continuous.ContinuousCopy` class is an online ML classifier copier that works with standalone sklearn classifiers as well as pipelines, as long as each transformer and estimator has a partial_fit function implemented. There is more than one way to train pipelines with incremental transformers and estimators, here we simply take each data batch and train the first element of the pipeline, then transform the incoming data with the first element, then train the second, then transform the data with the second, use this transformed data to train the third, etc.
+
+The online copier will continuously take data batches from the specified queue to perform the incremental training of the copy, as soon as any data batch is available, but it is agnostic as to how the data is added to the queue. Therefore, this queue can be populated using any desired source.
+
+The `presc.copies.continuous.SyntheticDataStreamer` class generates a continuous stream of generated data that can populate the queue. Several online copies can use the same stream of synthetic data.
+
+These classes can also be useful when the necessary amount of synthetic data to perform a good copy is unknown, because the copy can then simply be stopped when that goal is reached.
 
 
 ## Evaluation of the copy
