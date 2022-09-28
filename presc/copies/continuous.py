@@ -1,3 +1,4 @@
+import queue
 import random
 from threading import Thread
 from sklearn.pipeline import Pipeline
@@ -50,6 +51,10 @@ class SyntheticDataStreamer(Thread):
         self.data_streamer_run = False
         if self.verbose:
             print("Stopping data streamer...\n")
+        try:
+            _ = self.data_stream.get_nowait()
+        except queue.Empty:
+            pass
 
 
 class ContinuousCopy(Thread):
