@@ -113,9 +113,10 @@ class ContinuousCopy(Thread):
 
         self.partial_fit_ok = check_partial_fit(self.classifier_copy.copy)
         if not self.partial_fit_ok:
+            self.continuous_copy_run = False
             print("Sorry, not all those transformers/estimators have 'partial_fit'.")
 
-        while self.continuous_copy_run and self.partial_fit_ok:
+        while self.continuous_copy_run:
             # Get data
             data_block = self.data_stream.get()
             if data_block is not None:
