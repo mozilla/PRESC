@@ -102,7 +102,7 @@ Do you only want to ensure you get a model with the performance as good or bette
  
 If some labeled original test data is available, it is always more reliable to use that to compute the metrics and carry out the copy evaluation. Even if that original data is not labeled, it can always be labeled using the prediction of the original model and then be used to evaluate the copy. But this will at least ensure that the sampling is done following the original feature distribution.
        
-If no original data is available, then a test synthetic dataset can be generated for evaluation of the copy. But be aware that, if this dataset is generated with the same sampler that was used to carry out the copy, the test will focus on the same regions where the copy has had more training. Hence, the fidelity or the performance of the copy will not be evaluated as rigorously on the outskirt decision boundary.
+If no original data is available, then a test synthetic dataset can be generated for evaluation of the copy. But be aware that, if this dataset is generated with the same sampler that was used to carry out the copy, the test will focus on the same regions of the feature space where the copy has had more training. Hence, the fidelity or the performance of the copy will not be evaluated as rigorously on the regions of the decision boundary that are far from the populated regions of the synthetic sample distribution. All this also depends on the assumptions we make when selecting the sampling scheme.
 
  * **Sampling in evaluation**
 
