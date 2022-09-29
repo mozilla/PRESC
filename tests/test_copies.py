@@ -532,6 +532,7 @@ def test_SyntheticDataStreamer(
     _ = data_stream.get()
 
     # Assert that data streamer really stopped
+    time.sleep(1)
     assert not data_streamer.is_alive()
 
 
