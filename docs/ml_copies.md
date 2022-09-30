@@ -84,3 +84,74 @@ The Replacement Capability is the ratio between the accuracy of the copy model w
 
 The Replacement Capability can also yield in some cases values much larger than one if the copy model generalizes better than the original. This is not normally the case, but it might happen if the original model was poorly chosen and the copy model family is better suited to describe the boundary profile of the original problem.
 
+----
+
+## Best practices
+
+
+ * **Determine motivation for the copy**
+
+Do you want to ensure you get the exact same behavior as the original model? There are many use cases where it is imperative to maintain the consistency between the original and the copy models. If this is so, use the empirical fidelity error to evaluate your copy.
+
+Do you only want to ensure you get a model with the performance as good or better as the original model but maintaining consistency is not important? In this case, use the copy replacement capability to evaluate your copy.
+
+
+### Model selection
+
+ * **Test data**
+ 
+If some labeled original test data is available, it is always more reliable to use that to compute the metrics and carry out the copy evaluation. Even if that original data is not labeled, it can always be labeled using the prediction of the original model and then be used to evaluate the copy. But this will at least ensure that the sampling is done following the original feature distribution.
+       
+If no original data is available, then a test synthetic dataset can be generated for evaluation of the copy. But be aware that, if this dataset is generated with the same sampler that was used to carry out the copy, the test will focus on the same regions of the feature space where the copy has had more training. Hence, the fidelity or the performance of the copy will not be evaluated as rigorously on the regions of the decision boundary that are far from the populated regions of the synthetic sample distribution. All this also depends on the assumptions we make when selecting the sampling scheme.
+
+ * **Sampling in evaluation**
+
+What does it mean if the copy has a low empirical fidelity error with synthetic data, but at the same time has a high fidelity error with test data? 
+
+The copy is often created without having a priori an idea of the distribution of the real data, which means that real data may be located mostly in a particular region of the feature space while synthetic data will tend to be more broadly distributed to account for our lack of knowledge. A higher concentration of samples in certain regions of the feature space will force the decision boundary to have a higher accuracy there.  So, even if the copy model is from the same family as the original classifier model, the assumptions that are made to generate the synthetic data will possibly yield classifiers with different decision boundaries. 
+
+Likewise, the synthetic test data that can be generated from each sampling scheme normally probes the accuracy of the copy model with an emphasis on different regions of the feature space than the original test data. Therefore, the original model, which has been trained with real data, will have a tendency of having particular regions of the boundaries with a higher accuracy, while the copy model will be trained with data that enforces the classifier to have a similar boundary as the original one mostly everywhere. 
+
+When a copy is better than another in the synthetic data, but is worse in the test data, this normally means that the first copy resembles the original better overall but perhaps in the region where the real data are concentrated it doesn't have a particularly good performance. Therefore, it is important to try to have a copy with a good boundary everywhere (so that the region of interest is also included), or to try to determine the distribution of the real dataset, or the region of interest of the real data, when this is possible.
+
+
+### Sampling
+
+ * **Standardize the features**
+
+Certain samplers, such as the spherical sampler in this package, may not handle well a large difference in the absolute magnitude of the different features, or that they are not centered in the origin. Therefore, it is advisable to standardize the input data in case of doubt. However, it is unavoidable with this sampler, that classes in more centric regions will be better sampled that more peripherical ones.
+
+ * **Reduce the features space**
+
+Although ML classifier copies can be carried out without any access to the original data, at least some assumptions about the data types and relevant ranges of the features are necessary, because the original model will be have to be queried to carry out its prediction on the sampled data, so it must have a format that is accepted as input.
+
+The more precise the assumptions that can be made, the more efficient the sampling will be, which is specially relevant in problems with a large number of dimensions.
+
+If the feature space descriptors are extracted from original data, be careful with outliers because they can enormously and unnecessarily increase the feature space that will need to be sampled. It is a good practice to always review any feature space descriptors that were automatically extracted from the original data, in order to reduce excessively wide ranges and to correct obvious misalignments.
+
+
+ * **Choice of sampler**
+ 
+Proper sampling of the feature space is one of the key issues to ensure a successful copy, but it quickly becomes very challenging as the number of features increase. If we have no information on the feature distributions, it is a good idea to use a uniform sampler, but this may quickly become very inefficient as the number of features increase, where a normal or a spherical sampler may be more appropriate.
+ 
+ * **Handle imbalance**
+ 
+In ML classifier copies, imbalance between classes arises when they are sampled inequally, either because they occupy very disparate volumes of the feature space, as in the case of uniform samplers, or because the sampler does not explore the feature space homogeneously. Hence, it is also a good practice to ensure that a similar number of synthetic samples are generated for all classes. 
+
+
+### Copy model characteristics
+
+ * **Choice of copy model family**
+
+Every model family is able to shape the decision boundary in a different manner. If the goal is to carry out an exact copy of the original model with the lowest empirical fidelity error, it must be ensured that the copy model family has the ability to mimic the shape of the decision boundary in the same manner as the original model. For instance, decision tree classifiers describe decision boundaries with picewise constant boundaries, but have a harder time to perfectly mimic models with general linear boundaries and viceversa, other model families may have a hard time mimicking such abrupt angles.
+       
+Conversely, if the goal of the copy is mainly to be able to replace the original model with a classifier of a similar or better performance, then the copy model family must have the ability to describe the inherent topology of the problem instead. In some cases, if the original model was not the best choice to describe the problem's inherent decision boundary, a good choice of the copy model family may even surpass the original in accuracy and yield a replacement capability larger than one.
+
+
+ * **Complexity of the copy model**
+
+The ML classifier copy problem is always separable, and overfitting is not an issue. An arbitrarily large number of samples can in principle be generated in order to ensure an appropriate coverage of the feature space to properly fit the copy classifier. However, the complexity capability of the copy classifier must be at least as large or more than the original classifier to obtain a good copy. 
+       
+When the performance of the copy gets stuck and falls short of the original classifier, despite an increasing number of generated samples, it is an indication that the complexity of the copy model may be too low.
+
+
