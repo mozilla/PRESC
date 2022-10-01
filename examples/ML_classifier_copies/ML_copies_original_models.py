@@ -4,6 +4,8 @@ import requests
 import pandas as pd
 from scipy.sparse import hstack
 from zipfile import ZipFile
+import gzip
+import idx2numpy
 
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import CountVectorizer
@@ -324,3 +326,72 @@ class CustomFlattener(BaseEstimator, TransformerMixin):
             lambda x: pd.Series(x["images"].reshape(1, -1)[0]), axis=1
         )
         return X_transformed
+
+
+class DigitsModel:
+    """Classifier model for the MNIST Handwritten Digits Dataset."""
+
+    def __init__(self):
+        # Obtain and preprocess dataset
+        url_prefix = "http://yann.lecun.com/exdb/mnist/"
+        file_names = [
+            "train-images-idx3-ubyte.gz",
+            "train-labels-idx1-ubyte.gz",
+            "t10k-images-idx3-ubyte.gz",
+            "t10k-labels-idx1-ubyte.gz",
+        ]
+        data_idx_all = {}
+        for name in file_names:
+            data_idx_all[name[:-3]] = gzip.decompress(
+                requests.get(url_prefix + name).content
+            )
+
+        X_train_array = idx2numpy.convert_from_string(
+            data_idx_all["train-images-idx3-ubyte"]
+        )
+        self.X_train = pd.DataFrame(
+            {"images": [image for image in X_train_array.astype(int)]}
+        )
+        self.y_train = pd.DataFrame(
+            (
+                idx2numpy.convert_from_string(data_idx_all["train-labels-idx1-ubyte"])
+            ).astype(int),
+            columns=["labels"],
+            dtype="category",
+        )
+
+        X_test_array = idx2numpy.convert_from_string(
+            data_idx_all["t10k-images-idx3-ubyte"]
+        )
+        self.X_test = pd.DataFrame(
+            {"images": [image for image in X_test_array.astype(int)]}
+        )
+        self.y_test = pd.DataFrame(
+            (
+                idx2numpy.convert_from_string(data_idx_all["t10k-labels-idx1-ubyte"])
+            ).astype(int),
+            columns=["labels"],
+            dtype="category",
+        )
+
+        self.dataset = Dataset(
+            pd.DataFrame(
+                pd.concat(
+                    [
+                        pd.concat([self.X_train, self.X_test], ignore_index=True),
+                        pd.concat([self.y_train, self.y_test], ignore_index=True),
+                    ],
+                    axis=1,
+                )
+            ),
+            label_col="labels",
+        )
+
+        # Image flattener from 2D to 1D and SVC Model
+        self.model = Pipeline(
+            [
+                ("flattener", CustomFlattener()),
+                ("SVC_classifier", SVC(kernel="rbf")),
+            ]
+        )
+        self.model = self.model.fit(self.X_train, y=self.y_train.iloc[:, 0])
