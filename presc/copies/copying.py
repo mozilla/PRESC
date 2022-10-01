@@ -134,7 +134,9 @@ class ClassifierCopy:
         else:
             # Call generating function with sampling parameters
             # (mixed_data_sampling returns a pandas dataframe)
-            X_generated = mixed_data_sampling(**k_sampling_parameters_gen)
+            X_generated = mixed_data_sampling(
+                numerical_sampling=self.sampling_function, **k_sampling_parameters_gen
+            )
 
         # If the type of sampling function attempts to balance the synthetic
         # dataset, it returns the features AND the labels. Otherwise, it returns
