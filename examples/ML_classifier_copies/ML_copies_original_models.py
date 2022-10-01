@@ -5,6 +5,7 @@ import pandas as pd
 from scipy.sparse import hstack
 from zipfile import ZipFile
 
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
@@ -292,7 +293,7 @@ class QuestionPairsModel:
 
         # Tranform training data
         X_train_q1 = self.count_vectorizer.transform(X["question1"])
-        X_train_q2 = self.count_vectorizer.transform(X["question2"])
+        X_train_q2 = self.count_vectorhizer.transform(X["question2"])
         X_train_q1q2 = hstack([X_train_q1, X_train_q2])
 
         # Fit classifier
@@ -307,3 +308,19 @@ class QuestionPairsModel:
         # Predict with classifier
         y_predict = self.classifier.predict(X_predict_q1q2)
         return y_predict
+
+
+class CustomFlattener(BaseEstimator, TransformerMixin):
+    """Convert 2D numpy arrays into 1D pandas columns."""
+
+    def __init__(self):
+        pass
+
+    def fit(self, X, y=None, **fit_params):
+        return self
+
+    def transform(self, X, y=None, **transform_params):
+        X_transformed = X.apply(
+            lambda x: pd.Series(x["images"].reshape(1, -1)[0]), axis=1
+        )
+        return X_transformed
