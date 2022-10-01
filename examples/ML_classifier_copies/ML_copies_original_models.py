@@ -157,7 +157,7 @@ class SegmentationModel:
 
 
 class AutismScreeningModel:
-    """Classifier model for the Image Segmentation dataset."""
+    """Classifier model for the Autistic Spectrum Adult Screening dataset."""
 
     def __init__(self):
         # Obtain and preprocess dataset
