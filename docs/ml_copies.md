@@ -20,6 +20,9 @@ automated copy process for a number of fundamentally different hypothesis
 spaces, so that the set of achievable copy-model-fidelity measures can be
 used as a diagnostic measure of the original model characteristics.
 
+A step by step [Tutorial](https://github.com/mozilla/PRESC/tree/master/examples/ML_classifier_copies/ML_copies_tutorial.ipynb) 
+and a number of examples illustrating how to use the package can be found in the
+[examples folder of the PRESC repository](https://github.com/mozilla/PRESC/tree/master/examples/ML_classifier_copies).
 
 
 ## Copying pipeline
