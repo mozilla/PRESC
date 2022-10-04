@@ -26,6 +26,7 @@ class WinesModel:
         dataset["recommend"] = 0
         dataset.loc[dataset["quality"] > 6, "recommend"] = 1
         dataset = dataset.drop("quality", axis=1)
+        dataset["recommend"] = dataset["recommend"].astype("category")
         self.dataset = Dataset(dataset, label_col="recommend")
 
         self.feature_description = dynamical_range(self.dataset.features, verbose=False)
@@ -61,6 +62,7 @@ class OccupancyModel:
         compressed_file = ZipFile(io.BytesIO(requests.get(url).content))
         dataset = pd.read_csv(compressed_file.open("datatraining.txt"))
         dataset = dataset.loc[:, dataset.columns != "date"]
+        dataset["Occupancy"] = dataset["Occupancy"].astype("category")
         self.dataset = Dataset(dataset, label_col="Occupancy")
 
         X = self.dataset.features
@@ -120,6 +122,7 @@ class SegmentationModel:
         )
         dataset = dataset[feature_names[1:] + ["class"]]
         dataset.drop("region_pixel_count", axis=1, inplace=True)
+        dataset["class"] = dataset["class"].astype("category")
         self.dataset = Dataset(dataset, label_col="class")
 
         self.feature_description = dynamical_range(self.dataset.features, verbose=False)
