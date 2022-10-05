@@ -295,7 +295,7 @@ class QuestionPairsModel:
 
         # Tranform training data
         X_train_q1 = self.count_vectorizer.transform(X["question1"])
-        X_train_q2 = self.count_vectorhizer.transform(X["question2"])
+        X_train_q2 = self.count_vectorizer.transform(X["question2"])
         X_train_q1q2 = hstack([X_train_q1, X_train_q2])
 
         # Fit classifier
