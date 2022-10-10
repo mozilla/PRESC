@@ -517,8 +517,8 @@ def categorical_sampling(feature_parameters, nsamples=500, random_state=None):
 
 
 def mixed_data_sampling(
-    feature_parameters=None,
-    numerical_sampling=None,
+    feature_parameters,
+    numerical_sampling,
     nsamples=500,
     random_state=None,
     **remaining_parameters,
