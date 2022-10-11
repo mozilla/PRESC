@@ -21,7 +21,7 @@ dependencies:
   - pyyaml=6.0
   - sphinx=4.4.0
   - twine=3.8.0
-  - catboost==0.25.1
+  - catboost==1.0.6
   - pip:
     - sphinx-rtd-theme==1.0.0
     - idx2numpy==1.2.3
