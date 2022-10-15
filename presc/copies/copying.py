@@ -22,11 +22,11 @@ class ClassifierCopy:
             Original ML classifier to be copied.
         copy : sklearn-type classifier
             ML classifier that will be used for the copy.
-        sampling_function : function
-            Any of the sampling functions defined in PRESC: `grid_sampling`,
-            `uniform_sampling`, `normal_sampling`... The `balancing sampler` can
-            only be used if the feature space does not contain any categorical
-            variable.
+        numerical_sampling : function
+            Any of the numerical sampling functions defined in PRESC:
+            `grid_sampling`, `uniform_sampling`, `normal_sampling`... The
+            `balancing sampler` can only be used if the feature space does not
+            contain any categorical variable.
         post_sampling_labeling: bool
             Whether generated data must be labeled after the sampling or not.
             If the chosen sampling function already does class labeling (such as
@@ -39,14 +39,14 @@ class ClassifierCopy:
         label_col : str
             Name of the label column.
         **k_sampling_parameters :
-            Parameters needed for the `sampling_function`.
+            Parameters needed for the `numerical_sampling` function.
     """
 
     def __init__(
         self,
         original,
         copy,
-        sampling_function,
+        numerical_sampling,
         post_sampling_labeling=True,
         enforce_balance=False,
         label_col="class",
@@ -54,7 +54,7 @@ class ClassifierCopy:
     ):
         self.original = original
         self.copy = copy
-        self.sampling_function = sampling_function
+        self.numerical_sampling = numerical_sampling
         self.post_sampling_labeling = post_sampling_labeling
         if enforce_balance:
             self.post_sampling_labeling = False
@@ -129,15 +129,15 @@ class ClassifierCopy:
             # Call balancer generating function with sampling parameters
             # (sampling_balancer returns a pandas dataframe)
             X_generated = sampling_balancer(
-                numerical_sampling=self.sampling_function,
-                original_classifier=self.original,
-                **k_sampling_parameters_gen
+                original_classifier=self.original, **k_sampling_parameters_gen
             )
         else:
             # Call generating function with sampling parameters
             # (mixed_data_sampling returns a pandas dataframe)
             X_generated = mixed_data_sampling(
-                numerical_sampling=self.sampling_function, **k_sampling_parameters_gen
+                feature_parameters=k_sampling_parameters_gen.pop("feature_parameters"),
+                numerical_sampling=self.numerical_sampling,
+                **k_sampling_parameters_gen
             )
 
         # If the type of sampling function attempts to balance the synthetic
