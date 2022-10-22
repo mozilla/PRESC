@@ -597,6 +597,72 @@ def mixed_data_sampling(
     return X_generated
 
 
+def image_random_sampling(
+    feature_parameters={
+        "x_image": {"pixels": 28},
+        "y_image": {"pixels": 28},
+        "channel": {"min": 0, "max": 253},
+    },
+    nsamples=500,
+    random_state=None,
+):
+    """Sample the feature space of images using random pixels.
+
+    Generates synthetic samples using a random uniform distribution to
+    establish the value for each image pixel. Hence, they are images of noise.
+    It only generates one channel (that is, black and white images).
+
+    For most image datasets, which are not random and have structure, this is a
+    very inefficient sampling method to generate synthetic image samples and
+    explore the feature space. It is provided here for illustrating purposes
+    only.
+
+    The default generates 28x28 images with pixel values between 0 and 253.
+
+    Parameters
+    ----------
+    feature_parameters : dict of dicts
+        A dictionary which specifies the characteristics of the feature space
+        of the images. It should have three entries: 'x_image', 'y_image',
+        and 'channel'. Each entry must contain a nested dictionary. In the case
+        of 'x_image' and 'y_image', they must contain the number of 'pixels' of
+        the image in each dimension, and in the case of 'channel' it must
+        contain the minimum ('min') and maximum ('max') values to generate for
+        that channel. Default value is:
+
+        feature_parameters = {"x_image": {"pixels": 28},
+                              "y_image": {"pixels": 28},
+                              "channel": {"min": 0, "max": 253}}
+    nsamples : int
+        Number of image samples to generate.
+    random_state : int
+        Random seed used to generate the sampling data.
+
+    Returns
+    -------
+    pandas DataFrame
+        Dataset with a list of images that have the value of their pixels
+        generated with a random uniform sampling of the feature space as
+        specified in the `feature_parameters`.
+    """
+    if random_state is not None:
+        np.random.seed(seed=random_state)
+
+    images = [None] * nsamples
+    for image_index in range(nsamples):
+        # Generate random image
+        images[image_index] = np.random.randint(
+            low=feature_parameters["channel"]["min"],
+            high=feature_parameters["channel"]["max"] + 1,
+            size=(
+                feature_parameters["x_image"]["pixels"],
+                feature_parameters["y_image"]["pixels"],
+            ),
+        )
+    X_generated_images = pd.DataFrame({"images": images})
+    return X_generated_images
+
+
 def labeling(X, original_classifier, label_col="class"):
     """Labels the samples from a dataset according to a classifier.
 
