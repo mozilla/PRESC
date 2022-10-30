@@ -194,6 +194,17 @@ class ImageVAE:
         This optimizer is computationally efficient, has little memory
         requirements, is invariant to diagonal rescaling of gradients, and is
         well suited for problems that are large in terms of data or parameters.
+    kl_multiplicative_factor : float
+        Factor to multiply the Kullback–Leibler divergence loss with when adding
+        this and the reconstruction loss contributions to compute the total
+        loss and optimize the autoencoder. Default value is one.
+    orthonormal : bool
+        Whether to use the orthonormal approximation constraint in the Dense
+        layers of the autoencoder. Default value is False.
+    beta : float
+        The strength of the orthonormal constraint: beta controls the intensity
+        of the orthonormality constraint, the tradeoff being a decrease in the
+        accuracy of the model.
     """
 
     def __init__(
@@ -202,6 +213,8 @@ class ImageVAE:
         latent_dim=2,
         optimizer="rmsprop",
         kl_multiplicative_factor=1,
+        orthonormal=False,
+        beta=0.01,
     ):
         """Constructor for the Convolutional Variational Autoencoder."""
         # Check that image dimensions are divisible by 4
@@ -217,7 +230,15 @@ class ImageVAE:
         x = Conv2D(32, 3, activation="relu", strides=2, padding="same")(encoder_inputs)
         x = Conv2D(64, 3, activation="relu", strides=2, padding="same")(x)
         x = Flatten()(x)
-        x = Dense(16, activation="relu")(x)
+        if orthonormal:
+            x = Dense(
+                16,
+                activation="relu",
+                kernel_constraint=Orthonormal(beta=beta),
+                use_bias=False,
+            )(x)
+        else:
+            x = Dense(16, activation="relu")(x)
 
         # Bottleneck layer
         z_mean = Dense(latent_dim, name="z_mean")(x)
@@ -230,9 +251,17 @@ class ImageVAE:
         # Define Decoder Architecture
         latent_inputs = keras.Input(shape=(latent_dim,))
 
-        x = Dense(
-            dimensions_decoder[0] * dimensions_decoder[1] * 64, activation="relu"
-        )(latent_inputs)
+        if orthonormal:
+            x = Dense(
+                dimensions_decoder[0] * dimensions_decoder[1] * 64,
+                activation="relu",
+                kernel_constraint=Orthonormal(beta=beta),
+                use_bias=False,
+            )(latent_inputs)
+        else:
+            x = Dense(
+                dimensions_decoder[0] * dimensions_decoder[1] * 64, activation="relu"
+            )(latent_inputs)
         x = Reshape((dimensions_decoder[0], dimensions_decoder[1], 64))(x)
         x = Conv2DTranspose(64, 3, activation="relu", strides=2, padding="same")(x)
         x = Conv2DTranspose(32, 3, activation="relu", strides=2, padding="same")(x)
