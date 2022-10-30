@@ -147,7 +147,7 @@ class Sampling(Layer):
 
         Returns
         -------
-        vector?/tensor?
+        list
             Returns a sample of the vector z drawn from a the probabilistic
             representation in Gaussian distributions of the latent space.
         """
