@@ -1,11 +1,9 @@
-"""Convolutional Variational AutoEncoder class adapted from 'Variational
-AutoEncoder' (2020/05/03) from fchollet (https://twitter.com/fchollet)."""
-
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import Input, Model
+from tensorflow.keras.constraints import Constraint
 from tensorflow.keras.layers import (
     Layer,
     Conv2D,
@@ -30,6 +28,11 @@ class VAE(keras.Model):
         sampling variational layer.
     decoder : tensorflow.keras.Model
         Decoder model for the variational autoencoder.
+
+    Reference
+    ---------
+        Convolutional Variational AutoEncoder class adapted from 'Variational
+        AutoEncoder' (2020/05/03) from fchollet (https://twitter.com/fchollet).
     """
 
     def __init__(self, encoder, decoder, kl_multiplicative_factor=1, **kwargs):
@@ -263,6 +266,44 @@ class ImageVAE:
         """
         self.vae.fit(images, **kwargs_fit)
         return self
+
+
+class Orthonormal(Constraint):
+    """Approximate Orthonormal weight constraint for each hidden unit.
+
+    Constrains the weights incident to each hidden unit to be approximately
+    orthonormal. During the constraint phase of each keras update loop, this
+    constraint update will ensure that the weight matrix is almost orthonomal.
+
+    To apply, for exemple, to a Dense layer:
+
+        tf.keras.layers.Dense(100, kernel_constraint=Orthonormal(), use_bias=False)
+
+    An orthonomal matrix W has W.dot(W.T) == I
+    Orthonormality is more strict that orthogonality since the columns of W are
+    also required to have unit norm.
+
+    Parameters
+    ----------
+    beta : float
+        The strength of the constraint: beta controls the intensity of the
+        orthonormality constraint, the tradeoff being a decrease in the accuracy
+        of the model.
+
+    References
+    ----------
+        https://arxiv.org/pdf/1710.04087.pdf
+    """
+
+    def __init__(self, beta=0.01):
+        self.beta = beta
+
+    def __call__(self, w):
+        eye = tf.linalg.matmul(w, w, transpose_b=True)
+        return (1 + self.beta) * w - self.beta * tf.linalg.matmul(eye, w)
+
+    def get_config(self):
+        return {"beta": self.beta}
 
 
 def plot_autoencoder_latent_space(
