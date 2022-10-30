@@ -599,9 +599,7 @@ def mixed_data_sampling(
 
 def image_random_sampling(
     feature_parameters={
-        "x_image": {"pixels": 28},
-        "y_image": {"pixels": 28},
-        "channel": {"min": 0, "max": 253},
+        "images": {"x_pixels": 28, "y_pixels": 28, "min": 0, "max": 253}
     },
     nsamples=500,
     random_state=None,
@@ -623,16 +621,14 @@ def image_random_sampling(
     ----------
     feature_parameters : dict of dicts
         A dictionary which specifies the characteristics of the feature space
-        of the images. It should have three entries: 'x_image', 'y_image',
-        and 'channel'. Each entry must contain a nested dictionary. In the case
-        of 'x_image' and 'y_image', they must contain the number of 'pixels' of
-        the image in each dimension, and in the case of 'channel' it must
-        contain the minimum ('min') and maximum ('max') values to generate for
-        that channel. Default value is:
+        of the images. It should have one entry 'images' with a nested
+        dictionary with the entries 'x_pixels', 'y_pixels', 'min' and 'max',
+        which specify the number of pixels of the image in each dimension, and
+        the minimum and maximum possible values of the pixels. The values in the
+        default dictionary are:
 
-        feature_parameters = {"x_image": {"pixels": 28},
-                              "y_image": {"pixels": 28},
-                              "channel": {"min": 0, "max": 253}}
+        feature_parameters = {"images": {"x_pixels": 28, "y_pixels": 28,
+                                         "min": 0, "max": 253}}
     nsamples : int
         Number of image samples to generate.
     random_state : int
@@ -652,11 +648,11 @@ def image_random_sampling(
     for image_index in range(nsamples):
         # Generate random image
         images[image_index] = np.random.randint(
-            low=feature_parameters["channel"]["min"],
-            high=feature_parameters["channel"]["max"] + 1,
+            low=feature_parameters["images"]["min"],
+            high=feature_parameters["images"]["max"] + 1,
             size=(
-                feature_parameters["x_image"]["pixels"],
-                feature_parameters["y_image"]["pixels"],
+                feature_parameters["images"]["x_pixels"],
+                feature_parameters["images"]["y_pixels"],
             ),
         )
     X_generated_images = pd.DataFrame({"images": images})
