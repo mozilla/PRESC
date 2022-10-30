@@ -1,6 +1,7 @@
 """Convolutional Variational AutoEncoder class adapted from 'Variational
 AutoEncoder' (2020/05/03) from fchollet (https://twitter.com/fchollet)."""
 
+import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
@@ -262,3 +263,87 @@ class ImageVAE:
         """
         self.vae.fit(images, **kwargs_fit)
         return self
+
+
+def plot_autoencoder_latent_space(
+    autoencoder,
+    x_plot=0,
+    y_plot=1,
+    edge_factor=2,
+    all_axes=[None, None],
+    n_images=10,
+    size=2.4,
+):
+    """Plots latent space image representation across 2 axis.
+
+    This function displays the sample variation across two of the different
+    dimensions of the latent space defined by the variational autoencoder. If
+    the autoencoder encodes the sample variation with more than two latent
+    dimensions, a fixed value must be specified by the other ones in order to
+    define the latent space slice.
+
+    Parameters
+    ----------
+    autoencoder : numpy.Array
+        Image dataset to use for the training.
+    x_plot : int
+        Index of the latent dimension that will correspond to the plot x-axis.
+    y_plot : int
+        Index of the latent dimension that will correspond to the plot y-axis.
+    edge_factor : int
+        Standard deviations by which to multiply the latent factors in order to
+        explore a larger/smaller range of the latent feature space.
+    all_axes : list
+        List to specify the fixed values of the latent dimensions that are not
+        represented in the plot. All dimenstions must be in the list but values
+        of the dimensions that are being represented are disregarded. Default
+        value is [None, None] for variational autoencoders with two latent
+        dimensions and no fixed value.
+
+        [1.5, None, 0, None] could for example be used for an autoencoder with
+        four dimensions where x_plot=1 and y_plot=3 are the dimensions being
+        represented and the desired fixed value of other two dimensions are 1.5
+        and 0, respectively.
+    n_images : int
+        Number of images per side in the 2D axis grid.
+    size : float
+        Size of the individual images in the plot.
+    """
+    # Image coordinates in latent space
+    grid_x = np.linspace(edge_factor, -edge_factor, n_images)
+    grid_y = np.linspace(edge_factor, -edge_factor, n_images)[::-1]
+
+    # Substitute None values by zeros
+    z_sample = np.array([[0 if i is None else i for i in all_axes]])
+
+    fig, axs = plt.subplots(
+        nrows=n_images, ncols=n_images, figsize=(size * n_images, size * n_images)
+    )
+
+    for x_index, x_value in enumerate(grid_x):
+        axs[x_index][0].set_ylabel(f"{x_value:.4f}")
+        for y_index, y_value in enumerate(grid_y):
+            z_sample[:, x_plot] = x_value
+            z_sample[:, y_plot] = y_value
+            image = (
+                (autoencoder.decoder.predict(z_sample)[:, :, :, 0][0]) * 255
+            ).astype(int)
+            axs[x_index][y_index].imshow(image)
+            axs[x_index][y_index].set_xticks([])
+            axs[x_index][y_index].set_yticks([])
+            axs[-1][y_index].set_xlabel(f"{y_value:.4f}")
+    fig.text(
+        -0.02,
+        0.5,
+        f"$z [ {y_plot} ] $",
+        va="center",
+        rotation="vertical",
+        fontsize="large",
+    )
+    fig.text(0.5, -0.02, f"$z [ {x_plot} ] $", ha="center", fontsize="large")
+    fig.suptitle(
+        f"Latent space representation of the autoencoder\n(Fixed axis values = {all_axes})",
+        y=1,
+    )
+    fig.tight_layout(pad=0.1)
+    plt.show()
