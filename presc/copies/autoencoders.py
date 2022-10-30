@@ -24,18 +24,19 @@ class VAE(keras.Model):
 
     Parameters
     ----------
-    encoder : Keras Model
+    encoder : tensorflow.keras.Model
         Encoder model for the variational autoencoder. It should include the
         sampling variational layer.
-    decoder : Keras Model
+    decoder : tensorflow.keras.Model
         Decoder model for the variational autoencoder.
     """
 
-    def __init__(self, encoder, decoder, **kwargs):
+    def __init__(self, encoder, decoder, kl_multiplicative_factor=1, **kwargs):
         """Constructor for instance of the Convolutional Variational AE class."""
         super(VAE, self).__init__(**kwargs)
         self.encoder = encoder
         self.decoder = decoder
+        self.kl_multiplicative_factor = kl_multiplicative_factor
 
         self.total_loss_tracker = keras.metrics.Mean(name="total_loss")
         self.reconstruction_loss_tracker = keras.metrics.Mean(
@@ -45,14 +46,14 @@ class VAE(keras.Model):
 
     @property
     def metrics(self):
-        """metrics.
+        """Show metrics corresponding to the current autoencoder performance.
 
         Returns
         -------
-        list of Keras Mean metrics
+        list of tensorflow.keras.metrics.Mean
             List of the three metrics that are tracked at every step of the
-            autoencoder training process: the total loss, and the two components
-            the reconstruction loss and the KL-divergence loss.
+            autoencoder training process: the total loss, and its two
+            components: the reconstruction loss and the KL-divergence loss.
         """
         return [
             self.total_loss_tracker,
@@ -73,7 +74,7 @@ class VAE(keras.Model):
 
         Parameters
         ----------
-        data : ??
+        data : numpy.Array
             Data used for the train step.
 
         Returns
@@ -100,7 +101,7 @@ class VAE(keras.Model):
             )
             kl_loss = -0.5 * (1 + z_log_var - tf.square(z_mean) - tf.exp(z_log_var))
             kl_loss = tf.reduce_mean(tf.reduce_sum(kl_loss, axis=1))
-            total_loss = reconstruction_loss + kl_loss
+            total_loss = reconstruction_loss + self.kl_multiplicative_factor * kl_loss
 
         # Computes gradients using operations recorded in context of this tape.
         grads = tape.gradient(total_loss, self.trainable_weights)
@@ -170,27 +171,34 @@ class ImageVAE:
         by 4 in both dimensions. Default shape value is (28, 28, 1).
     latent_dim : int
         The number of latent dimensions.
-    optimizer : Keras optimizer
+    optimizer : tensorflow.keras.optimizers.Optimizer
         The optimizer to use. There are multiple options.
 
-        One example is an Adam optimizer, which is a stochastic gradient descent
-        method that is based on adaptive estimation of first-order and
-        second-order moments: `keras.optimizers.Adam()`. This optimizer is
-        computationally efficient, has little memory requirements, is invariant
-        to diagonal rescaling of gradients, and is well suited for problems that
-        are large in terms of data or parameters.
+        One of the recommended optimizer options is RMSprop, which mantains a
+        moving (discounted) average of the square of gradients, and divides the
+        gradient by the root of this average: `rmsprop` or
+        `tensorflow.keras.optimizers.RMSprop()`. This implementation of RMSprop
+        uses plain momentum, not Nesterov momentum. And the centered version
+        (centered=True) additionally maintains a moving average of the
+        gradients, and uses that average to estimate the variance (it helps
+        with training, but is slightly more expensive in terms of computation
+        and memory).
 
-        Another example of optimizer is RMSprop, which mantains a moving
-        (discounted) average of the square of gradients, and divides the
-        gradient by the root of this average: `tf.keras.optimizers.RMSprop()`.
-        This implementation of RMSprop uses plain momentum, not Nesterov
-        momentum. And the centered version (centered=True) additionally
-        maintains a moving average of the gradients, and uses that average to
-        estimate the variance (it helps with training, but is slightly more
-        expensive in terms of computation and memory).
+        Another example is an Adam optimizer, which is a stochastic gradient
+        descent method that is based on adaptive estimation of first-order and
+        second-order moments: `adam` or `tensorflow.keras.optimizers.Adam()`.
+        This optimizer is computationally efficient, has little memory
+        requirements, is invariant to diagonal rescaling of gradients, and is
+        well suited for problems that are large in terms of data or parameters.
     """
 
-    def __init__(self, input_shape=(28, 28, 1), latent_dim=2, optimizer="rmsprop"):
+    def __init__(
+        self,
+        input_shape=(28, 28, 1),
+        latent_dim=2,
+        optimizer="rmsprop",
+        kl_multiplicative_factor=1,
+    ):
         """Constructor for the Convolutional Variational Autoencoder."""
         # Check that image dimensions are divisible by 4
         if (np.array(input_shape[:2]) % 4).any() != 0:
@@ -232,7 +240,7 @@ class ImageVAE:
         self.decoder = Model(latent_inputs, decoder_outputs, name="decoder")
 
         # compile and instantiate
-        self.vae = VAE(self.encoder, self.decoder)
+        self.vae = VAE(self.encoder, self.decoder, kl_multiplicative_factor)
         self.vae.compile(optimizer=optimizer)
 
     def fit(self, images, **kwargs_fit):
@@ -240,7 +248,7 @@ class ImageVAE:
 
         Parameters
         ----------
-        images : ??
+        images : numpy.Array
             Image dataset to use for the training.
         epochs : int
             Number of epochs to train the model for.
