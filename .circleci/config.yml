@@ -16,7 +16,7 @@ jobs:
           docker_layer_caching: true
       - run: apt-get update; apt-get install make -y
       - run: conda env create -f environment.yml
-      - run: . /opt/conda/etc/profile.d/conda.sh && conda activate presc && python setup.py install && make pytest_ci
+      - run: . /opt/conda/etc/profile.d/conda.sh && conda activate presc && python -m pip install . && make pytest_ci
       - persist_to_workspace:
           root: sphinx_docs/build
           paths: html
