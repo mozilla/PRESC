@@ -30,7 +30,7 @@ jobs:
           at: sphinx_docs/build
       - add_ssh_keys:
           fingerprints:
-            - "10:c5:55:73:57:68:17:cb:78:a4:6f:f7:08:34:ec:04"
+            - "d6:01:f6:4a:03:e1:c7:08:c0:e1:01:42:27:c6:a3:eb"
       - run:
           name: Trigger docs deployment
           working_directory: ./sphinx_docs/build/html
