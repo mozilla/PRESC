@@ -133,7 +133,7 @@ On Windows, these commands should be run from the Anaconda command prompt.
 ```shell
 $ conda env create -f environment.yml
 $ conda activate presc
-$ python setup.py develop
+$ python -m pip install -e .
 $ pre-commit install
 ```
 
