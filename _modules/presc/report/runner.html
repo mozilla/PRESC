@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>presc.report.runner &mdash; PRESC 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html">
+            <img src="../../../_static/classifier-bias-PRESC_v3_black_margin3.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../evaluations.html">Evaluations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ml_copies.html">ML Classifier Copies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">presc</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">Classification datasets</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">PRESC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>presc.report.runner</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for presc.report.runner</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">shelve</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">TemporaryDirectory</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">webbrowser</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">from</span> <span class="nn">presc.utils</span> <span class="kn">import</span> <span class="n">PrescError</span><span class="p">,</span> <span class="n">include_exclude_list</span>
+<span class="kn">from</span> <span class="nn">presc.configuration</span> <span class="kn">import</span> <span class="n">PrescConfig</span>
+<span class="kn">from</span> <span class="nn">presc</span> <span class="kn">import</span> <span class="n">global_config</span>
+
+<span class="c1"># Path to the report source dir</span>
+<span class="n">REPORT_SOURCE_PATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;resources&quot;</span>
+<span class="n">JB_CONFIG_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;_config.yml&quot;</span>
+<span class="n">JB_TOC_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;_toc.yml&quot;</span>
+<span class="n">REPORT_OUTPUT_DIR</span> <span class="o">=</span> <span class="s2">&quot;presc_report&quot;</span>
+<span class="n">REPORT_EXECUTION_DIR</span> <span class="o">=</span> <span class="s2">&quot;_exec&quot;</span>
+<span class="n">REPORT_MAIN_PAGE</span> <span class="o">=</span> <span class="s2">&quot;report.html&quot;</span>
+<span class="n">SPHINX_INDEX_PAGE</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;_build&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;html&quot;</span> <span class="o">/</span> <span class="s2">&quot;index.html&quot;</span>
+<span class="n">JB_CLEAN_LOG</span> <span class="o">=</span> <span class="s2">&quot;jupyterbook_clean.log&quot;</span>
+<span class="n">JB_BUILD_LOG</span> <span class="o">=</span> <span class="s2">&quot;jupyterbook_build.log&quot;</span>
+<span class="c1"># Path to the store for the inputs to the report, relative to the execution dir</span>
+<span class="c1"># for the report.</span>
+<span class="n">CONTEXT_STORE_BASENAME</span> <span class="o">=</span> <span class="s2">&quot;_context_store&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_updated_jb_config</span><span class="p">(</span><span class="n">report_config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Override default jupyter-book options.</span>
+
+<span class="sd">    report_config: PRESC config options for the report</span>
+
+<span class="sd">    Returns the updated JB config file as a YAML-formatted string that can be</span>
+<span class="sd">    written to a _config.yml.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">REPORT_SOURCE_PATH</span> <span class="o">/</span> <span class="n">JB_CONFIG_FILENAME</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">jb_config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+
+    <span class="n">jb_config</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">report_config</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="n">jb_config</span><span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">report_config</span><span class="p">[</span><span class="s2">&quot;author&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+    <span class="c1"># Add any page exclusions</span>
+    <span class="c1"># First compile the overall list of report pages from the TOC.</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">REPORT_SOURCE_PATH</span> <span class="o">/</span> <span class="n">JB_TOC_FILENAME</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">toc_str</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">stripped_lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">toc_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)]</span>
+    <span class="n">all_pages</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">8</span><span class="p">:]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">stripped_lines</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;- file: &quot;</span><span class="p">)]</span>
+    <span class="n">incl_pages</span> <span class="o">=</span> <span class="n">include_exclude_list</span><span class="p">(</span>
+        <span class="n">all_pages</span><span class="p">,</span>
+        <span class="n">report_config</span><span class="p">[</span><span class="s2">&quot;evaluations_include&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+        <span class="n">report_config</span><span class="p">[</span><span class="s2">&quot;evaluations_exclude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;landing&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">incl_pages</span><span class="p">:</span>
+        <span class="n">incl_pages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;landing&quot;</span><span class="p">)</span>
+
+    <span class="n">to_exclude</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">.ipynb&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">all_pages</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">incl_pages</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">to_exclude</span><span class="p">:</span>
+        <span class="n">jb_config</span><span class="p">[</span><span class="s2">&quot;exclude_patterns&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_exclude</span>
+
+    <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">jb_config</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ReportRunner"><a class="viewcode-back" href="../../../presc.report.html#presc.report.runner.ReportRunner">[docs]</a><span class="k">class</span> <span class="nc">ReportRunner</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main entrypoint to run the PRESC report for the given modeling inputs.</span>
+
+<span class="sd">    The report is written to `&lt;output_path&gt;/presc_report`. If this dir already</span>
+<span class="sd">    exists, it will be overwritten.</span>
+
+<span class="sd">    To generate the report:</span>
+<span class="sd">    ```</span>
+<span class="sd">    pr = ReportRunner()</span>
+<span class="sd">    pr.run(...)</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    The path to the report is accessible as `pr.report_html` and will open in</span>
+<span class="sd">    the default browser by calling `pr.open()`</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output_path : str</span>
+<span class="sd">        Path to the dir where the report will be written. If not specified,</span>
+<span class="sd">        defaults to the current working dir.</span>
+<span class="sd">    execution_path : str</span>
+<span class="sd">        Path from which the report is built. If not specified, a temporary dir is used.</span>
+<span class="sd">    config_filepath : str</span>
+<span class="sd">        Path to a YAML file listing overrides to the default config options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">execution_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config_filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">report_config</span> <span class="o">=</span> <span class="n">PrescConfig</span><span class="p">(</span><span class="n">global_config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config_filepath</span><span class="p">:</span>
+            <span class="n">report_config</span><span class="o">.</span><span class="n">update_from_file</span><span class="p">(</span><span class="n">config_filepath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">report_config</span>
+        <span class="c1"># Path where the report output is written.</span>
+        <span class="c1"># Outputs are nested in a subdir.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span> <span class="o">/</span> <span class="n">REPORT_OUTPUT_DIR</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Path where the report is built from.</span>
+        <span class="c1"># The report source files are copied here, and the model inputs are</span>
+        <span class="c1"># written to a data store.</span>
+        <span class="c1"># If missing, a temp dir will be used on execution.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">execution_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">execution_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">execution_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">execution_path</span><span class="p">)</span> <span class="o">/</span> <span class="n">REPORT_EXECUTION_DIR</span>
+
+        <span class="c1"># Build artifacts:</span>
+        <span class="c1"># The main entry page for the report.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">report_main_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">SPHINX_INDEX_PAGE</span>
+        <span class="c1"># Log files for jupyter-book execution.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jb_clean_log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">JB_CLEAN_LOG</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jb_build_log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">JB_BUILD_LOG</span>
+        <span class="c1"># The main page will be linked to the top-level output dir, if possible.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_linked_main_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">REPORT_MAIN_PAGE</span>
+        <span class="c1"># Cache the process results from running jupyter-book commands for</span>
+        <span class="c1"># debugging.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jb_clean_result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jb_build_result</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_presc_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List of paths to remove from the top-level output dir on clean.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_linked_main_page</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">jb_clean_log</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">jb_build_log</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ReportRunner.run"><a class="viewcode-back" href="../../../presc.report.html#presc.report.runner.ReportRunner.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">,</span> <span class="n">train_dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the PRESC report for the given modeling inputs.</span>
+
+<span class="sd">        The report is written to `&lt;output_path&gt;/presc_report`. If this dir already</span>
+<span class="sd">        exists, it will be overwritten.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model: presc.model.ClassificationModel</span>
+<span class="sd">            A pre-trained ClassificationModel instance to evaluate</span>
+<span class="sd">        test_dataset : presc.dataset.Dataset</span>
+<span class="sd">            A test Dataset instance used to evaluate model performance</span>
+<span class="sd">        train_dataset: presc.dataset.Dataset</span>
+<span class="sd">            The Dataset instance used to train the model. This is not required for every evaluation.</span>
+<span class="sd">        settings : dict</span>
+<span class="sd">            A dict specifying option values to override report settings,</span>
+<span class="sd">            eg. `{&quot;report.title&quot;: &quot;My Report&quot;}`.</span>
+<span class="sd">        clean : book</span>
+<span class="sd">            Should previous outputs be cleaned? Default: True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="p">:</span>
+            <span class="n">run_config</span> <span class="o">=</span> <span class="n">PrescConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+            <span class="n">run_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">run_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+
+        <span class="k">if</span> <span class="n">clean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+
+        <span class="n">tmpdir</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">exec_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">execution_path</span><span class="p">:</span>
+            <span class="c1"># If using a user-defined execution path, need to make sure</span>
+            <span class="c1"># it doesn&#39;t exist for `shutil.copytree` to work.</span>
+            <span class="c1"># Note that this will only remove the nested subdir, not the actual</span>
+            <span class="c1"># user-specified dir.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">execution_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">execution_path</span><span class="p">)</span>
+            <span class="n">exec_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execution_path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Create a temp dir to run the build from.</span>
+            <span class="c1"># We set up the temp dir here rather than using jupyter-book&#39;s</span>
+            <span class="c1"># `run_in_temp` option so that we have access to the temp path.</span>
+            <span class="n">tmpdir</span> <span class="o">=</span> <span class="n">TemporaryDirectory</span><span class="p">()</span>
+            <span class="n">exec_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="n">REPORT_EXECUTION_DIR</span>
+
+        <span class="c1"># Copy the report source files to the execution dir and</span>
+        <span class="c1"># execute from there. The data store for the inputs is saved to</span>
+        <span class="c1"># the same dir. That way, since the notebooks&#39; working dir on execution</span>
+        <span class="c1"># is set to where they are located by jupyter-book, they can find</span>
+        <span class="c1"># the data store without needed to know the calling path.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">REPORT_SOURCE_PATH</span><span class="p">,</span> <span class="n">exec_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">shutil</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to copy report source to execution dir </span><span class="si">{</span><span class="n">exec_path</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">raise</span> <span class="n">PrescError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
+        <span class="c1"># Update the default JB config files based on the PRESC config options.</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">exec_path</span> <span class="o">/</span> <span class="n">JB_CONFIG_FILENAME</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">_updated_jb_config</span><span class="p">(</span><span class="n">run_config</span><span class="p">[</span><span class="s2">&quot;report&quot;</span><span class="p">]))</span>
+
+        <span class="c1"># Write the inputs to the data store.</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="n">store_dir</span><span class="o">=</span><span class="n">exec_path</span><span class="p">)</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">store_inputs</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">test_dataset</span><span class="o">=</span><span class="n">test_dataset</span><span class="p">,</span>
+            <span class="n">train_dataset</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">run_config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Build the report.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_jb_build</span><span class="p">(</span><span class="n">exec_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tmpdir</span><span class="p">:</span>
+            <span class="n">tmpdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+
+        <span class="c1"># The build should have created index.html at the `report_main_page`</span>
+        <span class="c1"># path.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_main_page</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="c1"># Symlink the main page to the top level for convenience.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">main_page_target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_main_page</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_linked_main_page</span><span class="o">.</span><span class="n">parent</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_linked_main_page</span><span class="o">.</span><span class="n">symlink_to</span><span class="p">(</span><span class="n">main_page_target</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;The expected report main page </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">report_main_page</span><span class="si">}</span><span class="s2"> does not appear to exist.&quot;</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; There may have been an error generating the report.&quot;</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; Output is written to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">jb_build_log</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">report_html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The main page of the HTML report.&quot;&quot;&quot;</span>
+        <span class="c1"># Return symlink, if available, for a more user-friendly experience.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linked_main_page</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="c1"># Resolve to an absolute path up to the symlink.</span>
+            <span class="n">report_path</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_linked_main_page</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linked_main_page</span><span class="o">.</span><span class="n">name</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">report_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_main_page</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">report_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Report file does not appear to exist.&quot;</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; Make sure the report has already been built.&quot;</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">report_path</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ReportRunner.open"><a class="viewcode-back" href="../../../presc.report.html#presc.report.runner.ReportRunner.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Open the report in the default web browser.&quot;&quot;&quot;</span>
+        <span class="n">webbrowser</span><span class="o">.</span><span class="n">open_new_tab</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file://</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">report_html</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReportRunner.clean"><a class="viewcode-back" href="../../../presc.report.html#presc.report.runner.ReportRunner.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove artifacts from a previous run, if any.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_presc_artifacts</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_jb_clean</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_run_jb_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run `jupyter-book clean`.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jb_clean_log</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;jupyter-book&quot;</span><span class="p">,</span> <span class="s2">&quot;clean&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">],</span>
+                <span class="n">stdout</span><span class="o">=</span><span class="n">outfile</span><span class="p">,</span>
+                <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;`jupyter-book clean </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="si">}</span><span class="s2"> did not succeed.&quot;</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; Output is written to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">jb_clean_log</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jb_clean_result</span> <span class="o">=</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">_run_jb_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run `jupyter-book build` on the given path.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jb_build_log</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;jupyter-book&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;build&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;--path-output&quot;</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">input_path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()),</span>
+                <span class="p">],</span>
+                <span class="n">stdout</span><span class="o">=</span><span class="n">outfile</span><span class="p">,</span>
+                <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;`jupyter-book build </span><span class="si">{</span><span class="n">input_path</span><span class="si">}</span><span class="s2"> did not succeed.&quot;</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; Output is written to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">jb_build_log</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jb_build_result</span> <span class="o">=</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="Context"><a class="viewcode-back" href="../../../presc.report.html#presc.report.runner.Context">[docs]</a><span class="k">class</span> <span class="nc">Context</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Persistent data store for sharing report inputs across notebooks.</span>
+
+<span class="sd">    Note that the store implementation does not support concurrent access. It is</span>
+<span class="sd">    up to the caller to ensure that multiple instances each have a unique store</span>
+<span class="sd">    location.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    store_dir : str</span>
+<span class="sd">        The dir to contain the data store, implemented as one or more</span>
+<span class="sd">        database files. If not specified, defaults to the current working dir.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store_dir</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+        <span class="n">store_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">store_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">CONTEXT_STORE_BASENAME</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_store_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">store_path</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
+
+<div class="viewcode-block" id="Context.store_inputs"><a class="viewcode-back" href="../../../presc.report.html#presc.report.runner.Context.store_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">store_inputs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test_dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">train_dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write the report inputs to the data store.</span>
+
+<span class="sd">        Any existing values will be overwritten.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model: presc.model.ClassificationModel</span>
+<span class="sd">            A ClassificationModel instance</span>
+<span class="sd">        test_dataset:  presc.dataset.Dataset</span>
+<span class="sd">            A Dataset instance</span>
+<span class="sd">        train_dataset: presc.dataset.Dataset</span>
+<span class="sd">            A Dataset instance</span>
+<span class="sd">        config: dict</span>
+<span class="sd">            A dict of config options</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">shelve</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_store_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">model</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span>
+            <span class="k">if</span> <span class="n">test_dataset</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="p">[</span><span class="s2">&quot;test_dataset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_dataset</span>
+            <span class="k">if</span> <span class="n">train_dataset</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="p">[</span><span class="s2">&quot;train_dataset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_dataset</span>
+            <span class="k">if</span> <span class="n">config</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span></div>
+
+    <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">shelve</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_store_path</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">ctx</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">val</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PrescError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find stored value for &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">test_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="s2">&quot;test_dataset&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">train_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="s2">&quot;train_dataset&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="s2">&quot;config&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Mozilla Foundation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

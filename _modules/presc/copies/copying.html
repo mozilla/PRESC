@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>presc.copies.copying &mdash; PRESC 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html">
+            <img src="../../../_static/classifier-bias-PRESC_v3_black_margin3.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../evaluations.html">Evaluations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ml_copies.html">ML Classifier Copies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">presc</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">Classification datasets</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">PRESC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>presc.copies.copying</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for presc.copies.copying</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">presc.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">presc.copies.sampling</span> <span class="kn">import</span> <span class="n">mixed_data_sampling</span><span class="p">,</span> <span class="n">labeling</span><span class="p">,</span> <span class="n">sampling_balancer</span>
+<span class="kn">from</span> <span class="nn">presc.copies.evaluations</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">empirical_fidelity_error</span><span class="p">,</span>
+    <span class="n">replacement_capability</span><span class="p">,</span>
+    <span class="n">summary_metrics</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="ClassifierCopy"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.copying.ClassifierCopy">[docs]</a><span class="k">class</span> <span class="nc">ClassifierCopy</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a classifier copy and its associated sampling method of choice.</span>
+
+<span class="sd">    Each instance wraps the original ML classifier with a ML classifier copy and</span>
+<span class="sd">    the sampling method to carry out the copy. Methods allow to carry out</span>
+<span class="sd">    the copy the original classifier, evaluate the quality of the copy, and to</span>
+<span class="sd">    generate additional data using the original classifier with the sampling</span>
+<span class="sd">    method specified on instatiation.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">        original : sklearn-type classifier</span>
+<span class="sd">            Original ML classifier to be copied.</span>
+<span class="sd">        copy : sklearn-type classifier</span>
+<span class="sd">            ML classifier that will be used for the copy.</span>
+<span class="sd">        numerical_sampling : function</span>
+<span class="sd">            Any of the numerical sampling functions defined in PRESC:</span>
+<span class="sd">            `grid_sampling`, `uniform_sampling`, `normal_sampling`... The</span>
+<span class="sd">            `balancing sampler` can only be used if the feature space does not</span>
+<span class="sd">            contain any categorical variable.</span>
+<span class="sd">        post_sampling_labeling: bool</span>
+<span class="sd">            Whether generated data must be labeled after the sampling or not.</span>
+<span class="sd">            If the chosen sampling function already does class labeling (such as</span>
+<span class="sd">            balancing samplers) then it should be set to False. If the parameter</span>
+<span class="sd">            enforce_balance is set to True then this parameter does not have any</span>
+<span class="sd">            effect.</span>
+<span class="sd">        enforce_balance : bool</span>
+<span class="sd">            Force class balancing for sampling functions that do not normally</span>
+<span class="sd">            carry it out intrinsically.</span>
+<span class="sd">        label_col : str</span>
+<span class="sd">            Name of the label column.</span>
+<span class="sd">        **k_sampling_parameters :</span>
+<span class="sd">            Parameters needed for the `numerical_sampling` function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">original</span><span class="p">,</span>
+        <span class="n">copy</span><span class="p">,</span>
+        <span class="n">numerical_sampling</span><span class="p">,</span>
+        <span class="n">post_sampling_labeling</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">enforce_balance</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">label_col</span><span class="o">=</span><span class="s2">&quot;class&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">k_sampling_parameters</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original</span> <span class="o">=</span> <span class="n">original</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">copy</span> <span class="o">=</span> <span class="n">copy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numerical_sampling</span> <span class="o">=</span> <span class="n">numerical_sampling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_sampling_labeling</span> <span class="o">=</span> <span class="n">post_sampling_labeling</span>
+        <span class="k">if</span> <span class="n">enforce_balance</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">post_sampling_labeling</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enforce_balance</span> <span class="o">=</span> <span class="n">enforce_balance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_col</span> <span class="o">=</span> <span class="n">label_col</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_sampling_parameters</span> <span class="o">=</span> <span class="n">k_sampling_parameters</span>
+        <span class="k">if</span> <span class="s2">&quot;random_state&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_sampling_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_sampling_parameters</span><span class="p">[</span><span class="s2">&quot;random_state&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ClassifierCopy.copy_classifier"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.copying.ClassifierCopy.copy_classifier">[docs]</a>    <span class="k">def</span> <span class="nf">copy_classifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_training_data</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">k_mod_sampling_parameters</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Copies the classifier using data generated with the original model.</span>
+
+<span class="sd">        Generates synthetic data using only basic information of the features</span>
+<span class="sd">        (dynamic range, mean and sigma), labels it using the original model,</span>
+<span class="sd">        and trains the copy model with this synthetic data. It can also return</span>
+<span class="sd">        the generated synthetic data used for training.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        get_training_data : bool</span>
+<span class="sd">            If `True` this method returns the synthetic data generated from the</span>
+<span class="sd">            original classifier that was used to train the copy.</span>
+<span class="sd">        **k_mod_sampling_parameters :</span>
+<span class="sd">            If the &quot;nsamples&quot; and/or &quot;random_state&quot; parameters of the sampling</span>
+<span class="sd">            function have to be changed in order to obtain a different set of</span>
+<span class="sd">            synthetic data, they can be specified here.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        presc.dataset.Dataset</span>
+<span class="sd">            Outputs a PRESC Dataset with the training samples and their labels</span>
+<span class="sd">            (if `get_training_data` set to `True`).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Generate synthetic data</span>
+        <span class="n">df_generated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_synthetic_data</span><span class="p">(</span><span class="o">**</span><span class="n">k_mod_sampling_parameters</span><span class="p">)</span>
+        <span class="c1"># Copy the classifier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df_generated</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">df_generated</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">get_training_data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">df_generated</span></div>
+
+<div class="viewcode-block" id="ClassifierCopy.generate_synthetic_data"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.copying.ClassifierCopy.generate_synthetic_data">[docs]</a>    <span class="k">def</span> <span class="nf">generate_synthetic_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">k_mod_sampling_parameters</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates synthetic data using the original model.</span>
+
+<span class="sd">        Generates samples following the sampling strategy specified on</span>
+<span class="sd">        instantiation for the numerical features and a discrete distribution for</span>
+<span class="sd">        the categorical features, and then labels them using the original model.</span>
+<span class="sd">        If the same data needs to be generated then simply use a specific</span>
+<span class="sd">        random seed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        **k_mod_sampling_parameters :</span>
+<span class="sd">            If the &quot;nsamples&quot; and/or &quot;random_state&quot; parameters of the sampling</span>
+<span class="sd">            function have to be changed in order to obtain a different set of</span>
+<span class="sd">            synthetic data, they can be specified here.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        presc.dataset.Dataset</span>
+<span class="sd">            Outputs a PRESC Dataset with the generated samples and their labels.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Random state needs to be fixed to obtain the same training data</span>
+        <span class="n">k_sampling_parameters_gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_sampling_parameters</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># Update sampling parameters which have been specified on calling the method</span>
+        <span class="n">k_sampling_parameters_gen</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">k_mod_sampling_parameters</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enforce_balance</span><span class="p">:</span>
+            <span class="c1"># Call balancer generating function with sampling parameters</span>
+            <span class="c1"># (sampling_balancer returns a pandas dataframe)</span>
+            <span class="n">X_generated</span> <span class="o">=</span> <span class="n">sampling_balancer</span><span class="p">(</span>
+                <span class="n">original_classifier</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="p">,</span> <span class="o">**</span><span class="n">k_sampling_parameters_gen</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Call generating function with sampling parameters</span>
+            <span class="c1"># (mixed_data_sampling returns a pandas dataframe)</span>
+            <span class="n">X_generated</span> <span class="o">=</span> <span class="n">mixed_data_sampling</span><span class="p">(</span>
+                <span class="n">feature_parameters</span><span class="o">=</span><span class="n">k_sampling_parameters_gen</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;feature_parameters&quot;</span><span class="p">),</span>
+                <span class="n">numerical_sampling</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">numerical_sampling</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">k_sampling_parameters_gen</span>
+            <span class="p">)</span>
+
+        <span class="c1"># If the type of sampling function attempts to balance the synthetic</span>
+        <span class="c1"># dataset, it returns the features AND the labels. Otherwise, it returns</span>
+        <span class="c1"># only the features, and the labeling function must be called.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_sampling_labeling</span><span class="p">:</span>
+            <span class="n">df_generated</span> <span class="o">=</span> <span class="n">labeling</span><span class="p">(</span>
+                <span class="n">X_generated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="p">,</span> <span class="n">label_col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">label_col</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df_generated</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">X_generated</span><span class="p">,</span> <span class="n">label_col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">label_col</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">df_generated</span></div>
+
+<div class="viewcode-block" id="ClassifierCopy.compute_fidelity_error"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.copying.ClassifierCopy.compute_fidelity_error">[docs]</a>    <span class="k">def</span> <span class="nf">compute_fidelity_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes the empirical fidelity error of the classifier copy.</span>
+
+<span class="sd">        Quantifies the resemblance of the copy to the original classifier. This</span>
+<span class="sd">        value is zero when the copy makes exactly the same predictions than the</span>
+<span class="sd">        original classifier (including misclassifications).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        test_data : array-like</span>
+<span class="sd">            Dataset with the unlabeled samples to evaluate the resemblance of</span>
+<span class="sd">            the copy to the original classifier.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            The numerical value of the empirical fidelity error of the copy with</span>
+<span class="sd">            this dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">y_pred_original</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+        <span class="n">y_pred_copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">empirical_fidelity_error</span><span class="p">(</span><span class="n">y_pred_original</span><span class="p">,</span> <span class="n">y_pred_copy</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClassifierCopy.replacement_capability"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.copying.ClassifierCopy.replacement_capability">[docs]</a>    <span class="k">def</span> <span class="nf">replacement_capability</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes the replacement capability of a classifier copy.</span>
+
+<span class="sd">        Quantifies the ability of the copy model to substitute the original</span>
+<span class="sd">        model, i.e. maintaining the same accuracy in its predictions. This value</span>
+<span class="sd">        is one when the accuracy of the copy model is the same as the original</span>
+<span class="sd">        model, although the individual predictions may be different, approaching</span>
+<span class="sd">        zero if the accuracy of the copy is much smaller than the original, and</span>
+<span class="sd">        it can even take values larger than one if the copy model is better than</span>
+<span class="sd">        the original.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        test_data : presc.dataset.Dataset</span>
+<span class="sd">            Subset of the original data reserved to evaluate the resemblance of</span>
+<span class="sd">            the copy to the original classifier. Or synthetic data generated</span>
+<span class="sd">            from the original model with the same purpose.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            The numerical value of the replacement capability.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">y_pred_original</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_data</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+        <span class="n">y_pred_copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_data</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">replacement_capability</span><span class="p">(</span><span class="n">test_data</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">y_pred_original</span><span class="p">,</span> <span class="n">y_pred_copy</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClassifierCopy.evaluation_summary"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.copying.ClassifierCopy.evaluation_summary">[docs]</a>    <span class="k">def</span> <span class="nf">evaluation_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">synthetic_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes several metrics to evaluate the classifier copy.</span>
+
+<span class="sd">        Summary of metrics that evaluate the quality of a classifier copy, not</span>
+<span class="sd">        only to assess its performance as classifier but to quantify its</span>
+<span class="sd">        resemblance to the original classifier. Accuracy of the original and the</span>
+<span class="sd">        copy models (using the original test data), and the empirical fidelity</span>
+<span class="sd">        error and replacement capability of the copy (using the original test</span>
+<span class="sd">        data and/or the generated synthetic data). This is a wrapper of the</span>
+<span class="sd">        `summary_metrics` function applied to the copy and original models in</span>
+<span class="sd">        this instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        original_model : sklearn-type classifier</span>
+<span class="sd">            Original ML classifier to be copied.</span>
+<span class="sd">        copy_model : presc.copies.copying.ClassifierCopy</span>
+<span class="sd">            ML classifier copy from the original ML classifier.</span>
+<span class="sd">        test_data : presc.dataset.Dataset</span>
+<span class="sd">            Subset of the original data reserved for testing.</span>
+<span class="sd">        synthetic_data : presc.dataset.Dataset</span>
+<span class="sd">            Synthetic data generated using the original model.</span>
+<span class="sd">        show_results : bool</span>
+<span class="sd">            If `True` the metrics are also printed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            The values of all metrics.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">summary_metrics</span><span class="p">(</span>
+            <span class="n">original_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="p">,</span>
+            <span class="n">copy_model</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">test_data</span><span class="o">=</span><span class="n">test_data</span><span class="p">,</span>
+            <span class="n">synthetic_data</span><span class="o">=</span><span class="n">synthetic_data</span><span class="p">,</span>
+            <span class="n">show_results</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Mozilla Foundation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>presc.evaluations.conditional_distribution &mdash; PRESC 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html">
+            <img src="../../../_static/classifier-bias-PRESC_v3_black_margin3.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../evaluations.html">Evaluations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ml_copies.html">ML Classifier Copies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">presc</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">Classification datasets</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">PRESC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>presc.evaluations.conditional_distribution</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for presc.evaluations.conditional_distribution</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">presc.evaluations.utils</span> <span class="kn">import</span> <span class="n">is_discrete</span>
+<span class="kn">from</span> <span class="nn">presc.utils</span> <span class="kn">import</span> <span class="n">include_exclude_list</span>
+<span class="kn">from</span> <span class="nn">presc.configuration</span> <span class="kn">import</span> <span class="n">PrescConfig</span>
+<span class="kn">from</span> <span class="nn">presc</span> <span class="kn">import</span> <span class="n">global_config</span>
+
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">histogram</span><span class="p">,</span> <span class="n">histogram_bin_edges</span>
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">Series</span><span class="p">,</span> <span class="n">MultiIndex</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">confuse</span> <span class="kn">import</span> <span class="n">ConfigError</span>
+
+
+<span class="k">def</span> <span class="nf">_histogram_bin_labels</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a Series of labels for histogram bins generated using</span>
+<span class="sd">    `numpy.histogram_bin_edges`.&quot;&quot;&quot;</span>
+    <span class="n">labs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">bin_edges</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">bin_edges</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">labs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">labs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+    <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="n">labs</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="compute_conditional_distribution"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.conditional_distribution.compute_conditional_distribution">[docs]</a><span class="k">def</span> <span class="nf">compute_conditional_distribution</span><span class="p">(</span>
+    <span class="n">data_col</span><span class="p">,</span> <span class="n">true_labs</span><span class="p">,</span> <span class="n">pred_labs</span><span class="p">,</span> <span class="n">as_categorical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">binning</span><span class="o">=</span><span class="s2">&quot;fd&quot;</span><span class="p">,</span> <span class="n">common_bins</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a distributional summary.</span>
+
+<span class="sd">    The metric is computed within unique values of the grouping column</span>
+<span class="sd">    (categorical) or within bins partitioning its range (continuous).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_col :</span>
+<span class="sd">        A column of data from a test dataset.</span>
+<span class="sd">    true_labs : Series</span>
+<span class="sd">        A series of true labels for the test dataset.</span>
+<span class="sd">    pred_labs : Series</span>
+<span class="sd">        A series of labels predicted by a model for the test dataset.</span>
+<span class="sd">    as_categorical : bool</span>
+<span class="sd">        Should the data column be treated as categorical, ie. binned</span>
+<span class="sd">        on its unique values? If it is not numeric, this param is ignored.</span>
+<span class="sd">    binning : str</span>
+<span class="sd">        Binning scheme to use for a numerical column, passed to `numpy.histogram`.</span>
+<span class="sd">        Can be a fixed number of bins or a string indicating a binning scheme</span>
+<span class="sd">    common_bins : bool</span>
+<span class="sd">        Should the bins be computed over the entire column and shared</span>
+<span class="sd">        across groups (`True`) or computed within each group (`False`)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ConditionalDistributionResult</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">grouping</span> <span class="o">=</span> <span class="p">[</span><span class="n">true_labs</span><span class="p">,</span> <span class="n">pred_labs</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">is_discrete</span><span class="p">(</span><span class="n">data_col</span><span class="p">):</span>
+        <span class="n">as_categorical</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">as_categorical</span><span class="p">:</span>
+        <span class="n">grouping</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_col</span><span class="p">)</span>
+        <span class="n">distribs</span> <span class="o">=</span> <span class="n">data_col</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">grouping</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">common_bins</span><span class="p">:</span>
+            <span class="c1"># Extend the index in each label group to include all data values</span>
+            <span class="n">data_vals</span> <span class="o">=</span> <span class="n">distribs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+            <span class="n">y_vals</span> <span class="o">=</span> <span class="n">distribs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+            <span class="n">full_ind</span> <span class="o">=</span> <span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span>
+                <span class="p">[(</span><span class="n">yt</span><span class="p">,</span> <span class="n">yp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">yt</span><span class="p">,</span> <span class="n">yp</span> <span class="ow">in</span> <span class="n">y_vals</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data_vals</span><span class="p">],</span>
+                <span class="n">names</span><span class="o">=</span><span class="n">distribs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">distribs</span> <span class="o">=</span> <span class="n">distribs</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">full_ind</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">Series</span><span class="p">(</span><span class="n">data_vals</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Convert the innermost index level to a Series of bin edges.</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">distribs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">common_bins</span><span class="p">:</span>
+            <span class="n">bins</span> <span class="o">=</span> <span class="n">histogram_bin_edges</span><span class="p">(</span><span class="n">data_col</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">binning</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bins</span> <span class="o">=</span> <span class="n">binning</span>
+        <span class="c1"># distribs will be a series with values (&lt;hist_values&gt;, &lt;bin_edges&gt;)</span>
+        <span class="n">distribs</span> <span class="o">=</span> <span class="n">data_col</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">grouping</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">histogram</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">))</span>
+        <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">distribs</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">bin_ind_tuples</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">distribs</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="n">bin_ind_tuples</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">_histogram_bin_labels</span><span class="p">(</span><span class="n">bin_edges</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">y</span><span class="p">])]</span>
+            <span class="p">)</span>
+        <span class="n">index_with_bins</span> <span class="o">=</span> <span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span>
+            <span class="n">bin_ind_tuples</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">distribs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">distribs</span> <span class="o">=</span> <span class="n">Series</span><span class="p">(</span>
+            <span class="n">distribs</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">explode</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index_with_bins</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">common_bins</span><span class="p">:</span>
+            <span class="c1"># Retain the unique bin edges as an array</span>
+            <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">Series</span><span class="p">(</span><span class="n">bin_edges</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">ConditionalDistributionResult</span><span class="p">(</span>
+        <span class="n">vals</span><span class="o">=</span><span class="n">distribs</span><span class="p">,</span>
+        <span class="n">bins</span><span class="o">=</span><span class="n">Series</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">),</span>
+        <span class="n">categorical</span><span class="o">=</span><span class="n">as_categorical</span><span class="p">,</span>
+        <span class="n">binning</span><span class="o">=</span><span class="n">binning</span><span class="p">,</span>
+        <span class="n">common_bins</span><span class="o">=</span><span class="n">common_bins</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConditionalDistributionResult"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.conditional_distribution.ConditionalDistributionResult">[docs]</a><span class="k">class</span> <span class="nc">ConditionalDistributionResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Result of the conditional distribution computation for a single column of data.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    vals : Series</span>
+<span class="sd">        A Series listing the bin counts for each group, indexed by (&lt;true_label&gt;,</span>
+<span class="sd">        &lt;predicted_label&gt;, &lt;bin_label&gt;).</span>
+<span class="sd">    bins: Series</span>
+<span class="sd">        A Series listing the bin endpoints. If `common_bins` is `False`,</span>
+<span class="sd">        this should be indexed by (&lt;true_label&gt;, &lt;predicted_label&gt;) and list</span>
+<span class="sd">        the endpoints for each group. If the data was treated as numeric, this</span>
+<span class="sd">        will have length `len(vals)+1` (within each group), otherwise</span>
+<span class="sd">        `len(vals)`.</span>
+<span class="sd">    categorical : bool</span>
+<span class="sd">        Was the feature treated as categorical?</span>
+<span class="sd">    binning : str</span>
+<span class="sd">        The binning scheme used</span>
+<span class="sd">    common_bins : bool</span>
+<span class="sd">        Were common bins used across all groups?</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">categorical</span><span class="p">,</span> <span class="n">binning</span><span class="p">,</span> <span class="n">common_bins</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vals</span> <span class="o">=</span> <span class="n">vals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bins</span> <span class="o">=</span> <span class="n">bins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">categorical</span> <span class="o">=</span> <span class="n">categorical</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binning</span> <span class="o">=</span> <span class="n">binning</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">common_bins</span> <span class="o">=</span> <span class="n">common_bins</span>
+
+<div class="viewcode-block" id="ConditionalDistributionResult.display_result"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.conditional_distribution.ConditionalDistributionResult.display_result">[docs]</a>    <span class="k">def</span> <span class="nf">display_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlab</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the distributions for the given data column.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xlab : str</span>
+<span class="sd">            Label to display on the x-axis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+            <span class="n">counts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">MultiIndex</span><span class="p">):</span>
+                <span class="n">bins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">bins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bins</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">categorical</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
+                    <span class="n">bins</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;str&quot;</span><span class="p">),</span>
+                    <span class="n">counts</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">bins</span> <span class="o">=</span> <span class="n">bins</span><span class="o">.</span><span class="n">values</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="n">bins</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">counts</span><span class="p">),</span>
+                    <span class="n">weights</span><span class="o">=</span><span class="n">counts</span><span class="p">,</span>
+                    <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="n">bins</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">bins</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span>
+                <span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlab</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Frequency&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Group: </span><span class="si">{</span><span class="n">y_true</span><span class="si">}</span><span class="s2">_predicted_as_</span><span class="si">{</span><span class="n">y_pred</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ConditionalDistribution"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.conditional_distribution.ConditionalDistribution">[docs]</a><span class="k">class</span> <span class="nc">ConditionalDistribution</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computation of data distributions conditional on prediction results.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model :</span>
+<span class="sd">        The ClassificationModel to run the evaluation for.</span>
+<span class="sd">    test_dataset : presc.dataset.Dataset</span>
+<span class="sd">        A Dataset to use for evaluation.</span>
+<span class="sd">    settings : dict</span>
+<span class="sd">        An optional dict specifying option values under `evaluations.conditional_distribution`,</span>
+<span class="sd">        eg. `{&quot;computation.binning&quot;: 5}`, These are restricted to the class instance and do not change the global config.</span>
+<span class="sd">    config : presc.configuration.PrescConfig</span>
+<span class="sd">        An optional PrescConfig instance to read options from. This will be overridden by `settings` values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">source_config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">global_config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">PrescConfig</span><span class="p">(</span><span class="n">source_config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s2">&quot;evaluations&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;conditional_distribution&quot;</span><span class="p">:</span> <span class="n">settings</span><span class="p">}})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_test_dataset</span> <span class="o">=</span> <span class="n">test_dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_test_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict_labels</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;predicted&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ConditionalDistribution.compute_for_column"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.conditional_distribution.ConditionalDistribution.compute_for_column">[docs]</a>    <span class="k">def</span> <span class="nf">compute_for_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colname</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the evaluation for the given dataset column.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        colname : str</span>
+<span class="sd">            A column in the dataset to compute distributions for.</span>
+<span class="sd">        kwargs:</span>
+<span class="sd">            On-the-fly overrides to the config option values for the computation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ConditionalDistributionResult</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">comp_config</span> <span class="o">=</span> <span class="n">PrescConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">)</span>
+        <span class="n">comp_config</span> <span class="o">=</span> <span class="n">comp_config</span><span class="p">[</span><span class="s2">&quot;evaluations&quot;</span><span class="p">][</span><span class="s2">&quot;conditional_distribution&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;computation&quot;</span>
+        <span class="p">]</span>
+        <span class="n">col_overrides</span> <span class="o">=</span> <span class="n">comp_config</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">][</span><span class="n">colname</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">col_overrides</span> <span class="o">=</span> <span class="n">col_overrides</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">ConfigError</span><span class="p">:</span>
+            <span class="n">col_overrides</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">col_overrides</span><span class="p">:</span>
+            <span class="n">comp_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">col_overrides</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">comp_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">compute_conditional_distribution</span><span class="p">(</span>
+            <span class="n">data_col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">colname</span><span class="p">],</span>
+            <span class="n">true_labs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_dataset</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span>
+            <span class="n">pred_labs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_pred</span><span class="p">,</span>
+            <span class="n">as_categorical</span><span class="o">=</span><span class="n">comp_config</span><span class="p">[</span><span class="s2">&quot;as_categorical&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">bool</span><span class="p">),</span>
+            <span class="n">binning</span><span class="o">=</span><span class="n">comp_config</span><span class="p">[</span><span class="s2">&quot;binning&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+            <span class="n">common_bins</span><span class="o">=</span><span class="n">comp_config</span><span class="p">[</span><span class="s2">&quot;common_bins&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">bool</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConditionalDistribution.display"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.conditional_distribution.ConditionalDistribution.display">[docs]</a>    <span class="k">def</span> <span class="nf">display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colnames</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes and displays the conditional distribution result for each</span>
+<span class="sd">        specified column.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        colnames : list of str</span>
+<span class="sd">            A list of column names to run the evaluation over, creating a plot</span>
+<span class="sd">            for each. If not supplied, defaults to columns specifed in the config.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">colnames</span><span class="p">:</span>
+            <span class="n">incl</span> <span class="o">=</span> <span class="n">colnames</span>
+            <span class="n">excl</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">eval_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;evaluations&quot;</span><span class="p">][</span><span class="s2">&quot;conditional_distribution&quot;</span><span class="p">]</span>
+            <span class="n">incl</span> <span class="o">=</span> <span class="n">eval_config</span><span class="p">[</span><span class="s2">&quot;columns_include&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="n">excl</span> <span class="o">=</span> <span class="n">eval_config</span><span class="p">[</span><span class="s2">&quot;columns_exclude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">include_exclude_list</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_test_dataset</span><span class="o">.</span><span class="n">column_names</span><span class="p">,</span> <span class="n">included</span><span class="o">=</span><span class="n">incl</span><span class="p">,</span> <span class="n">excluded</span><span class="o">=</span><span class="n">excl</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="n">eval_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_for_column</span><span class="p">(</span><span class="n">colname</span><span class="p">)</span>
+            <span class="n">eval_result</span><span class="o">.</span><span class="n">display_result</span><span class="p">(</span><span class="n">xlab</span><span class="o">=</span><span class="n">colname</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Mozilla Foundation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

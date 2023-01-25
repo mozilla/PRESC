@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evaluations &mdash; PRESC 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Roadmap" href="roadmap.html" />
+    <link rel="prev" title="Configuration" href="configuration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html">
+            <img src="_static/classifier-bias-PRESC_v3_black_margin3.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Evaluations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#conditional-metrics">Conditional metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#api">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#conditional-feature-distributions">Conditional feature distributions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#spatial-distributions">Spatial distributions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#train-test-splits">Train-test splits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ml_copies.html">ML Classifier Copies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">presc</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Classification datasets</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PRESC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Evaluations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/evaluations.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="evaluations">
+<h1>Evaluations<a class="headerlink" href="#evaluations" title="Permalink to this headline"></a></h1>
+<p>Evaluations are the core functionality of the PRESC package.
+Each evaluation methodology applies to a trained classification model and one or
+more datasets, and produces a visual output.</p>
+<div class="section" id="conditional-metrics">
+<h2>Conditional metrics<a class="headerlink" href="#conditional-metrics" title="Permalink to this headline"></a></h2>
+<p>This computes standard performance scores within different partitions of a test
+dataset. For example, rather than reporting an overall accuracy score for a test
+dataset, the score can be computed as, say, a function over the different values
+of a feature. This can show evidence of bias if the performance score differs
+significantly between different areas of the feature space.</p>
+<div class="section" id="api">
+<h3>API<a class="headerlink" href="#api" title="Permalink to this headline"></a></h3>
+<p>The computation is maintained in <code class="docutils literal notranslate"><span class="pre">presc.evaluations.conditional_metric</span></code>, and the
+main entrypoint is <code class="docutils literal notranslate"><span class="pre">ConditionalMetric</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">presc.evaluations.conditional_metric</span> <span class="kn">import</span> <span class="n">ConditionalMetric</span>
+
+<span class="n">ecm</span> <span class="o">=</span> <span class="n">ConditionalMetric</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">)</span>
+<span class="c1"># Plot the results for all columns in the dataset.</span>
+<span class="n">ecm</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>For a given column in the test set, its values are binned as for a histogram,
+and a scikit-learn performance score (default: accuracy) is computed for the
+subset of the test dataset corresponding to each bin.</p>
+<p>By default, the computation is run for every column in the dataset, including
+all features and any other columns. For example, this can be used to create a
+calibration-style plot by including a column of predicted classification
+probabilities.</p>
+<p>Columns can be selected by passing a list of column names to <code class="docutils literal notranslate"><span class="pre">ecm.display()</span></code>.</p>
+<p>Computation for an individual column can be accessed using
+<code class="docutils literal notranslate"><span class="pre">ecm.compute_for_column()</span></code>. This returns a <code class="docutils literal notranslate"><span class="pre">ConditionalMetricResult</span></code> object
+which bundles the numerical results and option settings used, as well as
+exposing a <code class="docutils literal notranslate"><span class="pre">display_result()</span></code> method to produce the default plot.
+The underlying computation can be accessed from the <code class="docutils literal notranslate"><span class="pre">compute_conditional_metric</span></code>
+module function.</p>
+</div>
+<div class="section" id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline"></a></h3>
+<p>Settings for the conditional metric evaluation are as follows:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">evaluations</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">conditional_metric</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># Dataset columns to run the evaluation for.</span>
+<span class="w">    </span><span class="c1"># Follows the same logic as for report evaluations.</span>
+<span class="w">    </span><span class="c1"># &quot;*&quot; means &#39;all feature and other columns&#39;.</span>
+<span class="w">    </span><span class="c1"># Results will be ordered according to `columns_include`.</span>
+<span class="w">    </span><span class="nt">columns_include</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;*&quot;</span>
+<span class="w">    </span><span class="nt">columns_exclude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="c1"># Performance metrics to compute across the dataset subsets.</span>
+<span class="w">    </span><span class="c1"># Should be the name of a sklearn.metrics scoring function.</span>
+<span class="w">    </span><span class="nt">metrics</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">function</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">accuracy_score</span>
+<span class="w">        </span><span class="nt">display_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Accuracy</span>
+<span class="w">    </span><span class="nt">computation</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># Number of bins for partitioning a numeric column</span>
+<span class="w">      </span><span class="nt">num_bins</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">      </span><span class="c1"># Should bin widths correspond to quantiles of a numerical column&#39;s</span>
+<span class="w">      </span><span class="c1"># distribution (True) or be equally-spaced over its range (False)</span>
+<span class="w">      </span><span class="nt">quantile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">      </span><span class="c1"># Should the grouping column be treated as categorical, ie. binned on its</span>
+<span class="w">      </span><span class="c1"># unique values? Only applies if the column is numeric</span>
+<span class="w">      </span><span class="nt">as_categorical</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">      </span><span class="c1"># A dictionary of per-column overrides for the computation options.</span>
+<span class="w">      </span><span class="c1"># Entries should have a column name as their key and settings for the</span>
+<span class="w">      </span><span class="c1"># options above as their value.</span>
+<span class="w">      </span><span class="nt">columns</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+</pre></div>
+</div>
+<p>Per-column overrides can be specified in the <code class="docutils literal notranslate"><span class="pre">columns</span></code> entry, keyed by column
+name:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">computation</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">columns</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">col1</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">num_bins</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">    </span><span class="nt">col2</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">as_categorical</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+</pre></div>
+</div>
+<p>Overrides can be passed to the evaluation instance as a dict, with option names
+specified relative to the evaluation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ecm</span> <span class="o">=</span> <span class="n">ConditionalMetric</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;computation.num_bins&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="conditional-feature-distributions">
+<h2>Conditional feature distributions<a class="headerlink" href="#conditional-feature-distributions" title="Permalink to this headline"></a></h2>
+<p>This computes distributions of feature values for test datapoints belonging to
+each cell of the confusion matrix.</p>
+<div class="section" id="id1">
+<h3>API<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
+<p>The computation is maintained in <code class="docutils literal notranslate"><span class="pre">presc.evaluations.conditional_distribution</span></code>,
+and the main entrypoint is <code class="docutils literal notranslate"><span class="pre">ConditionalDistribution</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">presc.evaluations.conditional_distribution</span> <span class="kn">import</span> <span class="n">ConditionalDistribution</span>
+
+<span class="n">ecd</span> <span class="o">=</span> <span class="n">ConditionalDistribution</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">)</span>
+<span class="c1"># Plot the results for all columns in the dataset.</span>
+<span class="n">ecd</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>For a given column in the test set, it values are partitioned according to which
+cell of the confusion matrix each row belongs to (eg. correctly classified as
+class 1, class 1 misclassified as class 2, etc), and a distributional
+representation is created for each cell.</p>
+<p>By default, the computation is run for every column in the dataset, including
+all features and any other columns.</p>
+<p>Columns can be selected by passing a list of column names to <code class="docutils literal notranslate"><span class="pre">ecd.display()</span></code>.</p>
+<p>Computation for an individual column can be accessed using
+<code class="docutils literal notranslate"><span class="pre">ecd.compute_for_column()</span></code>. This returns a <code class="docutils literal notranslate"><span class="pre">ConditionalDistributionResult</span></code>
+object which bundles the numerical results and option settings used, as well as
+exposing a <code class="docutils literal notranslate"><span class="pre">display_result()</span></code> method to produce the default plot. The underlying
+computation can be accessed from the <code class="docutils literal notranslate"><span class="pre">compute_conditional_distribution</span></code> module
+function.</p>
+</div>
+<div class="section" id="id2">
+<h3>Configuration<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h3>
+<p>Settings for the conditional distribution evaluation are as follows:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">evaluations</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">conditional_distribution</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># Dataset columns to run the evaluation for.</span>
+<span class="w">    </span><span class="c1"># Follows the same logic as for report evaluations.</span>
+<span class="w">    </span><span class="c1"># &quot;*&quot; means &#39;all feature and other columns&#39;.</span>
+<span class="w">    </span><span class="nt">columns_include</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;*&quot;</span>
+<span class="w">    </span><span class="nt">columns_exclude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">computation</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># Binning scheme to use for a numerical column, passed to `numpy.histogram`.</span>
+<span class="w">      </span><span class="c1"># Can be a fixed number of bins or a string indicating a binning scheme</span>
+<span class="w">      </span><span class="nt">binning</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fd</span>
+<span class="w">      </span><span class="c1"># Should the bins be computed over the entire column and shared across</span>
+<span class="w">      </span><span class="c1"># groups (True) or computed within each group (False)</span>
+<span class="w">      </span><span class="nt">common_bins</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">      </span><span class="c1"># Should the data column be treated as categorical, ie. binned on its</span>
+<span class="w">      </span><span class="c1"># unique values? Only applies if the column is numeric</span>
+<span class="w">      </span><span class="nt">as_categorical</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">      </span><span class="c1"># A dictionary of per-column overrides for the computation options.</span>
+<span class="w">      </span><span class="c1"># Entries should have a column name as their key and settings for the</span>
+<span class="w">      </span><span class="c1"># options above as their value.</span>
+<span class="w">      </span><span class="nt">columns</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+</pre></div>
+</div>
+<p>Per-column overrides can be specified in the <code class="docutils literal notranslate"><span class="pre">columns</span></code> entry, keyed by column
+name:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">computation</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">columns</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">col1</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">binning</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">    </span><span class="nt">col2</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">as_categorical</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+</pre></div>
+</div>
+<p>Overrides can be passed to the evaluation instance as a dict, with option names
+specified relative to the evaluation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ecd</span> <span class="o">=</span> <span class="n">ConditionalDistribution</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;computation.binning&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="spatial-distributions">
+<h2>Spatial distributions<a class="headerlink" href="#spatial-distributions" title="Permalink to this headline"></a></h2>
+<p>This provides a view into the distribution of misclassified test datapoints in
+feature space. For each test datapoint, it computes pairwise distances with
+every training point, and an summary statistic (default: mean) of these
+distances is shown, faceted according to the classes of the test points and
+training points, and whether the test point was misclassified.</p>
+<p>This helps to investigate whether misclassified points tend to be in different
+areas of the feature space from correctly classified points, depending on their
+class.</p>
+<div class="section" id="id3">
+<h3>API<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h3>
+<p>The computation is maintained in <code class="docutils literal notranslate"><span class="pre">presc.evaluations.spatial_distribution</span></code>, and
+the main entrypoint is <code class="docutils literal notranslate"><span class="pre">SpatialDistribution</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">presc.evaluations.spatial_distribution</span> <span class="kn">import</span> <span class="n">SpatialDistribution</span>
+
+<span class="n">esd</span> <span class="o">=</span> <span class="n">SpatialDistribution</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">)</span>
+<span class="c1"># Plot the results</span>
+<span class="n">ecm</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Computation can be accessed using <code class="docutils literal notranslate"><span class="pre">esd.compute()</span></code>. This returns a
+<code class="docutils literal notranslate"><span class="pre">SpatialDistributionResult</span></code> object which bundles the numerical results and
+option settings used, as well as exposing a <code class="docutils literal notranslate"><span class="pre">display_result()</span></code> method to produce
+the default plot. The underlying computation can be accessed from the
+<code class="docutils literal notranslate"><span class="pre">compute_spatial_distribution</span></code> module function.</p>
+</div>
+<div class="section" id="id4">
+<h3>Configuration<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h3>
+<p>Settings for the spatial distribution evaluation are as follows:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">evaluations</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">spatial_distribution</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># Dataset columns to run the evaluation for.</span>
+<span class="w">    </span><span class="c1"># Follows the same logic as for report evaluations.</span>
+<span class="w">    </span><span class="c1"># &quot;*&quot; means &#39;all feature columns&#39;.</span>
+<span class="w">    </span><span class="nt">features_include</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;*&quot;</span>
+<span class="w">    </span><span class="nt">features_exclude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="c1"># The default pairwise distance metric to use for numerical features.</span>
+<span class="w">    </span><span class="nt">distance_metric_numerical</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;euclidean&quot;</span>
+<span class="w">    </span><span class="c1"># The default pairwise distance metric to use for categorical features.</span>
+<span class="w">    </span><span class="nt">distance_metric_categorical</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hamming&quot;</span>
+<span class="w">    </span><span class="c1"># The aggregation function to use to summarize distances within each</span>
+<span class="w">    </span><span class="c1"># class.</span>
+<span class="w">    </span><span class="nt">summary_agg</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;mean&quot;</span>
+<span class="w">    </span><span class="c1"># A dictionary of per-column overrides.</span>
+<span class="w">    </span><span class="c1"># Entries should have a column name as their key and settings for the</span>
+<span class="w">    </span><span class="c1"># options above as their value.</span>
+<span class="w">    </span><span class="nt">columns</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+</pre></div>
+</div>
+<p>Distance metrics should be the name of a metric accepted by
+<code class="docutils literal notranslate"><span class="pre">sklearn.metrics.pairwise_distances()</span></code>.
+The aggregation summary function should be the name of a Pandas <code class="docutils literal notranslate"><span class="pre">agg</span></code> function.
+Currently, only Hamming distance (ie. 0-1 dissimilarity) is accepted for
+categorical features.</p>
+<p>Per-column overrides can be specified in the <code class="docutils literal notranslate"><span class="pre">columns</span></code> entry, keyed by column
+name:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">columns</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">col1</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">distance_metric_numerical</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;l1&quot;</span>
+</pre></div>
+</div>
+<p>Overrides can be passed to the evaluation instance as a dict, with option names
+specified relative to the evaluation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">esd</span> <span class="o">=</span> <span class="n">SpatialDistribution</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span>
+<span class="n">settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;summary_agg&quot;</span><span class="p">:</span> <span class="s2">&quot;median&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="train-test-splits">
+<h2>Train-test splits<a class="headerlink" href="#train-test-splits" title="Permalink to this headline"></a></h2>
+<p>This offers a view into the degree to which the classifier performance is
+affected by the choice of train-test split proportion.
+This is accomplished by simulating different splits and computing a performance
+score as a function of split proportion.</p>
+<p>It should be emphasized that the goal is not to select the proportion which
+maximizes the performance score, but rather to check how much the results would
+have been impacted if a different split were used.</p>
+<div class="section" id="id5">
+<h3>API<a class="headerlink" href="#id5" title="Permalink to this headline"></a></h3>
+<p>The computation is maintained in <code class="docutils literal notranslate"><span class="pre">presc.evaluations.train_test_splits</span></code>, and
+the main entrypoint is <code class="docutils literal notranslate"><span class="pre">TrainTestSplits</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">presc.evaluations.train_test_splits</span> <span class="kn">import</span> <span class="n">TrainTestSplits</span>
+
+<span class="n">etts</span> <span class="o">=</span> <span class="n">TrainTestSplits</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">)</span>
+<span class="c1"># Plot the results</span>
+<span class="n">ecm</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The given training set is split into train and test parts using a split
+proportion varying at regular intervals. The model is retrained on the training
+part and scored on the test part, with this result replicated multiple times
+(similar to repeated cross-validation). A summary of these score distributions
+is then presented visually.</p>
+<p>Computation can be accessed using <code class="docutils literal notranslate"><span class="pre">esd.compute()</span></code>. This returns a
+<code class="docutils literal notranslate"><span class="pre">TrainTestSplitsResult</span></code> object which bundles the numerical results and
+option settings used, as well as exposing a <code class="docutils literal notranslate"><span class="pre">display_result()</span></code> method to produce
+the default plot. The underlying computation can be accessed from the
+<code class="docutils literal notranslate"><span class="pre">compute_train_test_splits()</span></code> module function.</p>
+</div>
+<div class="section" id="id6">
+<h3>Configuration<a class="headerlink" href="#id6" title="Permalink to this headline"></a></h3>
+<p>Settings for the train-test splits evaluation are as follows:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">evaluations</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">train_test_splits</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># Scoring function used to evaluate test performance.</span>
+<span class="w">    </span><span class="c1"># Should be a string recognized by `sklearn.model_selection.cross_val_score`</span>
+<span class="w">    </span><span class="nt">metrics</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">function</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">accuracy</span>
+<span class="w">        </span><span class="nt">display_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Accuracy</span>
+<span class="w">    </span><span class="nt">computation</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># Increment between train-test split ratios</span>
+<span class="w">      </span><span class="nt">split_size_increment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.05</span>
+<span class="w">      </span><span class="c1"># Number of random replicates to run for each split</span>
+<span class="w">      </span><span class="nt">num_replicates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+<span class="w">      </span><span class="c1"># Set the random state for reproducibility</span>
+<span class="w">      </span><span class="nt">random_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">543</span>
+</pre></div>
+</div>
+<p>Scoring metrics should be the name of a metric defined in <code class="docutils literal notranslate"><span class="pre">sklearn.metrics</span></code>.</p>
+<p>Overrides can be passed to the evaluation instance as a dict, with option names
+specified relative to the evaluation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">etts</span> <span class="o">=</span> <span class="n">TrainTestSplits</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;num_replicates&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="configuration.html" class="btn btn-neutral float-left" title="Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="roadmap.html" class="btn btn-neutral float-right" title="Roadmap" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Mozilla Foundation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

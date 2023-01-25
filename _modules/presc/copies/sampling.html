@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>presc.copies.sampling &mdash; PRESC 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html">
+            <img src="../../../_static/classifier-bias-PRESC_v3_black_margin3.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../evaluations.html">Evaluations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ml_copies.html">ML Classifier Copies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">presc</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">Classification datasets</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">PRESC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>presc.copies.sampling</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for presc.copies.sampling</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">presc.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">presc.evaluations.utils</span> <span class="kn">import</span> <span class="n">is_discrete</span>
+
+
+<div class="viewcode-block" id="dynamical_range"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.sampling.dynamical_range">[docs]</a><span class="k">def</span> <span class="nf">dynamical_range</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the dynamic range, mean, and sigma of the dataset features.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas DataFrame</span>
+<span class="sd">        The dataset with all the numerical features to analyze.</span>
+<span class="sd">    verbose : bool</span>
+<span class="sd">        If set to True the feature parameters are printed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict of dicts</span>
+<span class="sd">        A dictionary with an entry per dataset feature (dictionary keys are the</span>
+<span class="sd">        column names), where each feature entry contains a nested dictionary</span>
+<span class="sd">        with the values of the minimum and maximum values of the dynamic range</span>
+<span class="sd">        of the dataset, as well as the mean and sigma of the distribution</span>
+<span class="sd">        (nested dictionary keys are &quot;min&quot;, &quot;max&quot;, &quot;mean&quot; and &quot;sigma&quot;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">range_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+        <span class="n">range_dict</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+            <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+            <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+            <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  min: </span><span class="si">{</span><span class="n">range_dict</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s1">&#39;min&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  max: </span><span class="si">{</span><span class="n">range_dict</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s1">&#39;max&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">    (interval: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">range_dict</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s1">&#39;max&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">range_dict</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s1">&#39;min&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  mean: </span><span class="si">{</span><span class="n">range_dict</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s1">&#39;mean&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  sigma: </span><span class="si">{</span><span class="n">range_dict</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s1">&#39;sigma&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">range_dict</span></div>
+
+
+<div class="viewcode-block" id="reduce_feature_space"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.sampling.reduce_feature_space">[docs]</a><span class="k">def</span> <span class="nf">reduce_feature_space</span><span class="p">(</span><span class="n">feature_parameters</span><span class="p">,</span> <span class="n">sigmas</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Force feature minimum/maximum values to x times the standard deviation.</span>
+
+<span class="sd">    This function will adjust the minimum and maximum values of each feature to</span>
+<span class="sd">    the range determined by taking the feature&#39;s mean value and substracting and</span>
+<span class="sd">    adding to it the specified number of standard deviations. But only for the</span>
+<span class="sd">    features that have the mean and standard deviation specified.</span>
+
+<span class="sd">    Normally this will reduce the feature space by leaving out the range of most</span>
+<span class="sd">    extreme values and will facilitate that any sampling based on the feature</span>
+<span class="sd">    minimum and maximum values becomes more efficient. This is a more notorious</span>
+<span class="sd">    problem when the dictionary describing the features has ben extracted</span>
+<span class="sd">    automatically from an original dataset which contains outliers.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    feature_parameters: dict of dicts</span>
+<span class="sd">        A dictionary with an entry per dataset feature (dictionary keys are the</span>
+<span class="sd">        column names), where each feature entry contains a nested dictionary</span>
+<span class="sd">        with the values of the minimum and maximum values of the dynamic range</span>
+<span class="sd">        of the dataset, as well as the mean and sigma of the distribution</span>
+<span class="sd">        (nested dictionary keys are &quot;min&quot;, &quot;max&quot;, &quot;mean&quot; and &quot;sigma&quot;).</span>
+<span class="sd">    sigmas : float</span>
+<span class="sd">        The factor by which the standard deviation will be multiplied in order</span>
+<span class="sd">        to define the symmetric interval around the mean.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict of dicts</span>
+<span class="sd">        A dictionary with an entry per dataset feature (dictionary keys are the</span>
+<span class="sd">        column names), where each feature entry contains a nested dictionary</span>
+<span class="sd">        with the values of the minimum and maximum values of the dynamic range</span>
+<span class="sd">        of the dataset, as well as the mean and sigma of the distribution</span>
+<span class="sd">        (nested dictionary keys are &quot;min&quot;, &quot;max&quot;, &quot;mean&quot; and &quot;sigma&quot;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">modified_feature_space</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">feature_parameters</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">feature_parameters</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">feature_parameters</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="ow">and</span> <span class="n">feature_parameters</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span>
+            <span class="ow">and</span> <span class="n">feature_parameters</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s2">&quot;sigma&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="n">modified_feature_space</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s2">&quot;min&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">feature_parameters</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span>
+                <span class="o">-</span> <span class="n">sigmas</span> <span class="o">*</span> <span class="n">feature_parameters</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s2">&quot;sigma&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">modified_feature_space</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s2">&quot;max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">feature_parameters</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">sigmas</span> <span class="o">*</span> <span class="n">feature_parameters</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s2">&quot;sigma&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">modified_feature_space</span></div>
+
+
+<div class="viewcode-block" id="find_categories"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.sampling.find_categories">[docs]</a><span class="k">def</span> <span class="nf">find_categories</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">add_nans</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the categories of the dataset features.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas DataFrame</span>
+<span class="sd">        The dataset with all the categorical features to analyze.</span>
+<span class="sd">    add_nans : bool</span>
+<span class="sd">        If True the sampler adds a &quot;NaNs&quot; category for the features that have</span>
+<span class="sd">        any null values and assigns it the appropriate fraction.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict of dicts</span>
+<span class="sd">        A dictionary with an entry per dataset feature (dictionary keys are the</span>
+<span class="sd">        column names), where each feature entry contains a nested dictionary</span>
+<span class="sd">        with its categories and the fraction of each category present in the</span>
+<span class="sd">        analyzed dataset (the nested dictionary key for this information is</span>
+<span class="sd">        &quot;categories&quot;, which is also a dictionary with one entry per category).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">categories_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_discrete</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">feature</span><span class="p">]):</span>
+            <span class="c1"># Remove NaN values from selection</span>
+            <span class="n">df_no_nans</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()]</span>
+
+            <span class="c1"># Log fraction of NaN values if required</span>
+            <span class="k">if</span> <span class="n">add_nans</span><span class="p">:</span>
+                <span class="n">nan_fraction</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+                <span class="n">total_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">nan_fraction</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">total_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_no_nans</span><span class="p">)</span>
+
+            <span class="n">categories_dict</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="n">key</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">df_no_nans</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">categories_dict</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s2">&quot;categories&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">categories_dict</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s2">&quot;categories&quot;</span><span class="p">][</span><span class="n">category</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">df_no_nans</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()[</span><span class="n">category</span><span class="p">]</span> <span class="o">/</span> <span class="n">total_length</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">add_nans</span> <span class="ow">and</span> <span class="n">nan_fraction</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">categories_dict</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s2">&quot;categories&quot;</span><span class="p">][</span><span class="s2">&quot;NaNs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nan_fraction</span>
+
+    <span class="k">return</span> <span class="n">categories_dict</span></div>
+
+
+<div class="viewcode-block" id="build_equal_category_dict"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.sampling.build_equal_category_dict">[docs]</a><span class="k">def</span> <span class="nf">build_equal_category_dict</span><span class="p">(</span><span class="n">feature_categories</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assigns equal probability to all categories of each feature.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    feature_categories : dict of lists</span>
+<span class="sd">        A dictionary with an entry per feature, with the list of categories</span>
+<span class="sd">        that each feature has.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict of dicts</span>
+<span class="sd">        A dictionary with an entry per dataset feature (dictionary keys are the</span>
+<span class="sd">        column names), where each feature entry contains a nested dictionary</span>
+<span class="sd">        with its categories and the identical fraction for all categories from</span>
+<span class="sd">        the same feature (the nested dictionary key for this information is</span>
+<span class="sd">        &quot;categories&quot;, which is also a dictionary with one entry per category).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">categories_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">feature</span><span class="p">,</span> <span class="n">categories</span> <span class="ow">in</span> <span class="n">feature_categories</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">categories_dict</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">categories</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">}</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="n">categories_dict</span></div>
+
+
+<div class="viewcode-block" id="mixed_data_features"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.sampling.mixed_data_features">[docs]</a><span class="k">def</span> <span class="nf">mixed_data_features</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">add_nans</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts the numerical/categorical feature parameters from a dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas DataFrame</span>
+<span class="sd">        The dataset with all the features to analyze (both numerical and</span>
+<span class="sd">        categorical).</span>
+<span class="sd">    add_nans : bool</span>
+<span class="sd">        If True the sampler adds a &quot;NaNs&quot; category for the categorical features</span>
+<span class="sd">        that have any null values and assigns it the appropriate fraction.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict of dicts</span>
+<span class="sd">        A dictionary with an entry per dataset feature (dictionary keys are the</span>
+<span class="sd">        column names), where each numerical feature entry contains a nested</span>
+<span class="sd">        dictionary with the values of the minimum and maximum values of the</span>
+<span class="sd">        dynamic range of the dataset, as well as the mean and sigma of the</span>
+<span class="sd">        distribution, and each categorical feature entry contains a nested</span>
+<span class="sd">        dictionary with its categories and the fraction of each category present</span>
+<span class="sd">        in the analyzed dataset (nested dictionary keys are &quot;min&quot;, &quot;max&quot;,</span>
+<span class="sd">        &quot;mean&quot;, &quot;sigma&quot;, and &quot;categories&quot;, which is also a dictionary with one</span>
+<span class="sd">        entry per category).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">features_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+        <span class="n">df_feature</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="n">feature</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">is_discrete</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">feature</span><span class="p">]):</span>
+            <span class="n">single_feature_parameters</span> <span class="o">=</span> <span class="n">find_categories</span><span class="p">(</span><span class="n">df_feature</span><span class="p">,</span> <span class="n">add_nans</span><span class="o">=</span><span class="n">add_nans</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">single_feature_parameters</span> <span class="o">=</span> <span class="n">dynamical_range</span><span class="p">(</span><span class="n">df_feature</span><span class="p">)</span>
+        <span class="n">features_dict</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">=</span> <span class="n">single_feature_parameters</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">features_dict</span></div>
+
+
+<div class="viewcode-block" id="grid_sampling"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.sampling.grid_sampling">[docs]</a><span class="k">def</span> <span class="nf">grid_sampling</span><span class="p">(</span><span class="n">feature_parameters</span><span class="p">,</span> <span class="n">nsamples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample the classifier with a grid-like sampling.</span>
+
+<span class="sd">    Generates synthetic samples with a regular grid-like distribution within the</span>
+<span class="sd">    feature space described in `feature_parameters`. Computes the grid spacing</span>
+<span class="sd">    so that all features have the same number of different values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    feature_parameters : dict of dicts</span>
+<span class="sd">        A dictionary with an entry per dataset feature (dictionary keys should</span>
+<span class="sd">        be the feature names), and where each feature entry must contain a</span>
+<span class="sd">        nested dictionary with at least the entries corresponding to the minimum</span>
+<span class="sd">        and maximum values of the dynamic range. Dictionary keys for these</span>
+<span class="sd">        values should be &quot;min&quot; and &quot;max&quot;, respectively.</span>
+<span class="sd">    nsamples : int</span>
+<span class="sd">        Maximum number of samples to generate. The exact number will depend on</span>
+<span class="sd">        the parameter space.</span>
+<span class="sd">    random_state : int</span>
+<span class="sd">        Parameter not used in `grid_sampling`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas DataFrame</span>
+<span class="sd">        Dataset with a regular grid-like generated sampling of the feature space</span>
+<span class="sd">        characterized by the `feature_parameters`.&quot;&quot;&quot;</span>
+    <span class="c1"># Compute number of points per feature (assuming same number of points)</span>
+    <span class="n">nfeatures</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_parameters</span><span class="p">)</span>
+    <span class="n">npoints</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nsamples</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">nfeatures</span><span class="p">))</span>
+
+    <span class="c1"># Generate grid</span>
+
+    <span class="n">feature_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">feature_names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">feature_parameters</span><span class="p">:</span>
+        <span class="n">feature_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+                <span class="n">feature_parameters</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;min&quot;</span><span class="p">],</span> <span class="n">feature_parameters</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;max&quot;</span><span class="p">],</span> <span class="n">npoints</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="n">X_generated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="n">feature_list</span><span class="p">)):</span>
+        <span class="n">X_generated</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">X_generated</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">feature_names</span>
+
+    <span class="k">return</span> <span class="n">X_generated</span></div>
+
+
+<div class="viewcode-block" id="uniform_sampling"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.sampling.uniform_sampling">[docs]</a><span class="k">def</span> <span class="nf">uniform_sampling</span><span class="p">(</span><span class="n">feature_parameters</span><span class="p">,</span> <span class="n">nsamples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample the classifier with a random uniform sampling.</span>
+
+<span class="sd">    Generates synthetic samples with a random uniform distribution within the</span>
+<span class="sd">    feature space described in `feature_parameters`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    feature_parameters : dict of dicts</span>
+<span class="sd">        A dictionary with an entry per dataset feature (dictionary keys should</span>
+<span class="sd">        be the feature names), and where each feature entry must contain a</span>
+<span class="sd">        nested dictionary with at least the entries corresponding to the minimum</span>
+<span class="sd">        and maximum values of the dynamic range. Dictionary keys for these</span>
+<span class="sd">        values should be &quot;min&quot; and &quot;max&quot;, respectively.</span>
+<span class="sd">    nsamples : int</span>
+<span class="sd">        Number of samples to generate.</span>
+<span class="sd">    random_state : int</span>
+<span class="sd">        Random seed used to generate the sampling data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas DataFrame</span>
+<span class="sd">        Dataset with a random uniform generated sampling of the feature space</span>
+<span class="sd">        characterized by the `feature_parameters`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">random_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+
+    <span class="c1"># Generate random uniform data</span>
+    <span class="n">X_generated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">feature_parameters</span><span class="p">:</span>
+        <span class="n">X_generated</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+            <span class="n">feature_parameters</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;min&quot;</span><span class="p">],</span>
+            <span class="n">feature_parameters</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;max&quot;</span><span class="p">],</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">nsamples</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">X_generated</span></div>
+
+
+<div class="viewcode-block" id="normal_sampling"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.sampling.normal_sampling">[docs]</a><span class="k">def</span> <span class="nf">normal_sampling</span><span class="p">(</span>
+    <span class="n">feature_parameters</span><span class="p">,</span>
+    <span class="n">nsamples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample the classifier with a normal distribution sampling.</span>
+
+<span class="sd">    Generates synthetic samples with a normal distribution according to the</span>
+<span class="sd">    feature space described by `feature_parameters`. Features are assumed to be</span>
+<span class="sd">    independent (not correlated).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    feature_parameters : dict of dicts</span>
+<span class="sd">        A dictionary with an entry per dataset feature (dictionary keys should</span>
+<span class="sd">        be the feature names), and where each feature entry must contain a</span>
+<span class="sd">        nested dictionary with at least the entries corresponding to the mean</span>
+<span class="sd">        and standard deviation values of the dataset. Dictionary keys for these</span>
+<span class="sd">        values should be &quot;mean&quot; and &quot;sigma&quot;, respectively.</span>
+<span class="sd">    nsamples : int</span>
+<span class="sd">        Number of samples to generate.</span>
+<span class="sd">    random_state : int</span>
+<span class="sd">        Random seed used to generate the sampling data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas DataFrame</span>
+<span class="sd">        Dataset with a generated sampling following a normal distribution of</span>
+<span class="sd">        the feature space characterized by the `feature_parameters`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">random_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+
+    <span class="c1"># Compute number of features</span>
+    <span class="n">nfeatures</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_parameters</span><span class="p">)</span>
+
+    <span class="c1"># Rename columns</span>
+    <span class="n">feature_names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">mus</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">sigmas</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">feature_parameters</span><span class="p">:</span>
+        <span class="n">feature_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">mus</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature_parameters</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;mean&quot;</span><span class="p">])</span>
+        <span class="n">sigmas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature_parameters</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;sigma&quot;</span><span class="p">])</span>
+
+    <span class="n">mus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mus</span><span class="p">)</span>
+    <span class="n">covariate_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">nfeatures</span><span class="p">,</span> <span class="n">nfeatures</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sigmas</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+
+    <span class="c1"># Generate normal distribution data</span>
+    <span class="n">X_generated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span><span class="n">mus</span><span class="p">,</span> <span class="n">covariate_matrix</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">nsamples</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Rename columns</span>
+    <span class="n">X_generated</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">feature_names</span>
+
+    <span class="k">return</span> <span class="n">X_generated</span></div>
+
+
+<div class="viewcode-block" id="spherical_balancer_sampling"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.sampling.spherical_balancer_sampling">[docs]</a><span class="k">def</span> <span class="nf">spherical_balancer_sampling</span><span class="p">(</span>
+    <span class="n">nsamples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="n">nfeatures</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">original_classifier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">nbatch</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+    <span class="n">radius_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">radius_max</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">label_col</span><span class="o">=</span><span class="s2">&quot;class&quot;</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample the classifier with a balancer spherical distribution sampling.</span>
+
+<span class="sd">    Generates synthetic samples with a spherical (shell) distribution between a</span>
+<span class="sd">    minimum and a maximum radius values and then labels them using the original</span>
+<span class="sd">    classifier. This function will attempt to obtain a balanced dataset by</span>
+<span class="sd">    generating the same number of samples for all classes (`nsamplesxclass`),</span>
+<span class="sd">    unless it reaches the maximum number of iterations. When used within the</span>
+<span class="sd">    ClassifierCopy class, the `balancing_sampler` must be set to True.</span>
+
+<span class="sd">    This sampler works better when features have standardized values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    nsamples : int</span>
+<span class="sd">        Number of samples to generate.</span>
+<span class="sd">    nfeatures : int</span>
+<span class="sd">        Number of features of the generated samples.</span>
+<span class="sd">    original_classifier : sklearn-type classifier</span>
+<span class="sd">        Original ML classifier used to generate the synthetic data.</span>
+<span class="sd">    max_iter : int</span>
+<span class="sd">        The maximum number of iterations generating batches to attempt to obtain</span>
+<span class="sd">        the samples per class specified in `nsamplesxclass`.</span>
+<span class="sd">    nbatch: int</span>
+<span class="sd">        Number of tentative samples to generate in each batch.</span>
+<span class="sd">    radius_min : float</span>
+<span class="sd">        Minimum radius of the spherical shell distribution. It will be a</span>
+<span class="sd">        spherical distribution if this value is set to zero.</span>
+<span class="sd">    radius_max : float</span>
+<span class="sd">        Maximum radius of the spherical (shell) distribution.</span>
+<span class="sd">    label_col : str</span>
+<span class="sd">        Name of the label column.</span>
+<span class="sd">    random_state : int</span>
+<span class="sd">        Random seed used to generate the sampling data.</span>
+<span class="sd">    verbose : bool</span>
+<span class="sd">        If True the sampler prints information about each batch.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas DataFrame</span>
+<span class="sd">        Dataset with a generated sampling following a spherical distribution of</span>
+<span class="sd">        the feature space, with features and labels.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">random_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+
+    <span class="n">nsamplesxclass</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nsamples</span> <span class="o">/</span> <span class="n">nfeatures</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Generating samples between =&gt; min: </span><span class="si">{</span><span class="n">radius_min</span><span class="si">}</span><span class="s2"> and max: </span><span class="si">{</span><span class="n">radius_max</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">df_generated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating batch&quot;</span><span class="p">,</span> <span class="n">iteration</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Generate `nbatch` normalised vectors in random directions</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nfeatures</span><span class="p">,)),</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">nfeatures</span><span class="p">,</span> <span class="n">nfeatures</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">nbatch</span>
+        <span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">v</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+        <span class="c1"># Scale the vectors between `radius_min` and `radius_max`</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="n">radius_min</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">radius_max</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">nbatch</span><span class="p">)</span>
+        <span class="n">df_batch</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">alpha</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">nfeatures</span><span class="p">)))</span> <span class="o">*</span> <span class="n">v</span>
+        <span class="p">)</span>
+        <span class="c1"># Label synthetic data with original classifier</span>
+        <span class="n">df_batch</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">original_classifier</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">df_batch</span><span class="p">)</span>
+
+        <span class="c1"># Temporarily, add samples from the new batch to the old dataframe</span>
+        <span class="n">df_temp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_generated</span><span class="p">,</span> <span class="n">df_batch</span><span class="p">])</span>
+
+        <span class="c1"># Keep a maximum of `nclass_samples` samples from each class</span>
+        <span class="n">detected_classes</span> <span class="o">=</span> <span class="n">df_temp</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+        <span class="n">df_generated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="n">detected_classes</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">():</span>
+            <span class="n">df_generated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">df_generated</span><span class="p">,</span>
+                    <span class="n">df_temp</span><span class="p">[</span><span class="n">df_temp</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span> <span class="o">==</span> <span class="n">class_name</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">nsamplesxclass</span><span class="p">],</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="c1"># If there are no incomplete classes finish iteration, otherwise show classes</span>
+        <span class="n">incomplete_classes</span> <span class="o">=</span> <span class="n">detected_classes</span><span class="p">[</span>
+            <span class="n">detected_classes</span> <span class="o">&lt;</span> <span class="n">nsamplesxclass</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">incomplete_classes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">df_generated</span>
+        <span class="k">elif</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Classes:&quot;</span><span class="p">,</span> <span class="n">incomplete_classes</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Samples:&quot;</span><span class="p">,</span> <span class="n">incomplete_classes</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">df_generated</span></div>
+
+
+<div class="viewcode-block" id="categorical_sampling"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.sampling.categorical_sampling">[docs]</a><span class="k">def</span> <span class="nf">categorical_sampling</span><span class="p">(</span><span class="n">feature_parameters</span><span class="p">,</span> <span class="n">nsamples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample the classifier with a discrete distribution sampling.</span>
+
+<span class="sd">    Generates synthetic samples with a discrete distribution according to the</span>
+<span class="sd">    probabilities described by `feature_parameters`. Features are assumed to be</span>
+<span class="sd">    independent (not correlated).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    feature_parameters : dict of dicts</span>
+<span class="sd">        A dictionary with an entry per dataset feature (dictionary keys should</span>
+<span class="sd">        be the feature names), where each feature entry must contain a</span>
+<span class="sd">        nested dictionary with its categories and their fraction. The key for</span>
+<span class="sd">        the nested dictionary of categories should be &quot;categories&quot;, and the keys</span>
+<span class="sd">        for the fractions should be the category name.</span>
+<span class="sd">    nsamples : int</span>
+<span class="sd">        Number of samples to generate.</span>
+<span class="sd">    random_state : int</span>
+<span class="sd">        Random seed used to generate the sampling data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas DataFrame</span>
+<span class="sd">        Dataset with a generated sampling following the discrete distribution of</span>
+<span class="sd">        the feature space characterized by the `feature_parameters`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">random_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+
+    <span class="c1"># Generate random data with the specified probabilities</span>
+    <span class="n">X_generated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">feature_parameters</span><span class="p">:</span>
+        <span class="n">categories</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">feature_parameters</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s2">&quot;categories&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">category_probabilities</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">feature_parameters</span><span class="p">[</span><span class="n">feature</span><span class="p">][</span><span class="s2">&quot;categories&quot;</span><span class="p">][</span><span class="n">category</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">categories</span>
+        <span class="p">]</span>
+        <span class="n">X_generated</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">categories</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">category_probabilities</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">nsamples</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">X_generated</span></div>
+
+
+<div class="viewcode-block" id="mixed_data_sampling"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.sampling.mixed_data_sampling">[docs]</a><span class="k">def</span> <span class="nf">mixed_data_sampling</span><span class="p">(</span>
+    <span class="n">feature_parameters</span><span class="p">,</span>
+    <span class="n">numerical_sampling</span><span class="p">,</span>
+    <span class="n">nsamples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">remaining_parameters</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample the classifier with a mix of a numerical and categorical sampler.</span>
+
+<span class="sd">    Generates synthetic samples with the specified distribution for the</span>
+<span class="sd">    numerical features and with a discrete distribution for the categorical</span>
+<span class="sd">    features. The parameters describing the feature space needed to compute the</span>
+<span class="sd">    distributions are described in the `feature_parameters` dictionary. Features</span>
+<span class="sd">    are assumed to be independent (not correlated).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    feature_parameters : dict of dicts</span>
+<span class="sd">        A dictionary with an entry per dataset feature (dictionary keys should</span>
+<span class="sd">        be the feature names), where each feature entry must contain a</span>
+<span class="sd">        nested dictionary with its categories and their probability. The key for</span>
+<span class="sd">        the nested dictionary of categories should be &quot;categories&quot;, and the keys</span>
+<span class="sd">        for the probabilities should be the category name.</span>
+<span class="sd">    numerical_sampling : function</span>
+<span class="sd">        Any of the non balancing numerical sampling functions defined in PRESC:</span>
+<span class="sd">        `grid_sampling`, `uniform_sampling`, `normal_sampling`...</span>
+<span class="sd">    nsamples : int</span>
+<span class="sd">        Number of samples to generate.</span>
+<span class="sd">    random_state : int</span>
+<span class="sd">        Random seed used to generate the sampling data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas DataFrame</span>
+<span class="sd">        Dataset with a generated sampling following the specified numerical</span>
+<span class="sd">        sampling distribution for the numerical features and the discrete</span>
+<span class="sd">        distribution for the categorical features, following the feature space</span>
+<span class="sd">        characterized by the `feature_parameters`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">random_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+
+    <span class="c1"># Generate the lists of numerical and categorical data</span>
+    <span class="n">features_numerical</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">features_categorical</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">feature_parameters</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;categories&quot;</span> <span class="ow">in</span> <span class="n">feature_parameters</span><span class="p">[</span><span class="n">feature</span><span class="p">]:</span>
+            <span class="n">features_categorical</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">features_numerical</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span>
+
+    <span class="c1"># Generate feature parameter dictionaries for the numerical/categorical samplers</span>
+    <span class="n">feature_parameters_numerical</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">feature</span><span class="p">:</span> <span class="n">feature_parameters</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features_numerical</span>
+    <span class="p">}</span>
+    <span class="n">feature_parameters_categorical</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">feature</span><span class="p">:</span> <span class="n">feature_parameters</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features_categorical</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Generate the numerical/categorical features of each sample separately</span>
+    <span class="n">X_generated_numerical</span> <span class="o">=</span> <span class="n">numerical_sampling</span><span class="p">(</span>
+        <span class="n">nsamples</span><span class="o">=</span><span class="n">nsamples</span><span class="p">,</span>
+        <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span>
+        <span class="n">feature_parameters</span><span class="o">=</span><span class="n">feature_parameters_numerical</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">X_generated_categorical</span> <span class="o">=</span> <span class="n">categorical_sampling</span><span class="p">(</span>
+        <span class="n">nsamples</span><span class="o">=</span><span class="n">nsamples</span><span class="p">,</span>
+        <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span>
+        <span class="n">feature_parameters</span><span class="o">=</span><span class="n">feature_parameters_categorical</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Combine the numerical/categorical features respecting the structure of the</span>
+    <span class="c1"># original dataset</span>
+    <span class="n">X_generated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">X_generated_numerical</span><span class="p">,</span> <span class="n">X_generated_categorical</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span>
+    <span class="p">)</span>
+    <span class="n">X_generated</span> <span class="o">=</span> <span class="n">X_generated</span><span class="p">[</span><span class="n">feature_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+
+    <span class="k">return</span> <span class="n">X_generated</span></div>
+
+
+<div class="viewcode-block" id="image_random_sampling"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.sampling.image_random_sampling">[docs]</a><span class="k">def</span> <span class="nf">image_random_sampling</span><span class="p">(</span>
+    <span class="n">feature_parameters</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;x_pixels&quot;</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span> <span class="s2">&quot;y_pixels&quot;</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">253</span><span class="p">}</span>
+    <span class="p">},</span>
+    <span class="n">nsamples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample the feature space of images using random pixels.</span>
+
+<span class="sd">    Generates synthetic samples using a random uniform distribution to</span>
+<span class="sd">    establish the value for each image pixel. Hence, they are images of noise.</span>
+<span class="sd">    It only generates one channel (that is, black and white images).</span>
+
+<span class="sd">    For most image datasets, which are not random and have structure, this is a</span>
+<span class="sd">    very inefficient sampling method to generate synthetic image samples and</span>
+<span class="sd">    explore the feature space. It is provided here for illustrating purposes</span>
+<span class="sd">    only.</span>
+
+<span class="sd">    The default generates 28x28 images with pixel values between 0 and 253.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    feature_parameters : dict of dicts</span>
+<span class="sd">        A dictionary which specifies the characteristics of the feature space</span>
+<span class="sd">        of the images. It should have one entry &#39;images&#39; with a nested</span>
+<span class="sd">        dictionary with the entries &#39;x_pixels&#39;, &#39;y_pixels&#39;, &#39;min&#39; and &#39;max&#39;,</span>
+<span class="sd">        which specify the number of pixels of the image in each dimension, and</span>
+<span class="sd">        the minimum and maximum possible values of the pixels. The values in the</span>
+<span class="sd">        default dictionary are:</span>
+
+<span class="sd">        feature_parameters = {&quot;images&quot;: {&quot;x_pixels&quot;: 28, &quot;y_pixels&quot;: 28,</span>
+<span class="sd">                                         &quot;min&quot;: 0, &quot;max&quot;: 253}}</span>
+<span class="sd">    nsamples : int</span>
+<span class="sd">        Number of image samples to generate.</span>
+<span class="sd">    random_state : int</span>
+<span class="sd">        Random seed used to generate the sampling data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas DataFrame</span>
+<span class="sd">        Dataset with a list of images that have the value of their pixels</span>
+<span class="sd">        generated with a random uniform sampling of the feature space as</span>
+<span class="sd">        specified in the `feature_parameters`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">random_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+
+    <span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nsamples</span>
+    <span class="k">for</span> <span class="n">image_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsamples</span><span class="p">):</span>
+        <span class="c1"># Generate random image</span>
+        <span class="n">images</span><span class="p">[</span><span class="n">image_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span>
+            <span class="n">low</span><span class="o">=</span><span class="n">feature_parameters</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">][</span><span class="s2">&quot;min&quot;</span><span class="p">],</span>
+            <span class="n">high</span><span class="o">=</span><span class="n">feature_parameters</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">][</span><span class="s2">&quot;max&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">feature_parameters</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">][</span><span class="s2">&quot;x_pixels&quot;</span><span class="p">],</span>
+                <span class="n">feature_parameters</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">][</span><span class="s2">&quot;y_pixels&quot;</span><span class="p">],</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="n">X_generated_images</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="n">images</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">X_generated_images</span></div>
+
+
+<div class="viewcode-block" id="image_vae_sampling"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.sampling.image_vae_sampling">[docs]</a><span class="k">def</span> <span class="nf">image_vae_sampling</span><span class="p">(</span>
+    <span class="n">feature_parameters</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">254</span><span class="p">,</span>
+            <span class="s2">&quot;autoencoder&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;autoencoder_latent_dim&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;autoencoder_edge_factor&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="n">nsamples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample the feature space of images using a variational autoencoder.</span>
+
+<span class="sd">    Generates synthetic samples of the same manifold as the variational</span>
+<span class="sd">    autoencoder training data sampling the latent space, which represents images</span>
+<span class="sd">    with the a Gaussian distribution for each latent dimension.</span>
+
+<span class="sd">    For image datasets, which are not random and have structure, this is an</span>
+<span class="sd">    efficient sampling method to generate relevant synthetic image samples and</span>
+<span class="sd">    explore the feature space.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    feature_parameters : dict of dicts</span>
+<span class="sd">        A dictionary which specifies the characteristics of the feature space</span>
+<span class="sd">        of the images. It should have one entry &#39;images&#39; with a nested</span>
+<span class="sd">        dictionary with the entries &#39;x_pixels&#39;, &#39;y_pixels&#39;, &#39;min&#39; and &#39;max&#39;,</span>
+<span class="sd">        which specify the number of pixels of the image in each dimension, and</span>
+<span class="sd">        the minimum and maximum possible values of the pixels. The values in the</span>
+<span class="sd">        default dictionary are:</span>
+
+<span class="sd">        feature_parameters = {&quot;images&quot;: {&quot;min&quot;: 0, &quot;max&quot;: 254,</span>
+<span class="sd">                                   &quot;autoencoder&quot;: None,</span>
+<span class="sd">                                   &quot;autoencoder_latent_dim&quot;: 2,</span>
+<span class="sd">                                   &quot;autoencoder_edge_factor&quot;: 5}}</span>
+
+<span class="sd">        It is neccessary to specify the autoencoder for it to work.</span>
+
+<span class="sd">    nsamples : int</span>
+<span class="sd">        Number of image samples to generate.</span>
+<span class="sd">    random_state : int</span>
+<span class="sd">        Random seed used to generate the sampling data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas DataFrame</span>
+<span class="sd">        Dataset with a list of images that have been generated sampling randomly</span>
+<span class="sd">        the latent space of the variational autoencoder, as specified in the</span>
+<span class="sd">        `feature_parameters`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">random_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+
+    <span class="n">autoencoder</span> <span class="o">=</span> <span class="n">feature_parameters</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">][</span><span class="s2">&quot;autoencoder&quot;</span><span class="p">]</span>
+    <span class="n">maximum_1</span> <span class="o">=</span> <span class="n">feature_parameters</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">][</span><span class="s2">&quot;max&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">latent_dim</span> <span class="o">=</span> <span class="n">feature_parameters</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">][</span><span class="s2">&quot;autoencoder_latent_dim&quot;</span><span class="p">]</span>
+    <span class="n">edge_factor</span> <span class="o">=</span> <span class="n">feature_parameters</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">][</span><span class="s2">&quot;autoencoder_edge_factor&quot;</span><span class="p">]</span>
+
+    <span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nsamples</span>
+    <span class="k">for</span> <span class="n">image_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsamples</span><span class="p">):</span>
+        <span class="c1"># Generate random image using autoencoder</span>
+        <span class="n">z_sample</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">latent_dim</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">edge_factor</span>
+        <span class="n">images</span><span class="p">[</span><span class="n">image_index</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">autoencoder</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">z_sample</span><span class="p">)[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">maximum_1</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">X_generated_images</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="n">images</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">X_generated_images</span></div>
+
+
+<div class="viewcode-block" id="labeling"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.sampling.labeling">[docs]</a><span class="k">def</span> <span class="nf">labeling</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">original_classifier</span><span class="p">,</span> <span class="n">label_col</span><span class="o">=</span><span class="s2">&quot;class&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Labels the samples from a dataset according to a classifier.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : pandas DataFrame</span>
+<span class="sd">        Dataset with the features but not the labels.</span>
+<span class="sd">    original_classifier : sklearn-type classifier</span>
+<span class="sd">        Classifier to use for the labeling of the samples.</span>
+<span class="sd">    label_col : str</span>
+<span class="sd">        Name of the label column.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    presc.dataset.Dataset</span>
+<span class="sd">        Outputs a PRESC Dataset with the samples and their labels.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df_labeled</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Label synthetic data with original classifier</span>
+    <span class="n">df_labeled</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">original_classifier</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">df_labeled</span><span class="p">)</span>
+    <span class="n">df_labeled</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_labeled</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Instantiate dataset wrapper</span>
+    <span class="n">df_labeled</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">df_labeled</span><span class="p">,</span> <span class="n">label_col</span><span class="o">=</span><span class="n">label_col</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df_labeled</span></div>
+
+
+<div class="viewcode-block" id="sampling_balancer"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.sampling.sampling_balancer">[docs]</a><span class="k">def</span> <span class="nf">sampling_balancer</span><span class="p">(</span>
+    <span class="n">feature_parameters</span><span class="p">,</span>
+    <span class="n">numerical_sampling</span><span class="p">,</span>
+    <span class="n">original_classifier</span><span class="p">,</span>
+    <span class="n">nsamples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="n">max_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">nbatch</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="n">label_col</span><span class="o">=</span><span class="s2">&quot;class&quot;</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">remaining_parameters</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate balanced synthetic data using any sampling function.</span>
+
+<span class="sd">    This function will attempt to obtain a balanced dataset with non-balancing</span>
+<span class="sd">    samplers by generating the same number of samples for all classes,</span>
+<span class="sd">    unless it reaches the maximum number of iterations. To use within the</span>
+<span class="sd">    ClassifierCopy class, the `enforce_balance` must be set to True.</span>
+
+<span class="sd">    Note that the algorithm needs to find at least one sample of a different</span>
+<span class="sd">    class in order detect that class and keep iterating through the batch</span>
+<span class="sd">    generation of samples to try to get them all. Therefore, it is not</span>
+<span class="sd">    guaranteed that it will find all the classes and successfully balance the</span>
+<span class="sd">    synthetic dataset in extreme cases of imbalance. However, the batch size</span>
+<span class="sd">    `nbatch` can be set to a larger number if we suspect that is the case, and</span>
+<span class="sd">    this will increase the probability to find at least a sample of a different</span>
+<span class="sd">    class in the first round. Thereafter, if the algorithm is already iterating</span>
+<span class="sd">    to find a minoritary class, it is more likely that other classes that occupy</span>
+<span class="sd">    a very small hypervolume will show up as well.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    feature_parameters : dict of dicts</span>
+<span class="sd">        A dictionary with an entry per dataset feature (dictionary keys should</span>
+<span class="sd">        be the feature names), where each feature entry must contain a</span>
+<span class="sd">        nested dictionary with its categories and their fraction. The key for</span>
+<span class="sd">        the nested dictionary of categories should be &quot;categories&quot;, and the keys</span>
+<span class="sd">        for the fractions should be the category name.</span>
+<span class="sd">    numerical_sampling : function</span>
+<span class="sd">        Any of the non balancing numerical sampling functions defined in PRESC:</span>
+<span class="sd">        `grid_sampling`, `uniform_sampling`, `normal_sampling`...</span>
+<span class="sd">    original_classifier : sklearn-type classifier</span>
+<span class="sd">        Original ML classifier used to generate the synthetic data.</span>
+<span class="sd">    nsamples : int</span>
+<span class="sd">        Number of samples to generate.</span>
+<span class="sd">    max_iter : int</span>
+<span class="sd">        The maximum number of iterations generating batches to attempt to obtain</span>
+<span class="sd">        the samples per class specified in `nsamplesxclass`.</span>
+<span class="sd">    nbatch: int</span>
+<span class="sd">        Number of tentative samples to generate in each batch.</span>
+<span class="sd">    label_col : str</span>
+<span class="sd">        Name of the label column.</span>
+<span class="sd">    random_state : int</span>
+<span class="sd">        Random seed used to generate the sampling data.</span>
+<span class="sd">    verbose : bool</span>
+<span class="sd">        If True the sampler prints information about each batch.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas DataFrame</span>
+<span class="sd">        Dataset with a generated sampling following the specified numerical</span>
+<span class="sd">        sampling distribution for the numerical features and the discrete</span>
+<span class="sd">        distribution for the categorical features, following the feature space</span>
+<span class="sd">        characterized by the `feature_parameters`, where the function has</span>
+<span class="sd">        tried to balance the samples for each class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">random_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+
+    <span class="n">df_generated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating batch&quot;</span><span class="p">,</span> <span class="n">iteration</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Generate `nbatch` samples</span>
+        <span class="n">df_batch</span> <span class="o">=</span> <span class="n">mixed_data_sampling</span><span class="p">(</span>
+            <span class="n">feature_parameters</span><span class="p">,</span> <span class="n">numerical_sampling</span><span class="p">,</span> <span class="n">nsamples</span><span class="o">=</span><span class="n">nbatch</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="c1"># Label synthetic data with original classifier</span>
+        <span class="n">df_batch</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">original_classifier</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">df_batch</span><span class="p">)</span>
+
+        <span class="c1"># Temporarily, add samples from the new batch to the old dataframe</span>
+        <span class="n">df_temp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_generated</span><span class="p">,</span> <span class="n">df_batch</span><span class="p">])</span>
+
+        <span class="c1"># Keep a maximum of `nsamplesxclass` samples from each class</span>
+        <span class="n">detected_classes</span> <span class="o">=</span> <span class="n">df_temp</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+        <span class="n">nsamplesxclass</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nsamples</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">detected_classes</span><span class="p">))</span>
+
+        <span class="n">df_generated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="n">detected_classes</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">():</span>
+            <span class="n">df_generated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">df_generated</span><span class="p">,</span>
+                    <span class="n">df_temp</span><span class="p">[</span><span class="n">df_temp</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span> <span class="o">==</span> <span class="n">class_name</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">nsamplesxclass</span><span class="p">],</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="c1"># If there are no incomplete classes finish iteration, otherwise show classes</span>
+        <span class="n">incomplete_classes</span> <span class="o">=</span> <span class="n">detected_classes</span><span class="p">[</span>
+            <span class="n">detected_classes</span> <span class="o">&lt;</span> <span class="n">nsamplesxclass</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">incomplete_classes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">df_generated</span>
+        <span class="k">elif</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Classes generated:&quot;</span><span class="p">,</span> <span class="n">incomplete_classes</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Samples per class:&quot;</span><span class="p">,</span> <span class="n">incomplete_classes</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df_generated</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Mozilla Foundation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>presc.evaluations.spatial_distribution &mdash; PRESC 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html">
+            <img src="../../../_static/classifier-bias-PRESC_v3_black_margin3.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../evaluations.html">Evaluations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ml_copies.html">ML Classifier Copies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">presc</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">Classification datasets</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">PRESC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>presc.evaluations.spatial_distribution</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for presc.evaluations.spatial_distribution</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">Series</span><span class="p">,</span> <span class="n">MultiIndex</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">pairwise_distances</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span><span class="p">,</span> <span class="n">OrdinalEncoder</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">from</span> <span class="nn">confuse</span> <span class="kn">import</span> <span class="n">ConfigError</span>
+
+<span class="kn">from</span> <span class="nn">presc.evaluations.utils</span> <span class="kn">import</span> <span class="n">is_discrete</span>
+<span class="kn">from</span> <span class="nn">presc.utils</span> <span class="kn">import</span> <span class="n">include_exclude_list</span>
+<span class="kn">from</span> <span class="nn">presc.configuration</span> <span class="kn">import</span> <span class="n">PrescConfig</span>
+<span class="kn">from</span> <span class="nn">presc</span> <span class="kn">import</span> <span class="n">global_config</span>
+
+
+<span class="k">def</span> <span class="nf">_pairwise_dist</span><span class="p">(</span><span class="n">df1</span><span class="p">,</span> <span class="n">df2</span><span class="p">,</span> <span class="n">metrics</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute pairwise distances between the rows of two DFs with common columns.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df1 : DataFrame</span>
+<span class="sd">        A DF with dimensions n x p.</span>
+<span class="sd">    df2 : DataFrame</span>
+<span class="sd">        A DF with dimensions m x p.</span>
+<span class="sd">    metrics : dict</span>
+<span class="sd">        Mapping of column names to strings identifying the distance metric to</span>
+<span class="sd">        use for entries in that column. Strings must be valid values accepted by</span>
+<span class="sd">        `sklearn.metrics.pairwise_distances`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.array</span>
+<span class="sd">        Array with dimensions n x m listing the distance between df1[i] and</span>
+<span class="sd">        df2[j]. If different metrics are used for different subsets of columns,</span>
+<span class="sd">        they are combined by adding.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cols_for_metric</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">cols_for_metric</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+    <span class="n">pairwise_dist</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">cols</span> <span class="ow">in</span> <span class="n">cols_for_metric</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">pwd</span> <span class="o">=</span> <span class="n">pairwise_distances</span><span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="n">cols</span><span class="p">],</span> <span class="n">df2</span><span class="p">[</span><span class="n">cols</span><span class="p">],</span> <span class="n">metric</span><span class="o">=</span><span class="n">m</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pairwise_dist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pairwise_dist</span> <span class="o">=</span> <span class="n">pwd</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pairwise_dist</span> <span class="o">+=</span> <span class="n">pwd</span>
+
+    <span class="k">return</span> <span class="n">pairwise_dist</span>
+
+
+<div class="viewcode-block" id="compute_spatial_distribution"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.spatial_distribution.compute_spatial_distribution">[docs]</a><span class="k">def</span> <span class="nf">compute_spatial_distribution</span><span class="p">(</span>
+    <span class="n">test_features</span><span class="p">,</span>
+    <span class="n">test_labs_true</span><span class="p">,</span>
+    <span class="n">test_labs_pred</span><span class="p">,</span>
+    <span class="n">base_features</span><span class="p">,</span>
+    <span class="n">base_labs</span><span class="p">,</span>
+    <span class="n">numerical_dist_metric</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">categorical_dist_metric</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">summary</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a summary of the pairwise distances between points.</span>
+
+<span class="sd">    This computes pairwise distances between the test points and base points in</span>
+<span class="sd">    feature space (ie. how far each test point is from each base point), and</span>
+<span class="sd">    returns a summary of the distance for each test point relative to each base</span>
+<span class="sd">    class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    test_features : DataFrame</span>
+<span class="sd">        Feature values for the test dataset.</span>
+<span class="sd">    test_labs_true : Series</span>
+<span class="sd">        True labels for the test dataset.</span>
+<span class="sd">    test_labs_pred : Series</span>
+<span class="sd">        Labels predicted by a model for the test dataset.</span>
+<span class="sd">    base_features:  DataFrame</span>
+<span class="sd">        Feature values for the base dataset.</span>
+<span class="sd">    base_labs : Series</span>
+<span class="sd">        True labels for the base dataset.</span>
+<span class="sd">    numerical_dist_metric : dict</span>
+<span class="sd">        The metrics to use to measure distance between numerical</span>
+<span class="sd">        (continuous)-valued columns. This should be a dict mapping column names</span>
+<span class="sd">        to strings, each a named metric as accepted by</span>
+<span class="sd">        `sklearn.metrics.pairwise_distances` appropriate for continuous data</span>
+<span class="sd">    categorical_dist_metric : dict</span>
+<span class="sd">        The metrics to use to measure distance between categorical</span>
+<span class="sd">        (discrete)-valued columns. This should be a dict mapping column names to</span>
+<span class="sd">        strings, each a named metric as accepted by</span>
+<span class="sd">        `sklearn.metrics.pairwise_distances` appropriate for discrete data</span>
+<span class="sd">    summary : str</span>
+<span class="sd">        An aggregation function to apply to a Pandas Grouped object.</span>
+
+<span class="sd">    Only columns listed in the distance metric dists will be included in the</span>
+<span class="sd">    distance computation.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    SpatialDistributionResult</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Compute a DF of pairwise distances between base datapoints (rows)</span>
+    <span class="c1"># and test datapoints (cols).</span>
+    <span class="n">pairwise_dist</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">numerical_dist_metric</span><span class="p">:</span>
+        <span class="c1"># Normalize numeric features to reduce the effect of different scales</span>
+        <span class="n">num_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">numerical_dist_metric</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+        <span class="n">base_scaled</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">scaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">base_features</span><span class="p">[</span><span class="n">num_cols</span><span class="p">]),</span> <span class="n">columns</span><span class="o">=</span><span class="n">num_cols</span>
+        <span class="p">)</span>
+        <span class="n">test_scaled</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test_features</span><span class="p">[</span><span class="n">num_cols</span><span class="p">]),</span> <span class="n">columns</span><span class="o">=</span><span class="n">num_cols</span>
+        <span class="p">)</span>
+        <span class="n">pairwise_dist</span> <span class="o">=</span> <span class="n">_pairwise_dist</span><span class="p">(</span><span class="n">base_scaled</span><span class="p">,</span> <span class="n">test_scaled</span><span class="p">,</span> <span class="n">numerical_dist_metric</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">categorical_dist_metric</span><span class="p">:</span>
+        <span class="n">categ_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">categorical_dist_metric</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">encoder</span> <span class="o">=</span> <span class="n">OrdinalEncoder</span><span class="p">()</span>
+        <span class="n">base_encoded</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">base_features</span><span class="p">[</span><span class="n">categ_cols</span><span class="p">]),</span> <span class="n">columns</span><span class="o">=</span><span class="n">categ_cols</span>
+        <span class="p">)</span>
+        <span class="n">test_encoded</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test_features</span><span class="p">[</span><span class="n">categ_cols</span><span class="p">]),</span> <span class="n">columns</span><span class="o">=</span><span class="n">categ_cols</span>
+        <span class="p">)</span>
+        <span class="n">pairwise_dist_categ</span> <span class="o">=</span> <span class="n">_pairwise_dist</span><span class="p">(</span>
+            <span class="n">base_encoded</span><span class="p">,</span> <span class="n">test_encoded</span><span class="p">,</span> <span class="n">categorical_dist_metric</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">pairwise_dist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pairwise_dist</span> <span class="o">=</span> <span class="n">pairwise_dist_categ</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pairwise_dist</span> <span class="o">+=</span> <span class="n">pairwise_dist_categ</span>
+    <span class="n">df_dist</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">pairwise_dist</span><span class="p">,</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">base_labs</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+        <span class="n">columns</span><span class="o">=</span><span class="n">test_labs_true</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Summarize distances within each base dataset class separately for each</span>
+    <span class="c1"># test datapoint.</span>
+    <span class="c1"># Result is a m x k DF with 1 row for each test datapoint and 1 column for</span>
+    <span class="c1"># each base class.</span>
+    <span class="n">df_summ</span> <span class="o">=</span> <span class="n">df_dist</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">base_labs</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+    <span class="c1"># Add the test labels to the index for easy reference.</span>
+    <span class="n">df_summ</span> <span class="o">=</span> <span class="n">df_summ</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+        <span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_arrays</span><span class="p">([</span><span class="n">test_labs_true</span><span class="p">,</span> <span class="n">test_labs_pred</span><span class="p">,</span> <span class="n">df_summ</span><span class="o">.</span><span class="n">index</span><span class="p">])</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">SpatialDistributionResult</span><span class="p">(</span>
+        <span class="n">vals</span><span class="o">=</span><span class="n">df_summ</span><span class="p">,</span>
+        <span class="n">dist_metrics_num</span><span class="o">=</span><span class="n">numerical_dist_metric</span><span class="p">,</span>
+        <span class="n">dist_metrics_categ</span><span class="o">=</span><span class="n">categorical_dist_metric</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="n">summary</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SpatialDistributionResult"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.spatial_distribution.SpatialDistributionResult">[docs]</a><span class="k">class</span> <span class="nc">SpatialDistributionResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Result of the spatial distribution computation.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    vals : DataFrame</span>
+<span class="sd">        A  DataFrame listing the summary values for each test datapoint, indexed</span>
+<span class="sd">        by (&lt;true_label&gt;, &lt;predicted_label&gt;, &lt;datapoint_index&gt;).</span>
+<span class="sd">    dist_metrics_num : dict</span>
+<span class="sd">        Mapping of numerical column names to the metric that was used.</span>
+<span class="sd">    dist_metrics_categ : dict</span>
+<span class="sd">        Mapping of categorical column names to the metric that was used.</span>
+<span class="sd">    summary : str</span>
+<span class="sd">        The summary used to aggregate distances for each class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="n">dist_metrics_num</span><span class="p">,</span> <span class="n">dist_metrics_categ</span><span class="p">,</span> <span class="n">summary</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vals</span> <span class="o">=</span> <span class="n">vals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist_metrics_num</span> <span class="o">=</span> <span class="n">dist_metrics_num</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist_metrics_categ</span> <span class="o">=</span> <span class="n">dist_metrics_categ</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">summary</span> <span class="o">=</span> <span class="n">summary</span>
+
+<div class="viewcode-block" id="SpatialDistributionResult.display_result"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.spatial_distribution.SpatialDistributionResult.display_result">[docs]</a>    <span class="k">def</span> <span class="nf">display_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the distances summaries as scatterplots.&quot;&quot;&quot;</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">is_misclassified</span> <span class="o">=</span> <span class="n">Series</span><span class="p">(</span>
+            <span class="n">ind</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ind</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">ind</span>
+        <span class="p">)</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">y_true</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+            <span class="n">df_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">y_true</span><span class="p">]</span>
+            <span class="n">df_dist</span> <span class="o">=</span> <span class="n">df_class</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">y_true</span><span class="p">])</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;dist_other&quot;</span><span class="p">)</span>
+            <span class="n">df_dist</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">df_dist</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">set_names</span><span class="p">(</span><span class="s2">&quot;base_class&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">df_dist</span> <span class="o">=</span> <span class="n">df_dist</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;base_class&quot;</span><span class="p">)</span>
+            <span class="n">df_dist</span><span class="p">[</span><span class="s2">&quot;dist_same&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_class</span><span class="p">[</span><span class="n">y_true</span><span class="p">]</span>
+            <span class="n">df_dist</span><span class="p">[</span><span class="s2">&quot;is_misclassified&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">is_misclassified</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">y_true</span><span class="p">]</span>
+
+            <span class="p">(</span>
+                <span class="n">sns</span><span class="o">.</span><span class="n">relplot</span><span class="p">(</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">df_dist</span><span class="p">,</span>
+                    <span class="n">x</span><span class="o">=</span><span class="s2">&quot;dist_same&quot;</span><span class="p">,</span>
+                    <span class="n">y</span><span class="o">=</span><span class="s2">&quot;dist_other&quot;</span><span class="p">,</span>
+                    <span class="n">col</span><span class="o">=</span><span class="s2">&quot;base_class&quot;</span><span class="p">,</span>
+                    <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;is_misclassified&quot;</span><span class="p">,</span>
+                    <span class="n">height</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">set_titles</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Distance to base dataset classes (other = </span><span class="se">{{</span><span class="s2">col_name</span><span class="se">}}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">for test datapoints (class = </span><span class="si">{</span><span class="n">y_true</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">set_xlabels</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Distance to base class </span><span class="si">{</span><span class="n">y_true</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">set_ylabels</span><span class="p">(</span><span class="s2">&quot;Distance to other base class&quot;</span><span class="p">)</span>
+            <span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_get_distance_metrics_by_column</span><span class="p">(</span><span class="n">features_num</span><span class="p">,</span> <span class="n">features_categ</span><span class="p">,</span> <span class="n">eval_config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determine the distance metric to use for each dataset feature.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    features_num : list</span>
+<span class="sd">        Numerical feature names to include in the distance computation.</span>
+<span class="sd">    features_categ : list</span>
+<span class="sd">        Categorical feature names to include in the distance computation.</span>
+<span class="sd">    eval_config : presc.configuration.PrescConfig</span>
+<span class="sd">        The config subview corresponding to this evaluation.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict, dict</span>
+<span class="sd">        Two dicts mapping feature names to metrics, either a column-specifc</span>
+<span class="sd">        metric, if any, or the default metric for the feature type. The first</span>
+<span class="sd">        lists metrics for numerical features and the second for categorical</span>
+<span class="sd">        features. Only features listed in the input lists will be included.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">def_dist_num</span> <span class="o">=</span> <span class="n">eval_config</span><span class="p">[</span><span class="s2">&quot;distance_metric_numerical&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="n">def_dist_categ</span> <span class="o">=</span> <span class="n">eval_config</span><span class="p">[</span><span class="s2">&quot;distance_metric_categorical&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="n">dist_metrics_num</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">dist_metrics_categ</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">included_features</span> <span class="o">=</span> <span class="n">features_num</span> <span class="o">+</span> <span class="n">features_categ</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">col_overrides</span> <span class="o">=</span> <span class="n">eval_config</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">ConfigError</span><span class="p">:</span>
+        <span class="n">col_overrides</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">col_overrides</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">settings</span> <span class="ow">in</span> <span class="n">col_overrides</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">included_features</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="s2">&quot;distance_metric_categorical&quot;</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">:</span>
+                <span class="n">dist_metrics_categ</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;distance_metric_categorical&quot;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="s2">&quot;distance_metric_numerical&quot;</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">:</span>
+                <span class="n">dist_metrics_num</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;distance_metric_numerical&quot;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;as_categorical&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="n">dist_metrics_categ</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">def_dist_categ</span>
+
+    <span class="n">overridden_features</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dist_metrics_num</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="n">dist_metrics_categ</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">features_num</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">overridden_features</span><span class="p">:</span>
+            <span class="n">dist_metrics_num</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">def_dist_num</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">features_categ</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">overridden_features</span><span class="p">:</span>
+            <span class="n">dist_metrics_categ</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">def_dist_categ</span>
+
+    <span class="k">return</span> <span class="n">dist_metrics_num</span><span class="p">,</span> <span class="n">dist_metrics_categ</span>
+
+
+<div class="viewcode-block" id="SpatialDistribution"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.spatial_distribution.SpatialDistribution">[docs]</a><span class="k">class</span> <span class="nc">SpatialDistribution</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computation of distributions of data in feature space.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model: presc.model.ClassificationModel</span>
+<span class="sd">        The ClassificationModel to run the evaluation for.</span>
+<span class="sd">    test_dataset :  presc.dataset.Dataset</span>
+<span class="sd">        A Dataset to use for evaluation.</span>
+<span class="sd">    train_dataset :  presc.dataset.Dataset</span>
+<span class="sd">        A Dataset to use as the baseline for distance measures (eg. the training</span>
+<span class="sd">        data).</span>
+<span class="sd">    settings: dict</span>
+<span class="sd">        An optional dict specifying option values under</span>
+<span class="sd">        `evaluations.spatial_distribution`, eg. `{&quot;summary_agg&quot;: &quot;median&quot;}`</span>
+<span class="sd">        These are restricted to the class instance and do not change the global</span>
+<span class="sd">        config.</span>
+<span class="sd">    config: presc.configuration.PrescConfig</span>
+<span class="sd">        An optional PrescConfig instance to read options from. This will be</span>
+<span class="sd">        overridden by `settings` values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">,</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">source_config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">global_config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">PrescConfig</span><span class="p">(</span><span class="n">source_config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s2">&quot;evaluations&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;spatial_distribution&quot;</span><span class="p">:</span> <span class="n">settings</span><span class="p">}})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_test_dataset</span> <span class="o">=</span> <span class="n">test_dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_test_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict_labels</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;predicted&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_train_dataset</span> <span class="o">=</span> <span class="n">train_dataset</span>
+
+<div class="viewcode-block" id="SpatialDistribution.compute"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.spatial_distribution.SpatialDistribution.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the evaluation for the given datasets.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kwargs:</span>
+<span class="sd">            On-the-fly overrides to the config option values for the computation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SpatialDistributionResult</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">eval_config</span> <span class="o">=</span> <span class="n">PrescConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">)</span>
+        <span class="n">eval_config</span> <span class="o">=</span> <span class="n">eval_config</span><span class="p">[</span><span class="s2">&quot;evaluations&quot;</span><span class="p">][</span><span class="s2">&quot;spatial_distribution&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">eval_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Feature columns to include in the distance computation.</span>
+        <span class="n">feats_incl</span> <span class="o">=</span> <span class="n">eval_config</span><span class="p">[</span><span class="s2">&quot;features_include&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="n">feats_excl</span> <span class="o">=</span> <span class="n">eval_config</span><span class="p">[</span><span class="s2">&quot;features_exclude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="n">feats</span> <span class="o">=</span> <span class="n">include_exclude_list</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_test_dataset</span><span class="o">.</span><span class="n">feature_names</span><span class="p">,</span> <span class="n">included</span><span class="o">=</span><span class="n">feats_incl</span><span class="p">,</span> <span class="n">excluded</span><span class="o">=</span><span class="n">feats_excl</span>
+        <span class="p">)</span>
+        <span class="n">num_feats</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">categ_feats</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">feats</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">is_discrete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_dataset</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+                <span class="n">categ_feats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">num_feats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+        <span class="c1"># Figure the metric to use for each feature.</span>
+        <span class="n">dist_metrics_num</span><span class="p">,</span> <span class="n">dist_metrics_categ</span> <span class="o">=</span> <span class="n">_get_distance_metrics_by_column</span><span class="p">(</span>
+            <span class="n">num_feats</span><span class="p">,</span> <span class="n">categ_feats</span><span class="p">,</span> <span class="n">eval_config</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">compute_spatial_distribution</span><span class="p">(</span>
+            <span class="n">test_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_dataset</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">test_labs_true</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_dataset</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span>
+            <span class="n">test_labs_pred</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_pred</span><span class="p">,</span>
+            <span class="n">base_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_train_dataset</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">base_labs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_train_dataset</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span>
+            <span class="n">numerical_dist_metric</span><span class="o">=</span><span class="n">dist_metrics_num</span><span class="p">,</span>
+            <span class="n">categorical_dist_metric</span><span class="o">=</span><span class="n">dist_metrics_categ</span><span class="p">,</span>
+            <span class="n">summary</span><span class="o">=</span><span class="n">eval_config</span><span class="p">[</span><span class="s2">&quot;summary_agg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpatialDistribution.display"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.spatial_distribution.SpatialDistribution.display">[docs]</a>    <span class="k">def</span> <span class="nf">display</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes and displays the spatial distribution results.&quot;&quot;&quot;</span>
+        <span class="n">eval_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+        <span class="n">eval_result</span><span class="o">.</span><span class="n">display_result</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Mozilla Foundation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

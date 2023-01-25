@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>presc.evaluations package &mdash; PRESC 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="presc.report package" href="presc.report.html" />
+    <link rel="prev" title="Subpackages" href="presc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html">
+            <img src="_static/classifier-bias-PRESC_v3_black_margin3.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluations.html">Evaluations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ml_copies.html">ML Classifier Copies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">presc</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="presc.html">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">presc.evaluations package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-presc.evaluations.conditional_distribution">presc.evaluations.conditional_distribution module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-presc.evaluations.conditional_metric">presc.evaluations.conditional_metric module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-presc.evaluations.spatial_distribution">presc.evaluations.spatial_distribution module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-presc.evaluations.train_test_splits">presc.evaluations.train_test_splits module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-presc.evaluations.utils">presc.evaluations.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="presc.report.html">presc.report package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presc.copies.html">presc.copies package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="presc.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Classification datasets</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PRESC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">presc</a> &raquo;</li>
+          <li><a href="presc.html">Subpackages</a> &raquo;</li>
+      <li>presc.evaluations package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/presc.evaluations.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="presc-evaluations-package">
+<h1>presc.evaluations package<a class="headerlink" href="#presc-evaluations-package" title="Permalink to this headline"></a></h1>
+<div class="section" id="module-presc.evaluations.conditional_distribution">
+<span id="presc-evaluations-conditional-distribution-module"></span><h2>presc.evaluations.conditional_distribution module<a class="headerlink" href="#module-presc.evaluations.conditional_distribution" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_distribution.ConditionalDistribution">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">presc.evaluations.conditional_distribution.</span></span><span class="sig-name descname"><span class="pre">ConditionalDistribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/conditional_distribution.html#ConditionalDistribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.conditional_distribution.ConditionalDistribution" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Computation of data distributions conditional on prediction results.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_distribution.ConditionalDistribution.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#presc.evaluations.conditional_distribution.ConditionalDistribution.model" title="Permalink to this definition"></a></dt>
+<dd><p>The ClassificationModel to run the evaluation for.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_distribution.ConditionalDistribution.test_dataset">
+<span class="sig-name descname"><span class="pre">test_dataset</span></span><a class="headerlink" href="#presc.evaluations.conditional_distribution.ConditionalDistribution.test_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>A Dataset to use for evaluation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset">presc.dataset.Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_distribution.ConditionalDistribution.settings">
+<span class="sig-name descname"><span class="pre">settings</span></span><a class="headerlink" href="#presc.evaluations.conditional_distribution.ConditionalDistribution.settings" title="Permalink to this definition"></a></dt>
+<dd><p>An optional dict specifying option values under <cite>evaluations.conditional_distribution</cite>,
+eg. <cite>{“computation.binning”: 5}</cite>, These are restricted to the class instance and do not change the global config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_distribution.ConditionalDistribution.config">
+<span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#presc.evaluations.conditional_distribution.ConditionalDistribution.config" title="Permalink to this definition"></a></dt>
+<dd><p>An optional PrescConfig instance to read options from. This will be overridden by <cite>settings</cite> values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="presc.html#presc.configuration.PrescConfig" title="presc.configuration.PrescConfig">presc.configuration.PrescConfig</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_distribution.ConditionalDistribution.compute_for_column">
+<span class="sig-name descname"><span class="pre">compute_for_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">colname</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/conditional_distribution.html#ConditionalDistribution.compute_for_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.conditional_distribution.ConditionalDistribution.compute_for_column" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the evaluation for the given dataset column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>colname</strong> (<em>str</em>) – A column in the dataset to compute distributions for.</p></li>
+<li><p><strong>kwargs</strong> – On-the-fly overrides to the config option values for the computation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#presc.evaluations.conditional_distribution.ConditionalDistributionResult" title="presc.evaluations.conditional_distribution.ConditionalDistributionResult">ConditionalDistributionResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_distribution.ConditionalDistribution.display">
+<span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">colnames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/conditional_distribution.html#ConditionalDistribution.display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.conditional_distribution.ConditionalDistribution.display" title="Permalink to this definition"></a></dt>
+<dd><p>Computes and displays the conditional distribution result for each
+specified column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>colnames</strong> (<em>list of str</em>) – A list of column names to run the evaluation over, creating a plot
+for each. If not supplied, defaults to columns specifed in the config.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_distribution.ConditionalDistributionResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">presc.evaluations.conditional_distribution.</span></span><span class="sig-name descname"><span class="pre">ConditionalDistributionResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binning</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">common_bins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/conditional_distribution.html#ConditionalDistributionResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.conditional_distribution.ConditionalDistributionResult" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Result of the conditional distribution computation for a single column of data.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_distribution.ConditionalDistributionResult.vals">
+<span class="sig-name descname"><span class="pre">vals</span></span><a class="headerlink" href="#presc.evaluations.conditional_distribution.ConditionalDistributionResult.vals" title="Permalink to this definition"></a></dt>
+<dd><p>A Series listing the bin counts for each group, indexed by (&lt;true_label&gt;,
+&lt;predicted_label&gt;, &lt;bin_label&gt;).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_distribution.ConditionalDistributionResult.bins">
+<span class="sig-name descname"><span class="pre">bins</span></span><a class="headerlink" href="#presc.evaluations.conditional_distribution.ConditionalDistributionResult.bins" title="Permalink to this definition"></a></dt>
+<dd><p>A Series listing the bin endpoints. If <cite>common_bins</cite> is <cite>False</cite>,
+this should be indexed by (&lt;true_label&gt;, &lt;predicted_label&gt;) and list
+the endpoints for each group. If the data was treated as numeric, this
+will have length <cite>len(vals)+1</cite> (within each group), otherwise
+<cite>len(vals)</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_distribution.ConditionalDistributionResult.categorical">
+<span class="sig-name descname"><span class="pre">categorical</span></span><a class="headerlink" href="#presc.evaluations.conditional_distribution.ConditionalDistributionResult.categorical" title="Permalink to this definition"></a></dt>
+<dd><p>Was the feature treated as categorical?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_distribution.ConditionalDistributionResult.binning">
+<span class="sig-name descname"><span class="pre">binning</span></span><a class="headerlink" href="#presc.evaluations.conditional_distribution.ConditionalDistributionResult.binning" title="Permalink to this definition"></a></dt>
+<dd><p>The binning scheme used</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_distribution.ConditionalDistributionResult.common_bins">
+<span class="sig-name descname"><span class="pre">common_bins</span></span><a class="headerlink" href="#presc.evaluations.conditional_distribution.ConditionalDistributionResult.common_bins" title="Permalink to this definition"></a></dt>
+<dd><p>Were common bins used across all groups?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_distribution.ConditionalDistributionResult.display_result">
+<span class="sig-name descname"><span class="pre">display_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xlab</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/conditional_distribution.html#ConditionalDistributionResult.display_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.conditional_distribution.ConditionalDistributionResult.display_result" title="Permalink to this definition"></a></dt>
+<dd><p>Display the distributions for the given data column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>xlab</strong> (<em>str</em>) – Label to display on the x-axis.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_distribution.compute_conditional_distribution">
+<span class="sig-prename descclassname"><span class="pre">presc.evaluations.conditional_distribution.</span></span><span class="sig-name descname"><span class="pre">compute_conditional_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_labs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_labs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binning</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">common_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/conditional_distribution.html#compute_conditional_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.conditional_distribution.compute_conditional_distribution" title="Permalink to this definition"></a></dt>
+<dd><p>Compute a distributional summary.</p>
+<p>The metric is computed within unique values of the grouping column
+(categorical) or within bins partitioning its range (continuous).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_col</strong> – A column of data from a test dataset.</p></li>
+<li><p><strong>true_labs</strong> (<em>Series</em>) – A series of true labels for the test dataset.</p></li>
+<li><p><strong>pred_labs</strong> (<em>Series</em>) – A series of labels predicted by a model for the test dataset.</p></li>
+<li><p><strong>as_categorical</strong> (<em>bool</em>) – Should the data column be treated as categorical, ie. binned
+on its unique values? If it is not numeric, this param is ignored.</p></li>
+<li><p><strong>binning</strong> (<em>str</em>) – Binning scheme to use for a numerical column, passed to <cite>numpy.histogram</cite>.
+Can be a fixed number of bins or a string indicating a binning scheme</p></li>
+<li><p><strong>common_bins</strong> (<em>bool</em>) – Should the bins be computed over the entire column and shared
+across groups (<cite>True</cite>) or computed within each group (<cite>False</cite>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#presc.evaluations.conditional_distribution.ConditionalDistributionResult" title="presc.evaluations.conditional_distribution.ConditionalDistributionResult">ConditionalDistributionResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-presc.evaluations.conditional_metric">
+<span id="presc-evaluations-conditional-metric-module"></span><h2>presc.evaluations.conditional_metric module<a class="headerlink" href="#module-presc.evaluations.conditional_metric" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_metric.ConditionalMetric">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">presc.evaluations.conditional_metric.</span></span><span class="sig-name descname"><span class="pre">ConditionalMetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/conditional_metric.html#ConditionalMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.conditional_metric.ConditionalMetric" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Computation of confusion-based metrics across subsets of a test dataset.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_metric.ConditionalMetric.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#presc.evaluations.conditional_metric.ConditionalMetric.model" title="Permalink to this definition"></a></dt>
+<dd><p>The ClassificationModel to run the evaluation for.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_metric.ConditionalMetric.test_dataset">
+<span class="sig-name descname"><span class="pre">test_dataset</span></span><a class="headerlink" href="#presc.evaluations.conditional_metric.ConditionalMetric.test_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>A Dataset to use for evaluation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset">presc.dataset.Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_metric.ConditionalMetric.settings">
+<span class="sig-name descname"><span class="pre">settings</span></span><a class="headerlink" href="#presc.evaluations.conditional_metric.ConditionalMetric.settings" title="Permalink to this definition"></a></dt>
+<dd><p>An optional dict specifying option values under
+<cite>evaluations.conditional_metric</cite>, eg. <cite>{“computation.num_bins”: 5}</cite>
+These are restricted to the class instance and do not change the global config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_metric.ConditionalMetric.config">
+<span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#presc.evaluations.conditional_metric.ConditionalMetric.config" title="Permalink to this definition"></a></dt>
+<dd><p>An optional PrescConfig instance to read options from. This will be
+overridden by <cite>settings</cite> values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="presc.html#presc.configuration.PrescConfig" title="presc.configuration.PrescConfig">presc.configuration.PrescConfig</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_metric.ConditionalMetric.compute_for_column">
+<span class="sig-name descname"><span class="pre">compute_for_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">colname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/conditional_metric.html#ConditionalMetric.compute_for_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.conditional_metric.ConditionalMetric.compute_for_column" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the evaluation for the given dataset column.</p>
+<p>The metric is computed within unique values of the specified column
+(if categorical) or within bins partitioning its range (if continuous).</p>
+<dl class="simple">
+<dt>colname<span class="classifier">str</span></dt><dd><p>A column in the dataset to partition on.</p>
+</dd>
+<dt>metric<span class="classifier">function</span></dt><dd><p>The evaluation metric to compute across the partitions. This should be
+a function f(y_true, y_pred) which accepts Series of true and
+predicted labels.</p>
+</dd>
+<dt>kwargs :</dt><dd><p>On-the-fly overrides to the config option values for the computation.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#presc.evaluations.conditional_metric.ConditionalMetricResult" title="presc.evaluations.conditional_metric.ConditionalMetricResult">ConditionalMetricResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_metric.ConditionalMetric.display">
+<span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">colnames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/conditional_metric.html#ConditionalMetric.display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.conditional_metric.ConditionalMetric.display" title="Permalink to this definition"></a></dt>
+<dd><p>Computes and displays the conditional metric result for each specified column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>colnames</strong> (<em>list of str</em>) – A list of column names to run the evaluation over, creating a plot
+for each. If not supplied, defaults to columns specifed in the config.</p></li>
+<li><p><strong>metric_name</strong> (<em>str</em>) – Display name identifying the metric to show on the plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_metric.ConditionalMetricResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">presc.evaluations.conditional_metric.</span></span><span class="sig-name descname"><span class="pre">ConditionalMetricResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/conditional_metric.html#ConditionalMetricResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.conditional_metric.ConditionalMetricResult" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Result of the conditional metric evaluation for a single grouping.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_metric.ConditionalMetricResult.vals">
+<span class="sig-name descname"><span class="pre">vals</span></span><a class="headerlink" href="#presc.evaluations.conditional_metric.ConditionalMetricResult.vals" title="Permalink to this definition"></a></dt>
+<dd><p>A Series listing the computation result for each bin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_metric.ConditionalMetricResult.bins">
+<span class="sig-name descname"><span class="pre">bins</span></span><a class="headerlink" href="#presc.evaluations.conditional_metric.ConditionalMetricResult.bins" title="Permalink to this definition"></a></dt>
+<dd><p>A Series listing the bin endpoints. If the feature was treated as
+numeric, this will have length <cite>len(vals)+1</cite>, otherwise <cite>len(vals)</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_metric.ConditionalMetricResult.categorical">
+<span class="sig-name descname"><span class="pre">categorical</span></span><a class="headerlink" href="#presc.evaluations.conditional_metric.ConditionalMetricResult.categorical" title="Permalink to this definition"></a></dt>
+<dd><p>Aas the feature treated as categorical?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_metric.ConditionalMetricResult.num_bins">
+<span class="sig-name descname"><span class="pre">num_bins</span></span><a class="headerlink" href="#presc.evaluations.conditional_metric.ConditionalMetricResult.num_bins" title="Permalink to this definition"></a></dt>
+<dd><p>Number of bins used for grouping.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_metric.ConditionalMetricResult.quantile">
+<span class="sig-name descname"><span class="pre">quantile</span></span><a class="headerlink" href="#presc.evaluations.conditional_metric.ConditionalMetricResult.quantile" title="Permalink to this definition"></a></dt>
+<dd><p>Was grouping quantile-based?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_metric.ConditionalMetricResult.display_result">
+<span class="sig-name descname"><span class="pre">display_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xlab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylab</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/conditional_metric.html#ConditionalMetricResult.display_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.conditional_metric.ConditionalMetricResult.display_result" title="Permalink to this definition"></a></dt>
+<dd><p>Display the evaluation result for the given grouping and metric.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xlab</strong> (<em>str</em>) – Label to display on the x-axis.</p></li>
+<li><p><strong>ylab</strong> (<em>str</em>) – Label to display on the y-axis.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.evaluations.conditional_metric.compute_conditional_metric">
+<span class="sig-prename descclassname"><span class="pre">presc.evaluations.conditional_metric.</span></span><span class="sig-name descname"><span class="pre">compute_conditional_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grouping_col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_labs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_labs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/conditional_metric.html#compute_conditional_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.conditional_metric.compute_conditional_metric" title="Permalink to this definition"></a></dt>
+<dd><p>Compute metric values conditional on the grouping column.</p>
+<p>The metric is computed within unique values of the grouping column
+(categorical) or within bins partitioning its range (continuous).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grouping_col</strong> (<em>Series</em>) – Series defining a grouping for the metric computation.</p></li>
+<li><p><strong>true_labs</strong> (<em>Series</em>) – Series of true labels for a test dataset.</p></li>
+<li><p><strong>pred_labs</strong> (<em>Series</em>) – Series of labels predicted by a model for a test dataset.</p></li>
+<li><p><strong>metric</strong> (<em>function</em>) – The evaluation metric to compute across the groupings. This should be
+a function f(y_true, y_pred) which accepts Series of true and
+predicted labels.</p></li>
+<li><p><strong>as_categorical</strong> (<em>bool</em>) – Should the grouping column be treated as categorical, ie. binned
+on its unique values? If it is not numeric, this param is ignored.</p></li>
+<li><p><strong>num_bins</strong> (<em>int</em>) – Number of bins to use for grouping a numeric column.</p></li>
+<li><p><strong>quantile</strong> (<em>bool</em>) – Should the bin widths correspond to quantiles of a numerical column’s
+distribution (<cite>True</cite>) or be equally-spaced over its range (<cite>False</cite>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#presc.evaluations.conditional_metric.ConditionalMetricResult" title="presc.evaluations.conditional_metric.ConditionalMetricResult">ConditionalMetricResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-presc.evaluations.spatial_distribution">
+<span id="presc-evaluations-spatial-distribution-module"></span><h2>presc.evaluations.spatial_distribution module<a class="headerlink" href="#module-presc.evaluations.spatial_distribution" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="presc.evaluations.spatial_distribution.SpatialDistribution">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">presc.evaluations.spatial_distribution.</span></span><span class="sig-name descname"><span class="pre">SpatialDistribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/spatial_distribution.html#SpatialDistribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.spatial_distribution.SpatialDistribution" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Computation of distributions of data in feature space.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.spatial_distribution.SpatialDistribution.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#presc.evaluations.spatial_distribution.SpatialDistribution.model" title="Permalink to this definition"></a></dt>
+<dd><p>The ClassificationModel to run the evaluation for.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="presc.html#presc.model.ClassificationModel" title="presc.model.ClassificationModel">presc.model.ClassificationModel</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.spatial_distribution.SpatialDistribution.test_dataset">
+<span class="sig-name descname"><span class="pre">test_dataset</span></span><a class="headerlink" href="#presc.evaluations.spatial_distribution.SpatialDistribution.test_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>A Dataset to use for evaluation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset">presc.dataset.Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.spatial_distribution.SpatialDistribution.train_dataset">
+<span class="sig-name descname"><span class="pre">train_dataset</span></span><a class="headerlink" href="#presc.evaluations.spatial_distribution.SpatialDistribution.train_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>A Dataset to use as the baseline for distance measures (eg. the training
+data).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset">presc.dataset.Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.spatial_distribution.SpatialDistribution.settings">
+<span class="sig-name descname"><span class="pre">settings</span></span><a class="headerlink" href="#presc.evaluations.spatial_distribution.SpatialDistribution.settings" title="Permalink to this definition"></a></dt>
+<dd><p>An optional dict specifying option values under
+<cite>evaluations.spatial_distribution</cite>, eg. <cite>{“summary_agg”: “median”}</cite>
+These are restricted to the class instance and do not change the global
+config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.spatial_distribution.SpatialDistribution.config">
+<span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#presc.evaluations.spatial_distribution.SpatialDistribution.config" title="Permalink to this definition"></a></dt>
+<dd><p>An optional PrescConfig instance to read options from. This will be
+overridden by <cite>settings</cite> values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="presc.html#presc.configuration.PrescConfig" title="presc.configuration.PrescConfig">presc.configuration.PrescConfig</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.evaluations.spatial_distribution.SpatialDistribution.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/spatial_distribution.html#SpatialDistribution.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.spatial_distribution.SpatialDistribution.compute" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the evaluation for the given datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – On-the-fly overrides to the config option values for the computation.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#presc.evaluations.spatial_distribution.SpatialDistributionResult" title="presc.evaluations.spatial_distribution.SpatialDistributionResult">SpatialDistributionResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.evaluations.spatial_distribution.SpatialDistribution.display">
+<span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/spatial_distribution.html#SpatialDistribution.display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.spatial_distribution.SpatialDistribution.display" title="Permalink to this definition"></a></dt>
+<dd><p>Computes and displays the spatial distribution results.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="presc.evaluations.spatial_distribution.SpatialDistributionResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">presc.evaluations.spatial_distribution.</span></span><span class="sig-name descname"><span class="pre">SpatialDistributionResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_metrics_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_metrics_categ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/spatial_distribution.html#SpatialDistributionResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.spatial_distribution.SpatialDistributionResult" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Result of the spatial distribution computation.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.spatial_distribution.SpatialDistributionResult.vals">
+<span class="sig-name descname"><span class="pre">vals</span></span><a class="headerlink" href="#presc.evaluations.spatial_distribution.SpatialDistributionResult.vals" title="Permalink to this definition"></a></dt>
+<dd><p>A  DataFrame listing the summary values for each test datapoint, indexed
+by (&lt;true_label&gt;, &lt;predicted_label&gt;, &lt;datapoint_index&gt;).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.spatial_distribution.SpatialDistributionResult.dist_metrics_num">
+<span class="sig-name descname"><span class="pre">dist_metrics_num</span></span><a class="headerlink" href="#presc.evaluations.spatial_distribution.SpatialDistributionResult.dist_metrics_num" title="Permalink to this definition"></a></dt>
+<dd><p>Mapping of numerical column names to the metric that was used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.spatial_distribution.SpatialDistributionResult.dist_metrics_categ">
+<span class="sig-name descname"><span class="pre">dist_metrics_categ</span></span><a class="headerlink" href="#presc.evaluations.spatial_distribution.SpatialDistributionResult.dist_metrics_categ" title="Permalink to this definition"></a></dt>
+<dd><p>Mapping of categorical column names to the metric that was used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.spatial_distribution.SpatialDistributionResult.summary">
+<span class="sig-name descname"><span class="pre">summary</span></span><a class="headerlink" href="#presc.evaluations.spatial_distribution.SpatialDistributionResult.summary" title="Permalink to this definition"></a></dt>
+<dd><p>The summary used to aggregate distances for each class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.evaluations.spatial_distribution.SpatialDistributionResult.display_result">
+<span class="sig-name descname"><span class="pre">display_result</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/spatial_distribution.html#SpatialDistributionResult.display_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.spatial_distribution.SpatialDistributionResult.display_result" title="Permalink to this definition"></a></dt>
+<dd><p>Display the distances summaries as scatterplots.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.evaluations.spatial_distribution.compute_spatial_distribution">
+<span class="sig-prename descclassname"><span class="pre">presc.evaluations.spatial_distribution.</span></span><span class="sig-name descname"><span class="pre">compute_spatial_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_labs_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_labs_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_labs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numerical_dist_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical_dist_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/spatial_distribution.html#compute_spatial_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.spatial_distribution.compute_spatial_distribution" title="Permalink to this definition"></a></dt>
+<dd><p>Compute a summary of the pairwise distances between points.</p>
+<p>This computes pairwise distances between the test points and base points in
+feature space (ie. how far each test point is from each base point), and
+returns a summary of the distance for each test point relative to each base
+class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>test_features</strong> (<em>DataFrame</em>) – Feature values for the test dataset.</p></li>
+<li><p><strong>test_labs_true</strong> (<em>Series</em>) – True labels for the test dataset.</p></li>
+<li><p><strong>test_labs_pred</strong> (<em>Series</em>) – Labels predicted by a model for the test dataset.</p></li>
+<li><p><strong>base_features</strong> (<em>DataFrame</em>) – Feature values for the base dataset.</p></li>
+<li><p><strong>base_labs</strong> (<em>Series</em>) – True labels for the base dataset.</p></li>
+<li><p><strong>numerical_dist_metric</strong> (<em>dict</em>) – The metrics to use to measure distance between numerical
+(continuous)-valued columns. This should be a dict mapping column names
+to strings, each a named metric as accepted by
+<cite>sklearn.metrics.pairwise_distances</cite> appropriate for continuous data</p></li>
+<li><p><strong>categorical_dist_metric</strong> (<em>dict</em>) – The metrics to use to measure distance between categorical
+(discrete)-valued columns. This should be a dict mapping column names to
+strings, each a named metric as accepted by
+<cite>sklearn.metrics.pairwise_distances</cite> appropriate for discrete data</p></li>
+<li><p><strong>summary</strong> (<em>str</em>) – An aggregation function to apply to a Pandas Grouped object.</p></li>
+<li><p><strong>the</strong> (<em>Only columns listed in the distance metric dists will be included in</em>) – </p></li>
+<li><p><strong>computation.</strong> (<em>distance</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#presc.evaluations.spatial_distribution.SpatialDistributionResult" title="presc.evaluations.spatial_distribution.SpatialDistributionResult">SpatialDistributionResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-presc.evaluations.train_test_splits">
+<span id="presc-evaluations-train-test-splits-module"></span><h2>presc.evaluations.train_test_splits module<a class="headerlink" href="#module-presc.evaluations.train_test_splits" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="presc.evaluations.train_test_splits.TrainTestSplits">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">presc.evaluations.train_test_splits.</span></span><span class="sig-name descname"><span class="pre">TrainTestSplits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/train_test_splits.html#TrainTestSplits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.train_test_splits.TrainTestSplits" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Simulation of performance across different train-test split ratios.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.train_test_splits.TrainTestSplits.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#presc.evaluations.train_test_splits.TrainTestSplits.model" title="Permalink to this definition"></a></dt>
+<dd><p>The ClassificationModel to run the evaluation for.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.train_test_splits.TrainTestSplits.train_dataset">
+<span class="sig-name descname"><span class="pre">train_dataset</span></span><a class="headerlink" href="#presc.evaluations.train_test_splits.TrainTestSplits.train_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>A Dataset to use for evaluation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset">presc.dataset.Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.train_test_splits.TrainTestSplits.settings">
+<span class="sig-name descname"><span class="pre">settings</span></span><a class="headerlink" href="#presc.evaluations.train_test_splits.TrainTestSplits.settings" title="Permalink to this definition"></a></dt>
+<dd><p>An optional dict specifying option values under <cite>evaluations.conditional_distribution</cite>,
+eg. <cite>{“computation.num_replicates”: 5}</cite>, These are restricted to the class instance and do not change the global config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.train_test_splits.TrainTestSplits.config">
+<span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#presc.evaluations.train_test_splits.TrainTestSplits.config" title="Permalink to this definition"></a></dt>
+<dd><p>An optional PrescConfig instance to read options from. This will be overridden by <cite>settings</cite> values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="presc.html#presc.configuration.PrescConfig" title="presc.configuration.PrescConfig">presc.configuration.PrescConfig</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.evaluations.train_test_splits.TrainTestSplits.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/train_test_splits.html#TrainTestSplits.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.train_test_splits.TrainTestSplits.compute" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the evaluation for the given dataset column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metric</strong> (<em>str</em>) – The evaluation metric to compute for each split. This should be the
+name of a <cite>sklearn.metrics</cite> scorer function.</p></li>
+<li><p><strong>kwargs</strong> – On-the-fly overrides to the config option values for the computation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#presc.evaluations.train_test_splits.TrainTestSplitsResult" title="presc.evaluations.train_test_splits.TrainTestSplitsResult">TrainTestSplitsResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.evaluations.train_test_splits.TrainTestSplits.display">
+<span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/train_test_splits.html#TrainTestSplits.display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.train_test_splits.TrainTestSplits.display" title="Permalink to this definition"></a></dt>
+<dd><p>Computes and displays the train-test splits result for each
+specified metric.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="presc.evaluations.train_test_splits.TrainTestSplitsResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">presc.evaluations.train_test_splits.</span></span><span class="sig-name descname"><span class="pre">TrainTestSplitsResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_size_increment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_replicates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/train_test_splits.html#TrainTestSplitsResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.train_test_splits.TrainTestSplitsResult" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Result of the train-test splits evaluation.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.train_test_splits.TrainTestSplitsResult.vals">
+<span class="sig-name descname"><span class="pre">vals</span></span><a class="headerlink" href="#presc.evaluations.train_test_splits.TrainTestSplitsResult.vals" title="Permalink to this definition"></a></dt>
+<dd><p>A DataFrame listing the performance score results for each split size.
+Rows are indexed by split size, with replicated results across columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.train_test_splits.TrainTestSplitsResult.metric">
+<span class="sig-name descname"><span class="pre">metric</span></span><a class="headerlink" href="#presc.evaluations.train_test_splits.TrainTestSplitsResult.metric" title="Permalink to this definition"></a></dt>
+<dd><p>The evaluation metric used to score performance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.train_test_splits.TrainTestSplitsResult.split_size_increment">
+<span class="sig-name descname"><span class="pre">split_size_increment</span></span><a class="headerlink" href="#presc.evaluations.train_test_splits.TrainTestSplitsResult.split_size_increment" title="Permalink to this definition"></a></dt>
+<dd><p>Increment between linearly-space train-test split ratios.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.train_test_splits.TrainTestSplitsResult.num_replicates">
+<span class="sig-name descname"><span class="pre">num_replicates</span></span><a class="headerlink" href="#presc.evaluations.train_test_splits.TrainTestSplitsResult.num_replicates" title="Permalink to this definition"></a></dt>
+<dd><p>Number of randomized replicates for each split.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.evaluations.train_test_splits.TrainTestSplitsResult.random_state">
+<span class="sig-name descname"><span class="pre">random_state</span></span><a class="headerlink" href="#presc.evaluations.train_test_splits.TrainTestSplitsResult.random_state" title="Permalink to this definition"></a></dt>
+<dd><p>Random state setting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.evaluations.train_test_splits.TrainTestSplitsResult.display_result">
+<span class="sig-name descname"><span class="pre">display_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/train_test_splits.html#TrainTestSplitsResult.display_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.train_test_splits.TrainTestSplitsResult.display_result" title="Permalink to this definition"></a></dt>
+<dd><p>Display the evaluation results across split sizes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>metric_name</strong> (<em>str</em>) – Display name for the scoring metric.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.evaluations.train_test_splits.compute_train_test_splits">
+<span class="sig-prename descclassname"><span class="pre">presc.evaluations.train_test_splits.</span></span><span class="sig-name descname"><span class="pre">compute_train_test_splits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_size_increment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_replicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">543</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/train_test_splits.html#compute_train_test_splits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.train_test_splits.compute_train_test_splits" title="Permalink to this definition"></a></dt>
+<dd><p>Evaluate classifier performance across different train-test split ratios.</p>
+<p>This traverses a grid of train-test splits, retraining the model on each
+training subset and computing a performance metric on the corresponding test
+set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset"><em>presc.dataset.Dataset</em></a>) – The Dataset to use for the evaluation.</p></li>
+<li><p><strong>classifier</strong> (<em>sklearn Classifier</em>) – The classifier to evaluate.</p></li>
+<li><p><strong>metric</strong> (<em>str</em>) – The evaluation metric to compute for each split. This should be the name
+of a <cite>sklearn.metrics</cite> scorer function.</p></li>
+<li><p><strong>split_size_increment</strong> (<em>float</em>) – Increment between linearly-space train-test split ratios.</p></li>
+<li><p><strong>num_replicates</strong> (<em>int</em>) – Number of randomized replicates to run for each split.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em>) – Set the random state for reproducibility.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#presc.evaluations.train_test_splits.TrainTestSplitsResult" title="presc.evaluations.train_test_splits.TrainTestSplitsResult">TrainTestSplitsResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-presc.evaluations.utils">
+<span id="presc-evaluations-utils-module"></span><h2>presc.evaluations.utils module<a class="headerlink" href="#module-presc.evaluations.utils" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.evaluations.utils.get_bins">
+<span class="sig-prename descclassname"><span class="pre">presc.evaluations.utils.</span></span><span class="sig-name descname"><span class="pre">get_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/utils.html#get_bins"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.utils.get_bins" title="Permalink to this definition"></a></dt>
+<dd><p>Split a Series into discrete bins.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>s</strong> (<em>pandas Series</em>) – </p></li>
+<li><p><strong>num_bins</strong> (<em>int</em>) – The number of bins to split the range of <cite>s</cite> into.</p></li>
+<li><p><strong>quantile</strong> (<em>bool</em>) – If True, bin edges will correspond to quantiles for
+equally-spaced probabilities. Otherwise, bins are equally spaced on the
+original scale.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Series of the same length as <cite>s</cite> indicating the bin for each value,
+as well as an array of bin edges of length <cite>num_bins+1</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.evaluations.utils.is_discrete">
+<span class="sig-prename descclassname"><span class="pre">presc.evaluations.utils.</span></span><span class="sig-name descname"><span class="pre">is_discrete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/evaluations/utils.html#is_discrete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.evaluations.utils.is_discrete" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if the given Series should be considered discrete/categorical.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="presc.html" class="btn btn-neutral float-left" title="Subpackages" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="presc.report.html" class="btn btn-neutral float-right" title="presc.report package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Mozilla Foundation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

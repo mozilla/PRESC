@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>presc.copies.evaluations &mdash; PRESC 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html">
+            <img src="../../../_static/classifier-bias-PRESC_v3_black_margin3.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../evaluations.html">Evaluations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ml_copies.html">ML Classifier Copies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">presc</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">Classification datasets</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">PRESC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>presc.copies.evaluations</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for presc.copies.evaluations</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span>
+
+<span class="kn">from</span> <span class="nn">presc.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+
+
+<div class="viewcode-block" id="empirical_fidelity_error"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.evaluations.empirical_fidelity_error">[docs]</a><span class="k">def</span> <span class="nf">empirical_fidelity_error</span><span class="p">(</span><span class="n">y_pred_original</span><span class="p">,</span> <span class="n">y_pred_copy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the empirical fidelity error of a classifier copy.</span>
+
+<span class="sd">    Quantifies the resemblance of the copy to the original classifier. This</span>
+<span class="sd">    value is zero when the copy makes exactly the same predictions than the</span>
+<span class="sd">    original classifier (including misclassifications).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y_pred_original : list or 1d array-like</span>
+<span class="sd">        Predicted labels, as returned by the original classifier.</span>
+<span class="sd">    y_pred_copy : list or 1d array-like</span>
+<span class="sd">        Predicted labels, as returned by the classifier copy.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The numerical value of the empirical fidelity error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_pred_original</span><span class="p">,</span> <span class="n">y_pred_copy</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">error</span></div>
+
+
+<div class="viewcode-block" id="replacement_capability"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.evaluations.replacement_capability">[docs]</a><span class="k">def</span> <span class="nf">replacement_capability</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred_original</span><span class="p">,</span> <span class="n">y_pred_copy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the replacement capability of a classifier copy.</span>
+
+<span class="sd">    Quantifies the ability of the copy model to substitute the original model,</span>
+<span class="sd">    i.e. maintaining the same accuracy in its predictions. This value is one</span>
+<span class="sd">    when the accuracy of the copy model is the same as the original model,</span>
+<span class="sd">    although the individual predictions may be different, approaching zero if</span>
+<span class="sd">    the accuracy of the copy is much smaller than the original, and it can even</span>
+<span class="sd">    take values larger than one if the copy model is better than the original.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y_true : list or 1d array-like</span>
+<span class="sd">        True labels from the data.</span>
+<span class="sd">    y_pred_original : list or 1d array-like</span>
+<span class="sd">        Predicted labels, as returned by the original classifier.</span>
+<span class="sd">    y_pred_copy : list or 1d array-like</span>
+<span class="sd">        Predicted labels, as returned by the classifier copy.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The numerical value of the replacement capability.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">accuracy_original</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred_original</span><span class="p">)</span>
+    <span class="n">accuracy_copy</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred_copy</span><span class="p">)</span>
+    <span class="n">rcapability</span> <span class="o">=</span> <span class="n">accuracy_copy</span> <span class="o">/</span> <span class="n">accuracy_original</span>
+    <span class="k">return</span> <span class="n">rcapability</span></div>
+
+
+<div class="viewcode-block" id="summary_metrics"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.evaluations.summary_metrics">[docs]</a><span class="k">def</span> <span class="nf">summary_metrics</span><span class="p">(</span>
+    <span class="n">original_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">copy_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">test_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">synthetic_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">show_results</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes several metrics to evaluate the classifier copy.</span>
+
+<span class="sd">    Summary of metrics that evaluate the quality of a classifier copy, not only</span>
+<span class="sd">    to assess its performance as classifier but to quantify its resemblance to</span>
+<span class="sd">    the original classifier. Accuracy of the original and the copy models (using</span>
+<span class="sd">    the original test data), and the empirical fidelity error and replacement</span>
+<span class="sd">    capability of the copy (using the original test data and/or the generated</span>
+<span class="sd">    synthetic data).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    original_model : sklearn-type classifier</span>
+<span class="sd">        Original ML classifier to be copied.</span>
+<span class="sd">    copy_model : presc.copies.copying.ClassifierCopy</span>
+<span class="sd">        ML classifier copy from the original ML classifier.</span>
+<span class="sd">    test_data : presc.dataset.Dataset</span>
+<span class="sd">        Subset of the original data reserved for testing.</span>
+<span class="sd">    synthetic_data : presc.dataset.Dataset</span>
+<span class="sd">        Synthetic data generated using the original model.</span>
+<span class="sd">    show_results : bool</span>
+<span class="sd">        If `True` the metrics are also printed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The values of all metrics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;Original Model Accuracy (test)&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;Copy Model Accuracy (test)&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;Empirical Fidelity Error (synthetic)&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;Empirical Fidelity Error (test)&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;Replacement Capability (synthetic)&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;Replacement Capability (test)&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">test_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">original_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y_pred_original_test</span> <span class="o">=</span> <span class="n">original_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_data</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+
+            <span class="n">original_accuracy</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">test_data</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">y_pred_original_test</span><span class="p">)</span>
+            <span class="n">results</span><span class="p">[</span><span class="s2">&quot;Original Model Accuracy (test)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">original_accuracy</span>
+
+        <span class="k">if</span> <span class="n">copy_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y_pred_copy_test</span> <span class="o">=</span> <span class="n">copy_model</span><span class="o">.</span><span class="n">copy</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_data</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+
+            <span class="n">copy_accuracy</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">test_data</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">y_pred_copy_test</span><span class="p">)</span>
+            <span class="n">results</span><span class="p">[</span><span class="s2">&quot;Copy Model Accuracy (test)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy_accuracy</span>
+
+            <span class="n">efe_test</span> <span class="o">=</span> <span class="n">copy_model</span><span class="o">.</span><span class="n">compute_fidelity_error</span><span class="p">(</span><span class="n">test_data</span><span class="o">=</span><span class="n">test_data</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+            <span class="n">results</span><span class="p">[</span><span class="s2">&quot;Empirical Fidelity Error (test)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">efe_test</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">original_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">copy_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">rc_test</span> <span class="o">=</span> <span class="n">replacement_capability</span><span class="p">(</span>
+                <span class="n">test_data</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">y_pred_original_test</span><span class="p">,</span> <span class="n">y_pred_copy_test</span>
+            <span class="p">)</span>
+            <span class="n">results</span><span class="p">[</span><span class="s2">&quot;Replacement Capability (test)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rc_test</span>
+
+    <span class="k">if</span> <span class="n">synthetic_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">original_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y_pred_original_synth</span> <span class="o">=</span> <span class="n">original_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">synthetic_data</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">copy_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y_pred_copy_synth</span> <span class="o">=</span> <span class="n">copy_model</span><span class="o">.</span><span class="n">copy</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">synthetic_data</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+
+            <span class="n">efe_synthetic</span> <span class="o">=</span> <span class="n">copy_model</span><span class="o">.</span><span class="n">compute_fidelity_error</span><span class="p">(</span>
+                <span class="n">test_data</span><span class="o">=</span><span class="n">synthetic_data</span><span class="o">.</span><span class="n">features</span>
+            <span class="p">)</span>
+            <span class="n">results</span><span class="p">[</span><span class="s2">&quot;Empirical Fidelity Error (synthetic)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">efe_synthetic</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">original_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">copy_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">rc_synthetic</span> <span class="o">=</span> <span class="n">replacement_capability</span><span class="p">(</span>
+                <span class="n">synthetic_data</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">y_pred_original_synth</span><span class="p">,</span> <span class="n">y_pred_copy_synth</span>
+            <span class="p">)</span>
+            <span class="n">results</span><span class="p">[</span><span class="s2">&quot;Replacement Capability (synthetic)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rc_synthetic</span>
+
+    <span class="k">if</span> <span class="n">show_results</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&lt;37</span><span class="si">}</span><span class="s2">   </span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">results</span></div>
+
+
+<div class="viewcode-block" id="multivariable_density_comparison"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.evaluations.multivariable_density_comparison">[docs]</a><span class="k">def</span> <span class="nf">multivariable_density_comparison</span><span class="p">(</span>
+    <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span>
+    <span class="n">feature1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">feature2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">label_col</span><span class="o">=</span><span class="s2">&quot;class&quot;</span><span class="p">,</span>
+    <span class="n">titles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">other_kwargs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+        <span class="s2">&quot;common_norm&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;fill&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;n_levels&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="s2">&quot;legend&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Visualization to compare class density projections in detail.</span>
+
+<span class="sd">    Allows to compare the different topologies of a number of ML classifiers in</span>
+<span class="sd">    a multivariable feature space by choosing a feature pair and &quot;squashing&quot; the</span>
+<span class="sd">    rest of the features into a projected density distribution for each class.</span>
+
+<span class="sd">    It is important that the classifier datasets are obtained through a</span>
+<span class="sd">    homogeneous sampling throughout the feature space to avoid introducing</span>
+<span class="sd">    spurious shapes in the projected density distributions. `uniform_sampling`</span>
+<span class="sd">    is a good option for that.</span>
+
+<span class="sd">    `normal_sampling` and any other non-uniform samplers should be avoided</span>
+<span class="sd">    because the intrinsic class distributions become convoluted with its</span>
+<span class="sd">    gaussian shape obscuring them. Note that `grid_sampling` is also not</span>
+<span class="sd">    recommended because it samples very specific interval points and thus yields</span>
+<span class="sd">    density peaks.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    datasets : list of pandas DataFrames</span>
+<span class="sd">        List of the datasets with the sampled and labeled points for each classifier included in the comparison.</span>
+<span class="sd">    feature1 :</span>
+<span class="sd">        Name of feature to display in the x-axis.</span>
+<span class="sd">    feature2 :</span>
+<span class="sd">        Name of feature to display in the y-axis.</span>
+<span class="sd">    label_col : str</span>
+<span class="sd">        Name of the label column.</span>
+<span class="sd">    titles : list of str</span>
+<span class="sd">        List of names to identify each classifier and label their subplot.</span>
+<span class="sd">    **other_kwargs : dict</span>
+<span class="sd">        Any other seaborn.kdeplot parameters needed to adjust the visualization.</span>
+<span class="sd">        Default parameters are {&quot;alpha&quot;: 0.3, &quot;common_norm&quot;: False, &quot;fill&quot;: True,</span>
+<span class="sd">        &quot;n_levels&quot;: 4, &quot;legend&quot;: False}. The value of any parameter specified</span>
+<span class="sd">        within the other_kwargs dictionary will be overwritten, including any</span>
+<span class="sd">        of these.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.figure.Figure</span>
+<span class="sd">        Figure with the detailed classifier comparison.</span>
+<span class="sd">    matplotlib.axes.Axes or array of Axes</span>
+<span class="sd">        Contains most of the figure elements of the classifier comparison and sets the coordinate system.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kdeplot_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+        <span class="s2">&quot;common_norm&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;fill&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;n_levels&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="s2">&quot;legend&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">other_kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">kdeplot_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="n">num_comparisons</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+    <span class="n">class_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">index_models</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_comparisons</span><span class="p">):</span>
+        <span class="n">class_names</span> <span class="o">=</span> <span class="n">class_names</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">datasets</span><span class="p">[</span><span class="n">index_models</span><span class="p">][</span><span class="n">label_col</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+    <span class="n">class_names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">class_names</span><span class="p">))</span>
+    <span class="n">max_num_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">class_names</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="n">max_num_classes</span><span class="p">,</span>
+        <span class="n">num_comparisons</span><span class="p">,</span>
+        <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">3.5</span> <span class="o">*</span> <span class="n">num_comparisons</span><span class="p">,</span> <span class="mf">3.5</span> <span class="o">*</span> <span class="n">max_num_classes</span><span class="p">),</span>
+        <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">index_models</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_comparisons</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">index_classes</span><span class="p">,</span> <span class="n">class_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">class_names</span><span class="p">):</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">index_classes</span><span class="p">,</span> <span class="n">index_models</span><span class="p">]</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">kdeplot</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">datasets</span><span class="p">[</span><span class="n">index_models</span><span class="p">][</span>
+                    <span class="n">datasets</span><span class="p">[</span><span class="n">index_models</span><span class="p">][</span><span class="n">label_col</span><span class="p">]</span> <span class="o">==</span> <span class="n">class_name</span>
+                <span class="p">][</span><span class="n">feature1</span><span class="p">],</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">datasets</span><span class="p">[</span><span class="n">index_models</span><span class="p">][</span>
+                    <span class="n">datasets</span><span class="p">[</span><span class="n">index_models</span><span class="p">][</span><span class="n">label_col</span><span class="p">]</span> <span class="o">==</span> <span class="n">class_name</span>
+                <span class="p">][</span><span class="n">feature2</span><span class="p">],</span>
+                <span class="n">hue</span><span class="o">=</span><span class="n">datasets</span><span class="p">[</span><span class="n">index_models</span><span class="p">][</span><span class="n">label_col</span><span class="p">],</span>
+                <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">index_classes</span><span class="p">,</span> <span class="n">index_models</span><span class="p">],</span>
+                <span class="o">**</span><span class="n">kdeplot_kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">index_classes</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span>
+                <span class="n">label_col</span> <span class="o">+</span> <span class="s2">&quot; = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">class_name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">feature2</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">titles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">index_models</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">titles</span><span class="p">[</span><span class="n">index_models</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span></div>
+
+
+<div class="viewcode-block" id="keep_top_classes"><a class="viewcode-back" href="../../../presc.copies.html#presc.copies.evaluations.keep_top_classes">[docs]</a><span class="k">def</span> <span class="nf">keep_top_classes</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">min_num_samples</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">classes_to_keep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function to remove rows from minoritary classes from PRESC Datasets.</span>
+
+<span class="sd">    Only classes that have more than the specified minimum number of samples</span>
+<span class="sd">    will be kept. If a list of the classes of interest is indicated, then this</span>
+<span class="sd">    requirement is overrided.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataset : presc.dataset.Dataset</span>
+<span class="sd">        PRESC dataset from which we want to remove the minoritary classes.</span>
+<span class="sd">    min_num_samples : int</span>
+<span class="sd">        Minimum number of samples that the classes should have in order to keep</span>
+<span class="sd">        them.</span>
+<span class="sd">    classes_to_keep : list</span>
+<span class="sd">        Name of the classes to keep. If a list of classes is specified here,</span>
+<span class="sd">        then the parameter `min_num_samples` is overriden, and the specified</span>
+<span class="sd">        classes will have any number of samples.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    presc.dataset.Dataset</span>
+<span class="sd">        PRESC Dataset without the samples from the minoritary classes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">label_col</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">if</span> <span class="n">classes_to_keep</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">classes_to_keep</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">value_counts</span><span class="p">()[</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">min_num_samples</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+        <span class="p">)</span>
+    <span class="n">new_dataframe</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">classes_to_keep</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">new_dataframe</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;categorical&quot;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">label_col</span><span class="p">),</span> <span class="s2">&quot; is categorical&quot;</span><span class="p">)</span>
+        <span class="n">new_dataframe</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_dataframe</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">label_col</span><span class="p">]</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">set_categories</span><span class="p">(</span>
+            <span class="n">classes_to_keep</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">new_dataframe</span><span class="p">,</span> <span class="n">label_col</span><span class="o">=</span><span class="n">label_col</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Mozilla Foundation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

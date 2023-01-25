@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>presc.evaluations.conditional_metric &mdash; PRESC 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html">
+            <img src="../../../_static/classifier-bias-PRESC_v3_black_margin3.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../evaluations.html">Evaluations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ml_copies.html">ML Classifier Copies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">presc</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">Classification datasets</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">PRESC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>presc.evaluations.conditional_metric</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for presc.evaluations.conditional_metric</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">presc.evaluations.utils</span> <span class="kn">import</span> <span class="n">get_bins</span><span class="p">,</span> <span class="n">is_discrete</span>
+<span class="kn">from</span> <span class="nn">presc.utils</span> <span class="kn">import</span> <span class="n">include_exclude_list</span>
+<span class="kn">from</span> <span class="nn">presc.configuration</span> <span class="kn">import</span> <span class="n">PrescConfig</span>
+<span class="kn">from</span> <span class="nn">presc</span> <span class="kn">import</span> <span class="n">global_config</span>
+
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">Series</span>
+<span class="kn">import</span> <span class="nn">sklearn.metrics</span> <span class="k">as</span> <span class="nn">sk</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">confuse</span> <span class="kn">import</span> <span class="n">ConfigError</span><span class="p">,</span> <span class="n">NotFoundError</span><span class="p">,</span> <span class="n">ConfigTypeError</span>
+
+
+<div class="viewcode-block" id="compute_conditional_metric"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.conditional_metric.compute_conditional_metric">[docs]</a><span class="k">def</span> <span class="nf">compute_conditional_metric</span><span class="p">(</span>
+    <span class="n">grouping_col</span><span class="p">,</span>
+    <span class="n">true_labs</span><span class="p">,</span>
+    <span class="n">pred_labs</span><span class="p">,</span>
+    <span class="n">metric</span><span class="p">,</span>
+    <span class="n">as_categorical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">num_bins</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">quantile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute metric values conditional on the grouping column.</span>
+
+<span class="sd">    The metric is computed within unique values of the grouping column</span>
+<span class="sd">    (categorical) or within bins partitioning its range (continuous).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    grouping_col : Series</span>
+<span class="sd">        Series defining a grouping for the metric computation.</span>
+<span class="sd">    true_labs : Series</span>
+<span class="sd">        Series of true labels for a test dataset.</span>
+<span class="sd">    pred_labs : Series</span>
+<span class="sd">        Series of labels predicted by a model for a test dataset.</span>
+<span class="sd">    metric : function</span>
+<span class="sd">        The evaluation metric to compute across the groupings. This should be</span>
+<span class="sd">        a function f(y_true, y_pred) which accepts Series of true and</span>
+<span class="sd">        predicted labels.</span>
+<span class="sd">    as_categorical : bool</span>
+<span class="sd">        Should the grouping column be treated as categorical, ie. binned</span>
+<span class="sd">        on its unique values? If it is not numeric, this param is ignored.</span>
+<span class="sd">    num_bins : int</span>
+<span class="sd">        Number of bins to use for grouping a numeric column.</span>
+<span class="sd">    quantile : bool</span>
+<span class="sd">        Should the bin widths correspond to quantiles of a numerical column&#39;s</span>
+<span class="sd">        distribution (`True`) or be equally-spaced over its range (`False`).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ConditionalMetricResult</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">y_vals</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;y_true&quot;</span><span class="p">:</span> <span class="n">true_labs</span><span class="p">,</span> <span class="s2">&quot;y_pred&quot;</span><span class="p">:</span> <span class="n">pred_labs</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">is_discrete</span><span class="p">(</span><span class="n">grouping_col</span><span class="p">):</span>
+        <span class="n">as_categorical</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">as_categorical</span><span class="p">:</span>
+        <span class="n">grouping</span> <span class="o">=</span> <span class="n">grouping_col</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">grouping</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">grouping</span><span class="p">,</span> <span class="n">bins</span> <span class="o">=</span> <span class="n">get_bins</span><span class="p">(</span><span class="n">grouping_col</span><span class="p">,</span> <span class="n">num_bins</span><span class="p">,</span> <span class="n">quantile</span><span class="p">)</span>
+    <span class="n">binned_metric_vals</span> <span class="o">=</span> <span class="n">y_vals</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">grouping</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">gp</span><span class="p">:</span> <span class="n">metric</span><span class="p">(</span><span class="n">gp</span><span class="p">[</span><span class="s2">&quot;y_true&quot;</span><span class="p">],</span> <span class="n">gp</span><span class="p">[</span><span class="s2">&quot;y_pred&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ConditionalMetricResult</span><span class="p">(</span>
+        <span class="n">vals</span><span class="o">=</span><span class="n">binned_metric_vals</span><span class="p">,</span>
+        <span class="n">bins</span><span class="o">=</span><span class="n">Series</span><span class="p">(</span><span class="n">bins</span><span class="p">),</span>
+        <span class="n">categorical</span><span class="o">=</span><span class="n">as_categorical</span><span class="p">,</span>
+        <span class="n">num_bins</span><span class="o">=</span><span class="n">num_bins</span><span class="p">,</span>
+        <span class="n">quantile</span><span class="o">=</span><span class="n">quantile</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_metrics_for_column</span><span class="p">(</span><span class="n">colname</span><span class="p">,</span> <span class="n">eval_config</span><span class="p">):</span>
+    <span class="n">default_metrics</span> <span class="o">=</span> <span class="n">eval_config</span><span class="p">[</span><span class="s2">&quot;metrics&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="n">metrics_to_use</span> <span class="o">=</span> <span class="n">default_metrics</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">col_metrics</span> <span class="o">=</span> <span class="n">eval_config</span><span class="p">[</span><span class="s2">&quot;computation&quot;</span><span class="p">][</span><span class="s2">&quot;columns&quot;</span><span class="p">][</span><span class="n">colname</span><span class="p">][</span><span class="s2">&quot;metrics&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="n">metrics_to_use</span> <span class="o">=</span> <span class="n">col_metrics</span>
+    <span class="k">except</span> <span class="n">NotFoundError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">except</span> <span class="n">ConfigTypeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="n">metrics</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">metric_to_use</span> <span class="ow">in</span> <span class="n">metrics_to_use</span><span class="p">:</span>
+        <span class="n">function_name</span> <span class="o">=</span> <span class="n">metric_to_use</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;function&quot;</span><span class="p">)</span>
+        <span class="n">display_name</span> <span class="o">=</span> <span class="n">metric_to_use</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;display_name&quot;</span><span class="p">,</span> <span class="n">function_name</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># TODO expand to non sklearn functions.</span>
+            <span class="n">metric_function</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">function_name</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="n">metric_function</span><span class="p">,</span> <span class="s2">&quot;display_name&quot;</span><span class="p">:</span> <span class="n">display_name</span><span class="p">})</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Column: `</span><span class="si">{</span><span class="n">colname</span><span class="si">}</span><span class="s2">` Function: `</span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s2">` is not a valid sklearn metric. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Verify evaluations.conditional_metric.metrics configuration and/or &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">evaluations.conditional_metric.computation.columns.</span><span class="si">{</span><span class="n">colname</span><span class="si">}</span><span class="s2"> (if provided).&quot;</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">metrics</span>
+
+
+<div class="viewcode-block" id="ConditionalMetricResult"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.conditional_metric.ConditionalMetricResult">[docs]</a><span class="k">class</span> <span class="nc">ConditionalMetricResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Result of the conditional metric evaluation for a single grouping.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    vals : Series</span>
+<span class="sd">        A Series listing the computation result for each bin.</span>
+<span class="sd">    bins: Series</span>
+<span class="sd">        A Series listing the bin endpoints. If the feature was treated as</span>
+<span class="sd">        numeric, this will have length `len(vals)+1`, otherwise `len(vals)`.</span>
+<span class="sd">    categorical : bool</span>
+<span class="sd">        Aas the feature treated as categorical?</span>
+<span class="sd">    num_bins : int</span>
+<span class="sd">        Number of bins used for grouping.</span>
+<span class="sd">    quantile: bool</span>
+<span class="sd">        Was grouping quantile-based?</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">categorical</span><span class="p">,</span> <span class="n">num_bins</span><span class="p">,</span> <span class="n">quantile</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vals</span> <span class="o">=</span> <span class="n">vals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bins</span> <span class="o">=</span> <span class="n">bins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">categorical</span> <span class="o">=</span> <span class="n">categorical</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_bins</span> <span class="o">=</span> <span class="n">num_bins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quantile</span> <span class="o">=</span> <span class="n">quantile</span>
+
+<div class="viewcode-block" id="ConditionalMetricResult.display_result"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.conditional_metric.ConditionalMetricResult.display_result">[docs]</a>    <span class="k">def</span> <span class="nf">display_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlab</span><span class="p">,</span> <span class="n">ylab</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the evaluation result for the given grouping and metric.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xlab : str</span>
+<span class="sd">            Label to display on the x-axis.</span>
+<span class="sd">        ylab: str</span>
+<span class="sd">            Label to display on the y-axis.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">categorical</span><span class="p">:</span>
+            <span class="n">result_edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+            <span class="n">alignment</span> <span class="o">=</span> <span class="s2">&quot;center&quot;</span>
+            <span class="n">widths</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result_edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">alignment</span> <span class="o">=</span> <span class="s2">&quot;edge&quot;</span>
+            <span class="c1"># First element will be NaN.</span>
+            <span class="n">widths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="o">.</span><span class="n">diff</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlab</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylab</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
+            <span class="n">result_edges</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="n">widths</span><span class="p">,</span>
+            <span class="n">bottom</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">align</span><span class="o">=</span><span class="n">alignment</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ConditionalMetric"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.conditional_metric.ConditionalMetric">[docs]</a><span class="k">class</span> <span class="nc">ConditionalMetric</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computation of confusion-based metrics across subsets of a test dataset.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model:</span>
+<span class="sd">        The ClassificationModel to run the evaluation for.</span>
+<span class="sd">    test_dataset :  presc.dataset.Dataset</span>
+<span class="sd">        A Dataset to use for evaluation.</span>
+<span class="sd">    settings: dict</span>
+<span class="sd">        An optional dict specifying option values under</span>
+<span class="sd">        `evaluations.conditional_metric`, eg. `{&quot;computation.num_bins&quot;: 5}`</span>
+<span class="sd">        These are restricted to the class instance and do not change the global config.</span>
+<span class="sd">    config: presc.configuration.PrescConfig</span>
+<span class="sd">        An optional PrescConfig instance to read options from. This will be</span>
+<span class="sd">        overridden by `settings` values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">source_config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">global_config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">PrescConfig</span><span class="p">(</span><span class="n">source_config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s2">&quot;evaluations&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;conditional_metric&quot;</span><span class="p">:</span> <span class="n">settings</span><span class="p">}})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_test_dataset</span> <span class="o">=</span> <span class="n">test_dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_test_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict_labels</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ConditionalMetric.compute_for_column"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.conditional_metric.ConditionalMetric.compute_for_column">[docs]</a>    <span class="k">def</span> <span class="nf">compute_for_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colname</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the evaluation for the given dataset column.</span>
+
+<span class="sd">        The metric is computed within unique values of the specified column</span>
+<span class="sd">        (if categorical) or within bins partitioning its range (if continuous).</span>
+
+<span class="sd">        colname : str</span>
+<span class="sd">            A column in the dataset to partition on.</span>
+<span class="sd">        metric : function</span>
+<span class="sd">            The evaluation metric to compute across the partitions. This should be</span>
+<span class="sd">            a function f(y_true, y_pred) which accepts Series of true and</span>
+<span class="sd">            predicted labels.</span>
+<span class="sd">        kwargs :</span>
+<span class="sd">            On-the-fly overrides to the config option values for the computation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ------</span>
+<span class="sd">        ConditionalMetricResult</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">comp_config</span> <span class="o">=</span> <span class="n">PrescConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">)</span>
+        <span class="n">comp_config</span> <span class="o">=</span> <span class="n">comp_config</span><span class="p">[</span><span class="s2">&quot;evaluations&quot;</span><span class="p">][</span><span class="s2">&quot;conditional_metric&quot;</span><span class="p">][</span><span class="s2">&quot;computation&quot;</span><span class="p">]</span>
+        <span class="n">col_overrides</span> <span class="o">=</span> <span class="n">comp_config</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">][</span><span class="n">colname</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">col_overrides</span> <span class="o">=</span> <span class="n">col_overrides</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">ConfigError</span><span class="p">:</span>
+            <span class="n">col_overrides</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">col_overrides</span><span class="p">:</span>
+            <span class="n">comp_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">col_overrides</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">comp_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">compute_conditional_metric</span><span class="p">(</span>
+            <span class="n">grouping_col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">colname</span><span class="p">],</span>
+            <span class="n">true_labs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_dataset</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span>
+            <span class="n">pred_labs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_test_pred</span><span class="p">,</span>
+            <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span>
+            <span class="n">as_categorical</span><span class="o">=</span><span class="n">comp_config</span><span class="p">[</span><span class="s2">&quot;as_categorical&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">bool</span><span class="p">),</span>
+            <span class="n">num_bins</span><span class="o">=</span><span class="n">comp_config</span><span class="p">[</span><span class="s2">&quot;num_bins&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">quantile</span><span class="o">=</span><span class="n">comp_config</span><span class="p">[</span><span class="s2">&quot;quantile&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">bool</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConditionalMetric.display"><a class="viewcode-back" href="../../../presc.evaluations.html#presc.evaluations.conditional_metric.ConditionalMetric.display">[docs]</a>    <span class="k">def</span> <span class="nf">display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colnames</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes and displays the conditional metric result for each specified column.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        colnames : list of str</span>
+<span class="sd">            A list of column names to run the evaluation over, creating a plot</span>
+<span class="sd">            for each. If not supplied, defaults to columns specifed in the config.</span>
+<span class="sd">        metric_name : str</span>
+<span class="sd">            Display name identifying the metric to show on the plot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">eval_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;evaluations&quot;</span><span class="p">][</span><span class="s2">&quot;conditional_metric&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">colnames</span><span class="p">:</span>
+            <span class="n">incl</span> <span class="o">=</span> <span class="n">colnames</span>
+            <span class="n">excl</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">incl</span> <span class="o">=</span> <span class="n">eval_config</span><span class="p">[</span><span class="s2">&quot;columns_include&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="n">excl</span> <span class="o">=</span> <span class="n">eval_config</span><span class="p">[</span><span class="s2">&quot;columns_exclude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">include_exclude_list</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_test_dataset</span><span class="o">.</span><span class="n">column_names</span><span class="p">,</span> <span class="n">included</span><span class="o">=</span><span class="n">incl</span><span class="p">,</span> <span class="n">excluded</span><span class="o">=</span><span class="n">excl</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+            <span class="n">metrics</span> <span class="o">=</span> <span class="n">_get_metrics_for_column</span><span class="p">(</span><span class="n">colname</span><span class="o">=</span><span class="n">colname</span><span class="p">,</span> <span class="n">eval_config</span><span class="o">=</span><span class="n">eval_config</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">:</span>
+                <span class="n">function</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;function&quot;</span><span class="p">)</span>
+                <span class="n">display_name</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;display_name&quot;</span><span class="p">)</span>
+                <span class="n">eval_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_for_column</span><span class="p">(</span><span class="n">colname</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">function</span><span class="p">)</span>
+                <span class="n">eval_result</span><span class="o">.</span><span class="n">display_result</span><span class="p">(</span><span class="n">xlab</span><span class="o">=</span><span class="n">colname</span><span class="p">,</span> <span class="n">ylab</span><span class="o">=</span><span class="n">display_name</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Mozilla Foundation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

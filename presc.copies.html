@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>presc.copies package &mdash; PRESC 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Classification datasets" href="datasets.html" />
+    <link rel="prev" title="presc.report package" href="presc.report.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html">
+            <img src="_static/classifier-bias-PRESC_v3_black_margin3.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluations.html">Evaluations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ml_copies.html">ML Classifier Copies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">presc</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="presc.html">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="presc.evaluations.html">presc.evaluations package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presc.report.html">presc.report package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">presc.copies package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-presc.copies.copying">presc.copies.copying module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-presc.copies.sampling">presc.copies.sampling module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-presc.copies.evaluations">presc.copies.evaluations module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-presc.copies.examples">presc.copies.examples module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="presc.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Classification datasets</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PRESC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">presc</a> &raquo;</li>
+          <li><a href="presc.html">Subpackages</a> &raquo;</li>
+      <li>presc.copies package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/presc.copies.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="presc-copies-package">
+<h1>presc.copies package<a class="headerlink" href="#presc-copies-package" title="Permalink to this headline"></a></h1>
+<div class="section" id="module-presc.copies.copying">
+<span id="presc-copies-copying-module"></span><h2>presc.copies.copying module<a class="headerlink" href="#module-presc.copies.copying" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="presc.copies.copying.ClassifierCopy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">presc.copies.copying.</span></span><span class="sig-name descname"><span class="pre">ClassifierCopy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numerical_sampling</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_sampling_labeling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enforce_balance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'class'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">k_sampling_parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/copying.html#ClassifierCopy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.copying.ClassifierCopy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a classifier copy and its associated sampling method of choice.</p>
+<p>Each instance wraps the original ML classifier with a ML classifier copy and
+the sampling method to carry out the copy. Methods allow to carry out
+the copy the original classifier, evaluate the quality of the copy, and to
+generate additional data using the original classifier with the sampling
+method specified on instatiation.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.copies.copying.ClassifierCopy.original">
+<span class="sig-name descname"><span class="pre">original</span></span><a class="headerlink" href="#presc.copies.copying.ClassifierCopy.original" title="Permalink to this definition"></a></dt>
+<dd><p>Original ML classifier to be copied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>sklearn-type classifier</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.copies.copying.ClassifierCopy.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><a class="headerlink" href="#presc.copies.copying.ClassifierCopy.copy" title="Permalink to this definition"></a></dt>
+<dd><p>ML classifier that will be used for the copy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>sklearn-type classifier</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.copies.copying.ClassifierCopy.numerical_sampling">
+<span class="sig-name descname"><span class="pre">numerical_sampling</span></span><a class="headerlink" href="#presc.copies.copying.ClassifierCopy.numerical_sampling" title="Permalink to this definition"></a></dt>
+<dd><p>Any of the numerical sampling functions defined in PRESC:
+<cite>grid_sampling</cite>, <cite>uniform_sampling</cite>, <cite>normal_sampling</cite>… The
+<cite>balancing sampler</cite> can only be used if the feature space does not
+contain any categorical variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.copies.copying.ClassifierCopy.post_sampling_labeling">
+<span class="sig-name descname"><span class="pre">post_sampling_labeling</span></span><a class="headerlink" href="#presc.copies.copying.ClassifierCopy.post_sampling_labeling" title="Permalink to this definition"></a></dt>
+<dd><p>Whether generated data must be labeled after the sampling or not.
+If the chosen sampling function already does class labeling (such as
+balancing samplers) then it should be set to False. If the parameter
+enforce_balance is set to True then this parameter does not have any
+effect.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.copies.copying.ClassifierCopy.enforce_balance">
+<span class="sig-name descname"><span class="pre">enforce_balance</span></span><a class="headerlink" href="#presc.copies.copying.ClassifierCopy.enforce_balance" title="Permalink to this definition"></a></dt>
+<dd><p>Force class balancing for sampling functions that do not normally
+carry it out intrinsically.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.copies.copying.ClassifierCopy.label_col">
+<span class="sig-name descname"><span class="pre">label_col</span></span><a class="headerlink" href="#presc.copies.copying.ClassifierCopy.label_col" title="Permalink to this definition"></a></dt>
+<dd><p>Name of the label column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">\*\*k_sampling_parameters</span></span></dt>
+<dd><p>Parameters needed for the <cite>numerical_sampling</cite> function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.copies.copying.ClassifierCopy.compute_fidelity_error">
+<span class="sig-name descname"><span class="pre">compute_fidelity_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/copying.html#ClassifierCopy.compute_fidelity_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.copying.ClassifierCopy.compute_fidelity_error" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the empirical fidelity error of the classifier copy.</p>
+<p>Quantifies the resemblance of the copy to the original classifier. This
+value is zero when the copy makes exactly the same predictions than the
+original classifier (including misclassifications).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>test_data</strong> (<em>array-like</em>) – Dataset with the unlabeled samples to evaluate the resemblance of
+the copy to the original classifier.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The numerical value of the empirical fidelity error of the copy with
+this dataset.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.copies.copying.ClassifierCopy.copy_classifier">
+<span class="sig-name descname"><span class="pre">copy_classifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">get_training_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">k_mod_sampling_parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/copying.html#ClassifierCopy.copy_classifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.copying.ClassifierCopy.copy_classifier" title="Permalink to this definition"></a></dt>
+<dd><p>Copies the classifier using data generated with the original model.</p>
+<p>Generates synthetic data using only basic information of the features
+(dynamic range, mean and sigma), labels it using the original model,
+and trains the copy model with this synthetic data. It can also return
+the generated synthetic data used for training.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>get_training_data</strong> (<em>bool</em>) – If <cite>True</cite> this method returns the synthetic data generated from the
+original classifier that was used to train the copy.</p></li>
+<li><p><strong>**k_mod_sampling_parameters</strong> – If the “nsamples” and/or “random_state” parameters of the sampling
+function have to be changed in order to obtain a different set of
+synthetic data, they can be specified here.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Outputs a PRESC Dataset with the training samples and their labels
+(if <cite>get_training_data</cite> set to <cite>True</cite>).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset">presc.dataset.Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.copies.copying.ClassifierCopy.evaluation_summary">
+<span class="sig-name descname"><span class="pre">evaluation_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthetic_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/copying.html#ClassifierCopy.evaluation_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.copying.ClassifierCopy.evaluation_summary" title="Permalink to this definition"></a></dt>
+<dd><p>Computes several metrics to evaluate the classifier copy.</p>
+<p>Summary of metrics that evaluate the quality of a classifier copy, not
+only to assess its performance as classifier but to quantify its
+resemblance to the original classifier. Accuracy of the original and the
+copy models (using the original test data), and the empirical fidelity
+error and replacement capability of the copy (using the original test
+data and/or the generated synthetic data). This is a wrapper of the
+<cite>summary_metrics</cite> function applied to the copy and original models in
+this instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>original_model</strong> (<em>sklearn-type classifier</em>) – Original ML classifier to be copied.</p></li>
+<li><p><strong>copy_model</strong> (<a class="reference internal" href="#presc.copies.copying.ClassifierCopy" title="presc.copies.copying.ClassifierCopy"><em>presc.copies.copying.ClassifierCopy</em></a>) – ML classifier copy from the original ML classifier.</p></li>
+<li><p><strong>test_data</strong> (<a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset"><em>presc.dataset.Dataset</em></a>) – Subset of the original data reserved for testing.</p></li>
+<li><p><strong>synthetic_data</strong> (<a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset"><em>presc.dataset.Dataset</em></a>) – Synthetic data generated using the original model.</p></li>
+<li><p><strong>show_results</strong> (<em>bool</em>) – If <cite>True</cite> the metrics are also printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The values of all metrics.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.copies.copying.ClassifierCopy.generate_synthetic_data">
+<span class="sig-name descname"><span class="pre">generate_synthetic_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">k_mod_sampling_parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/copying.html#ClassifierCopy.generate_synthetic_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.copying.ClassifierCopy.generate_synthetic_data" title="Permalink to this definition"></a></dt>
+<dd><p>Generates synthetic data using the original model.</p>
+<p>Generates samples following the sampling strategy specified on
+instantiation for the numerical features and a discrete distribution for
+the categorical features, and then labels them using the original model.
+If the same data needs to be generated then simply use a specific
+random seed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**k_mod_sampling_parameters</strong> – If the “nsamples” and/or “random_state” parameters of the sampling
+function have to be changed in order to obtain a different set of
+synthetic data, they can be specified here.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Outputs a PRESC Dataset with the generated samples and their labels.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset">presc.dataset.Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.copies.copying.ClassifierCopy.replacement_capability">
+<span class="sig-name descname"><span class="pre">replacement_capability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/copying.html#ClassifierCopy.replacement_capability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.copying.ClassifierCopy.replacement_capability" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the replacement capability of a classifier copy.</p>
+<p>Quantifies the ability of the copy model to substitute the original
+model, i.e. maintaining the same accuracy in its predictions. This value
+is one when the accuracy of the copy model is the same as the original
+model, although the individual predictions may be different, approaching
+zero if the accuracy of the copy is much smaller than the original, and
+it can even take values larger than one if the copy model is better than
+the original.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>test_data</strong> (<a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset"><em>presc.dataset.Dataset</em></a>) – Subset of the original data reserved to evaluate the resemblance of
+the copy to the original classifier. Or synthetic data generated
+from the original model with the same purpose.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The numerical value of the replacement capability.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-presc.copies.sampling">
+<span id="presc-copies-sampling-module"></span><h2>presc.copies.sampling module<a class="headerlink" href="#module-presc.copies.sampling" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.sampling.build_equal_category_dict">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.sampling.</span></span><span class="sig-name descname"><span class="pre">build_equal_category_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_categories</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/sampling.html#build_equal_category_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.sampling.build_equal_category_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Assigns equal probability to all categories of each feature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>feature_categories</strong> (<em>dict of lists</em>) – A dictionary with an entry per feature, with the list of categories
+that each feature has.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary with an entry per dataset feature (dictionary keys are the
+column names), where each feature entry contains a nested dictionary
+with its categories and the identical fraction for all categories from
+the same feature (the nested dictionary key for this information is
+“categories”, which is also a dictionary with one entry per category).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of dicts</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.sampling.categorical_sampling">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.sampling.</span></span><span class="sig-name descname"><span class="pre">categorical_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsamples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/sampling.html#categorical_sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.sampling.categorical_sampling" title="Permalink to this definition"></a></dt>
+<dd><p>Sample the classifier with a discrete distribution sampling.</p>
+<p>Generates synthetic samples with a discrete distribution according to the
+probabilities described by <cite>feature_parameters</cite>. Features are assumed to be
+independent (not correlated).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature_parameters</strong> (<em>dict of dicts</em>) – A dictionary with an entry per dataset feature (dictionary keys should
+be the feature names), where each feature entry must contain a
+nested dictionary with its categories and their fraction. The key for
+the nested dictionary of categories should be “categories”, and the keys
+for the fractions should be the category name.</p></li>
+<li><p><strong>nsamples</strong> (<em>int</em>) – Number of samples to generate.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em>) – Random seed used to generate the sampling data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataset with a generated sampling following the discrete distribution of
+the feature space characterized by the <cite>feature_parameters</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.sampling.dynamical_range">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.sampling.</span></span><span class="sig-name descname"><span class="pre">dynamical_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/sampling.html#dynamical_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.sampling.dynamical_range" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the dynamic range, mean, and sigma of the dataset features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas DataFrame</em>) – The dataset with all the numerical features to analyze.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If set to True the feature parameters are printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary with an entry per dataset feature (dictionary keys are the
+column names), where each feature entry contains a nested dictionary
+with the values of the minimum and maximum values of the dynamic range
+of the dataset, as well as the mean and sigma of the distribution
+(nested dictionary keys are “min”, “max”, “mean” and “sigma”).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of dicts</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.sampling.find_categories">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.sampling.</span></span><span class="sig-name descname"><span class="pre">find_categories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_nans</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/sampling.html#find_categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.sampling.find_categories" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the categories of the dataset features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas DataFrame</em>) – The dataset with all the categorical features to analyze.</p></li>
+<li><p><strong>add_nans</strong> (<em>bool</em>) – If True the sampler adds a “NaNs” category for the features that have
+any null values and assigns it the appropriate fraction.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary with an entry per dataset feature (dictionary keys are the
+column names), where each feature entry contains a nested dictionary
+with its categories and the fraction of each category present in the
+analyzed dataset (the nested dictionary key for this information is
+“categories”, which is also a dictionary with one entry per category).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of dicts</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.sampling.grid_sampling">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.sampling.</span></span><span class="sig-name descname"><span class="pre">grid_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsamples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/sampling.html#grid_sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.sampling.grid_sampling" title="Permalink to this definition"></a></dt>
+<dd><p>Sample the classifier with a grid-like sampling.</p>
+<p>Generates synthetic samples with a regular grid-like distribution within the
+feature space described in <cite>feature_parameters</cite>. Computes the grid spacing
+so that all features have the same number of different values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature_parameters</strong> (<em>dict of dicts</em>) – A dictionary with an entry per dataset feature (dictionary keys should
+be the feature names), and where each feature entry must contain a
+nested dictionary with at least the entries corresponding to the minimum
+and maximum values of the dynamic range. Dictionary keys for these
+values should be “min” and “max”, respectively.</p></li>
+<li><p><strong>nsamples</strong> (<em>int</em>) – Maximum number of samples to generate. The exact number will depend on
+the parameter space.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em>) – Parameter not used in <cite>grid_sampling</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataset with a regular grid-like generated sampling of the feature space
+characterized by the <cite>feature_parameters</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.sampling.image_random_sampling">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.sampling.</span></span><span class="sig-name descname"><span class="pre">image_random_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'images':</span> <span class="pre">{'max':</span> <span class="pre">253,</span> <span class="pre">'min':</span> <span class="pre">0,</span> <span class="pre">'x_pixels':</span> <span class="pre">28,</span> <span class="pre">'y_pixels':</span> <span class="pre">28}}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsamples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/sampling.html#image_random_sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.sampling.image_random_sampling" title="Permalink to this definition"></a></dt>
+<dd><p>Sample the feature space of images using random pixels.</p>
+<p>Generates synthetic samples using a random uniform distribution to
+establish the value for each image pixel. Hence, they are images of noise.
+It only generates one channel (that is, black and white images).</p>
+<p>For most image datasets, which are not random and have structure, this is a
+very inefficient sampling method to generate synthetic image samples and
+explore the feature space. It is provided here for illustrating purposes
+only.</p>
+<p>The default generates 28x28 images with pixel values between 0 and 253.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature_parameters</strong> (<em>dict of dicts</em>) – <p>A dictionary which specifies the characteristics of the feature space
+of the images. It should have one entry ‘images’ with a nested
+dictionary with the entries ‘x_pixels’, ‘y_pixels’, ‘min’ and ‘max’,
+which specify the number of pixels of the image in each dimension, and
+the minimum and maximum possible values of the pixels. The values in the
+default dictionary are:</p>
+<dl class="simple">
+<dt>feature_parameters = {“images”: {“x_pixels”: 28, “y_pixels”: 28,</dt><dd><p>”min”: 0, “max”: 253}}</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>nsamples</strong> (<em>int</em>) – Number of image samples to generate.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em>) – Random seed used to generate the sampling data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataset with a list of images that have the value of their pixels
+generated with a random uniform sampling of the feature space as
+specified in the <cite>feature_parameters</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.sampling.image_vae_sampling">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.sampling.</span></span><span class="sig-name descname"><span class="pre">image_vae_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'images':</span> <span class="pre">{'autoencoder':</span> <span class="pre">None,</span> <span class="pre">'autoencoder_edge_factor':</span> <span class="pre">5,</span> <span class="pre">'autoencoder_latent_dim':</span> <span class="pre">2,</span> <span class="pre">'max':</span> <span class="pre">254,</span> <span class="pre">'min':</span> <span class="pre">0}}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsamples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/sampling.html#image_vae_sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.sampling.image_vae_sampling" title="Permalink to this definition"></a></dt>
+<dd><p>Sample the feature space of images using a variational autoencoder.</p>
+<p>Generates synthetic samples of the same manifold as the variational
+autoencoder training data sampling the latent space, which represents images
+with the a Gaussian distribution for each latent dimension.</p>
+<p>For image datasets, which are not random and have structure, this is an
+efficient sampling method to generate relevant synthetic image samples and
+explore the feature space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature_parameters</strong> (<em>dict of dicts</em>) – <p>A dictionary which specifies the characteristics of the feature space
+of the images. It should have one entry ‘images’ with a nested
+dictionary with the entries ‘x_pixels’, ‘y_pixels’, ‘min’ and ‘max’,
+which specify the number of pixels of the image in each dimension, and
+the minimum and maximum possible values of the pixels. The values in the
+default dictionary are:</p>
+<dl class="simple">
+<dt>feature_parameters = {“images”: {“min”: 0, “max”: 254,</dt><dd><p>”autoencoder”: None,
+“autoencoder_latent_dim”: 2,
+“autoencoder_edge_factor”: 5}}</p>
+</dd>
+</dl>
+<p>It is neccessary to specify the autoencoder for it to work.</p>
+</p></li>
+<li><p><strong>nsamples</strong> (<em>int</em>) – Number of image samples to generate.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em>) – Random seed used to generate the sampling data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataset with a list of images that have been generated sampling randomly
+the latent space of the variational autoencoder, as specified in the
+<cite>feature_parameters</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.sampling.labeling">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.sampling.</span></span><span class="sig-name descname"><span class="pre">labeling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'class'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/sampling.html#labeling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.sampling.labeling" title="Permalink to this definition"></a></dt>
+<dd><p>Labels the samples from a dataset according to a classifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>pandas DataFrame</em>) – Dataset with the features but not the labels.</p></li>
+<li><p><strong>original_classifier</strong> (<em>sklearn-type classifier</em>) – Classifier to use for the labeling of the samples.</p></li>
+<li><p><strong>label_col</strong> (<em>str</em>) – Name of the label column.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Outputs a PRESC Dataset with the samples and their labels.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset">presc.dataset.Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.sampling.mixed_data_features">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.sampling.</span></span><span class="sig-name descname"><span class="pre">mixed_data_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_nans</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/sampling.html#mixed_data_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.sampling.mixed_data_features" title="Permalink to this definition"></a></dt>
+<dd><p>Extracts the numerical/categorical feature parameters from a dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas DataFrame</em>) – The dataset with all the features to analyze (both numerical and
+categorical).</p></li>
+<li><p><strong>add_nans</strong> (<em>bool</em>) – If True the sampler adds a “NaNs” category for the categorical features
+that have any null values and assigns it the appropriate fraction.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary with an entry per dataset feature (dictionary keys are the
+column names), where each numerical feature entry contains a nested
+dictionary with the values of the minimum and maximum values of the
+dynamic range of the dataset, as well as the mean and sigma of the
+distribution, and each categorical feature entry contains a nested
+dictionary with its categories and the fraction of each category present
+in the analyzed dataset (nested dictionary keys are “min”, “max”,
+“mean”, “sigma”, and “categories”, which is also a dictionary with one
+entry per category).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of dicts</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.sampling.mixed_data_sampling">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.sampling.</span></span><span class="sig-name descname"><span class="pre">mixed_data_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numerical_sampling</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsamples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">remaining_parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/sampling.html#mixed_data_sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.sampling.mixed_data_sampling" title="Permalink to this definition"></a></dt>
+<dd><p>Sample the classifier with a mix of a numerical and categorical sampler.</p>
+<p>Generates synthetic samples with the specified distribution for the
+numerical features and with a discrete distribution for the categorical
+features. The parameters describing the feature space needed to compute the
+distributions are described in the <cite>feature_parameters</cite> dictionary. Features
+are assumed to be independent (not correlated).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature_parameters</strong> (<em>dict of dicts</em>) – A dictionary with an entry per dataset feature (dictionary keys should
+be the feature names), where each feature entry must contain a
+nested dictionary with its categories and their probability. The key for
+the nested dictionary of categories should be “categories”, and the keys
+for the probabilities should be the category name.</p></li>
+<li><p><strong>numerical_sampling</strong> (<em>function</em>) – Any of the non balancing numerical sampling functions defined in PRESC:
+<cite>grid_sampling</cite>, <cite>uniform_sampling</cite>, <cite>normal_sampling</cite>…</p></li>
+<li><p><strong>nsamples</strong> (<em>int</em>) – Number of samples to generate.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em>) – Random seed used to generate the sampling data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataset with a generated sampling following the specified numerical
+sampling distribution for the numerical features and the discrete
+distribution for the categorical features, following the feature space
+characterized by the <cite>feature_parameters</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.sampling.normal_sampling">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.sampling.</span></span><span class="sig-name descname"><span class="pre">normal_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsamples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/sampling.html#normal_sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.sampling.normal_sampling" title="Permalink to this definition"></a></dt>
+<dd><p>Sample the classifier with a normal distribution sampling.</p>
+<p>Generates synthetic samples with a normal distribution according to the
+feature space described by <cite>feature_parameters</cite>. Features are assumed to be
+independent (not correlated).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature_parameters</strong> (<em>dict of dicts</em>) – A dictionary with an entry per dataset feature (dictionary keys should
+be the feature names), and where each feature entry must contain a
+nested dictionary with at least the entries corresponding to the mean
+and standard deviation values of the dataset. Dictionary keys for these
+values should be “mean” and “sigma”, respectively.</p></li>
+<li><p><strong>nsamples</strong> (<em>int</em>) – Number of samples to generate.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em>) – Random seed used to generate the sampling data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataset with a generated sampling following a normal distribution of
+the feature space characterized by the <cite>feature_parameters</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.sampling.reduce_feature_space">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.sampling.</span></span><span class="sig-name descname"><span class="pre">reduce_feature_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigmas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/sampling.html#reduce_feature_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.sampling.reduce_feature_space" title="Permalink to this definition"></a></dt>
+<dd><p>Force feature minimum/maximum values to x times the standard deviation.</p>
+<p>This function will adjust the minimum and maximum values of each feature to
+the range determined by taking the feature’s mean value and substracting and
+adding to it the specified number of standard deviations. But only for the
+features that have the mean and standard deviation specified.</p>
+<p>Normally this will reduce the feature space by leaving out the range of most
+extreme values and will facilitate that any sampling based on the feature
+minimum and maximum values becomes more efficient. This is a more notorious
+problem when the dictionary describing the features has ben extracted
+automatically from an original dataset which contains outliers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature_parameters</strong> (<em>dict of dicts</em>) – A dictionary with an entry per dataset feature (dictionary keys are the
+column names), where each feature entry contains a nested dictionary
+with the values of the minimum and maximum values of the dynamic range
+of the dataset, as well as the mean and sigma of the distribution
+(nested dictionary keys are “min”, “max”, “mean” and “sigma”).</p></li>
+<li><p><strong>sigmas</strong> (<em>float</em>) – The factor by which the standard deviation will be multiplied in order
+to define the symmetric interval around the mean.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary with an entry per dataset feature (dictionary keys are the
+column names), where each feature entry contains a nested dictionary
+with the values of the minimum and maximum values of the dynamic range
+of the dataset, as well as the mean and sigma of the distribution
+(nested dictionary keys are “min”, “max”, “mean” and “sigma”).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of dicts</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.sampling.sampling_balancer">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.sampling.</span></span><span class="sig-name descname"><span class="pre">sampling_balancer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numerical_sampling</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsamples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbatch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'class'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">remaining_parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/sampling.html#sampling_balancer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.sampling.sampling_balancer" title="Permalink to this definition"></a></dt>
+<dd><p>Generate balanced synthetic data using any sampling function.</p>
+<p>This function will attempt to obtain a balanced dataset with non-balancing
+samplers by generating the same number of samples for all classes,
+unless it reaches the maximum number of iterations. To use within the
+ClassifierCopy class, the <cite>enforce_balance</cite> must be set to True.</p>
+<p>Note that the algorithm needs to find at least one sample of a different
+class in order detect that class and keep iterating through the batch
+generation of samples to try to get them all. Therefore, it is not
+guaranteed that it will find all the classes and successfully balance the
+synthetic dataset in extreme cases of imbalance. However, the batch size
+<cite>nbatch</cite> can be set to a larger number if we suspect that is the case, and
+this will increase the probability to find at least a sample of a different
+class in the first round. Thereafter, if the algorithm is already iterating
+to find a minoritary class, it is more likely that other classes that occupy
+a very small hypervolume will show up as well.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature_parameters</strong> (<em>dict of dicts</em>) – A dictionary with an entry per dataset feature (dictionary keys should
+be the feature names), where each feature entry must contain a
+nested dictionary with its categories and their fraction. The key for
+the nested dictionary of categories should be “categories”, and the keys
+for the fractions should be the category name.</p></li>
+<li><p><strong>numerical_sampling</strong> (<em>function</em>) – Any of the non balancing numerical sampling functions defined in PRESC:
+<cite>grid_sampling</cite>, <cite>uniform_sampling</cite>, <cite>normal_sampling</cite>…</p></li>
+<li><p><strong>original_classifier</strong> (<em>sklearn-type classifier</em>) – Original ML classifier used to generate the synthetic data.</p></li>
+<li><p><strong>nsamples</strong> (<em>int</em>) – Number of samples to generate.</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em>) – The maximum number of iterations generating batches to attempt to obtain
+the samples per class specified in <cite>nsamplesxclass</cite>.</p></li>
+<li><p><strong>nbatch</strong> (<em>int</em>) – Number of tentative samples to generate in each batch.</p></li>
+<li><p><strong>label_col</strong> (<em>str</em>) – Name of the label column.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em>) – Random seed used to generate the sampling data.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True the sampler prints information about each batch.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataset with a generated sampling following the specified numerical
+sampling distribution for the numerical features and the discrete
+distribution for the categorical features, following the feature space
+characterized by the <cite>feature_parameters</cite>, where the function has
+tried to balance the samples for each class.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.sampling.spherical_balancer_sampling">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.sampling.</span></span><span class="sig-name descname"><span class="pre">spherical_balancer_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsamples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfeatures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_classifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbatch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'class'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/sampling.html#spherical_balancer_sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.sampling.spherical_balancer_sampling" title="Permalink to this definition"></a></dt>
+<dd><p>Sample the classifier with a balancer spherical distribution sampling.</p>
+<p>Generates synthetic samples with a spherical (shell) distribution between a
+minimum and a maximum radius values and then labels them using the original
+classifier. This function will attempt to obtain a balanced dataset by
+generating the same number of samples for all classes (<cite>nsamplesxclass</cite>),
+unless it reaches the maximum number of iterations. When used within the
+ClassifierCopy class, the <cite>balancing_sampler</cite> must be set to True.</p>
+<p>This sampler works better when features have standardized values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nsamples</strong> (<em>int</em>) – Number of samples to generate.</p></li>
+<li><p><strong>nfeatures</strong> (<em>int</em>) – Number of features of the generated samples.</p></li>
+<li><p><strong>original_classifier</strong> (<em>sklearn-type classifier</em>) – Original ML classifier used to generate the synthetic data.</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em>) – The maximum number of iterations generating batches to attempt to obtain
+the samples per class specified in <cite>nsamplesxclass</cite>.</p></li>
+<li><p><strong>nbatch</strong> (<em>int</em>) – Number of tentative samples to generate in each batch.</p></li>
+<li><p><strong>radius_min</strong> (<em>float</em>) – Minimum radius of the spherical shell distribution. It will be a
+spherical distribution if this value is set to zero.</p></li>
+<li><p><strong>radius_max</strong> (<em>float</em>) – Maximum radius of the spherical (shell) distribution.</p></li>
+<li><p><strong>label_col</strong> (<em>str</em>) – Name of the label column.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em>) – Random seed used to generate the sampling data.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True the sampler prints information about each batch.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataset with a generated sampling following a spherical distribution of
+the feature space, with features and labels.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.sampling.uniform_sampling">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.sampling.</span></span><span class="sig-name descname"><span class="pre">uniform_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsamples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/sampling.html#uniform_sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.sampling.uniform_sampling" title="Permalink to this definition"></a></dt>
+<dd><p>Sample the classifier with a random uniform sampling.</p>
+<p>Generates synthetic samples with a random uniform distribution within the
+feature space described in <cite>feature_parameters</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature_parameters</strong> (<em>dict of dicts</em>) – A dictionary with an entry per dataset feature (dictionary keys should
+be the feature names), and where each feature entry must contain a
+nested dictionary with at least the entries corresponding to the minimum
+and maximum values of the dynamic range. Dictionary keys for these
+values should be “min” and “max”, respectively.</p></li>
+<li><p><strong>nsamples</strong> (<em>int</em>) – Number of samples to generate.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em>) – Random seed used to generate the sampling data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataset with a random uniform generated sampling of the feature space
+characterized by the <cite>feature_parameters</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-presc.copies.evaluations">
+<span id="presc-copies-evaluations-module"></span><h2>presc.copies.evaluations module<a class="headerlink" href="#module-presc.copies.evaluations" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.evaluations.empirical_fidelity_error">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.evaluations.</span></span><span class="sig-name descname"><span class="pre">empirical_fidelity_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_pred_original</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred_copy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/evaluations.html#empirical_fidelity_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.evaluations.empirical_fidelity_error" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the empirical fidelity error of a classifier copy.</p>
+<p>Quantifies the resemblance of the copy to the original classifier. This
+value is zero when the copy makes exactly the same predictions than the
+original classifier (including misclassifications).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_pred_original</strong> (<em>list</em><em> or </em><em>1d array-like</em>) – Predicted labels, as returned by the original classifier.</p></li>
+<li><p><strong>y_pred_copy</strong> (<em>list</em><em> or </em><em>1d array-like</em>) – Predicted labels, as returned by the classifier copy.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The numerical value of the empirical fidelity error.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.evaluations.keep_top_classes">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.evaluations.</span></span><span class="sig-name descname"><span class="pre">keep_top_classes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes_to_keep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/evaluations.html#keep_top_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.evaluations.keep_top_classes" title="Permalink to this definition"></a></dt>
+<dd><p>Function to remove rows from minoritary classes from PRESC Datasets.</p>
+<p>Only classes that have more than the specified minimum number of samples
+will be kept. If a list of the classes of interest is indicated, then this
+requirement is overrided.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset"><em>presc.dataset.Dataset</em></a>) – PRESC dataset from which we want to remove the minoritary classes.</p></li>
+<li><p><strong>min_num_samples</strong> (<em>int</em>) – Minimum number of samples that the classes should have in order to keep
+them.</p></li>
+<li><p><strong>classes_to_keep</strong> (<em>list</em>) – Name of the classes to keep. If a list of classes is specified here,
+then the parameter <cite>min_num_samples</cite> is overriden, and the specified
+classes will have any number of samples.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>PRESC Dataset without the samples from the minoritary classes.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset">presc.dataset.Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.evaluations.multivariable_density_comparison">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.evaluations.</span></span><span class="sig-name descname"><span class="pre">multivariable_density_comparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[None]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'class'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">titles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'alpha':</span> <span class="pre">0.3,</span> <span class="pre">'common_norm':</span> <span class="pre">False,</span> <span class="pre">'fill':</span> <span class="pre">True,</span> <span class="pre">'legend':</span> <span class="pre">False,</span> <span class="pre">'n_levels':</span> <span class="pre">4}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/evaluations.html#multivariable_density_comparison"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.evaluations.multivariable_density_comparison" title="Permalink to this definition"></a></dt>
+<dd><p>Visualization to compare class density projections in detail.</p>
+<p>Allows to compare the different topologies of a number of ML classifiers in
+a multivariable feature space by choosing a feature pair and “squashing” the
+rest of the features into a projected density distribution for each class.</p>
+<p>It is important that the classifier datasets are obtained through a
+homogeneous sampling throughout the feature space to avoid introducing
+spurious shapes in the projected density distributions. <cite>uniform_sampling</cite>
+is a good option for that.</p>
+<p><cite>normal_sampling</cite> and any other non-uniform samplers should be avoided
+because the intrinsic class distributions become convoluted with its
+gaussian shape obscuring them. Note that <cite>grid_sampling</cite> is also not
+recommended because it samples very specific interval points and thus yields
+density peaks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datasets</strong> (<em>list of pandas DataFrames</em>) – List of the datasets with the sampled and labeled points for each classifier included in the comparison.</p></li>
+<li><p><strong>feature1</strong> – Name of feature to display in the x-axis.</p></li>
+<li><p><strong>feature2</strong> – Name of feature to display in the y-axis.</p></li>
+<li><p><strong>label_col</strong> (<em>str</em>) – Name of the label column.</p></li>
+<li><p><strong>titles</strong> (<em>list of str</em>) – List of names to identify each classifier and label their subplot.</p></li>
+<li><p><strong>**other_kwargs</strong> (<em>dict</em>) – Any other seaborn.kdeplot parameters needed to adjust the visualization.
+Default parameters are {“alpha”: 0.3, “common_norm”: False, “fill”: True,
+“n_levels”: 4, “legend”: False}. The value of any parameter specified
+within the other_kwargs dictionary will be overwritten, including any
+of these.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>matplotlib.figure.Figure</em> – Figure with the detailed classifier comparison.</p></li>
+<li><p><em>matplotlib.axes.Axes or array of Axes</em> – Contains most of the figure elements of the classifier comparison and sets the coordinate system.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.evaluations.replacement_capability">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.evaluations.</span></span><span class="sig-name descname"><span class="pre">replacement_capability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred_original</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred_copy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/evaluations.html#replacement_capability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.evaluations.replacement_capability" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the replacement capability of a classifier copy.</p>
+<p>Quantifies the ability of the copy model to substitute the original model,
+i.e. maintaining the same accuracy in its predictions. This value is one
+when the accuracy of the copy model is the same as the original model,
+although the individual predictions may be different, approaching zero if
+the accuracy of the copy is much smaller than the original, and it can even
+take values larger than one if the copy model is better than the original.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<em>list</em><em> or </em><em>1d array-like</em>) – True labels from the data.</p></li>
+<li><p><strong>y_pred_original</strong> (<em>list</em><em> or </em><em>1d array-like</em>) – Predicted labels, as returned by the original classifier.</p></li>
+<li><p><strong>y_pred_copy</strong> (<em>list</em><em> or </em><em>1d array-like</em>) – Predicted labels, as returned by the classifier copy.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The numerical value of the replacement capability.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.evaluations.summary_metrics">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.evaluations.</span></span><span class="sig-name descname"><span class="pre">summary_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthetic_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/evaluations.html#summary_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.evaluations.summary_metrics" title="Permalink to this definition"></a></dt>
+<dd><p>Computes several metrics to evaluate the classifier copy.</p>
+<p>Summary of metrics that evaluate the quality of a classifier copy, not only
+to assess its performance as classifier but to quantify its resemblance to
+the original classifier. Accuracy of the original and the copy models (using
+the original test data), and the empirical fidelity error and replacement
+capability of the copy (using the original test data and/or the generated
+synthetic data).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>original_model</strong> (<em>sklearn-type classifier</em>) – Original ML classifier to be copied.</p></li>
+<li><p><strong>copy_model</strong> (<a class="reference internal" href="#presc.copies.copying.ClassifierCopy" title="presc.copies.copying.ClassifierCopy"><em>presc.copies.copying.ClassifierCopy</em></a>) – ML classifier copy from the original ML classifier.</p></li>
+<li><p><strong>test_data</strong> (<a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset"><em>presc.dataset.Dataset</em></a>) – Subset of the original data reserved for testing.</p></li>
+<li><p><strong>synthetic_data</strong> (<a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset"><em>presc.dataset.Dataset</em></a>) – Synthetic data generated using the original model.</p></li>
+<li><p><strong>show_results</strong> (<em>bool</em>) – If <cite>True</cite> the metrics are also printed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The values of all metrics.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-presc.copies.examples">
+<span id="presc-copies-examples-module"></span><h2>presc.copies.examples module<a class="headerlink" href="#module-presc.copies.examples" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="presc.copies.examples.multiclass_gaussians">
+<span class="sig-prename descclassname"><span class="pre">presc.copies.examples.</span></span><span class="sig-name descname"><span class="pre">multiclass_gaussians</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nsamples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfeatures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nclasses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_low</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_high</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_low</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_high</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/copies/examples.html#multiclass_gaussians"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.copies.examples.multiclass_gaussians" title="Permalink to this definition"></a></dt>
+<dd><p>Generates a multidimensional gaussian dataset with multiple classes.</p>
+<p>This function generates a multidimensional normal distribution centered at
+the origin with standard deviation one for class zero. And then adds an
+additional gaussian distribution per class, centered at a random distance
+between <cite>center_low</cite> and <cite>center_high</cite>, and with random standard deviation
+between <cite>scale_low</cite> and <cite>scale_high</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nsamples</strong> (<em>int</em>) – Maximum number of samples to generate. Actual number of samples depends
+on the number of classes, because the function yields a balanced
+dataset with the same number of samples per class.</p></li>
+<li><p><strong>nfeatures</strong> (<em>int</em>) – Number of features of the generated samples.</p></li>
+<li><p><strong>nclasses</strong> (<em>int</em>) – Number of classes in the generated dataset.</p></li>
+<li><p><strong>center_low</strong> (<em>float</em>) – Minimum translation from the origin of the center of the gaussian
+distributions corresponding to additional classes.</p></li>
+<li><p><strong>center_high</strong> (<em>float</em>) – Maximum translation from the origin of the center of the gaussian
+distributions corresponding to additional classes.</p></li>
+<li><p><strong>scale_low</strong> (<em>float</em>) – Minimum value for the standard deviation of the gaussian distributions
+corresponding to additional classes.</p></li>
+<li><p><strong>scale_high</strong> (<em>float</em>) – Maximum value for the standard deviation of the gaussian distributions
+corresponding to additional classes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Outputs a PRESC Dataset with the generated samples and their labels.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset">presc.dataset.Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="presc.report.html" class="btn btn-neutral float-left" title="presc.report package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="datasets.html" class="btn btn-neutral float-right" title="Classification datasets" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Mozilla Foundation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

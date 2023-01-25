@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting started &mdash; PRESC 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Configuration" href="configuration.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html">
+            <img src="_static/classifier-bias-PRESC_v3_black_margin3.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#inputs">Inputs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dataset">Dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#classifier">Classifier</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#report">Report</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluations.html">Evaluations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ml_copies.html">ML Classifier Copies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">presc</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Classification datasets</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PRESC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Getting started</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/getting_started.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h1>
+<p>The core functionality of PRESC is to investigate the performance of a machine
+learning model using different evaluation methods.
+This is similar to the use of standard performance metrics such as accuracy, but
+the PRESC evaluations allow for more granular feedback.
+Rather than a single scalar value, the outputs of the evaluations to be
+functions or distributions.
+Evaluations can be run individually, eg. in a Jupyter notebook, or as a part of
+a collective report.</p>
+<p>A full example including the code snippets below is available in the
+<a class="reference external" href="https://github.com/mozilla/PRESC/blob/master/examples/report/sample_report.py">project repository</a>.</p>
+<div class="section" id="inputs">
+<h2>Inputs<a class="headerlink" href="#inputs" title="Permalink to this headline"></a></h2>
+<p>PRESC is designed to be applied to a dataset and pretrained machine learning
+classifier.</p>
+<div class="section" id="dataset">
+<h3>Dataset<a class="headerlink" href="#dataset" title="Permalink to this headline"></a></h3>
+<p>A user’s dataset should be wrapped in a <code class="docutils literal notranslate"><span class="pre">presc.dataset.Dataset</span></code> prior to being
+used in evaluations.
+This is mainly used to provide uniform access to feature and label columns.</p>
+<p>Currently, an input dataset must be a Pandas DataFrame containing named columns
+for the model features and the sample labels.
+The project repository includes a few well-known
+<a class="reference external" href="https://github.com/mozilla/PRESC/tree/master/datasets">sample datasets</a>.
+Here is an example using the <code class="docutils literal notranslate"><span class="pre">winequality.csv</span></code> dataset from that directory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">presc.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;winequality.csv&quot;</span><span class="p">)</span>
+<span class="c1"># Drop the `quality` column as it has been binarized as `recommend`</span>
+<span class="c1"># in this version of the dataset.</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">])</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">label_col</span><span class="o">=</span><span class="s2">&quot;recommend&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="classifier">
+<h3>Classifier<a class="headerlink" href="#classifier" title="Permalink to this headline"></a></h3>
+<p>The evaluations generally operate by querying the classifer for predictions on a
+test set, and in some cases by retraining it under different conditions.
+The input classifier should be wrapped in a <code class="docutils literal notranslate"><span class="pre">presc.model.ClassificationModel</span></code>.</p>
+<p>Currently, PRESC is designed to work with the
+<a class="reference external" href="https://scikit-learn.org/stable/index.html">scikit-learn</a>
+machine learning framework.
+The input classifier should be a <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> Classifier instance, such as
+<code class="docutils literal notranslate"><span class="pre">sklearn.linear_model.LogisticRegression</span></code>.
+It should be pretrained on a training dataset prior to running the evaluations.
+If necessary, this can be done from the <code class="docutils literal notranslate"><span class="pre">ClassificationModel</span></code> instance using a
+<code class="docutils literal notranslate"><span class="pre">Dataset</span></code> instance as input.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">presc.model</span> <span class="kn">import</span> <span class="n">ClassificationModel</span>
+
+<span class="n">clf</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+<span class="n">cm</span> <span class="o">=</span> <span class="n">ClassificationModel</span><span class="p">(</span><span class="n">clf</span><span class="p">)</span>
+
+<span class="c1"># Split the wine dataset into train and test portions and train the model.</span>
+<span class="n">splitter</span> <span class="o">=</span> <span class="n">ShuffleSplit</span><span class="p">(</span><span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+<span class="n">train_ind</span><span class="p">,</span> <span class="n">test_ind</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">splitter</span><span class="p">)</span>
+<span class="c1"># dataset.subset() returns another Dataset instance</span>
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="n">train_ind</span><span class="p">,</span> <span class="n">by_position</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">test_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="n">test_ind</span><span class="p">,</span> <span class="n">by_position</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">cm</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that some preprocessing of the data, such as scaling, is often needed to
+achieve meaningful model fits.
+It is generally recommended to bundle these together with the classifier using a
+<code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code>, so that the same preprocessing will get applied any
+time the classifer is retrained.
+In this case, the <code class="docutils literal notranslate"><span class="pre">ClassificationModel</span></code> wrapper should be applied to the
+<code class="docutils literal notranslate"><span class="pre">Pipeline</span></code> instance.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+
+<span class="n">pl</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s2">&quot;scaler&quot;</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">()),</span> <span class="p">(</span><span class="s2">&quot;clf&quot;</span><span class="p">,</span> <span class="n">clf</span><span class="p">)])</span>
+<span class="n">cm</span> <span class="o">=</span> <span class="n">ClassificationModel</span><span class="p">(</span><span class="n">pl</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="report">
+<h2>Report<a class="headerlink" href="#report" title="Permalink to this headline"></a></h2>
+<p>With the inputs prepared, you can now run the PRESC report.
+By default, it runs all available evaluations, but its behaviour can be
+configured by setting option values or by specifying a configuration file.
+The report is built using
+<a class="reference external" href="https://jupyterbook.org/intro.html">Jupyter Book</a>
+to execute evaluations from Jupyter notebooks and render them as HTML pages.</p>
+<p>The report is managed by a <code class="docutils literal notranslate"><span class="pre">presc.report.runner.ReportRunner</span></code> instance pointing
+to the desired output directory. The report will be written to
+<code class="docutils literal notranslate"><span class="pre">&lt;output_dir&gt;/presc_report/</span></code>.
+By default, it is executed out of a temporary directory, but this can be changed
+in order to access the execution artifacts for debugging purposes.
+Additionally, default configuration settings can be overridden by passing a path
+to a YAML file in the appropriate format.</p>
+<p>The report is run by calling the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method on a <code class="docutils literal notranslate"><span class="pre">ClassificationModel</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Dataset</span></code>.
+Evaluations generally require a test dataset to run on.
+Some may use a training dataset as well, although this is not required to run
+the report (although, if not specified, evaluations that require this will
+fail).
+Settings can also be overridden by passing a dict of option values to <code class="docutils literal notranslate"><span class="pre">run()</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">presc.report.runner</span> <span class="kn">import</span> <span class="n">ReportRunner</span>
+
+<span class="n">report</span> <span class="o">=</span> <span class="n">ReportRunner</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;./output&quot;</span><span class="p">,</span> <span class="n">config_filepath</span><span class="o">=</span><span class="s2">&quot;my_config.yml&quot;</span><span class="p">)</span>
+<span class="c1"># This may take a few minutes</span>
+<span class="n">report</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">cm</span><span class="p">,</span> <span class="n">test_dataset</span><span class="o">=</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">train_dataset</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once completed, the path to the report main page is accessible using the
+<code class="docutils literal notranslate"><span class="pre">report_html</span></code> attribute, and the <code class="docutils literal notranslate"><span class="pre">open()</span></code> method will attempt to open it in the
+default browser.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show the path to the report main page.</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">report_html</span><span class="p">)</span>
+<span class="c1"># Open in browser.</span>
+<span class="n">report</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The path to the the Jupyter Book build log is accessible from the <code class="docutils literal notranslate"><span class="pre">jb_build_log</span></code>
+attribute. This can be useful in diagnosing problems.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="configuration.html" class="btn btn-neutral float-right" title="Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Mozilla Foundation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

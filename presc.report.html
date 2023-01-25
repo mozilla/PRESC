@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>presc.report package &mdash; PRESC 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="presc.copies package" href="presc.copies.html" />
+    <link rel="prev" title="presc.evaluations package" href="presc.evaluations.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html">
+            <img src="_static/classifier-bias-PRESC_v3_black_margin3.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluations.html">Evaluations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ml_copies.html">ML Classifier Copies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">presc</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="presc.html">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="presc.evaluations.html">presc.evaluations package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">presc.report package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-presc.report.runner">presc.report.runner module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="presc.copies.html">presc.copies package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="presc.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Classification datasets</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PRESC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">presc</a> &raquo;</li>
+          <li><a href="presc.html">Subpackages</a> &raquo;</li>
+      <li>presc.report package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/presc.report.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="presc-report-package">
+<h1>presc.report package<a class="headerlink" href="#presc-report-package" title="Permalink to this headline"></a></h1>
+<div class="section" id="module-presc.report.runner">
+<span id="presc-report-runner-module"></span><h2>presc.report.runner module<a class="headerlink" href="#module-presc.report.runner" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="presc.report.runner.Context">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">presc.report.runner.</span></span><span class="sig-name descname"><span class="pre">Context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/report/runner.html#Context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.report.runner.Context" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Persistent data store for sharing report inputs across notebooks.</p>
+<p>Note that the store implementation does not support concurrent access. It is
+up to the caller to ensure that multiple instances each have a unique store
+location.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.report.runner.Context.store_dir">
+<span class="sig-name descname"><span class="pre">store_dir</span></span><a class="headerlink" href="#presc.report.runner.Context.store_dir" title="Permalink to this definition"></a></dt>
+<dd><p>The dir to contain the data store, implemented as one or more
+database files. If not specified, defaults to the current working dir.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="presc.report.runner.Context.config">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#presc.report.runner.Context.config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="presc.report.runner.Context.model">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#presc.report.runner.Context.model" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.report.runner.Context.store_inputs">
+<span class="sig-name descname"><span class="pre">store_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/report/runner.html#Context.store_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.report.runner.Context.store_inputs" title="Permalink to this definition"></a></dt>
+<dd><p>Write the report inputs to the data store.</p>
+<p>Any existing values will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="presc.html#presc.model.ClassificationModel" title="presc.model.ClassificationModel"><em>presc.model.ClassificationModel</em></a>) – A ClassificationModel instance</p></li>
+<li><p><strong>test_dataset</strong> (<a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset"><em>presc.dataset.Dataset</em></a>) – A Dataset instance</p></li>
+<li><p><strong>train_dataset</strong> (<a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset"><em>presc.dataset.Dataset</em></a>) – A Dataset instance</p></li>
+<li><p><strong>config</strong> (<em>dict</em>) – A dict of config options</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="presc.report.runner.Context.test_dataset">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">test_dataset</span></span><a class="headerlink" href="#presc.report.runner.Context.test_dataset" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="presc.report.runner.Context.train_dataset">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train_dataset</span></span><a class="headerlink" href="#presc.report.runner.Context.train_dataset" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="presc.report.runner.ReportRunner">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">presc.report.runner.</span></span><span class="sig-name descname"><span class="pre">ReportRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_filepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/report/runner.html#ReportRunner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.report.runner.ReportRunner" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Main entrypoint to run the PRESC report for the given modeling inputs.</p>
+<p>The report is written to <cite>&lt;output_path&gt;/presc_report</cite>. If this dir already
+exists, it will be overwritten.</p>
+<p>To generate the report:
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">pr</span> <span class="pre">=</span> <span class="pre">ReportRunner()</span>
+<span class="pre">pr.run(...)</span>
+<span class="pre">`</span></code></p>
+<p>The path to the report is accessible as <cite>pr.report_html</cite> and will open in
+the default browser by calling <cite>pr.open()</cite></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.report.runner.ReportRunner.output_path">
+<span class="sig-name descname"><span class="pre">output_path</span></span><a class="headerlink" href="#presc.report.runner.ReportRunner.output_path" title="Permalink to this definition"></a></dt>
+<dd><p>Path to the dir where the report will be written. If not specified,
+defaults to the current working dir.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.report.runner.ReportRunner.execution_path">
+<span class="sig-name descname"><span class="pre">execution_path</span></span><a class="headerlink" href="#presc.report.runner.ReportRunner.execution_path" title="Permalink to this definition"></a></dt>
+<dd><p>Path from which the report is built. If not specified, a temporary dir is used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="presc.report.runner.ReportRunner.config_filepath">
+<span class="sig-name descname"><span class="pre">config_filepath</span></span><a class="headerlink" href="#presc.report.runner.ReportRunner.config_filepath" title="Permalink to this definition"></a></dt>
+<dd><p>Path to a YAML file listing overrides to the default config options.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.report.runner.ReportRunner.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/report/runner.html#ReportRunner.clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.report.runner.ReportRunner.clean" title="Permalink to this definition"></a></dt>
+<dd><p>Remove artifacts from a previous run, if any.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.report.runner.ReportRunner.open">
+<span class="sig-name descname"><span class="pre">open</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/report/runner.html#ReportRunner.open"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.report.runner.ReportRunner.open" title="Permalink to this definition"></a></dt>
+<dd><p>Open the report in the default web browser.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="presc.report.runner.ReportRunner.report_html">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">report_html</span></span><a class="headerlink" href="#presc.report.runner.ReportRunner.report_html" title="Permalink to this definition"></a></dt>
+<dd><p>The main page of the HTML report.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="presc.report.runner.ReportRunner.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/presc/report/runner.html#ReportRunner.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#presc.report.runner.ReportRunner.run" title="Permalink to this definition"></a></dt>
+<dd><p>Runs the PRESC report for the given modeling inputs.</p>
+<p>The report is written to <cite>&lt;output_path&gt;/presc_report</cite>. If this dir already
+exists, it will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="presc.html#presc.model.ClassificationModel" title="presc.model.ClassificationModel"><em>presc.model.ClassificationModel</em></a>) – A pre-trained ClassificationModel instance to evaluate</p></li>
+<li><p><strong>test_dataset</strong> (<a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset"><em>presc.dataset.Dataset</em></a>) – A test Dataset instance used to evaluate model performance</p></li>
+<li><p><strong>train_dataset</strong> (<a class="reference internal" href="presc.html#presc.dataset.Dataset" title="presc.dataset.Dataset"><em>presc.dataset.Dataset</em></a>) – The Dataset instance used to train the model. This is not required for every evaluation.</p></li>
+<li><p><strong>settings</strong> (<em>dict</em>) – A dict specifying option values to override report settings,
+eg. <cite>{“report.title”: “My Report”}</cite>.</p></li>
+<li><p><strong>clean</strong> (<em>book</em>) – Should previous outputs be cleaned? Default: True</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="presc.evaluations.html" class="btn btn-neutral float-left" title="presc.evaluations package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="presc.copies.html" class="btn btn-neutral float-right" title="presc.copies package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Mozilla Foundation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

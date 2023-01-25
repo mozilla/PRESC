@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuration &mdash; PRESC 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Evaluations" href="evaluations.html" />
+    <link rel="prev" title="Getting started" href="getting_started.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html">
+            <img src="_static/classifier-bias-PRESC_v3_black_margin3.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#report-settings">Report settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#include-exclude">Include/exclude</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#evaluation-settings">Evaluation settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="evaluations.html">Evaluations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ml_copies.html">ML Classifier Copies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">presc</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Datasets</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Classification datasets</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PRESC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Configuration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/configuration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline"></a></h1>
+<p>The PRESC evaluations support configuration at a number of levels.
+Configuration settings are managed by <code class="docutils literal notranslate"><span class="pre">presc.configuration.PrescConfig</span></code>
+instances.</p>
+<p>The persistent global configuration is available as <code class="docutils literal notranslate"><span class="pre">global_config</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">presc</span> <span class="kn">import</span> <span class="n">global_config</span>
+
+<span class="c1"># Display the current config in YAML format</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">global_config</span><span class="o">.</span><span class="n">dump</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="section" id="report-settings">
+<h2>Report settings<a class="headerlink" href="#report-settings" title="Permalink to this headline"></a></h2>
+<p>Currently available config settings for the report are as follows:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Look and structure of the report</span>
+<span class="nt">report</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Report title (passed to jupyter-book config)</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PRESC report</span>
+<span class="w">  </span><span class="c1"># Report author (passed to jupyter-book config)</span>
+<span class="w">  </span><span class="nt">author</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">  </span><span class="c1"># List of evaluations to show in the report. Each is added in a separate page.</span>
+<span class="w">  </span><span class="c1"># Values must correspond to module names for available evaluations.</span>
+<span class="w">  </span><span class="c1"># The report will include only those listed in `evaluations_include`,</span>
+<span class="w">  </span><span class="c1"># after removing any listed in `evaluations_exclude`.</span>
+<span class="w">  </span><span class="c1"># &quot;*&quot; means &#39;all available evaluations&#39;.</span>
+<span class="w">  </span><span class="nt">evaluations_include</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;*&quot;</span>
+<span class="w">  </span><span class="nt">evaluations_exclude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+</pre></div>
+</div>
+<p>These can set globally by passing a dict of option values to the
+<code class="docutils literal notranslate"><span class="pre">global_config</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">global_config</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s2">&quot;report.title&quot;</span><span class="p">:</span> <span class="s2">&quot;My Report&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Overrides to the report settings can also be passed to the <code class="docutils literal notranslate"><span class="pre">ReportRunner</span></code> in a
+YAML file. For example, if the file <code class="docutils literal notranslate"><span class="pre">myconf.yml</span></code> contains</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">report</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Another report</span>
+</pre></div>
+</div>
+<p>this can be set using</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">report</span> <span class="o">=</span> <span class="n">ReportRunner</span><span class="p">(</span><span class="s2">&quot;./my_output_dir&quot;</span><span class="p">,</span> <span class="n">config_filepath</span><span class="o">=</span><span class="s2">&quot;myconf.yml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Overrides can also be passed in at runtime using:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">report</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;report.title&quot;</span><span class="p">:</span> <span class="s2">&quot;My new report&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Instance- or method-level overrides like these do not change the global config.
+However, if global config options are changed, these changes will also be
+reflected in local configs (unless they are already overridden). For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">global_config</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s2">&quot;report.author&quot;</span><span class="p">:</span> <span class="s2">&quot;Me&quot;</span><span class="p">})</span>
+<span class="c1"># This will pull in the updated author string.</span>
+<span class="n">report</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;report.title&quot;</span><span class="p">:</span> <span class="s2">&quot;My new report&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>The goal of this flexibility is to make it easy to experiment with different
+settings while developing a report or exploring evaluations.</p>
+</div>
+<div class="section" id="include-exclude">
+<h2>Include/exclude<a class="headerlink" href="#include-exclude" title="Permalink to this headline"></a></h2>
+<p>Include/exclude settings are available to control which evaluation methods are
+included in the report, and which parts of an evaluation are computed. They
+operate by restricting to listed include values, and then removing listed
+exclude values. The special values <code class="docutils literal notranslate"><span class="pre">&quot;*&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">None</span></code> are interpreted as “all” or
+“none”, respectively.</p>
+<p>The evaluations included in a report can be specified by listing module names,
+eg.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">evaluations_include</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">conditional_metric</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">conditional_distribution</span>
+</pre></div>
+</div>
+<p>to include only these two, or</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">evaluations_exclude</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">conditional_metric</span>
+</pre></div>
+</div>
+<p>to exclude this one. These can be passed either in a YAML file or a dict, as
+described above.</p>
+</div>
+<div class="section" id="evaluation-settings">
+<h2>Evaluation settings<a class="headerlink" href="#evaluation-settings" title="Permalink to this headline"></a></h2>
+<p>These are discussed in more detail in the Evaluations section.
+Evaluations provide similar local override functionality.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="getting_started.html" class="btn btn-neutral float-left" title="Getting started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="evaluations.html" class="btn btn-neutral float-right" title="Evaluations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Mozilla Foundation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
