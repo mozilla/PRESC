@@ -597,6 +597,140 @@ def mixed_data_sampling(
     return X_generated
 
 
+def image_random_sampling(
+    feature_parameters={
+        "images": {"x_pixels": 28, "y_pixels": 28, "min": 0, "max": 253}
+    },
+    nsamples=500,
+    random_state=None,
+):
+    """Sample the feature space of images using random pixels.
+
+    Generates synthetic samples using a random uniform distribution to
+    establish the value for each image pixel. Hence, they are images of noise.
+    It only generates one channel (that is, black and white images).
+
+    For most image datasets, which are not random and have structure, this is a
+    very inefficient sampling method to generate synthetic image samples and
+    explore the feature space. It is provided here for illustrating purposes
+    only.
+
+    The default generates 28x28 images with pixel values between 0 and 253.
+
+    Parameters
+    ----------
+    feature_parameters : dict of dicts
+        A dictionary which specifies the characteristics of the feature space
+        of the images. It should have one entry 'images' with a nested
+        dictionary with the entries 'x_pixels', 'y_pixels', 'min' and 'max',
+        which specify the number of pixels of the image in each dimension, and
+        the minimum and maximum possible values of the pixels. The values in the
+        default dictionary are:
+
+        feature_parameters = {"images": {"x_pixels": 28, "y_pixels": 28,
+                                         "min": 0, "max": 253}}
+    nsamples : int
+        Number of image samples to generate.
+    random_state : int
+        Random seed used to generate the sampling data.
+
+    Returns
+    -------
+    pandas DataFrame
+        Dataset with a list of images that have the value of their pixels
+        generated with a random uniform sampling of the feature space as
+        specified in the `feature_parameters`.
+    """
+    if random_state is not None:
+        np.random.seed(seed=random_state)
+
+    images = [None] * nsamples
+    for image_index in range(nsamples):
+        # Generate random image
+        images[image_index] = np.random.randint(
+            low=feature_parameters["images"]["min"],
+            high=feature_parameters["images"]["max"] + 1,
+            size=(
+                feature_parameters["images"]["x_pixels"],
+                feature_parameters["images"]["y_pixels"],
+            ),
+        )
+    X_generated_images = pd.DataFrame({"images": images})
+    return X_generated_images
+
+
+def image_vae_sampling(
+    feature_parameters={
+        "images": {
+            "min": 0,
+            "max": 254,
+            "autoencoder": None,
+            "autoencoder_latent_dim": 2,
+            "autoencoder_edge_factor": 5,
+        }
+    },
+    nsamples=500,
+    random_state=None,
+):
+    """Sample the feature space of images using a variational autoencoder.
+
+    Generates synthetic samples of the same manifold as the variational
+    autoencoder training data sampling the latent space, which represents images
+    with the a Gaussian distribution for each latent dimension.
+
+    For image datasets, which are not random and have structure, this is an
+    efficient sampling method to generate relevant synthetic image samples and
+    explore the feature space.
+
+    Parameters
+    ----------
+    feature_parameters : dict of dicts
+        A dictionary which specifies the characteristics of the feature space
+        of the images. It should have one entry 'images' with a nested
+        dictionary with the entries 'x_pixels', 'y_pixels', 'min' and 'max',
+        which specify the number of pixels of the image in each dimension, and
+        the minimum and maximum possible values of the pixels. The values in the
+        default dictionary are:
+
+        feature_parameters = {"images": {"min": 0, "max": 254,
+                                   "autoencoder": None,
+                                   "autoencoder_latent_dim": 2,
+                                   "autoencoder_edge_factor": 5}}
+
+        It is neccessary to specify the autoencoder for it to work.
+
+    nsamples : int
+        Number of image samples to generate.
+    random_state : int
+        Random seed used to generate the sampling data.
+
+    Returns
+    -------
+    pandas DataFrame
+        Dataset with a list of images that have been generated sampling randomly
+        the latent space of the variational autoencoder, as specified in the
+        `feature_parameters`.
+    """
+    if random_state is not None:
+        np.random.seed(seed=random_state)
+
+    autoencoder = feature_parameters["images"]["autoencoder"]
+    maximum_1 = feature_parameters["images"]["max"] + 1
+    latent_dim = feature_parameters["images"]["autoencoder_latent_dim"]
+    edge_factor = feature_parameters["images"]["autoencoder_edge_factor"]
+
+    images = [None] * nsamples
+    for image_index in range(nsamples):
+        # Generate random image using autoencoder
+        z_sample = (np.random.rand(1, latent_dim) - 0.5) * edge_factor
+        images[image_index] = (
+            (autoencoder.decoder.predict(z_sample)[:, :, :, 0][0]) * (maximum_1)
+        ).astype(int)
+
+    X_generated_images = pd.DataFrame({"images": images})
+    return X_generated_images
+
+
 def labeling(X, original_classifier, label_col="class"):
     """Labels the samples from a dataset according to a classifier.
 
